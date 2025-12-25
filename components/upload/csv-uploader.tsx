@@ -40,14 +40,21 @@ export function CsvUploader() {
                     }
 
                     // PIVOT Logic: Group raw rows into Daily Records
-                    const records = normalizeLongFormatData(results.data)
+                    console.log("Stats:", results.meta)
+                    console.log("First Raw Row:", results.data[0])
+
+                    const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
+                    const records = normalizeLongFormatData(validRows)
+                    console.log("Normalized Records:", records.slice(0, 3))
 
                     if (records.length === 0) {
-                        throw new Error('No valid daily records found in CSV.')
+                        const headers = results.meta.fields || []
+                        throw new Error(`No valid records. Found ${validRows.length} rows. Headers: ${headers.join(', ')}`)
                     }
 
                     setMessage(`Uploading ${records.length} days of data...`)
 
+                    // Prepare for Supabase
                     // Prepare for Supabase
                     const dbRecords = records.map(r => ({
                         user_id: user.id,
@@ -55,17 +62,29 @@ export function CsvUploader() {
                         hrv: r.hrv,
                         resting_heart_rate: r.resting_heart_rate,
                         exertion_score: r.exertion_score,
-                        symptom_score: r.symptom_score,
-                        custom_metrics: r.custom_metrics
+                        custom_metrics: {
+                            ...r.custom_metrics,
+                            composite_score: r.composite_score // Store here to bypass constraint
+                        }
                     }))
 
-                    // Batch insert - Supabase handles batching well, but for huge files we might want to chunk.
-                    // For typical Visible exports (365 days), one batch is fine.
-                    const { error } = await supabase
-                        .from('health_metrics')
-                        .upsert(dbRecords as any, { onConflict: 'user_id, date' })
+                    console.log("First DB Record to Insert:", dbRecords[0])
 
-                    if (error) throw error
+                    // Batch upload in chunks of 50 to prevent timeouts/limits
+                    const BATCH_SIZE = 50
+                    for (let i = 0; i < dbRecords.length; i += BATCH_SIZE) {
+                        const batch = dbRecords.slice(i, i + BATCH_SIZE)
+                        const { error } = await supabase
+                            .from('health_metrics')
+                            .upsert(batch as any, { onConflict: 'user_id, date' })
+
+                        if (error) {
+                            console.error("Supabase Error in Batch:", error)
+                            throw new Error(`DB Error: ${error.message || JSON.stringify(error)}`)
+                        }
+
+                        setMessage(`Uploaded ${Math.min(i + BATCH_SIZE, dbRecords.length)} / ${dbRecords.length} days...`)
+                    }
 
                     setStatus('success')
                     setMessage(`Successfully uploaded ${records.length} days of data!`)
@@ -77,9 +96,10 @@ export function CsvUploader() {
                     }, 1500)
 
                 } catch (err: any) {
-                    console.error(err)
+                    console.error("Upload Error Details:", err)
                     setStatus('error')
-                    setMessage(err.message || 'Failed to upload data.')
+                    const msg = err.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload data.'
+                    setMessage(msg)
                 } finally {
                     setUploading(false)
                 }

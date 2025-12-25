@@ -13,6 +13,7 @@ interface DataEntry {
     date: string
     hrv: number | null
     symptom_score: number | null
+    custom_metrics: any
     exertion_score: number | null
     created_at: string
 }
@@ -115,11 +116,15 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                     </td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>
                                                     <td className="px-6 py-4">
-                                                        {entry.symptom_score !== null ? (
-                                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${entry.symptom_score > 5 ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-                                                                {entry.symptom_score.toFixed(1)}
-                                                            </span>
-                                                        ) : '-'}
+                                                        {(() => {
+                                                            const score = entry.custom_metrics?.composite_score ?? entry.symptom_score;
+                                                            if (score === null || score === undefined) return '-';
+                                                            return (
+                                                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${score > 5 ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                                                                    {Number(score).toFixed(1)}
+                                                                </span>
+                                                            )
+                                                        })()}
                                                     </td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.exertion_score ?? '-'}</td>
                                                     <td className="px-6 py-4 text-right">

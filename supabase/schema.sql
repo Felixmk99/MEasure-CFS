@@ -6,7 +6,7 @@ create table if not exists health_metrics (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   date date not null,
-  symptom_score float check (symptom_score >= 0 and symptom_score <= 3), -- Visible uses 0-3 scale
+  symptom_score float, -- Composite Score (Sum Symptoms - Sum Exertion). No Range Limit.
   hrv float,
   resting_heart_rate int,
   exertion_score float,

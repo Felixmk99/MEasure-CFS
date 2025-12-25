@@ -18,7 +18,7 @@ interface DashboardReviewProps {
 
 export default function DashboardClient({ data: initialData }: DashboardReviewProps) {
     const [timeRange, setTimeRange] = useState<TimeRange>('30d')
-    const [selectedMetric, setSelectedMetric] = useState<string>('symptom_score')
+    const [selectedMetric, setSelectedMetric] = useState<string>('composite_score')
 
     // -- 1. Process Data & Time Filtering --
     const processedData = useMemo(() => {
@@ -40,7 +40,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     // -- 2. Determine Metric Config (Label, Color, Domain) --
     const metricConfig = useMemo(() => {
         switch (selectedMetric) {
-            case 'symptom_score': return { label: 'Composite Score', color: '#fb7185', domain: [0, 10], unit: '', invert: true } // High = Bad
+            case 'composite_score': return { label: 'Composite Score', color: '#fb7185', domain: [-10, 20], unit: '', invert: true } // Range estimate
             case 'hrv': return { label: 'HRV', color: '#3b82f6', domain: ['auto', 'auto'], unit: 'ms', invert: false } // High = Good
             case 'resting_heart_rate': return { label: 'Resting HR', color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true } // High = Bad
             case 'exertion_score': return { label: 'Exertion', color: '#10b981', domain: [0, 10], unit: '', invert: false }
@@ -51,7 +51,15 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     // -- 3. Calculate Stats --
     const stats = useMemo(() => {
         if (processedData.length === 0) return { trend: 'stable', avg: 0, last: 0 }
-        const values = processedData.map(d => d[selectedMetric] ?? d.custom_metrics?.[selectedMetric] ?? 0)
+
+        // Helper to extract value safely from either top-level col or custom_metrics
+        const getValue = (d: any, key: string) => {
+            // Special case for composite_score which lives in custom_metrics
+            if (key === 'composite_score') return d.custom_metrics?.composite_score ?? 0;
+            return d[key] ?? d.custom_metrics?.[key] ?? 0;
+        }
+
+        const values = processedData.map(d => getValue(d, selectedMetric))
         const last = values[values.length - 1]
         const prev = values[values.length - 2] || last
         const avg = values.reduce((a, b) => a + b, 0) / values.length
@@ -136,7 +144,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                             <SelectValue placeholder="Select Metric" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="symptom_score">Symptom Score</SelectItem>
+                            <SelectItem value="composite_score">Composite Score</SelectItem>
                             <SelectItem value="hrv">Heart Rate Variability</SelectItem>
                             <SelectItem value="resting_heart_rate">Resting HR</SelectItem>
                             <SelectItem value="exertion_score">Exertion Score</SelectItem>
@@ -190,7 +198,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                             />
                             <Area
                                 type="monotone"
-                                dataKey={(d) => d[selectedMetric] ?? d.custom_metrics?.[selectedMetric]}
+                                dataKey={(d) => selectedMetric === 'composite_score' ? (d.custom_metrics?.composite_score ?? 0) : (d[selectedMetric] ?? d.custom_metrics?.[selectedMetric])}
                                 stroke={metricConfig.color}
                                 fillOpacity={1}
                                 fill="url(#colorMetric)"

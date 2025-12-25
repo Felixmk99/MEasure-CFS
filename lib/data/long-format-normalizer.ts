@@ -64,11 +64,17 @@ export function normalizeLongFormatData(rows: any[]) {
                 break;
             default:
                 // Define Exertion Types
+                // We include both the "Ideal" names and the actual Visible CSV names
                 const exertionTypes = [
                     "Cognitive Exertion",
                     "Emotional Exertion",
                     "Physical Exertion",
-                    "Social Exertion"
+                    "Social Exertion",
+                    // visible csv specific names:
+                    "Mentally demanding",
+                    "Emotionally stressful",
+                    "Physically active",
+                    "Socially demanding"
                 ];
 
                 const isExertion = exertionTypes.includes(name || '');
@@ -124,7 +130,8 @@ export function normalizeLongFormatData(rows: any[]) {
 
         return {
             ...finalRecord,
-            symptom_score: compositeScore // Storing in 'symptom_score' column for DB compatibility
+            composite_score: compositeScore, // Use new name to avoid DB constraint conflict on legacy 'symptom_score' column
+            symptom_score: null // Explicitly null the legacy column
         };
     });
 }
