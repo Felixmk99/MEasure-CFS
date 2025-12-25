@@ -6,10 +6,12 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowRight, Loader2, Shield } from 'lucide-react'
+import { ArrowRight, Loader2, Shield, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
-export default function LoginPage() {
+export default function SignupPage() {
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -17,24 +19,22 @@ export default function LoginPage() {
     const router = useRouter()
     const supabase = createClient()
 
-    const handleSignIn = async () => {
+    const handleSignUp = async () => {
         setLoading(true)
         setError(null)
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signUp({
             email,
             password,
+            options: {
+                emailRedirectTo: `${location.origin}/auth/callback`,
+                data: {
+                    first_name: firstName,
+                    last_name: lastName
+                }
+            },
         })
-        if (error) {
-            // Check if error suggests invalid credentials (could be "User not found" masked)
-            if (error.message.includes("Invalid login credentials")) {
-                setError("Invalid credentials. If you don't have an account, please sign up.")
-            } else {
-                setError(error.message)
-            }
-        } else {
-            router.push('/dashboard')
-            router.refresh()
-        }
+        if (error) setError(error.message)
+        else setError('Check your email for the confirmation link.')
         setLoading(false)
     }
 
@@ -44,17 +44,34 @@ export default function LoginPage() {
                 <div className="max-w-md w-full mx-auto space-y-4">
                     <div className="space-y-2">
                         <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-                            Welcome <br />
+                            Start your <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400">
-                                back home
+                                clarity journey
                             </span>
                         </h1>
                         <p className="text-muted-foreground text-base">
-                            Sign in to visualize your progress.
+                            Create a secure space to analyze your trends.
                         </p>
                     </div>
 
                     <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                                <Label htmlFor="firstName" className="text-xs font-medium">First Name</Label>
+                                <Input
+                                    id="firstName" placeholder="Jane" className="bg-muted/30 border-muted-foreground/20 h-10"
+                                    value={firstName} onChange={e => setFirstName(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <Label htmlFor="lastName" className="text-xs font-medium">Last Name</Label>
+                                <Input
+                                    id="lastName" placeholder="Doe" className="bg-muted/30 border-muted-foreground/20 h-10"
+                                    value={lastName} onChange={e => setLastName(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
                         <div className="space-y-1">
                             <Label htmlFor="email" className="text-xs font-medium">Email Address</Label>
                             <Input
@@ -64,46 +81,58 @@ export default function LoginPage() {
                         </div>
 
                         <div className="space-y-1">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="password" className="text-xs font-medium">Password</Label>
-                            </div>
+                            <Label htmlFor="password" className="text-xs font-medium">Password</Label>
                             <Input
                                 id="password" type="password" placeholder="••••••••" className="bg-muted/30 border-muted-foreground/20 h-10"
                                 value={password} onChange={e => setPassword(e.target.value)}
                             />
+                            <p className="text-[10px] text-muted-foreground">Must be at least 8 characters</p>
                         </div>
 
                         {error && (
                             <div className="p-2 text-xs text-red-600 bg-red-50 dark:bg-red-900/10 rounded-md border border-red-200 dark:border-red-900/20">
                                 {error}
-                                {/* Smart Redirect suggestion */}
-                                {error.includes("sign up") && (
-                                    <div className="mt-2 text-center">
-                                        <Button variant="link" size="sm" asChild className="text-rose-500 h-auto p-0">
-                                            <Link href="/signup">Create an account &rarr;</Link>
-                                        </Button>
-                                    </div>
-                                )}
                             </div>
                         )}
 
                         <Button
                             className="w-full h-10 text-sm font-semibold bg-rose-400 hover:bg-rose-500 text-white shadow-md shadow-rose-200 dark:shadow-rose-900/20 rounded-full transition-all hover:scale-[1.01]"
-                            onClick={handleSignIn}
+                            onClick={handleSignUp}
                             disabled={loading}
                         >
                             {loading && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
-                            Sign In
+                            Create Account
                             {!loading && <ArrowRight className="ml-2 h-3 w-3" />}
                         </Button>
 
                         <div className="text-center pt-1">
                             <p className="text-xs text-muted-foreground">
-                                Don't have an account?{' '}
-                                <Link href="/signup" className="font-semibold text-foreground underline hover:text-primary transition-colors">
-                                    Create Free Account
+                                Already have an account?{' '}
+                                <Link href="/login" className="font-semibold text-foreground underline hover:text-primary transition-colors">
+                                    Log In
                                 </Link>
                             </p>
+                        </div>
+                    </div>
+
+                    <div className="pt-4 grid gap-3">
+                        <div className="flex items-start gap-3">
+                            <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                                <TrendingUp className="h-4 w-4" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-xs">Visualize Your Baseline</h4>
+                                <p className="text-[11px] text-muted-foreground">Understand your energy envelope.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <div className="p-1.5 bg-rose-100 dark:bg-rose-900/30 rounded-lg text-rose-600 dark:text-rose-400">
+                                <Shield className="h-4 w-4" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-xs">Patient-First Design</h4>
+                                <p className="text-[11px] text-muted-foreground">Built for the chronic illness community.</p>
+                            </div>
                         </div>
                     </div>
                 </div>

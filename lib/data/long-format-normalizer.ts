@@ -37,24 +37,32 @@ export function normalizeLongFormatData(rows: any[]) {
                 record.resting_heart_rate = Math.round(value);
                 break;
             case 'Stability Score':
-                // Note: Visible "Stability" is typically 0-10 or similar.
-                // We map it to exertion_score or keep as custom if ambiguous.
-                // Let's map to exertion_score for now as a proxy for "Activity Budget"
                 record.exertion_score = value;
                 break;
             default:
-                // Check if it's a symptom to aggregate into "symptom_score"
-                // Usually we don't know WHICH are symptoms, but if it has a category like "Pain", "Brain", "General", it's likely a symptom.
-                // Visible exports usually have 'tracker_category'.
+                // Identify Symptoms based on Category
                 const category = row['tracker_category'];
+                // These categories generally contain 0-3 ordinal symptom severity ratings
+                const isSymptomCategory = ['Pain', 'Brain', 'General', 'Gastrointestinal', 'Muscles', 'Heart and Lungs', 'Emotional', 'Physical'].includes(category);
+
+                // Exclude 'Sleep' or 'Cognitive' or 'Social' from Symptom Score if they refer to 'Demands' rather than 'Symptoms'.
+                // The provided list says 'Mentally demanding' -> Cognitive. 'Socially demanding' -> Social. These are loads, not symptoms.
+                // 'Physical' contains 'Physically active' (load?) or symptoms? Screenshot shows 'Physically active' = 1.
+                // Let's exclude 'Physical', 'Social', 'Cognitive' from the *Negative Symptom Score* calculation, as they might be exertion.
+
                 const isSymptom = ['Pain', 'Brain', 'General', 'Gastrointestinal', 'Muscles', 'Heart and Lungs', 'Emotional'].includes(category);
 
                 if (isSymptom) {
-                    record.raw_symptoms.push(value);
+                    // Check if it's a numeric value (some might be notes)
+                    if (!isNaN(value)) {
+                        record.raw_symptoms.push(value);
+                    }
                 }
 
-                // ALWAYS store in custom_metrics regardless, so user can track specific "Headache" trends
-                record.custom_metrics[name] = value;
+                // Store everything in custom_metrics for flexibility
+                if (name && value !== undefined && !isNaN(value)) {
+                    record.custom_metrics[name] = value;
+                }
                 break;
         }
     });

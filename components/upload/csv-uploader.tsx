@@ -96,78 +96,77 @@ export function CsvUploader() {
     })
 
     return (
-        <Card className="w-full max-w-2xl mx-auto mt-8">
-            <CardContent className="p-6">
-                <div
-                    {...getRootProps()}
-                    className={`
-            border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-colors
-            ${isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'}
-            ${status === 'error' ? 'border-red-500/50 bg-red-500/5' : ''}
-            ${status === 'success' ? 'border-green-500/50 bg-green-500/5' : ''}
-          `}
-                >
-                    <input {...getInputProps()} />
-                    <div className="flex flex-col items-center justify-center space-y-4">
-                        {status === 'idle' && (
-                            <>
-                                <div className="bg-muted p-4 rounded-full">
-                                    <Upload className="h-8 w-8 text-muted-foreground" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold">Upload Visible Export</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        Drag and drop your "Long Format" CSV file here
-                                    </p>
-                                </div>
-                            </>
-                        )}
+        <div className="w-full max-w-3xl mx-auto">
+            <div
+                {...getRootProps()}
+                className={`
+                    relative group border-2 border-dashed rounded-[2.5rem] p-8 text-center cursor-pointer transition-all duration-300 ease-in-out
+                    flex flex-col items-center justify-center gap-6
+                    ${isDragActive ? 'border-rose-400 bg-rose-50/50 scale-[1.01]' : 'border-zinc-200 dark:border-zinc-800 hover:border-rose-300 hover:bg-zinc-50 dark:hover:bg-zinc-900/50'}
+                    ${status === 'error' ? 'border-red-300 bg-red-50' : ''}
+                    ${status === 'success' ? 'border-green-300 bg-green-50' : ''}
+                `}
+            >
+                <input {...getInputProps()} />
 
-                        {status === 'parsing' && (
-                            <>
-                                <FileText className="h-10 w-10 animate-pulse text-primary" />
-                                <p>Parsing file...</p>
-                            </>
-                        )}
-
-                        {status === 'uploading' && (
-                            <>
-                                <Upload className="h-10 w-10 animate-bounce text-primary" />
-                                <div className="w-full max-w-xs space-y-2">
-                                    <p>{message}</p>
-                                    <Progress value={undefined} className="w-full" />
-                                </div>
-                            </>
-                        )}
-
-                        {status === 'success' && (
-                            <>
-                                <CheckCircle className="h-10 w-10 text-green-500" />
-                                <p className="text-green-600 font-medium">{message}</p>
-                                <Button variant="outline" size="sm" onClick={(e) => {
-                                    e.stopPropagation()
-                                    setStatus('idle')
-                                }}>
-                                    Upload New File
-                                </Button>
-                            </>
-                        )}
-
-                        {status === 'error' && (
-                            <>
-                                <AlertCircle className="h-10 w-10 text-red-500" />
-                                <p className="text-red-600 font-medium">{message}</p>
-                                <Button variant="outline" size="sm" onClick={(e) => {
-                                    e.stopPropagation()
-                                    setStatus('idle')
-                                }}>
-                                    Try Again
-                                </Button>
-                            </>
-                        )}
-                    </div>
+                {/* Icon Circle */}
+                <div className={`
+                    w-20 h-20 rounded-full flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-300
+                    ${status === 'success' ? 'bg-green-100 text-green-600' : 'bg-rose-100 text-rose-500'}
+                    ${status === 'error' ? 'bg-red-100 text-red-500' : ''}
+                `}>
+                    {status === 'success' ? <CheckCircle className="w-10 h-10" /> :
+                        status === 'error' ? <AlertCircle className="w-10 h-10" /> :
+                            status === 'uploading' ? <Upload className="w-10 h-10 animate-bounce" /> :
+                                <Upload className="w-10 h-10" />}
                 </div>
-            </CardContent>
-        </Card>
+
+                {/* Text Content */}
+                <div className="space-y-2">
+                    <h3 className="text-2xl font-bold text-foreground">
+                        {status === 'uploading' ? 'Uploading...' :
+                            status === 'success' ? 'Upload Complete!' :
+                                'Upload your CSV file'}
+                    </h3>
+                    <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
+                        {status === 'uploading' ? message :
+                            status === 'success' ? message :
+                                status === 'error' ? message :
+                                    'Drag and drop your Visible export here, or click below to browse.'}
+                    </p>
+                    {status === 'idle' && (
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Supports .csv files</p>
+                    )}
+                </div>
+
+                {/* Action Button */}
+                {status !== 'uploading' && (
+                    <Button
+                        size="lg"
+                        variant={status === 'success' ? "outline" : "default"}
+                        className={`rounded-full px-8 h-12 text-sm font-semibold shadow-lg transition-transform hover:scale-105 ${status === 'success' ? 'border-green-200 text-green-700 hover:text-green-800 hover:bg-green-50' : 'bg-zinc-900 text-white hover:bg-zinc-800'}`}
+                        onClick={(e) => {
+                            if (status === 'success' || status === 'error') {
+                                e.stopPropagation();
+                                setStatus('idle');
+                                setMessage('');
+                            }
+                        }}
+                    >
+                        {status === 'success' ? 'Upload New File' :
+                            status === 'error' ? 'Try Again' :
+                                'Select File'}
+                    </Button>
+                )}
+
+                {/* Progress Bar */}
+                {status === 'uploading' && (
+                    <div className="w-full max-w-xs mt-4">
+                        <Progress value={undefined} className="h-2 bg-zinc-100" />
+                    </div>
+                )}
+
+            </div>
+        </div>
     )
 }
