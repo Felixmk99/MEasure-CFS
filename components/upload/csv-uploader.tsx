@@ -40,12 +40,12 @@ export function CsvUploader() {
                     }
 
                     // PIVOT Logic: Group raw rows into Daily Records
-                    console.log("Stats:", results.meta)
-                    console.log("First Raw Row:", results.data[0])
+                    // console.log("Stats:", results.meta)
+                    // console.log("First Raw Row:", results.data[0])
 
                     const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
                     const records = normalizeLongFormatData(validRows)
-                    console.log("Normalized Records:", records.slice(0, 3))
+                    // console.log("Normalized Records:", records.slice(0, 3))
 
                     if (records.length === 0) {
                         const headers = results.meta.fields || []
@@ -68,7 +68,7 @@ export function CsvUploader() {
                         }
                     }))
 
-                    console.log("First DB Record to Insert:", dbRecords[0])
+                    // console.log("First DB Record to Insert:", dbRecords[0])
 
                     // Batch upload in chunks of 50 to prevent timeouts/limits
                     const BATCH_SIZE = 50

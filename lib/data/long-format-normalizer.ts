@@ -21,7 +21,7 @@ export function normalizeLongFormatData(rows: any[]) {
     // Detect keys from first row if possible, or just look per row (slightly slower but safer)
     if (rows.length === 0) return [];
 
-    console.log("First row raw:", rows[0]); // Debug
+    // console.log("First row raw:", rows[0]); // Debug
 
     rows.forEach(row => {
         const dateKey = findKey(row, ['observation_date', 'date', 'day']);
@@ -104,9 +104,15 @@ export function normalizeLongFormatData(rows: any[]) {
                     }
                 }
 
-                // Store everything in custom_metrics for flexibility
+                // Store everything in custom_metrics for flexibility, UNLESS it's a Funcap category
                 if (name && value !== undefined && !isNaN(value)) {
-                    record.custom_metrics[name] = value;
+                    // Filter out Funcap values from custom_metrics based on Category (requested by user)
+                    // If category starts with 'Funcap_', skip it.
+                    if (category && category.toLowerCase().startsWith('funcap_')) {
+                        // Skip
+                    } else {
+                        record.custom_metrics[name] = value;
+                    }
                 }
                 break;
         }

@@ -1,0 +1,234 @@
+'use client'
+
+import React, { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Lock, User, Settings, FileText, Trash2, AlertTriangle, AlertCircle } from 'lucide-react'
+// import { Separator } from '@/components/ui/separator' 
+// import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+
+export default function SettingsClient({ user }: { user: any }) {
+    const supabase = createClient()
+    const router = useRouter()
+    const [isLoading, setIsLoading] = useState(false)
+    const [message, setMessage] = useState('')
+
+    // Form State
+    const [firstName, setFirstName] = useState(user.user_metadata?.first_name || '')
+    const [lastName, setLastName] = useState(user.user_metadata?.last_name || '')
+    const [bio, setBio] = useState(user.user_metadata?.bio || '')
+
+    // Delete Account State
+    const [deleteConfirmation, setDeleteConfirmation] = useState('')
+    const [isDeleting, setIsDeleting] = useState(false)
+
+    // Update Profile Handler
+    const handleUpdateProfile = async () => {
+        setIsLoading(true)
+        setMessage('')
+
+        try {
+            const { error } = await supabase.auth.updateUser({
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    full_name: `${firstName} ${lastName}`.trim(),
+                    bio: bio
+                }
+            })
+
+            if (error) throw error
+            setMessage('Profile updated successfully.')
+        } catch (error: any) {
+            setMessage(`Error: ${error.message}`)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    // Delete Account Handler
+    const handleDeleteAccount = async () => {
+        if (deleteConfirmation !== 'DELETE') return
+        setIsDeleting(true)
+
+        try {
+            // 1. Delete all user data
+            // We do this explicitly to ensure "Secure Deletion" even if Cascade fails or to be double sure.
+            await supabase.from('health_metrics').delete().eq('user_id', user.id)
+            await supabase.from('experiments').delete().eq('user_id', user.id)
+
+            // 2. Sign Out
+            await supabase.auth.signOut()
+
+            // 3. Redirect
+            router.push('/')
+            router.refresh()
+
+        } catch (error: any) {
+            alert(`Failed to delete account data: ${error.message}`)
+            setIsDeleting(false)
+        }
+    }
+
+    return (
+        <div className="flex flex-col md:flex-row gap-8">
+            {/* Sidebar Navigation */}
+            <aside className="w-full md:w-64 flex flex-col gap-2">
+                <div className="mb-4 px-4">
+                    <h1 className="text-2xl font-bold">Settings</h1>
+                    <p className="text-sm text-muted-foreground">Manage your account.</p>
+                </div>
+
+                <nav className="flex flex-col space-y-1">
+                    <Button variant="secondary" className="justify-start">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                    </Button>
+                    <Button variant="ghost" className="justify-start" disabled>
+                        <Lock className="mr-2 h-4 w-4" />
+                        Security (Soon)
+                    </Button>
+                    <Button variant="ghost" className="justify-start" disabled>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Preferences (Soon)
+                    </Button>
+                    <Button variant="ghost" className="justify-start" disabled>
+                        <FileText className="mr-2 h-4 w-4" />
+                        Data & Export (Soon)
+                    </Button>
+                </nav>
+            </aside>
+
+            {/* Main Content */}
+            <main className="flex-1 space-y-8">
+
+                {/* Public Profile Card */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Public Profile</CardTitle>
+                        <CardDescription>This information will be displayed on your profile.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* Avatar Section */}
+                        <div className="flex items-center gap-6">
+                            <Avatar className="h-20 w-20">
+                                <AvatarImage src={user.user_metadata?.avatar_url} />
+                                <AvatarFallback className="text-xl">{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                            <Button variant="outline" size="sm" disabled>Change photo</Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="firstName">First name</Label>
+                                <Input
+                                    id="firstName"
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="lastName">Last name</Label>
+                                <Input
+                                    id="lastName"
+                                    value={lastName}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="bio">Bio</Label>
+                            <textarea
+                                id="bio"
+                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                placeholder="Brief description for your medical team..."
+                                value={bio}
+                                onChange={(e) => setBio(e.target.value)}
+                            />
+                            <p className="text-[10px] text-muted-foreground">Brief description of your condition context.</p>
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-between border-t px-6 py-4">
+                        <p className="text-sm text-muted-foreground">{message}</p>
+                        <Button onClick={handleUpdateProfile} disabled={isLoading}>
+                            {isLoading ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </CardFooter>
+                </Card>
+
+                {/* Personal Details Card */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Personal Details</CardTitle>
+                        <CardDescription>Manage your contact information.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email address</Label>
+                            <Input id="email" value={user.email} disabled className="bg-muted" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Delete Account Card */}
+                <Card className="border-red-200 dark:border-red-900/50 bg-red-50/10 dark:bg-red-900/10">
+                    <CardHeader>
+                        <CardTitle className="text-red-600 dark:text-red-400">Delete Account</CardTitle>
+                        <CardDescription>
+                            Irreversible Action. Please review the information below.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-100 dark:border-red-900/30">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <AlertTriangle className="h-5 w-5 text-red-400" aria-hidden="true" />
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-red-800 dark:text-red-300">Warning</h3>
+                                    <div className="mt-2 text-sm text-red-700 dark:text-red-400">
+                                        <ul className="list-disc pl-5 space-y-1">
+                                            <li>Deleting your account will immediately remove your access.</li>
+                                            <li>Trend analysis history will be <strong>permanently deleted</strong> (secure wipe).</li>
+                                            <li>Account recovery is not possible.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="confirmDelete" className="text-sm font-medium">
+                                To confirm, please type <span className="font-bold text-red-600">DELETE</span> below
+                            </Label>
+                            <Input
+                                id="confirmDelete"
+                                placeholder="DELETE"
+                                value={deleteConfirmation}
+                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                className="max-w-md bg-white dark:bg-zinc-950"
+                            />
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-end border-t border-red-200 dark:border-red-900/30 px-6 py-4 bg-red-50/30 dark:bg-red-900/5">
+                        <Button
+                            variant="destructive"
+                            onClick={handleDeleteAccount}
+                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isDeleting ? 'Deleting data...' : 'Permanently Delete'}
+                        </Button>
+                    </CardFooter>
+                </Card>
+
+            </main>
+        </div>
+    )
+}

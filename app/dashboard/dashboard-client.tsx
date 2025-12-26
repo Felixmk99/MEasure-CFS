@@ -2,74 +2,259 @@
 
 import React, { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
-import { Activity, Battery, Moon, TrendingUp, TrendingDown, Minus } from "lucide-react"
+import { Area, AreaChart, ComposedChart, Line, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
+import { Activity, Moon, TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { format, subDays, isAfter, parseISO } from "date-fns"
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { linearRegression, linearRegressionLine } from 'simple-statistics'
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { DateRange } from "react-day-picker"
+import { cn } from "@/lib/utils"
+import { differenceInDays, startOfDay, endOfDay } from "date-fns"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+import { ChevronDown } from "lucide-react"
 
-type TimeRange = '7d' | '30d' | '3m' | 'all'
+type TimeRange = '7d' | '30d' | '3m' | 'all' | 'custom'
 
 interface DashboardReviewProps {
     data: any[]
 }
 
+
+
+// ... imports
+
 export default function DashboardClient({ data: initialData }: DashboardReviewProps) {
     const [timeRange, setTimeRange] = useState<TimeRange>('30d')
-    const [selectedMetric, setSelectedMetric] = useState<string>('composite_score')
+    const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['composite_score'])
+    const [showTrend, setShowTrend] = useState(false)
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: subDays(new Date(), 30),
+        to: new Date(),
+    })
 
     // -- 1. Process Data & Time Filtering --
     const processedData = useMemo(() => {
-        if (!initialData || initialData.length === 0) return generateMockData() // Fallback to mock
+        if (!initialData || initialData.length === 0) return generateMockData()
 
-        // Filter by Time Range
         const now = new Date()
         let startDate = subDays(now, 30)
+        let endDate = now
+
         if (timeRange === '7d') startDate = subDays(now, 7)
         if (timeRange === '30d') startDate = subDays(now, 30)
         if (timeRange === '3m') startDate = subDays(now, 90)
         if (timeRange === 'all') startDate = subDays(now, 365 * 5)
 
+        if (timeRange === 'custom' && dateRange?.from) {
+            startDate = startOfDay(dateRange.from)
+            endDate = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from)
+        }
+
         return initialData
-            .filter(item => isAfter(parseISO(item.date), startDate))
+            .filter(item => {
+                const itemDate = parseISO(item.date)
+                return isAfter(itemDate, startDate) && (timeRange === 'custom' ? itemDate <= endDate : true)
+            })
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    }, [initialData, timeRange])
+    }, [initialData, timeRange, dateRange])
 
-    // -- 2. Determine Metric Config (Label, Color, Domain) --
-    const metricConfig = useMemo(() => {
-        switch (selectedMetric) {
-            case 'composite_score': return { label: 'Composite Score', color: '#fb7185', domain: [-10, 20], unit: '', invert: true } // Range estimate
-            case 'hrv': return { label: 'HRV', color: '#3b82f6', domain: ['auto', 'auto'], unit: 'ms', invert: false } // High = Good
-            case 'resting_heart_rate': return { label: 'Resting HR', color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true } // High = Bad
+    // -- 2a. Extract Dynamic Metrics --
+    const availableMetrics = useMemo(() => {
+        const dynamicKeys = new Set<string>()
+        processedData.forEach(d => {
+            if (d.custom_metrics) {
+                Object.keys(d.custom_metrics).forEach(k => dynamicKeys.add(k))
+            }
+        })
+
+        const dynamicOptions = Array.from(dynamicKeys).sort()
+        const defaults = [
+            { value: 'composite_score', label: 'Track-ME Score' },
+            { value: 'hrv', label: 'Heart Rate Variability' },
+            { value: 'resting_heart_rate', label: 'Resting HR' },
+            { value: 'exertion_score', label: 'Exertion Score' }
+        ]
+        const allOptions = [...defaults]
+        dynamicOptions.forEach(key => {
+            if (!allOptions.find(o => o.value === key)) {
+                allOptions.push({ value: key, label: key })
+            }
+        })
+        return allOptions
+    }, [processedData])
+
+    // -- 2b. Helper to get Config for ANY metric --
+    const getMetricConfig = (key: string) => {
+        // Known static configs
+        switch (key) {
+            case 'composite_score': return { label: 'Track-ME Score', color: '#fb7185', domain: [-10, 20], unit: '', invert: true }
+            case 'hrv': return { label: 'HRV', color: '#3b82f6', domain: ['auto', 'auto'], unit: 'ms', invert: false }
+            case 'resting_heart_rate': return { label: 'Resting HR', color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true }
             case 'exertion_score': return { label: 'Exertion', color: '#10b981', domain: [0, 10], unit: '', invert: false }
-            default: return { label: selectedMetric, color: '#8b5cf6', domain: ['auto', 'auto'], unit: '', invert: false }
-        }
-    }, [selectedMetric])
-
-    // -- 3. Calculate Stats --
-    const stats = useMemo(() => {
-        if (processedData.length === 0) return { trend: 'stable', avg: 0, last: 0 }
-
-        // Helper to extract value safely from either top-level col or custom_metrics
-        const getValue = (d: any, key: string) => {
-            // Special case for composite_score which lives in custom_metrics
-            if (key === 'composite_score') return d.custom_metrics?.composite_score ?? 0;
-            return d[key] ?? d.custom_metrics?.[key] ?? 0;
         }
 
-        const values = processedData.map(d => getValue(d, selectedMetric))
-        const last = values[values.length - 1]
-        const prev = values[values.length - 2] || last
-        const avg = values.reduce((a, b) => a + b, 0) / values.length
+        // Dynamic Config
+        const lower = key.toLowerCase()
+        const exertionKeywords = ['exertion', 'demanding', 'active', 'activity', 'walk', 'run', 'cycle', 'sport', 'gym', 'train', 'cook', 'clean', 'social', 'work', 'focus']
 
-        let trend = 'stable'
-        if (last > prev) trend = metricConfig.invert ? 'worsening' : 'improving'
-        if (last < prev) trend = metricConfig.invert ? 'improving' : 'worsening' // Lower symptom score is improving
+        // Auto-assign colors for comparison if not standard
+        // We use a palette if we don't have a specific color
+        const palette = ['#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+        let color = '#8b5cf6'
 
-        return { trend, avg, last }
-    }, [processedData, selectedMetric, metricConfig])
+        if (exertionKeywords.some(k => lower.includes(k))) {
+            return { label: key, color: '#10b981', domain: [0, 5], unit: '', invert: false }
+        }
+
+        return { label: key, color: color, domain: [0, 5], unit: '', invert: true }
+    }
+
+    // -- 1b. Enhanced Chart Data (Trend Line) --
+    // Only calculate trend for the PRIMARY metric to avoid clutter
+    const chartData = useMemo(() => {
+        const data = [...processedData]
+        if (!showTrend || data.length < 2 || selectedMetrics.length === 0) return data
+
+        const trendsByIndex = new Map<number, any>()
+
+        selectedMetrics.forEach(metric => {
+            const points: { t: number, v: number, i: number }[] = []
+            data.forEach((d, i) => {
+                const val = metric === 'composite_score'
+                    ? d.custom_metrics?.composite_score
+                    : (d[metric] ?? d.custom_metrics?.[metric])
+
+                if (typeof val === 'number' && !isNaN(val)) {
+                    points.push({ t: new Date(d.date).getTime(), v: val, i })
+                }
+            })
+
+            if (points.length < 2) return
+
+            // Adaptive Trend Logic
+            const firstTime = points[0].t
+            const lastTime = points[points.length - 1].t
+            const daysDiff = (lastTime - firstTime) / (1000 * 60 * 60 * 24)
+
+            if ((timeRange !== '3m' && timeRange !== 'all') && (daysDiff < 90)) {
+                const regressionPoints = points.map(p => [p.t, p.v])
+                const regression = linearRegression(regressionPoints)
+                const predict = linearRegressionLine(regression)
+
+                data.forEach((d, i) => {
+                    const val = predict(new Date(d.date).getTime())
+                    if (!trendsByIndex.has(i)) trendsByIndex.set(i, {})
+                    trendsByIndex.get(i)![`trend_${metric}`] = val
+                })
+            } else {
+                let windowSize = 7
+                if (timeRange === 'all' || daysDiff > 180) windowSize = 30
+                else if (daysDiff > 90) windowSize = 14
+
+                for (let i = 0; i < points.length; i++) {
+                    if (i >= windowSize - 1) {
+                        const window = points.slice(i - windowSize + 1, i + 1)
+                        const sum = window.reduce((acc, p) => acc + p.v, 0)
+                        const avg = sum / windowSize
+
+                        const dataIndex = points[i].i
+                        if (!trendsByIndex.has(dataIndex)) trendsByIndex.set(dataIndex, {})
+                        trendsByIndex.get(dataIndex)![`trend_${metric}`] = avg
+                    }
+                }
+            }
+        })
+
+        return data.map((d, i) => ({
+            ...d,
+            ...trendsByIndex.get(i)
+        }))
+    }, [processedData, showTrend, selectedMetrics, timeRange])
+
+    // -- 3. Calculate Stats for ALL selected metrics --
+    const multiStats = useMemo(() => {
+        if (!initialData || initialData.length === 0) return []
+
+        return selectedMetrics.map(metric => {
+            const config = getMetricConfig(metric)
+            const getValue = (d: any, k: string) => d[k] ?? d.custom_metrics?.[k] ?? 0;
+
+            // 1. Current
+            const currentValues = processedData.map(d => getValue(d, metric)).filter(v => typeof v === 'number' && !isNaN(v))
+            const currentAvg = currentValues.length > 0 ? currentValues.reduce((a, b) => a + b, 0) / currentValues.length : 0
+
+            // 2. Previous Period Setup
+            const now = new Date()
+            let prevStart = subDays(now, 60)
+            let prevEnd = subDays(now, 30)
+
+            if (timeRange === '7d') { prevStart = subDays(now, 14); prevEnd = subDays(now, 7); }
+            else if (timeRange === '30d') { prevStart = subDays(now, 60); prevEnd = subDays(now, 30); }
+            else if (timeRange === '3m') { prevStart = subDays(now, 180); prevEnd = subDays(now, 90); }
+            else if (timeRange === 'custom' && dateRange?.from) {
+                const startElement = dateRange.from
+                const endElement = dateRange.to || dateRange.from
+                const duration = differenceInDays(endElement, startElement) + 1
+                prevEnd = subDays(startElement, 1)
+                prevStart = subDays(startElement, duration)
+            }
+
+            // 3. Calculate Prev Avg
+            let trendPrevAvg = 0
+            if (timeRange === 'all') {
+                const pStart = subDays(now, 60)
+                const pEnd = subDays(now, 30)
+                const pData = initialData.filter(item => { const d = parseISO(item.date); return isAfter(d, pStart) && !isAfter(d, pEnd) })
+                const pValues = pData.map(d => getValue(d, metric)).filter(v => typeof v === 'number' && !isNaN(v))
+                trendPrevAvg = pValues.length > 0 ? pValues.reduce((a, b) => a + b, 0) / pValues.length : 0
+
+                const tStart = subDays(now, 30)
+                const tData = initialData.filter(item => isAfter(parseISO(item.date), tStart))
+                const tValues = tData.map(d => getValue(d, metric)).filter(v => typeof v === 'number' && !isNaN(v))
+                const trendCurrentAvg = tValues.length > 0 ? tValues.reduce((a, b) => a + b, 0) / tValues.length : 0 // For Trend Badge specifically
+
+                const denominator = Math.abs(trendPrevAvg) < 0.01 ? 1 : Math.abs(trendPrevAvg)
+                const diff = trendCurrentAvg - trendPrevAvg
+                const pct = (diff / denominator) * 100
+
+                let trend = 'stable'
+                if (Math.abs(pct) < 1) trend = 'stable'
+                else if (pct > 0) trend = config.invert ? 'worsening' : 'improving'
+                else trend = config.invert ? 'improving' : 'worsening'
+
+                return { key: metric, trend, pct: Math.abs(pct), rawPct: pct, label: config.label, unit: config.unit, avg: currentAvg }
+            } else {
+                const prevData = initialData.filter(item => {
+                    const d = parseISO(item.date)
+                    return isAfter(d, prevStart) && !isAfter(d, prevEnd)
+                })
+                const prevValues = prevData.map(d => getValue(d, metric)).filter(v => typeof v === 'number' && !isNaN(v))
+                trendPrevAvg = prevValues.length > 0 ? prevValues.reduce((a, b) => a + b, 0) / prevValues.length : 0
+
+                const denominator = Math.abs(trendPrevAvg) < 0.01 ? 1 : Math.abs(trendPrevAvg)
+                const diff = currentAvg - trendPrevAvg
+                const pct = (diff / denominator) * 100
+
+                let trend = 'stable'
+                if (Math.abs(pct) < 1) trend = 'stable'
+                else if (pct > 0) trend = config.invert ? 'worsening' : 'improving'
+                else trend = config.invert ? 'improving' : 'worsening'
+
+                return { key: metric, trend, pct: Math.abs(pct), rawPct: pct, label: config.label, unit: config.unit, avg: currentAvg }
+            }
+        })
+    }, [processedData, initialData, selectedMetrics, timeRange, dateRange])
+
+
+    // ... UI Render ...
+    // Header: Map multiStats to Badges
+    // Chart: Map selectedMetrics to Area/Line
 
     // -- 4. Mock Data Generator (Visualization Only) --
     function generateMockData() {
@@ -97,7 +282,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 <div>
                     <h2 className="text-2xl font-bold text-foreground tracking-tight">Illness Severity Trend</h2>
                     <p className="text-muted-foreground text-sm">
-                        Correlation between your {metricConfig.label} and daily activities.
+                        Correlation between your {selectedMetrics.map(m => getMetricConfig(m).label).join(', ')} and daily activities.
                     </p>
                 </div>
                 <div className="bg-muted/30 p-1 rounded-lg flex items-center gap-1 self-start">
@@ -113,56 +298,144 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                             {r === 'all' ? 'All Time' : r.toUpperCase()}
                         </button>
                     ))}
+
+                    <div className="w-px h-4 bg-border mx-1" />
+
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className={cn(
+                                    "h-7 text-xs font-medium px-2 rounded-md transition-all hover:bg-background/50",
+                                    timeRange === 'custom'
+                                        ? "bg-white dark:bg-zinc-800 text-foreground shadow-sm hover:bg-white dark:hover:bg-zinc-800"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                                {dateRange?.from ? (
+                                    dateRange.to ? (
+                                        <>{format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}</>
+                                    ) : (
+                                        format(dateRange.from, "LLL dd, y")
+                                    )
+                                ) : (
+                                    <span>Custom</span>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                            <Calendar
+                                initialFocus
+                                mode="range"
+                                defaultMonth={dateRange?.from}
+                                selected={dateRange}
+                                onSelect={(range, day) => {
+                                    // Start a new range if one is already selected
+                                    const nextRange = (dateRange?.from && dateRange?.to)
+                                        ? { from: day, to: undefined }
+                                        : range
+
+                                    setDateRange(nextRange)
+                                    if (nextRange?.from) setTimeRange('custom')
+                                }}
+                                numberOfMonths={2}
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </div>
             </div>
 
             {/* Main Chart Card */}
             <Card className="border-border/50 shadow-sm relative overflow-hidden">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <div className="space-y-1">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Overall Wellness</p>
-                        <div className="flex items-center gap-3">
-                            <span className="text-3xl font-bold tracking-tight">
-                                {stats.trend === 'stable' ? 'Stable' : (stats.trend === 'improving' ? 'Improving' : 'Declining')}
-                            </span>
-                            <Badge variant="outline" className={`
-                        ${stats.trend === 'improving' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400' : ''}
-                        ${stats.trend === 'worsening' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400' : ''}
-                        ${stats.trend === 'stable' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400' : ''}
-                    `}>
-                                {stats.trend === 'improving' && <TrendingUp className="w-3 h-3 mr-1" />}
-                                {stats.trend === 'worsening' && <TrendingDown className="w-3 h-3 mr-1" />}
-                                {stats.trend === 'stable' && <Minus className="w-3 h-3 mr-1" />}
-                                {Math.abs(((stats.last - stats.avg) / stats.avg) * 100).toFixed(0)}% vs avg
-                            </Badge>
+                <CardHeader className="flex flex-row items-start justify-between pb-2">
+                    <div className="flex flex-col gap-4 w-full">
+                        <div className="flex flex-wrap items-center gap-6">
+                            {multiStats.map((stat, index) => (
+                                <div key={stat.key} className="space-y-1">
+                                    <p className="text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: getMetricConfig(stat.key).color }}>
+                                        {stat.label}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xl font-bold tracking-tight">
+                                            {stat.trend === 'stable' ? 'Stable' : (stat.trend === 'improving' ? 'Improving' : 'Declining')}
+                                        </span>
+                                        <Badge variant="outline" className={`
+                                            ${stat.trend === 'improving' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400' : ''}
+                                            ${stat.trend === 'worsening' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400' : ''}
+                                            ${stat.trend === 'stable' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400' : ''}
+                                        `}>
+                                            {stat.trend !== 'stable' && stat.rawPct > 0 && <TrendingUp className="w-3 h-3 mr-1" />}
+                                            {stat.trend !== 'stable' && stat.rawPct < 0 && <TrendingDown className="w-3 h-3 mr-1" />}
+                                            {stat.trend === 'stable' && <Minus className="w-3 h-3 mr-1" />}
+                                            {stat.pct.toFixed(0)}%
+                                        </Badge>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Metric Selector */}
-                    <Select value={selectedMetric} onValueChange={setSelectedMetric}>
-                        <SelectTrigger className="w-[180px] h-8 text-xs bg-muted/50 border-transparent hover:border-border transition-colors">
-                            <SelectValue placeholder="Select Metric" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="composite_score">Composite Score</SelectItem>
-                            <SelectItem value="hrv">Heart Rate Variability</SelectItem>
-                            <SelectItem value="resting_heart_rate">Resting HR</SelectItem>
-                            <SelectItem value="exertion_score">Exertion Score</SelectItem>
-                            {/* Dynamic customization would go here */}
-                        </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-4 self-start">
+                        <div className="flex items-center space-x-2">
+                            <Switch id="trend-mode" checked={showTrend} onCheckedChange={setShowTrend} />
+                            <Label htmlFor="trend-mode" className="text-xs text-muted-foreground hidden md:block">Trend</Label>
+                        </div>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-8 text-xs w-[200px] justify-between">
+                                    {selectedMetrics.length === 1 ? getMetricConfig(selectedMetrics[0]).label : `${selectedMetrics.length} Selected`}
+                                    <ChevronDown className="h-3 w-3 opacity-50" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-[200px] max-h-[300px] overflow-y-auto">
+                                <DropdownMenuLabel>Metrics (Max 2)</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {availableMetrics.map((m) => {
+                                    const isSelected = selectedMetrics.includes(m.value)
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={m.value}
+                                            checked={isSelected}
+                                            onCheckedChange={(checked) => {
+                                                if (checked) {
+                                                    if (selectedMetrics.length < 2) {
+                                                        setSelectedMetrics([...selectedMetrics, m.value])
+                                                    }
+                                                } else {
+                                                    if (selectedMetrics.length > 1) {
+                                                        setSelectedMetrics(selectedMetrics.filter(id => id !== m.value))
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            {m.label}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </CardHeader>
 
                 <CardContent className="h-[400px] w-full pt-4">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={processedData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                        <ComposedChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                             <defs>
-                                <linearGradient id="colorMetric" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor={metricConfig.color} stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor={metricConfig.color} stopOpacity={0.0} />
-                                </linearGradient>
+                                {selectedMetrics.map((metric, i) => {
+                                    const config = getMetricConfig(metric)
+                                    return (
+                                        <linearGradient key={metric} id={`colorMetric-${metric}`} x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor={config.color} stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor={config.color} stopOpacity={0.0} />
+                                        </linearGradient>
+                                    )
+                                })}
                             </defs>
                             <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.1} />
+
                             <XAxis
                                 dataKey="date"
                                 tickFormatter={(str) => format(parseISO(str), 'MMM d')}
@@ -171,24 +444,55 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 tick={{ fontSize: 12, fill: '#888' }}
                                 minTickGap={30}
                             />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fontSize: 12, fill: '#888' }}
-                                domain={['auto', 'auto']}
-                                width={40}
-                            />
+
+                            {/* Dynamic Y Axes */}
+                            {selectedMetrics.map((metric, index) => {
+                                const config = getMetricConfig(metric)
+                                return (
+                                    <YAxis
+                                        key={metric}
+                                        yAxisId={metric}
+                                        orientation={index === 0 ? 'left' : 'right'}
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fontSize: 12, fill: '#888' }}
+                                        domain={config.domain as any}
+                                        width={40}
+                                        hide={index > 1}
+                                    />
+                                )
+                            })}
+
                             <Tooltip
                                 content={({ active, payload, label }) => {
                                     if (active && payload && payload.length) {
                                         return (
                                             <div className="bg-zinc-900 text-white text-xs p-3 rounded-lg shadow-xl border border-zinc-800">
-                                                <p className="font-semibold mb-1">{label ? format(parseISO(label as string), 'EEE, MMM d') : ''}</p>
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: metricConfig.color }} />
-                                                    <span>
-                                                        {metricConfig.label}: <span className="font-bold">{Number(payload[0].value).toFixed(1)}{metricConfig.unit}</span>
-                                                    </span>
+                                                <p className="font-semibold mb-2">{label ? format(parseISO(label as string), 'EEE, MMM d') : ''}</p>
+                                                <div className="flex flex-col gap-1">
+                                                    {payload.map((p: any) => {
+                                                        // Filter out Trend line from tooltip if needed or keep it
+                                                        if (String(p.dataKey).startsWith('trend_')) {
+                                                            const metricKey = String(p.dataKey).replace('trend_', '')
+                                                            return (
+                                                                <div key={p.dataKey} className="flex items-center gap-2 text-muted-foreground pt-1 border-t border-zinc-800 mt-1">
+                                                                    <span>Trend ({getMetricConfig(metricKey).label}): <span className="font-bold">{Number(p.value).toFixed(1)}</span></span>
+                                                                </div>
+                                                            )
+                                                        }
+                                                        // Find config
+                                                        // p.dataKey might be the metric key or accessing nested
+                                                        // We can deduce from fill/stroke or just match selectedMetrics
+                                                        // p.name usually holds dataKey
+                                                        return (
+                                                            <div key={p.name} className="flex items-center gap-2">
+                                                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+                                                                <span>
+                                                                    {getMetricConfig(p.name).label}: <span className="font-bold">{Number(p.value).toFixed(1)}{getMetricConfig(p.name).unit}</span>
+                                                                </span>
+                                                            </div>
+                                                        )
+                                                    })}
                                                 </div>
                                             </div>
                                         )
@@ -196,15 +500,63 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                     return null
                                 }}
                             />
-                            <Area
-                                type="monotone"
-                                dataKey={(d) => selectedMetric === 'composite_score' ? (d.custom_metrics?.composite_score ?? 0) : (d[selectedMetric] ?? d.custom_metrics?.[selectedMetric])}
-                                stroke={metricConfig.color}
-                                fillOpacity={1}
-                                fill="url(#colorMetric)"
-                                strokeWidth={3}
-                            />
-                        </AreaChart>
+
+                            {/* Render Metrics */}
+                            {selectedMetrics.map((metric, index) => {
+                                const config = getMetricConfig(metric)
+                                // Primary = Area. Others = Line.
+                                if (index === 0) {
+                                    return (
+                                        <Area
+                                            key={metric}
+                                            yAxisId={metric}
+                                            type="monotone"
+                                            dataKey={(d) => {
+                                                const val = metric === 'composite_score' ? d.custom_metrics?.composite_score : (d[metric] ?? d.custom_metrics?.[metric]);
+                                                return (val === null || val === undefined || isNaN(val)) ? null : val;
+                                            }}
+                                            name={metric}
+                                            stroke={config.color}
+                                            fillOpacity={1}
+                                            fill={`url(#colorMetric-${metric})`}
+                                            strokeWidth={3}
+                                            connectNulls={true}
+                                        />
+                                    )
+                                } else {
+                                    return (
+                                        <Line
+                                            key={metric}
+                                            yAxisId={metric}
+                                            type="monotone"
+                                            dataKey={(d) => {
+                                                const val = metric === 'composite_score' ? d.custom_metrics?.composite_score : (d[metric] ?? d.custom_metrics?.[metric]);
+                                                return (val === null || val === undefined || isNaN(val)) ? null : val;
+                                            }}
+                                            name={metric}
+                                            stroke={config.color}
+                                            strokeWidth={2}
+                                            dot={false}
+                                            connectNulls={true}
+                                        />
+                                    )
+                                }
+                            })}
+
+                            {showTrend && selectedMetrics.map(metric => (
+                                <Line
+                                    key={`trend-${metric}`}
+                                    yAxisId={metric}
+                                    type="monotone"
+                                    dataKey={`trend_${metric}`}
+                                    stroke={getMetricConfig(metric).color}
+                                    strokeWidth={2}
+                                    strokeDasharray="5 5"
+                                    dot={false}
+                                    activeDot={false}
+                                    opacity={0.7}
+                                />
+                            ))}</ComposedChart>
                     </ResponsiveContainer>
                 </CardContent>
             </Card>
@@ -213,11 +565,11 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card className="bg-card/50 border-0 shadow-sm md:shadow-none bg-zinc-50/50 dark:bg-zinc-900/30">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <span className="text-sm font-medium text-muted-foreground">Current Average</span>
+                        <span className="text-sm font-medium text-muted-foreground">{multiStats[0]?.label || 'Metric'} Average</span>
                         <Activity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.avg.toFixed(1)}<span className="text-sm font-normal text-muted-foreground ml-1">{metricConfig.unit}</span></div>
+                        <div className="text-2xl font-bold">{multiStats[0]?.avg.toFixed(1) || '0.0'}<span className="text-sm font-normal text-muted-foreground ml-1">{multiStats[0]?.unit}</span></div>
                         <p className="text-xs text-muted-foreground mt-1">Based on {timeRange} timeframe</p>
                     </CardContent>
                 </Card>
@@ -227,7 +579,20 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.last.toFixed(1)}<span className="text-sm font-normal text-muted-foreground ml-1">{metricConfig.unit}</span></div>
+                        {/* We need to get last value. multiStats doesn't return last. I should add it.
+                            OR re-calculate it here cheaply. 
+                            Actually let's just grab it from chartData or processedData. 
+                        */}
+                        <div className="text-2xl font-bold">
+                            {(
+                                Number(
+                                    selectedMetrics.length > 0
+                                        ? (processedData[processedData.length - 1]?.[selectedMetrics[0]]
+                                            ?? processedData[processedData.length - 1]?.custom_metrics?.[selectedMetrics[0]])
+                                        : 0
+                                ) || 0
+                            ).toFixed(1)}
+                            <span className="text-sm font-normal text-muted-foreground ml-1">{multiStats[0]?.unit}</span></div>
                         <p className="text-xs text-muted-foreground mt-1">Last recorded entry</p>
                     </CardContent>
                 </Card>
