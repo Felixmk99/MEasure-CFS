@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Area, AreaChart, ComposedChart, Line, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
-import { Activity, Moon, TrendingUp, TrendingDown, Minus } from "lucide-react"
+import { Activity, Moon, TrendingUp, TrendingDown, Minus, Info } from "lucide-react"
 import { format, subDays, isAfter, parseISO } from "date-fns"
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 import { differenceInDays, startOfDay, endOfDay } from "date-fns"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ChevronDown } from "lucide-react"
+import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 type TimeRange = '7d' | '30d' | '3m' | 'all' | 'custom'
 
@@ -93,10 +94,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     const getMetricConfig = (key: string) => {
         // Known static configs
         switch (key) {
-            case 'composite_score': return { label: 'Track-ME Score', color: '#fb7185', domain: [-10, 20], unit: '', invert: true }
-            case 'hrv': return { label: 'HRV', color: '#3b82f6', domain: ['auto', 'auto'], unit: 'ms', invert: false }
-            case 'resting_heart_rate': return { label: 'Resting HR', color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true }
-            case 'exertion_score': return { label: 'Exertion', color: '#10b981', domain: [0, 10], unit: '', invert: false }
+            case 'composite_score': return { label: 'Track-ME Score', color: '#fb7185', domain: ['auto', 'auto'], unit: '', invert: true, description: "Your overall health snapshot based on symptom severity and daily activity.", better: "Lower is better" }
+            case 'hrv': return { label: 'HRV', color: '#3b82f6', domain: ['auto', 'auto'], unit: 'ms', invert: false, description: "Measures the variation in time between heartbeats. Higher values indicate better recovery.", better: "Higher is better" }
+            case 'resting_heart_rate': return { label: 'Resting HR', color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true, description: "Your average heart rate while at complete rest.", better: "Lower is better" }
+            case 'exertion_score': return { label: 'Exertion', color: '#10b981', domain: [0, 10], unit: '', invert: false, description: "Your self-reported level of physical and mental effort.", better: "Higher values indicate more activity" }
         }
 
         // Dynamic Config
@@ -354,9 +355,23 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                         <div className="flex flex-wrap items-center gap-6">
                             {multiStats.map((stat, index) => (
                                 <div key={stat.key} className="space-y-1">
-                                    <p className="text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: getMetricConfig(stat.key).color }}>
+                                    <div className="text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: getMetricConfig(stat.key).color }}>
                                         {stat.label}
-                                    </p>
+                                        {(getMetricConfig(stat.key) as any).description && (
+                                            <TooltipProvider>
+                                                <InfoTooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Info className="h-3 w-3 opacity-50 hover:opacity-100 cursor-help transition-opacity" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent className="max-w-[200px] text-xs">
+                                                        <p className="font-semibold mb-1">About {stat.label}</p>
+                                                        <p className="mb-2">{(getMetricConfig(stat.key) as any).description}</p>
+                                                        <p className="font-medium text-muted-foreground">{(getMetricConfig(stat.key) as any).better}</p>
+                                                    </TooltipContent>
+                                                </InfoTooltip>
+                                            </TooltipProvider>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-xl font-bold tracking-tight">
                                             {stat.trend === 'stable' ? 'Stable' : (stat.trend === 'improving' ? 'Improving' : 'Declining')}
@@ -422,7 +437,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
                 <CardContent className="h-[400px] w-full pt-4">
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                        <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                             <defs>
                                 {selectedMetrics.map((metric, i) => {
                                     const config = getMetricConfig(metric)
@@ -457,7 +472,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                         tickLine={false}
                                         tick={{ fontSize: 12, fill: '#888' }}
                                         domain={config.domain as any}
-                                        width={40}
+                                        width={50}
                                         hide={index > 1}
                                     />
                                 )
@@ -517,7 +532,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                             }}
                                             name={metric}
                                             stroke={config.color}
-                                            fillOpacity={1}
+                                            strokeOpacity={showTrend ? 0.3 : 1}
+                                            fillOpacity={showTrend ? 0.1 : 1}
                                             fill={`url(#colorMetric-${metric})`}
                                             strokeWidth={3}
                                             connectNulls={true}
@@ -535,6 +551,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                             }}
                                             name={metric}
                                             stroke={config.color}
+                                            strokeOpacity={showTrend ? 0.3 : 1}
                                             strokeWidth={2}
                                             dot={false}
                                             connectNulls={true}
@@ -550,11 +567,11 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                     type="monotone"
                                     dataKey={`trend_${metric}`}
                                     stroke={getMetricConfig(metric).color}
-                                    strokeWidth={2}
+                                    strokeWidth={4}
                                     strokeDasharray="5 5"
                                     dot={false}
                                     activeDot={false}
-                                    opacity={0.7}
+                                    opacity={1}
                                 />
                             ))}</ComposedChart>
                     </ResponsiveContainer>
