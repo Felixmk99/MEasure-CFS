@@ -1,28 +1,65 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CsvUploader } from "@/components/upload/csv-uploader"
 import { XmlUploader } from "@/components/upload/xml-uploader"
-import { Lock, Trash2, Calendar, FileText, Smartphone, Activity } from "lucide-react"
+import { Lock, Trash2, Calendar, FileText, Smartphone, Activity, Pencil } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
+import { Plus, ChevronDown, ChevronUp } from "lucide-react"
+import { EditDataDialog } from "@/components/dashboard/edit-data-dialog"
+import { subDays, isAfter, startOfDay } from "date-fns"
+import { useMemo } from 'react'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 interface DataEntry {
     id: string
     date: string
     hrv: number | null
+    resting_heart_rate: number | null
     symptom_score: number | null
     custom_metrics: any
     exertion_score: number | null
     created_at: string
 }
 
-export default function DataManagementClient({ initialData, hasData: initialHasData }: { initialData: DataEntry[], hasData: boolean }) {
+export default function DataManagementClient({ initialData, hasData: initialHasData, hasSteps }: { initialData: DataEntry[], hasData: boolean, hasSteps: boolean }) {
     const [dataLog, setDataLog] = useState<DataEntry[]>(initialData)
     const [hasData, setHasData] = useState(initialHasData)
+    const [timeRange, setTimeRange] = useState<string>('all')
+    const [mounted, setMounted] = useState(false)
+    const [showUpload, setShowUpload] = useState(!(initialHasData && hasSteps))
+    const [editingEntry, setEditingEntry] = useState<DataEntry | null>(null)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    const filteredData = useMemo(() => {
+        if (timeRange === 'all') return dataLog
+
+        const now = startOfDay(new Date())
+        let cutoff = now
+
+        if (timeRange === '7d') cutoff = subDays(now, 7)
+        else if (timeRange === '30d') cutoff = subDays(now, 30)
+        else if (timeRange === '90d') cutoff = subDays(now, 90)
+        else if (timeRange === '6m') cutoff = subDays(now, 180)
+
+        return dataLog.filter(item => {
+            const itemDate = parseISO(item.date)
+            return isAfter(itemDate, cutoff) || itemDate.getTime() === cutoff.getTime()
+        })
+    }, [dataLog, timeRange])
     const supabase = createClient()
     const searchParams = useSearchParams()
     const initialTab = searchParams.get('tab') === 'apple' ? 'apple' : 'visible'
@@ -58,6 +95,28 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         }
     }
 
+    const handleUpdate = async (id: string, updatedData: any) => {
+        const { error } = await (supabase as any)
+            .from('health_metrics')
+            .update({
+                hrv: updatedData.hrv,
+                resting_heart_rate: updatedData.resting_heart_rate,
+                step_count: updatedData.step_count,
+                exertion_score: updatedData.exertion_score,
+                symptom_score: updatedData.symptom_score,
+                custom_metrics: updatedData.custom_metrics
+            } as any)
+            .eq('id', id)
+
+        if (!error) {
+            const newData = dataLog.map(item => item.id === id ? { ...item, ...updatedData } : item)
+            setDataLog(newData)
+            router.refresh()
+        } else {
+            throw error
+        }
+    }
+
     return (
         <div className="min-h-[calc(100vh-4rem)] p-4 md:p-8">
             <div className="max-w-4xl mx-auto space-y-12">
@@ -71,11 +130,11 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
 
                     <div className="space-y-2">
                         <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                            {hasData ? 'Manage Data' : <>Import your <span className="text-rose-400">Visible</span> data</>}
+                            {hasData ? (hasSteps ? 'Health History' : 'Manage Data') : <>Import your <span className="text-rose-400">Visible</span> data</>}
                         </h1>
                         <p className="text-muted-foreground text-sm max-w-lg mx-auto">
                             {hasData
-                                ? "Upload new files to append data or manage existing entries."
+                                ? (hasSteps ? "Review and manage your chronic illness trends." : "Upload new files to append data or manage existing entries.")
                                 : "Visualize your energy envelope and symptom patterns securely."
                             }
                         </p>
@@ -83,29 +142,59 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 </div>
 
                 {/* Upload Section */}
-                <Tabs defaultValue={initialTab} className="w-full max-w-3xl mx-auto">
-                    <TabsList className="grid w-full grid-cols-2 mb-8 h-12 rounded-full p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                        <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all duration-300">
-                            <Activity className="w-4 h-4 mr-2" />
-                            Visible App (CSV)
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="apple"
-                            disabled={!hasData}
-                            className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-blue-500 data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                {(!hasData || !hasSteps || showUpload) ? (
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-4">
+                        <Tabs defaultValue={initialTab} className="w-full max-w-3xl mx-auto">
+                            <TabsList className="grid w-full grid-cols-2 mb-8 h-12 rounded-full p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                                <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all duration-300">
+                                    <Activity className="w-4 h-4 mr-2" />
+                                    Visible App (CSV)
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="apple"
+                                    disabled={!hasData}
+                                    className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-blue-500 data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <Smartphone className="w-4 h-4 mr-2" />
+                                    Apple Health Steps (XML)
+                                    {!hasData && <span className="ml-2 text-[10px] text-zinc-500">(Requires Health Data)</span>}
+                                </TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="visible" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
+                                <CsvUploader />
+                            </TabsContent>
+                            <TabsContent value="apple" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
+                                <XmlUploader />
+                            </TabsContent>
+                        </Tabs>
+
+                        {(hasData && hasSteps) && (
+                            <div className="flex justify-center">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-muted-foreground hover:text-foreground"
+                                    onClick={() => setShowUpload(false)}
+                                >
+                                    <ChevronUp className="w-4 h-4 mr-1" />
+                                    Hide Import Tools
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex justify-center animate-in fade-in zoom-in-95 duration-300">
+                        <Button
+                            variant="outline"
+                            className="rounded-full px-8 h-12 gap-2 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 shadow-sm"
+                            onClick={() => setShowUpload(true)}
                         >
-                            <Smartphone className="w-4 h-4 mr-2" />
-                            Apple Health Steps (XML)
-                            {!hasData && <span className="ml-2 text-[10px] text-zinc-500">(Requires Health Data)</span>}
-                        </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="visible" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
-                        <CsvUploader />
-                    </TabsContent>
-                    <TabsContent value="apple" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
-                        <XmlUploader />
-                    </TabsContent>
-                </Tabs>
+                            <Plus className="w-4 h-4" />
+                            <span className="font-semibold">Add New Data</span>
+                            <ChevronDown className="w-4 h-4 opacity-50 ml-1" />
+                        </Button>
+                    </div>
+                )}
 
                 {/* Data Log Section - Only if Has Data */}
                 {hasData && (
@@ -115,9 +204,23 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                 <FileText className="w-4 h-4 text-muted-foreground" />
                                 Data Log
                             </h3>
-                            <Button variant="destructive" size="sm" onClick={handleDeleteAll}>
-                                Delete All Data
-                            </Button>
+                            <div className="flex items-center gap-3">
+                                <Select value={timeRange} onValueChange={setTimeRange}>
+                                    <SelectTrigger className="w-[140px] h-9 text-xs rounded-full bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+                                        <SelectValue placeholder="Time Range" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Logs</SelectItem>
+                                        <SelectItem value="7d">Last 7 Days</SelectItem>
+                                        <SelectItem value="30d">Last 30 Days</SelectItem>
+                                        <SelectItem value="90d">Last 3 Months</SelectItem>
+                                        <SelectItem value="6m">Last 6 Months</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Button variant="destructive" size="sm" onClick={handleDeleteAll} className="h-9 px-4 rounded-full text-xs font-semibold">
+                                    Delete All Data
+                                </Button>
+                            </div>
                         </div>
 
                         <div className="border rounded-xl overflow-hidden shadow-sm bg-white dark:bg-zinc-900">
@@ -128,34 +231,32 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                             <th className="px-6 py-3 font-medium">Date</th>
                                             <th className="px-6 py-3 font-medium">HRV</th>
                                             <th className="px-6 py-3 font-medium">Steps</th>
-                                            <th className="px-6 py-3 font-medium">Comp. Score</th>
-                                            <th className="px-6 py-3 font-medium">Exertion</th>
                                             <th className="px-6 py-3 font-medium text-right">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                                        {dataLog.length > 0 ? (
-                                            dataLog.map((entry) => (
+                                        {filteredData.length > 0 ? (
+                                            filteredData.map((entry) => (
                                                 <tr key={entry.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                                                     <td className="px-6 py-4 font-medium flex items-center gap-2">
                                                         <Calendar className="w-3 h-3 text-muted-foreground" />
-                                                        {format(parseISO(entry.date), 'MMM d, yyyy')}
+                                                        {!mounted ? entry.date : format(parseISO(entry.date), 'MMM d, yyyy')}
                                                     </td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>
-                                                    <td className="px-6 py-4 text-muted-foreground">{(entry as any).step_count ? (entry as any).step_count.toLocaleString() : '-'}</td>
-                                                    <td className="px-6 py-4">
-                                                        {(() => {
-                                                            const score = entry.custom_metrics?.composite_score ?? entry.symptom_score;
-                                                            if (score === null || score === undefined) return '-';
-                                                            return (
-                                                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${score > 5 ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-                                                                    {Number(score).toFixed(1)}
-                                                                </span>
-                                                            )
-                                                        })()}
+                                                    <td className="px-6 py-4 text-muted-foreground">
+                                                        {(entry as any).step_count
+                                                            ? (!mounted ? (entry as any).step_count : (entry as any).step_count.toLocaleString())
+                                                            : '-'}
                                                     </td>
-                                                    <td className="px-6 py-4 text-muted-foreground">{entry.exertion_score ?? '-'}</td>
-                                                    <td className="px-6 py-4 text-right">
+                                                    <td className="px-6 py-4 text-right flex justify-end gap-1">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-muted-foreground hover:text-blue-500"
+                                                            onClick={() => setEditingEntry(entry)}
+                                                        >
+                                                            <Pencil className="w-4 h-4" />
+                                                        </Button>
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
@@ -178,9 +279,9 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                 </table>
                             </div>
                             {/* Pagination Hint */}
-                            {dataLog.length >= 50 && (
+                            {filteredData.length >= 500 && (
                                 <div className="bg-zinc-50 dark:bg-zinc-950 p-4 text-center text-xs text-muted-foreground border-t">
-                                    Showing recent 50 entries.
+                                    Showing recent 500 entries.
                                 </div>
                             )}
                         </div>
@@ -196,6 +297,13 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                         Your health data is processed 100% locally in your browser.
                     </div>
                 )}
+
+                <EditDataDialog
+                    open={!!editingEntry}
+                    onOpenChange={(open) => !open && setEditingEntry(null)}
+                    entry={editingEntry}
+                    onSave={handleUpdate}
+                />
             </div>
         </div>
     )

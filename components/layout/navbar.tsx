@@ -36,41 +36,47 @@ export default function Navbar() {
     const router = useRouter()
     const supabase = createClient()
 
+    const checkUserAndData = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+
+        if (user) {
+            // Check if user has any data
+            const { count } = await supabase
+                .from('health_metrics')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+
+            setHasData((count || 0) > 0)
+
+            // Check if user has ANY non-null step_count data
+            // We use .not('step_count', 'is', null) which is more robust than .gt(0)
+            const { data: stepRow } = await supabase
+                .from('health_metrics')
+                .select('step_count')
+                .eq('user_id', user.id)
+                .not('step_count', 'is', null)
+                .limit(1)
+
+            setHasSteps(!!stepRow && stepRow.length > 0)
+        } else {
+            setHasData(false)
+            setHasSteps(false)
+        }
+    }
+
     useEffect(() => {
         setMounted(true)
-        const checkUserAndData = async () => {
-            const { data: { user } } = await supabase.auth.getUser()
-            setUser(user)
-
-            if (user) {
-                const { count } = await supabase
-                    .from('health_metrics')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id)
-
-                setHasData((count || 0) > 0)
-
-                // Check if user has step data
-                const { count: stepCount } = await supabase
-                    .from('health_metrics')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id)
-                    .gt('step_count', 0)
-
-                setHasSteps((stepCount || 0) > 0)
-            }
-        }
         checkUserAndData()
 
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null)
             if (session?.user) {
-                // Check data again on login
-                supabase.from('health_metrics').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id)
-                    .then(({ count }) => setHasData((count || 0) > 0))
+                checkUserAndData()
             } else {
+                setUser(null)
                 setHasData(false)
+                setHasSteps(false)
             }
         })
 
@@ -88,7 +94,7 @@ export default function Navbar() {
 
     return (
         <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-14 items-center">
                 <Link href={mounted && user ? "/dashboard" : "/"} className="mr-6 flex items-center space-x-2">
                     <Activity className="h-6 w-6 text-primary" />
                     <span className="font-bold inline-block text-lg">Track-ME</span>

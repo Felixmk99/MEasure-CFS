@@ -27,9 +27,17 @@ export default async function ExperimentsPage() {
         .eq('user_id', user.id)
         .order('start_date', { ascending: false });
 
+    // 3. Fetch Health Metrics for Analysis (Last 180 days)
+    const { data: history } = await supabase
+        .from('health_metrics')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('date', { ascending: true });
+
     return (
-        <div className="container max-w-5xl py-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <ExperimentsClient initialExperiments={experiments || []} />
-        </div>
+        <ExperimentsClient
+            initialExperiments={experiments || []}
+            history={history || []}
+        />
     );
 }

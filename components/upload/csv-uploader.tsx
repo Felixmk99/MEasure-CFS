@@ -68,22 +68,37 @@ export function CsvUploader() {
                         }
                     }))
 
-                    // console.log("First DB Record to Insert:", dbRecords[0])
+                    // 2. Fetch existing dates to avoid overwriting manual edits
+                    const { data: existingDates } = await supabase
+                        .from('health_metrics')
+                        .select('date')
+                        .eq('user_id', user.id) as { data: { date: string }[] | null }
+
+                    const existingSet = new Set((existingDates || []).map(d => d.date))
+                    const newRecords = dbRecords.filter(r => !existingSet.has(r.date))
+
+                    if (newRecords.length === 0) {
+                        setStatus('success')
+                        setMessage('No new days to add. All data in the file is already present.')
+                        return
+                    }
+
+                    setMessage(`Adding ${newRecords.length} new days of data...`)
 
                     // Batch upload in chunks of 50 to prevent timeouts/limits
                     const BATCH_SIZE = 50
-                    for (let i = 0; i < dbRecords.length; i += BATCH_SIZE) {
-                        const batch = dbRecords.slice(i, i + BATCH_SIZE)
+                    for (let i = 0; i < newRecords.length; i += BATCH_SIZE) {
+                        const batch = newRecords.slice(i, i + BATCH_SIZE)
                         const { error } = await supabase
                             .from('health_metrics')
-                            .upsert(batch as any, { onConflict: 'user_id, date' })
+                            .insert(batch as any)
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
                             throw new Error(`DB Error: ${error.message || JSON.stringify(error)}`)
                         }
 
-                        setMessage(`Uploaded ${Math.min(i + BATCH_SIZE, dbRecords.length)} / ${dbRecords.length} days...`)
+                        setMessage(`Uploaded ${Math.min(i + BATCH_SIZE, newRecords.length)} / ${newRecords.length} new days...`)
                     }
 
                     setStatus('success')

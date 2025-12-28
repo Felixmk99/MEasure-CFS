@@ -91,36 +91,27 @@ export function XmlUploader() {
                     // 1. Fetch existing rows for these dates
                     const { data: existingRows } = await supabase
                         .from('health_metrics')
-                        .select('*')
+                        .select('date')
                         .in('date', dates)
-                        .eq('user_id', user.id)
+                        .eq('user_id', user.id) as { data: { date: string }[] | null }
 
                     const existingMap = new Map((existingRows || []).map((r: any) => [r.date, r]))
 
-                    // 2. Merge - STRICT FILTER: Only keep days that already exist
-                    const mergedBatch = batch.map(newRecord => {
-                        const existing = existingMap.get(newRecord.date)
-
-                        // IF NO EXISTING VISIBLE DATA, SKIP THIS DAY
-                        if (!existing) return null
-
-                        // Remove ID and CreatedAt to avoid conflicts/PK errors on Upsert
-                        const { id, created_at, ...rest } = existing
-
-                        return {
-                            ...rest, // Keep old data
-                            user_id: user.id,
-                            date: newRecord.date,
-                            step_count: newRecord.step_count
-                        }
-                    }).filter(Boolean) // Remove nulls
+                    // 2. Merge - STRICT FILTER: Only keep days that do NOT exist yet
+                    const mergedBatch = batch.filter(newRecord => {
+                        return !existingMap.has(newRecord.date)
+                    }).map(newRecord => ({
+                        user_id: user.id,
+                        date: newRecord.date,
+                        step_count: newRecord.step_count
+                    }))
 
                     if (mergedBatch.length === 0) continue
 
-                    // 3. Upsert
+                    // 3. Insert new records
                     const { error } = await supabase
                         .from('health_metrics')
-                        .upsert(mergedBatch as any, { onConflict: 'user_id, date' })
+                        .insert(mergedBatch as any)
 
                     if (error) throw error
 

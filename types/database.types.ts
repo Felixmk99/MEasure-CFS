@@ -18,6 +18,7 @@ export interface Database {
                     hrv: number | null
                     resting_heart_rate: number | null
                     exertion_score: number | null
+                    step_count: number | null
                     custom_metrics: Json | null
                     raw_data: Json | null
                     created_at: string
@@ -30,6 +31,8 @@ export interface Database {
                     hrv?: number | null
                     resting_heart_rate?: number | null
                     exertion_score?: number | null
+                    step_count?: number | null
+                    custom_metrics?: Json | null
                     raw_data?: Json | null
                     created_at?: string
                 }
@@ -41,6 +44,8 @@ export interface Database {
                     hrv?: number | null
                     resting_heart_rate?: number | null
                     exertion_score?: number | null
+                    step_count?: number | null
+                    custom_metrics?: Json | null
                     raw_data?: Json | null
                     created_at?: string
                 }
@@ -50,6 +55,7 @@ export interface Database {
                     id: string
                     user_id: string
                     name: string
+                    dosage: string | null
                     start_date: string
                     end_date: string | null
                     category: 'medication' | 'supplement' | 'lifestyle' | 'other' | null
@@ -59,6 +65,7 @@ export interface Database {
                     id?: string
                     user_id: string
                     name: string
+                    dosage?: string | null
                     start_date: string
                     end_date?: string | null
                     category?: 'medication' | 'supplement' | 'lifestyle' | 'other' | null
@@ -67,13 +74,26 @@ export interface Database {
                 Update: {
                     id?: string
                     user_id?: string
-                    name: string
+                    name?: string
+                    dosage?: string | null
                     start_date?: string
                     end_date?: string | null
                     category?: 'medication' | 'supplement' | 'lifestyle' | 'other' | null
                     created_at?: string
                 }
             }
+        }
+        Views: {
+            [_ in never]: never
+        }
+        Functions: {
+            [_ in never]: never
+        }
+        Enums: {
+            [_ in never]: never
+        }
+        CompositeTypes: {
+            [_ in never]: never
         }
     }
 }

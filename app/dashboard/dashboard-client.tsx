@@ -158,11 +158,12 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         const dynamicOptions = Array.from(dynamicKeys).sort()
         const defaults = [
             { value: 'adjusted_score', label: 'Track-ME Score' },
-            { value: 'composite_score', label: 'Symptom Score (Visible)' },
+            { value: 'composite_score', label: 'Symptom Score' },
+            { value: 'exertion_score', label: 'Exertion Score' },
+            { value: 'step_factor', label: 'Steps normalized' },
             { value: 'hrv', label: 'Heart Rate Variability' },
             { value: 'resting_heart_rate', label: 'Resting HR' },
-            { value: 'step_count', label: 'Steps' },
-            { value: 'exertion_score', label: 'Exertion Score' }
+            { value: 'step_count', label: 'Steps' }
         ]
         const allOptions = [...defaults]
         dynamicOptions.forEach(key => {
@@ -184,6 +185,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             case 'resting_heart_rate': return { label: t('dashboard.metrics.resting_heart_rate.label'), color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true, description: t('dashboard.metrics.resting_heart_rate.description'), better: t('dashboard.metrics.resting_heart_rate.better') }
             case 'step_count': return { label: t('dashboard.metrics.step_count.label'), color: '#06b6d4', domain: ['auto', 'auto'], unit: '', invert: false, description: t('dashboard.metrics.step_count.description'), better: t('dashboard.metrics.step_count.better') }
             case 'exertion_score': return { label: t('dashboard.metrics.exertion_score.label'), color: '#10b981', domain: [0, 10], unit: '', invert: false, description: t('dashboard.metrics.exertion_score.description'), better: t('dashboard.metrics.exertion_score.better') }
+            case 'Coffee': return { label: 'Coffee', color: '#92400e', domain: [0, 'auto'], unit: 'cups', invert: false }
         }
 
         // Dynamic Config
@@ -353,6 +355,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 if (key === 'adjusted_score') {
                     // Replicate logic from processedData EXACTLY
                     const base = d.custom_metrics?.composite_score ?? 0
+                    const exertion = d.exertion_score ?? 0
                     let stepFactor = 0
 
                     const sVal = d.step_count
@@ -364,7 +367,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                             stepFactor = normalized * 3
                         }
                     }
-                    return Math.max(0, base - stepFactor)
+                    const res = base - exertion - stepFactor
+                    return Math.max(0, res)
                 }
                 return getValue(d, key)
             }
@@ -430,9 +434,13 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 const safeStart = Math.abs(startVal) < 0.01 ? 0.01 : startVal
 
                 // Calculate percentage change over the period
-                // Note: If startVal is very small, this can explode.
-                // Logic: (End - Start) / Start
-                periodTrendPct = ((endVal - startVal) / safeStart) * 100
+                // Logic: (End - Start) / Denominator
+                // We use the midpoint (average of regression ends) as a more stable denominator
+                // than just the start point, preventing "exploding" percentages on low start values.
+                const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
+                const denominator = midpoint < 0.5 ? 0.5 : midpoint
+
+                periodTrendPct = ((endVal - startVal) / denominator) * 100
 
                 if (Math.abs(periodTrendPct) < 1) periodTrendStatus = 'stable'
                 else if (periodTrendPct > 0) periodTrendStatus = config.invert ? 'worsening' : 'improving'
@@ -443,10 +451,14 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             let compareTrendPct = 0
             let compareTrendStatus = 'insufficient_data'
 
-            if (prevValues.length > 0) {
+            if (prevValues.length > 0 && currentValues.length > 0) {
                 const trendPrevAvg = prevValues.reduce((a, b) => a + b, 0) / prevValues.length
-                const denominator = Math.abs(trendPrevAvg) < 1 ? 1 : Math.abs(trendPrevAvg)
-                const diff = currentAvg - trendPrevAvg
+                const trendCurrAvg = currentValues.reduce((a, b) => a + b, 0) / currentValues.length
+
+                const midpoint = (Math.abs(trendPrevAvg) + Math.abs(trendCurrAvg)) / 2
+                const denominator = midpoint < 0.5 ? 0.5 : midpoint
+
+                const diff = trendCurrAvg - trendPrevAvg
                 compareTrendPct = (diff / denominator) * 100
 
                 if (Math.abs(compareTrendPct) < 1) compareTrendStatus = 'stable'
@@ -506,14 +518,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     return (
         <div className="space-y-6">
 
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-foreground tracking-tight">{t('dashboard.title')}</h2>
-                    <p className="text-muted-foreground text-sm">
-                        {t('dashboard.subtitle_prefix')} {selectedMetrics.map(m => getMetricConfig(m).label).join(', ')} {t('dashboard.subtitle_suffix')}
-                    </p>
-                </div>
+            {/* Header Area - Sticky Navigation */}
+            <div className="flex items-center justify-end gap-4 sticky top-14 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2 -mx-4 px-4 border-b border-border/50 mb-2 transition-all">
                 <div className="bg-muted/30 p-1 rounded-lg flex items-center gap-1 self-start">
                     {(['7d', '30d', '3m', 'all'] as TimeRange[]).map((r) => {
                         const rangeMap: Record<string, string> = { '7d': 'd7', '30d': 'd30', '3m': 'm3', 'all': 'all' }
@@ -790,24 +796,6 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 minTickGap={30}
                             />
 
-                            {/* Crash Visualization: Dark Grey Vertical Overlay for Visiblity */}
-                            {showCrashes && chartData.map((d: any) => {
-                                if (d.custom_metrics?.Crash == 1 || d.custom_metrics?.crash == 1) {
-                                    return (
-                                        <React.Fragment key={d.date}>
-                                            <ReferenceArea
-                                                yAxisId={selectedMetrics[0]}
-                                                x1={d.date}
-                                                x2={d.date}
-                                                strokeOpacity={0}
-                                                fill="#000"
-                                                fillOpacity={0.05}
-                                            />
-                                        </React.Fragment>
-                                    )
-                                }
-                                return null
-                            })}
 
                             {/* Dynamic Y Axes */}
                             {selectedMetrics.map((metric, index) => {
@@ -901,22 +889,44 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 }
                             })}
 
-                            {/* Crash Lines (On Top) */}
-                            {showCrashes && chartData.map((d: any) => {
-                                if (d.custom_metrics?.Crash == 1 || d.custom_metrics?.crash == 1) {
-                                    return (
-                                        <ReferenceLine
+                            {/* Crash Episode Visualization (Overlay + Boundary Lines) */}
+                            {(() => {
+                                const episodes: { start: string, end: string }[] = []
+                                let currentEpisode: { start: string, end: string } | null = null
+
+                                chartData.forEach((d: any, i) => {
+                                    const isCrash = d.custom_metrics?.Crash == 1 || d.custom_metrics?.crash == 1
+                                    if (isCrash) {
+                                        if (!currentEpisode) currentEpisode = { start: d.date, end: d.date }
+                                        else currentEpisode.end = d.date
+                                    } else {
+                                        if (currentEpisode) {
+                                            episodes.push(currentEpisode)
+                                            currentEpisode = null
+                                        }
+                                    }
+                                    if (i === chartData.length - 1 && currentEpisode) episodes.push(currentEpisode)
+                                })
+
+                                if (!showCrashes) return null
+
+                                return episodes.map((ep, idx) => (
+                                    <React.Fragment key={`ep-${idx}`}>
+                                        {/* Semi-transparent Overlay */}
+                                        <ReferenceArea
+                                            x1={ep.start}
+                                            x2={ep.end}
+                                            fill="#000"
+                                            fillOpacity={0.15}
+                                            stroke="none"
                                             yAxisId={selectedMetrics[0]}
-                                            key={`line-${d.date}`}
-                                            x={d.date}
-                                            stroke="#000"
-                                            strokeWidth={1}
-                                            opacity={0.5}
                                         />
-                                    )
-                                }
-                                return null
-                            })}
+                                        {/* Boundary Lines */}
+                                        <ReferenceLine x={ep.start} stroke="#000" strokeWidth={1} opacity={0.5} yAxisId={selectedMetrics[0]} />
+                                        <ReferenceLine x={ep.end} stroke="#000" strokeWidth={1} opacity={0.5} yAxisId={selectedMetrics[0]} />
+                                    </React.Fragment>
+                                ))
+                            })()}
 
                             {/* Render Trend Lines */}
                             {showTrend && selectedMetrics.map(metric => (

@@ -13,7 +13,8 @@ export function calculateBaselineStats(data: any[], metrics: string[]) {
     metrics.forEach(key => {
         const values = data.map(d => {
             const val = d[key] ?? d.custom_metrics?.[key] ?? null
-            return (typeof val === 'number') ? val : null
+            const num = (typeof val === 'number') ? val : (val ? Number(val) : null)
+            return (num !== null && !isNaN(num)) ? num : null
         }).filter((v): v is number => v !== null)
 
         if (values.length > 1) {
@@ -56,6 +57,14 @@ export interface CycleAnalysisResult {
             cumulativeLoadDetected: boolean
             triggerLag: number
             confidence: number
+            discoveries: {
+                metric: string
+                type: 'spike' | 'drop'
+                leadDaysStart: number
+                leadDaysEnd: number
+                magnitude: number
+                pctChange: number
+            }[]
         }
         crashPhase: {
             type: 'Type A (Dip)' | 'Type B (Burnout)' | 'Mixed'
@@ -95,8 +104,10 @@ export function extractEpochs(
 
                 metricsToAnalyze.forEach(key => {
                     const val = row[key] ?? row.custom_metrics?.[key] ?? null
-                    if (typeof val === 'number') {
-                        metrics[key] = val
+                    const num = typeof val === 'number' ? val : (val ? Number(val) : null)
+
+                    if (num !== null && !isNaN(num)) {
+                        metrics[key] = num
                     } else if (val === '1' || val === 1 || val === true) {
                         metrics[key] = 1
                     } else if (val === '0' || val === 0 || val === false) {
@@ -210,90 +221,305 @@ export function aggregateEpochs(epochs: CycleEpoch[], metrics: string[]) {
 }
 
 /**
- * Phase 1 Analysis: Detect Triggers
+ * Phase 1 Analysis: Detect Triggers across ALL metrics
  */
-export function analyzePreCrashPhase(aggregatedProfile: any[]) {
-    const exertionProfile = aggregatedProfile.filter(d => d.dayOffset < 0).map(d => ({
-        offset: d.dayOffset,
-        mean: d.metrics['exertion_score']?.mean || 0
-    }))
+export function analyzePreCrashPhase(aggregatedProfile: any[], baselineStats: Record<string, { mean: number, std: number }>) {
+    const preDashData = aggregatedProfile.filter(d => d.dayOffset < 0)
+    const metrics = Object.keys(aggregatedProfile[0]?.metrics || {})
+    const discoveries: { metric: string, type: 'spike' | 'drop', leadDaysStart: number, leadDaysEnd: number, magnitude: number, pctChange: number }[] = []
 
-    const acuteSpike = exertionProfile.find(d => d.offset >= -2 && d.mean > 1.5)
-    const cumulativeAvg = exertionProfile.filter(d => d.offset >= -5).reduce((a, b) => a + b.mean, 0) / (exertionProfile.filter(d => d.offset >= -5).length || 1)
+    // 1. Global Deviation Scanner: Look at EVERY metric for significant pre-crash movement
+    metrics.forEach(m => {
+        if (m === 'Crash' || m === 'crash') return
 
-    return {
-        delayedTriggerDetected: !!acuteSpike,
-        cumulativeLoadDetected: cumulativeAvg > 0.5,
-        triggerLag: acuteSpike ? acuteSpike.offset : (cumulativeAvg > 0.5 ? -1 : 0),
-        confidence: acuteSpike ? 0.8 : (cumulativeAvg > 0.5 ? 0.6 : 0)
-    }
-}
+        const profile = preDashData.map(d => ({
+            offset: d.dayOffset, // -7 to -1
+            zScore: d.metrics[m]?.mean || 0
+        })).sort((a, b) => a.offset - b.offset) // -7, -6, ..., -1
 
-/**
- * Phase 3 Analysis: Recovery & Hysteresis
- */
-export function analyzeRecoveryPhase(aggregatedProfile: any[]) {
-    const findRecoveryDay = (metric: string) => {
-        const post = aggregatedProfile.filter(d => d.dayOffset > 0)
-        for (const day of post) {
-            if (metric === 'hrv') {
-                if (day.metrics[metric]?.mean > -0.5) return day.dayOffset
-            } else {
-                if (day.metrics[metric]?.mean < 0.5) return day.dayOffset
+        // Look for acute anomalies (Z-score > 2.0 or < -2.0)
+        // Find the full window of significance
+        const significantDays = profile.filter(p => Math.abs(p.zScore) > 2.0)
+
+        if (significantDays.length > 0) {
+            const peak = [...significantDays].sort((a, b) => Math.abs(b.zScore) - Math.abs(a.zScore))[0]
+            const startDay = significantDays[0].offset
+            const endDay = significantDays[significantDays.length - 1].offset
+
+            // Calculate roughly raw percentage change from Z-score
+            // val = z * std + mean
+            // pct = (val - mean) / mean = (z * std) / mean
+            const bStats = baselineStats[m]
+            let pctChange = 0
+            if (bStats) {
+                // Use a safe denominator (min 1.0) to prevent "explosive" percentages
+                // on metrics that typically have low baseline means (like symptoms)
+                const denom = Math.abs(bStats.mean) < 1.0 ? 1.0 : Math.abs(bStats.mean)
+                pctChange = (peak.zScore * bStats.std) / denom
+            }
+
+            discoveries.push({
+                metric: m,
+                type: peak.zScore > 0 ? 'spike' : 'drop',
+                leadDaysStart: Math.abs(startDay),
+                leadDaysEnd: Math.abs(endDay),
+                magnitude: Math.abs(peak.zScore),
+                pctChange: pctChange * 100
+            })
+        }
+    })
+
+    // 2. Combinatorial Scanner: Look for PAIRS of metrics that are significant together
+    const pairwiseDiscoveries: typeof discoveries = []
+    const metricList = metrics.filter(m => m !== 'Crash' && m !== 'crash')
+
+    for (let i = 0; i < metricList.length; i++) {
+        for (let j = i + 1; j < metricList.length; j++) {
+            const m1 = metricList[i]
+            const m2 = metricList[j]
+
+            const profile = preDashData.map(d => {
+                const z1 = d.metrics[m1]?.mean || 0
+                const z2 = d.metrics[m2]?.mean || 0
+                // Combine Z-scores. Sum of Z-scores normalized.
+                // If they both go same way, it amplifies.
+                return {
+                    offset: d.dayOffset,
+                    z1,
+                    z2,
+                    jointZ: (z1 + z2) / Math.sqrt(2)
+                }
+            })
+
+            // Find window where combined impact is significant (> 2.0)
+            // AND ensure it's "synergistic" (joint Z is stronger than individual Zs on average)
+            const significantDays = profile.filter(p => Math.abs(p.jointZ) > 2.2)
+
+            if (significantDays.length > 0) {
+                const peak = [...significantDays].sort((a, b) => Math.abs(b.jointZ) - Math.abs(a.jointZ))[0]
+
+                // Only include if neither component was already a top solo discovery 
+                // OR if the combination is significantly more powerful.
+                const startDay = significantDays[0].offset
+                const endDay = significantDays[significantDays.length - 1].offset
+
+                // Average Pct Change (Aggregated impact)
+                const b1 = baselineStats[m1]
+                const b2 = baselineStats[m2]
+                let avgPct = 0
+                if (b1 && b2) {
+                    const pct1 = (peak.z1 * b1.std) / (Math.abs(b1.mean) < 1.0 ? 1.0 : Math.abs(b1.mean))
+                    const pct2 = (peak.z2 * b2.std) / (Math.abs(b2.mean) < 1.0 ? 1.0 : Math.abs(b2.mean))
+                    avgPct = ((pct1 + pct2) / 2) * 100
+                }
+
+                pairwiseDiscoveries.push({
+                    metric: `${m1} + ${m2}`,
+                    type: peak.jointZ > 0 ? 'spike' : 'drop',
+                    leadDaysStart: Math.abs(startDay),
+                    leadDaysEnd: Math.abs(endDay),
+                    magnitude: Math.abs(peak.jointZ),
+                    pctChange: avgPct
+                })
             }
         }
-        return 14
     }
 
-    const symptomRecovery = findRecoveryDay('composite_score')
-    const hrvRecovery = findRecoveryDay('hrv')
+    // Merge and filter discoveries
+    // Prioritize combinations if they are very strong (> 2.5) 
+    // Otherwise prioritize solo spikes if they are extreme.
+    const allDiscoveries = [...discoveries, ...pairwiseDiscoveries]
+        .sort((a, b) => b.magnitude - a.magnitude)
+        .slice(0, 5) // Increase to 5 to show more "advanced" findings if they exist
+
+    // 3. Specific Known Pattern Checks (Exertion Spike)
+    const exertionSpike = allDiscoveries.find(d => d.metric.includes('exertion_score') && d.type === 'spike')
+    const cumulativeAvg = preDashData.filter(d => d.dayOffset >= -5).reduce((a, b) => a + (b.metrics['exertion_score']?.mean || 0), 0) / 5
 
     return {
-        avgRecoveryDays: symptomRecovery,
-        hysteresisDetected: hrvRecovery < symptomRecovery
+        delayedTriggerDetected: !!exertionSpike,
+        cumulativeLoadDetected: cumulativeAvg > 0.5,
+        triggerLag: exertionSpike ? exertionSpike.leadDaysStart : (cumulativeAvg > 0.5 ? -1 : 0),
+        confidence: exertionSpike ? 0.8 : (cumulativeAvg > 0.5 ? 0.6 : 0),
+        discoveries: allDiscoveries
     }
 }
 
 /**
- * Phase 2 Analysis: The Event
+ * Phase 3 Analysis: The Recovery Tail (Post-Logging Phase)
+ * Analyzes the period AFTER the user stops logging 'Crash' but BEFORE metrics hit baseline.
+ */
+export function analyzeRecoveryPhase(epochs: CycleEpoch[], baselineStats: Record<string, { mean: number, std: number }>) {
+    const metrics = Object.keys(baselineStats).filter(m => m !== 'Crash' && m !== 'crash')
+
+    const episodes = epochs.map(epoch => {
+        // 1. Find when the user STOPPED logging 'Crash'
+        let manualExitDay = 0
+        for (let i = 0; i <= 14; i++) {
+            const day = epoch.data.find(d => d.dayOffset === i)
+            if (!day) break
+            const isLabeled = day.metrics['Crash'] === 1 || day.metrics['crash'] === 1
+            if (isLabeled) {
+                manualExitDay = i + 1
+            } else if (i > manualExitDay && manualExitDay > 0) {
+                // We've found the stretch where they aren't logging anymore
+                break
+            }
+        }
+
+        const recoveryStats: Record<string, number> = {}
+
+        // 2. Scan from manualExitDay to find when each metric hits baseline (< 0.5 sigma)
+        metrics.forEach(m => {
+            let recoveryFound = false
+            for (let i = manualExitDay; i <= 14; i++) {
+                const day = epoch.data.find(d => d.dayOffset === i)
+                if (!day) break
+
+                const z = Math.abs(day.zScores[m] || 0)
+                if (z < 0.5) {
+                    recoveryStats[m] = i - manualExitDay
+                    recoveryFound = true
+                    break
+                }
+            }
+            if (!recoveryFound) recoveryStats[m] = 14 - manualExitDay // Capped
+        })
+
+        return { manualExitDay, recoveryStats }
+    })
+
+    if (episodes.length === 0) return null
+
+    // Aggregate average recovery days per metric
+    const metricAverages: Record<string, number> = {}
+    metrics.forEach(m => {
+        const avg = episodes.reduce((a, b) => a + b.recoveryStats[m], 0) / episodes.length
+        metricAverages[m] = avg
+    })
+
+    // Group into Subjective (Symptoms) vs Biological (Vitals)
+    const vitalMetrics = ['hrv', 'resting_heart_rate']
+    const symptomMetrics = ['composite_score', 'symptom_score', 'Pain', 'Fatigue', 'Brain Fog'] // common ones
+
+    // Actually, let's use a heuristic for symptom metrics in custom_metrics
+    const isSymptom = (m: string) => {
+        const lower = m.toLowerCase()
+        return symptomMetrics.some(s => lower.includes(s.toLowerCase())) || ['composite_score'].includes(m)
+    }
+
+    const avgSymptomTail = metrics.filter(isSymptom).reduce((a, m) => a + metricAverages[m], 0) / (metrics.filter(isSymptom).length || 1)
+    const avgVitalTail = metrics.filter(m => vitalMetrics.includes(m)).reduce((a, m) => a + metricAverages[m], 0) / (vitalMetrics.length || 1)
+
+    // Identify slow metrics
+    const slowest = Object.entries(metricAverages)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .filter(([, val]) => val > 0.5) // Only if it actually takes time
+        .map(([m]) => m)
+
+    return {
+        avgSymptomRecoveryTail: avgSymptomTail,
+        avgBiologicalRecoveryTail: avgVitalTail,
+        hysteresisGap: Math.max(0, avgVitalTail - avgSymptomTail),
+        slowestRecoverers: slowest
+    }
+}
+
+/**
+ * Phase 2 Analysis: The Event (Impact & Duration)
  */
 export function analyzeCrashPhase(epochs: CycleEpoch[], baselineStats: Record<string, { mean: number, std: number }>) {
-    const crashes = epochs.map(epoch => {
-        let duration = 0
-        let severitySum = 0
-        let peakSeverity = 0
+    const metrics = Object.keys(baselineStats).filter(m => m !== 'Crash' && m !== 'crash')
 
+    const episodes = epochs.map(epoch => {
+        let loggedDuration = 0
+        let physiologicalDuration = 0
+        const peakMetrics: Record<string, number> = {}
+
+        // 1. Calculate Durations
         for (let i = 0; i <= 14; i++) {
             const day = epoch.data.find(d => d.dayOffset === i)
             if (!day) break
 
             const isLabeled = day.metrics['Crash'] === 1 || day.metrics['crash'] === 1
-            const z = day.zScores['composite_score'] || 0
+            if (isLabeled) loggedDuration++
 
-            if (isLabeled) duration++
+            // Phys. duration: Any metric > 1.0 sigma (stressed) or user label
+            const isPhysStressed = Object.values(day.zScores).some(z => z !== null && Math.abs(z) > 1.0)
+            if (isLabeled || isPhysStressed) physiologicalDuration++
 
-            if (isLabeled || z > 0.5) {
-                severitySum += z
-                if (z > peakSeverity) peakSeverity = z
+            // Store peak deviations for this specific episode
+            metrics.forEach(m => {
+                const z = day.zScores[m] || 0
+                if (Math.abs(z) > Math.abs(peakMetrics[m] || 0)) {
+                    peakMetrics[m] = z
+                }
+            })
+
+            // Break if we've left the crash zone (no label and no stress for a buffer day)
+            if (i > 0 && !isLabeled && !isPhysStressed) {
+                // Check next day for bounce back?
+                const nextDay = epoch.data.find(d => d.dayOffset === i + 1)
+                if (!nextDay || (!nextDay.metrics['Crash'] && !Object.values(nextDay.zScores).some(z => z !== null && Math.abs(z) > 1.0))) {
+                    break
+                }
             }
-
-            if (i > 0 && !isLabeled && z <= 0.5) break
         }
-        return { duration, severitySum, peakSeverity }
+        return { loggedDuration, physiologicalDuration, peakMetrics }
     })
 
-    if (crashes.length === 0) return { type: 'Mixed', avgDuration: 0, severityAUC: 0 }
+    if (episodes.length === 0) return { type: 'Mixed', avgLoggedDuration: 0, avgPhysiologicalDuration: 0, discoveries: [] }
 
-    const avgDuration = crashes.reduce((a, b) => a + b.duration, 0) / crashes.length
-    const avgSeverity = crashes.reduce((a, b) => a + b.peakSeverity, 0) / crashes.length
+    const avgLogged = episodes.reduce((a, b) => a + b.loggedDuration, 0) / episodes.length
+    const avgPhys = episodes.reduce((a, b) => a + b.physiologicalDuration, 0) / episodes.length
 
-    let type: 'Type A (Dip)' | 'Type B (Burnout)' | 'Mixed' = 'Mixed'
-    if (avgDuration < 3 && avgSeverity > 1.5) type = 'Type A (Dip)'
-    else if (avgDuration >= 3) type = 'Type B (Burnout)'
+    // 2. Aggregate Discoveries (Solo metrics only)
+    const discoveries: any[] = []
+
+    metrics.forEach(m => {
+        const avgPeakZ = episodes.reduce((a, b) => a + (b.peakMetrics[m] || 0), 0) / episodes.length
+
+        // Lower threshold slightly to catch subtle but consistent shifts (like Resting HR)
+        if (Math.abs(avgPeakZ) > 1.3) {
+            const bStats = baselineStats[m]
+            const denom = Math.abs(bStats.mean) < 1.0 ? 1.0 : Math.abs(bStats.mean)
+            const pctChange = (avgPeakZ * bStats.std) / denom
+
+            discoveries.push({
+                metric: m,
+                type: avgPeakZ > 0 ? 'spike' : 'drop',
+                magnitude: Math.abs(avgPeakZ),
+                pctChange: pctChange * 100
+            })
+        }
+    })
+
+    // 3. Identify "Extending" Metrics (Physiological vs Logged)
+    // Find metrics that frequently stay > 1.0 sigma after the logged 'Crash' field is false
+    const extendingMetrics: string[] = []
+    if (avgPhys > avgLogged) {
+        metrics.forEach(m => {
+            let extensionCount = 0
+            episodes.forEach(ep => {
+                // We'll use a simpler heuristic: if peakZ is high and it's a slow-recovery metric
+                if (Math.abs(ep.peakMetrics[m]) > 1.5) extensionCount++
+            })
+            if (extensionCount > episodes.length * 0.5) {
+                extendingMetrics.push(m)
+            }
+        })
+    }
+
+    let type: 'Dip (Short Episode)' | 'Burnout (Long Episode)' | 'Mixed' = 'Mixed'
+    if (avgLogged < 3) type = 'Dip (Short Episode)'
+    else if (avgLogged >= 3) type = 'Burnout (Long Episode)'
 
     return {
         type,
-        avgDuration,
-        severityAUC: crashes.reduce((a, b) => a + b.severitySum, 0) / crashes.length
+        avgLoggedDuration: avgLogged,
+        avgPhysiologicalDuration: avgPhys,
+        discoveries: discoveries.sort((a, b) => b.magnitude - a.magnitude).slice(0, 5),
+        extendingMetrics: extendingMetrics.slice(0, 3)
     }
 }

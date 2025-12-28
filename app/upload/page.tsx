@@ -25,14 +25,17 @@ export default async function DataPage() {
     if (hasData) {
         const { data } = await supabase
             .from('health_metrics')
-            .select('id, date, hrv, step_count, custom_metrics, exertion_score, created_at')
+            .select('id, date, hrv, resting_heart_rate, step_count, custom_metrics, exertion_score, created_at')
             .eq('user_id', user.id)
             .order('date', { ascending: false })
-            .limit(50)
+            .limit(500)
 
         recentLogs = data || []
     }
 
-    return <DataManagementClient initialData={recentLogs} hasData={hasData} />
+    // 3. Check for steps specifically
+    const hasSteps = recentLogs.some(log => log.step_count !== null && log.step_count !== undefined)
+
+    return <DataManagementClient initialData={recentLogs} hasData={hasData} hasSteps={hasSteps} />
 }
 
