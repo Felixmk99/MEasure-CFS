@@ -103,4 +103,98 @@ export interface Dictionary {
         crash_mode: string
         pem_days: string
     }
+    experiments: {
+        page_title: string
+        intro: {
+            title: string
+            welcome: string
+            overlap_title: string
+            overlap_desc: string
+            zscore_title: string
+            zscore_desc: string
+        }
+        actions: {
+            start_new: string
+            log_new: string
+            edit: string
+            delete: string
+            save: string
+            update: string
+            cancel: string
+            confirm_delete: string
+        }
+        form: {
+            name: string
+            dosage: string
+            category: string
+            start_date: string
+            end_date: string
+            categories: {
+                lifestyle: string
+                medication: string
+                supplement: string
+                other: string
+            }
+        }
+        active: {
+            title: string
+            day: string
+            confidence: string
+            confidence_hint: string
+            impact_title: string
+            no_active_title: string
+            no_active_desc: string
+        }
+        history: {
+            title: string
+            independent_outcome: string
+            influence: string
+            no_history: string
+        }
+        impact: {
+            insufficient: string
+            significance: {
+                positive: string
+                negative: string
+                neutral: string
+                likely_positive: string
+                likely_negative: string
+            }
+        }
+    }
+    upload: {
+        title: string
+        subtitle_prefix: string
+        subtitle_highlight: string
+        subtitle_manage: string
+        description_empty: string
+        description_data: string
+        private_badge: string
+        tabs: {
+            visible: string
+            apple: string
+        }
+        dropzone: {
+            idle: string
+            active: string
+            success: string
+            error: string
+            uploading: string
+            button_upload: string
+            button_select: string
+            button_retry: string
+        }
+        data_log: {
+            title: string
+            delete_all: string
+            delete_confirm: string
+            table: {
+                date: string
+                hrv: string
+                steps: string
+                action: string
+                empty: string
+            }
+        }
+    }
 }

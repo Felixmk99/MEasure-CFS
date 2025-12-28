@@ -10,8 +10,10 @@ import { Progress } from '@/components/ui/progress'
 import { normalizeLongFormatData } from '@/lib/data/long-format-normalizer'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from "@/components/providers/language-provider"
 
 export function CsvUploader() {
+    const { t } = useLanguage()
     const [uploading, setUploading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
@@ -39,13 +41,8 @@ export function CsvUploader() {
                         throw new Error('You must be logged in to upload data.')
                     }
 
-                    // PIVOT Logic: Group raw rows into Daily Records
-                    // console.log("Stats:", results.meta)
-                    // console.log("First Raw Row:", results.data[0])
-
                     const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
                     const records = normalizeLongFormatData(validRows)
-                    // console.log("Normalized Records:", records.slice(0, 3))
 
                     if (records.length === 0) {
                         const headers = results.meta.fields || []
@@ -54,8 +51,6 @@ export function CsvUploader() {
 
                     setMessage(`Uploading ${records.length} days of data...`)
 
-                    // Prepare for Supabase
-                    // Prepare for Supabase
                     const dbRecords = records.map(r => ({
                         user_id: user.id,
                         date: r.date,
@@ -64,11 +59,10 @@ export function CsvUploader() {
                         exertion_score: r.exertion_score,
                         custom_metrics: {
                             ...r.custom_metrics,
-                            composite_score: r.composite_score // Store here to bypass constraint
+                            composite_score: r.composite_score
                         }
                     }))
 
-                    // 2. Fetch existing dates to avoid overwriting manual edits
                     const { data: existingDates } = await supabase
                         .from('health_metrics')
                         .select('date')
@@ -85,7 +79,6 @@ export function CsvUploader() {
 
                     setMessage(`Adding ${newRecords.length} new days of data...`)
 
-                    // Batch upload in chunks of 50 to prevent timeouts/limits
                     const BATCH_SIZE = 50
                     for (let i = 0; i < newRecords.length; i += BATCH_SIZE) {
                         const batch = newRecords.slice(i, i + BATCH_SIZE)
@@ -105,9 +98,8 @@ export function CsvUploader() {
                     setMessage(`Successfully uploaded ${records.length} days of data!`)
                     router.refresh()
 
-                    // Redirect to dashboard after a short delay so user sees success state
                     setTimeout(() => {
-                        window.location.href = '/dashboard' // Force full reload to ensure Navbar updates state
+                        window.location.href = '/dashboard'
                     }, 1500)
 
                 } catch (err: any) {
@@ -164,15 +156,16 @@ export function CsvUploader() {
                 {/* Text Content */}
                 <div className="space-y-2">
                     <h3 className="text-2xl font-bold text-foreground">
-                        {status === 'uploading' ? 'Uploading...' :
-                            status === 'success' ? 'Upload Complete!' :
-                                'Upload your CSV file'}
+                        {status === 'uploading' ? t('upload.dropzone.uploading') :
+                            status === 'success' ? t('upload.dropzone.success') :
+                                status === 'error' ? t('upload.dropzone.error') :
+                                    "Upload your CSV file"}
                     </h3>
                     <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
                         {status === 'uploading' ? message :
                             status === 'success' ? message :
                                 status === 'error' ? message :
-                                    'Drag and drop your Visible export here, or click below to browse.'}
+                                    t('upload.dropzone.idle')}
                     </p>
                     {status === 'idle' && (
                         <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Supports .csv files</p>
@@ -193,9 +186,9 @@ export function CsvUploader() {
                             }
                         }}
                     >
-                        {status === 'success' ? 'Upload New File' :
-                            status === 'error' ? 'Try Again' :
-                                'Select File'}
+                        {status === 'success' ? t('upload.dropzone.button_upload') :
+                            status === 'error' ? t('upload.dropzone.button_retry') :
+                                t('upload.dropzone.button_select')}
                     </Button>
                 )}
 

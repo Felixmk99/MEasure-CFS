@@ -8,8 +8,10 @@ import { motion } from 'framer-motion'
 import { useDropzone } from 'react-dropzone'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
+import { useLanguage } from '@/components/providers/language-provider'
 
 export default function LandingPage() {
+  const { t } = useLanguage()
   const router = useRouter()
 
   // Drag & Drop Handler (Demo for now - redirects to signup)
@@ -47,17 +49,16 @@ export default function LandingPage() {
             className="max-w-3xl space-y-6"
           >
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/10 text-primary hover:bg-primary/20">
-              <Shield className="mr-1 h-3 w-3" /> Privacy-First Health Analytics
+              <Shield className="mr-1 h-3 w-3" /> {t('landing.hero.badge')}
             </div>
 
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground">
-              Understand your body.<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">Master your energy.</span>
+              {t('landing.hero.title_main')}<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">{t('landing.hero.title_highlight')}</span>
             </h1>
 
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A secure, friendly space for ME/CFS and Long Covid warriors to visualize "Visible" app data.
-              Spot crash triggers, track medication efficacy, and find your baseline—without compromising privacy.
+              {t('landing.hero.subtitle')}
             </p>
 
             {/* Hero Drop Zone */}
@@ -79,21 +80,21 @@ export default function LandingPage() {
                   <Upload className="h-8 w-8 text-primary" />
                 </div>
                 <div className="text-center">
-                  <h3 className="text-lg font-semibold text-foreground">Analyze your CSV instantly</h3>
-                  <p className="text-sm text-muted-foreground">Drag & Drop your Visible export here to start</p>
+                  <h3 className="text-lg font-semibold text-foreground">{t('landing.hero.dropzone.title')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('landing.hero.dropzone.subtitle')}</p>
                 </div>
                 <Button variant="secondary" size="sm" className="mt-2" onClick={(e) => {
                   e.stopPropagation();
                   router.push('/login');
                 }}>
-                  Or create an account first <ArrowRight className="ml-1 h-4 w-4" />
+                  {t('landing.hero.dropzone.button_account')} <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </div>
             </motion.div>
 
             <div className="flex justify-center gap-6 pt-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1"><Shield className="h-4 w-4 text-green-500" /> Secure Storage</div>
-              <div className="flex items-center gap-1"><Zap className="h-4 w-4 text-amber-500" /> Instant Insights</div>
+              <div className="flex items-center gap-1"><Shield className="h-4 w-4 text-green-500" /> {t('landing.hero.features.secure')}</div>
+              <div className="flex items-center gap-1"><Zap className="h-4 w-4 text-amber-500" /> {t('landing.hero.features.instant')}</div>
             </div>
 
           </motion.div>
@@ -103,30 +104,29 @@ export default function LandingPage() {
         <section className="py-24 bg-muted/50">
           <div className="container px-6 mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold tracking-tight mb-4">Why analyze your trends?</h2>
+              <h2 className="text-3xl font-bold tracking-tight mb-4">{t('landing.why.title')}</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Raw data is hard to read when you have brain fog. We turn your daily check-ins into clear,
-                friendly stories that help you advocate for your health.
+                {t('landing.why.subtitle')}
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               <FeatureCard
                 icon={<Lock className="h-6 w-6 text-rose-500" />}
-                title="Private by Design"
-                description="Your health data is sensitive. That's why we use Row Level Security (RLS). You own your data, full stop."
+                title={t('landing.why.cards.privacy.title')}
+                description={t('landing.why.cards.privacy.desc')}
                 bg="bg-rose-50 dark:bg-rose-950/20"
               />
               <FeatureCard
                 icon={<BarChart3 className="h-6 w-6 text-blue-500" />}
-                title="Understand Your Baseline"
-                description="Correlate HRV, symptoms, and rest to find your safe energy envelope. Identify crash triggers before they happen."
+                title={t('landing.why.cards.baseline.title')}
+                description={t('landing.why.cards.baseline.desc')}
                 bg="bg-blue-50 dark:bg-blue-950/20"
               />
               <FeatureCard
                 icon={<Heart className="h-6 w-6 text-violet-500" />}
-                title="Made for Patients"
-                description="Designed specifically for the chronic illness community. High contrast, low cognitive load, and pacing-focused."
+                title={t('landing.why.cards.patients.title')}
+                description={t('landing.why.cards.patients.desc')}
                 bg="bg-violet-50 dark:bg-violet-950/20"
               />
             </div>
@@ -136,18 +136,18 @@ export default function LandingPage() {
         {/* Visualization Teaser Section */}
         <section className="py-24 container px-6 mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="flex-1 space-y-8">
-            <h2 className="text-3xl sm:text-4xl font-bold">Spot patterns, find balance.</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold">{t('landing.teaser.title')}</h2>
             <p className="text-lg text-muted-foreground">
-              Our advanced analytics engine helps you evaluate if that new supplement is actually working, or if "Resting Pacing" is improving your baseline scores.
+              {t('landing.teaser.subtitle')}
             </p>
             <ul className="space-y-4">
-              <CheckItem text="PEM (Post-Exertional Malaise) Detection" />
-              <CheckItem text="Medication Efficacy Tracking" />
-              <CheckItem text="Symptom Correlation Matrix" />
-              <CheckItem text="HRV & Resting Heart Rate Trends" />
+              <CheckItem text={t('landing.teaser.list.pem')} />
+              <CheckItem text={t('landing.teaser.list.meds')} />
+              <CheckItem text={t('landing.teaser.list.symptom')} />
+              <CheckItem text={t('landing.teaser.list.trends')} />
             </ul>
             <Button size="lg" className="rounded-full px-8 mt-4" asChild>
-              <Link href="/login">Get Started for Free</Link>
+              <Link href="/login">{t('landing.teaser.cta')}</Link>
             </Button>
           </div>
           <div className="flex-1 relative">
@@ -163,7 +163,7 @@ export default function LandingPage() {
               {/* Overlay card look */}
               <div className="absolute bottom-6 left-6 right-6 bg-background/80 backdrop-blur-md p-4 rounded-xl border shadow-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold">Weekly Insights</span>
+                  <span className="text-sm font-semibold">{t('landing.teaser.card_insight')}</span>
                   <span className="text-xs text-green-500 font-medium flex items-center gap-1">
                     <TrendingUpIcon className="h-3 w-3" /> +12% Baseline
                   </span>
@@ -180,7 +180,7 @@ export default function LandingPage() {
 
       <footer className="py-12 bg-muted/30 border-t">
         <div className="container px-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Track-ME. Open Source & Community Driven.</p>
+          <p>&copy; {new Date().getFullYear()} {t('landing.footer.copyright')}</p>
         </div>
       </footer>
     </div>

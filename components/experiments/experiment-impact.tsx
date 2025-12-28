@@ -6,6 +6,7 @@ import { TrendingUp, TrendingDown, Minus, Info, Heart, Activity, Target } from "
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { ExperimentImpact } from "@/lib/statistics/experiment-analysis"
+import { useLanguage } from "@/components/providers/language-provider"
 
 interface ExperimentImpactProps {
     impacts: ExperimentImpact[]
@@ -21,14 +22,24 @@ export const getMetricIcon = (metric: string) => {
     return <Activity className="w-3.5 h-3.5" />
 }
 
-export const getFriendlyName = (metric: string) => {
+export const getFriendlyName = (metric: string, t: (key: string) => string) => {
     const m = metric.toLowerCase();
-    if (m === 'hrv') return 'HRV';
-    if (m === 'resting_heart_rate' || m === 'rhr') return 'Resting HR';
-    if (m === 'symptom_score') return 'Symptom Load';
-    if (m === 'composite_score') return 'Overall Health';
 
-    // Dynamic cleanup: snake_case to Title Case
+    // Try to find in dashboard config first
+    if (m === 'hrv') return t('dashboard.metrics.hrv.label');
+    if (m === 'resting_heart_rate' || m === 'rhr') return t('dashboard.metrics.resting_heart_rate.label');
+    if (m === 'symptom_score') return t('dashboard.metrics.composite_score.label'); // Mapped to Symptom Score in config
+    if (m === 'composite_score') return t('dashboard.metrics.adjusted_score.label'); // Mapped to Track-ME Score logic? No, wait. 
+    // In Dash: composite=Symptom, adjusted=Track-Me. 
+    // In Experiments: composite=Track-Me calculation?
+    // Let's rely on standard keys. If 'composite_score' is passed, use its label.
+    if (m === 'composite_score') return "Track-Me Score" // Hardcoded for now due to logic mismatch or add to dictionary 
+
+    // Check for explicit dictionary match
+    const dashLabel = t(`dashboard.metrics.${m}.label`)
+    if (dashLabel && !dashLabel.includes('dashboard.metrics')) return dashLabel
+
+    // Fallback: Title Case
     return metric
         .split('_')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -36,11 +47,13 @@ export const getFriendlyName = (metric: string) => {
 }
 
 export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
+    const { t } = useLanguage()
+
     if (impacts.length === 0) {
         return (
             <div className="flex items-center gap-2 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg text-xs text-muted-foreground italic">
                 <Info className="w-3.5 h-3.5" />
-                Insufficient data to isolate independent impact yet.
+                {t('experiments.impact.insufficient')}
             </div>
         )
     }
@@ -61,6 +74,12 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                 const isPositive = impact.significance === 'positive'
                 const isNegative = impact.significance === 'negative'
                 const isNeutral = impact.significance === 'neutral'
+
+                // Translate significance
+                // Need to handle 'usually positive' etc if they exist? Interface says: positive, negative, neutral, likely_positive...
+                const sigKey = `experiments.impact.significance.${impact.significance}`
+                // Handle complex keys if needed
+                const sigLabel = t(sigKey)
 
                 return (
                     <Card key={impact.metric} className={cn(
@@ -85,13 +104,13 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                     isNegative && "border-red-500/20 text-red-600",
                                     isNeutral && "border-zinc-500/20 text-zinc-500"
                                 )}>
-                                    {impact.significance}
+                                    {sigLabel}
                                 </Badge>
                             </div>
 
                             <div className="space-y-1">
                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight truncate">
-                                    {getFriendlyName(impact.metric)}
+                                    {getFriendlyName(impact.metric, t)}
                                 </p>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-sm font-black text-foreground leading-none">
@@ -104,6 +123,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                             {/* Signal Indicator */}
                             <div className={cn(
                                 "absolute bottom-1 right-1 opacity-20",
+                                "text-muted-foreground", // Default
                                 isPositive && "text-green-500",
                                 isNegative && "text-red-500",
                                 isNeutral && "text-zinc-500"

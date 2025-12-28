@@ -17,8 +17,10 @@ import { cn } from "@/lib/utils"
 import { Database } from "@/types/database.types"
 import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
 import { ExperimentImpactResults, getFriendlyName } from "@/components/experiments/experiment-impact"
+import { useLanguage } from "@/components/providers/language-provider"
 
 export default function ExperimentsClient({ initialExperiments, history }: { initialExperiments: Experiment[], history: MetricDay[] }) {
+    const { t } = useLanguage()
     const [experiments, setExperiments] = useState<Experiment[]>(initialExperiments)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [editingExp, setEditingExp] = useState<Experiment | null>(null)
@@ -59,11 +61,13 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             }
         });
 
-        // Calculate composite score baseline
+
+
+        // Calculate composite score baseline (Track-Me Score)
         const compValues = history.map(d => {
-            const h = (d.hrv as number) || 0
-            const s = (d.symptom_score as number) || 0
-            return (h / 100) - (s / 10) // Simple composite proxy
+            const h = (d.hrv as number) || 50
+            const s = (d.symptom_score as number) || 5
+            return (h / 100) - (s / 10)
         })
         if (compValues.length > 0) {
             const compMean = compValues.reduce((a, b) => a + b, 0) / compValues.length
@@ -81,6 +85,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             composite_score: (((d.hrv as number) || 50) / 100) - (((d.symptom_score as number) || 5) / 10)
         }))
     }, [history])
+
+
 
     // Run Analysis
     const analysisResults = useMemo(() => {
@@ -145,7 +151,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
     }
 
     const handleDelete = async (id: string) => {
-        const confirmed = window.confirm("Are you sure you want to delete this experiment?")
+        const confirmed = window.confirm(t('experiments.actions.confirm_delete'))
         if (!confirmed) return
 
         const { error } = await supabase.from('experiments').delete().eq('id', id)
@@ -170,25 +176,24 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             {experiments.length === 0 && (
                 <div className="max-w-2xl text-center space-y-6 animate-in fade-in slide-in-from-top-4 duration-1000">
                     <div className="space-y-2">
-                        <p className="text-xs font-bold text-rose-500 uppercase tracking-widest">Platform Introduction</p>
-                        <h2 className="text-4xl font-serif text-foreground">Statistical Experimentation</h2>
+                        <p className="text-xs font-bold text-rose-500 uppercase tracking-widest">{t('experiments.intro.title')}</p>
+                        <h2 className="text-4xl font-serif text-foreground">{t('experiments.page_title')}</h2>
                     </div>
                     <p className="text-muted-foreground leading-relaxed">
-                        Welcome to your biological laboratory. This page helps you isolate the independent impact of medications,
-                        supplements, and lifestyle changes using **Ordinary Least Squares (OLS) regression**.
+                        {t('experiments.intro.welcome')}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                         <div className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800">
                             <p className="text-xs font-bold uppercase mb-1 flex items-center gap-2">
-                                <Activity className="w-3 h-3 text-rose-500" /> Overlap Isolation
+                                <Activity className="w-3 h-3 text-rose-500" /> {t('experiments.intro.overlap_title')}
                             </p>
-                            <p className="text-[11px] text-muted-foreground">Our engine mathematically separates the effects of multiple interventions, even if they overlap in time.</p>
+                            <p className="text-[11px] text-muted-foreground">{t('experiments.intro.overlap_desc')}</p>
                         </div>
                         <div className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800">
                             <p className="text-xs font-bold uppercase mb-1 flex items-center gap-2">
-                                <Target className="w-3 h-3 text-emerald-500" /> Z-Score Impact
+                                <Target className="w-3 h-3 text-emerald-500" /> {t('experiments.intro.zscore_title')}
                             </p>
-                            <p className="text-[11px] text-muted-foreground">See exactly how many standard deviations (σ) your HRV or Heart Rate shifted independently for each med.</p>
+                            <p className="text-[11px] text-muted-foreground">{t('experiments.intro.zscore_desc')}</p>
                         </div>
                     </div>
                     <div className="pt-4 flex justify-center">
@@ -208,18 +213,18 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                 }}>
                     <DialogTrigger asChild>
                         <Button className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-full px-8 h-12 text-base shadow-lg hover:shadow-xl transition-all">
-                            <Plus className="w-5 h-5 mr-2" /> Start New Experiment
+                            <Plus className="w-5 h-5 mr-2" /> {t('experiments.actions.start_new')}
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>{editingExp ? 'Edit Experiment' : 'Log New Experiment'}</DialogTitle>
-                            <DialogDescription>Track an intervention to measure its independent impact on your health trackers.</DialogDescription>
+                            <DialogTitle>{editingExp ? t('experiments.actions.edit') : t('experiments.actions.log_new')}</DialogTitle>
+                            <DialogDescription>{t('experiments.active.no_active_desc')}</DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Name</Label>
+                                    <Label>{t('experiments.form.name')}</Label>
                                     <Input
                                         placeholder="e.g. Nattokinase"
                                         value={formData.name}
@@ -227,7 +232,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Dosage (Optional)</Label>
+                                    <Label>{t('experiments.form.dosage')}</Label>
                                     <Input
                                         placeholder="e.g. 2000 FU"
                                         value={formData.dosage}
@@ -236,7 +241,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label>Category</Label>
+                                <Label>{t('experiments.form.category')}</Label>
                                 <Select
                                     value={formData.category}
                                     onValueChange={v => setFormData({ ...formData, category: v as any })}
@@ -245,28 +250,28 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="lifestyle">Lifestyle (Pacing, Rest)</SelectItem>
-                                        <SelectItem value="medication">Medication</SelectItem>
-                                        <SelectItem value="supplement">Supplement</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
+                                        <SelectItem value="lifestyle">{t('experiments.form.categories.lifestyle')}</SelectItem>
+                                        <SelectItem value="medication">{t('experiments.form.categories.medication')}</SelectItem>
+                                        <SelectItem value="supplement">{t('experiments.form.categories.supplement')}</SelectItem>
+                                        <SelectItem value="other">{t('experiments.form.categories.other')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Start Date</Label>
+                                    <Label>{t('experiments.form.start_date')}</Label>
                                     <Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>End Date (Optional)</Label>
+                                    <Label>{t('experiments.form.end_date')}</Label>
                                     <Input type="date" value={formData.end_date} onChange={e => setFormData({ ...formData, end_date: e.target.value })} />
                                 </div>
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>{t('experiments.actions.cancel')}</Button>
                             <Button onClick={handleSave} disabled={isLoading || !formData.name}>
-                                {isLoading ? 'Saving...' : editingExp ? 'Update' : 'Start Experiment'}
+                                {isLoading ? t('common.loading') : editingExp ? t('experiments.actions.update') : t('experiments.actions.save')}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
@@ -274,9 +279,9 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             </div>
 
             {/* Currently Active */}
-            <div className="space-y-6 w-full max-w-4xl mx-auto">
+            <div className="space-y-6 w-full max-w-7xl mx-auto">
                 <div className="flex justify-center items-center border-b pb-2">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Currently Active</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('experiments.active.title')}</h3>
                 </div>
 
                 {activeExperiments.length > 0 ? (
@@ -284,6 +289,11 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                         {activeExperiments.map(exp => {
                             const daysActive = differenceInDays(new Date(), parseISO(exp.start_date))
                             const analysis = analysisResults.find(r => r.experimentId === exp.id)
+                            // Safe translation access using dynamic key with fallback logic is risky in raw TS without strictly typed strings? 
+                            // No, strict type check would fail if I pass a string that isn't a key. 
+                            // But here I know 'lifestyle', 'medication' etc are valid keys.
+                            const categoryKey = exp.category as keyof typeof t extends 'experiments.form.categories' ? string : string;
+                            // Actually 't' accepts any string path.
 
                             return (
                                 <Card key={exp.id} className="bg-zinc-50/50 dark:bg-zinc-900/30 border-0 shadow-sm overflow-hidden relative group">
@@ -297,53 +307,50 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                     </div>
 
                                     <CardContent className="p-8">
-                                        <div className="flex flex-col lg:flex-row gap-8">
-                                            <div className="flex-1 space-y-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide">
-                                                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                                                        Active • Day {daysActive}
+                                        <div className="flex flex-col gap-6">
+                                            {/* Header Section */}
+                                            <div className="flex items-start justify-between">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide">
+                                                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                                            {t('experiments.active.day')} {daysActive}
+                                                        </div>
+                                                        {exp.dosage && (
+                                                            <Badge variant="outline" className="text-[10px] font-bold border-zinc-200 uppercase">{exp.dosage}</Badge>
+                                                        )}
+                                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                                            <div className="w-4 h-4 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                                                                {getIcon(exp.category || 'other')}
+                                                            </div>
+                                                            <span className="text-[10px] font-bold uppercase">{t(`experiments.form.categories.${exp.category || 'other'}`)}</span>
+                                                        </div>
                                                     </div>
-                                                    {exp.dosage && (
-                                                        <Badge variant="outline" className="text-[10px] font-bold border-zinc-200 uppercase">{exp.dosage}</Badge>
-                                                    )}
-                                                </div>
-
-                                                <div>
-                                                    <h2 className="text-4xl font-serif text-foreground mb-1">{exp.name}</h2>
-                                                    <p className="text-muted-foreground text-sm uppercase tracking-tight font-bold">
+                                                    <h2 className="text-3xl font-serif text-foreground">{exp.name}</h2>
+                                                    <p className="text-muted-foreground text-xs uppercase tracking-tight font-bold">
                                                         Started {format(parseISO(exp.start_date), 'MMMM d, yyyy')}
                                                     </p>
                                                 </div>
 
-                                                <div className="pt-4">
-                                                    <p className="text-[10px] font-bold text-muted-foreground uppercase mb-3">Independent Health Impact (Controlled for overlaps)</p>
-                                                    <ExperimentImpactResults impacts={analysis?.impacts || []} />
+                                                {/* Compact Confidence Meter */}
+                                                <div className="min-w-[180px] bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-3 border border-zinc-100 dark:border-zinc-800/50">
+                                                    <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5">
+                                                        <span>{t('experiments.active.confidence')}</span>
+                                                        <span className={(analysis?.impacts[0]?.confidence || 0) > 0.8 ? "text-emerald-600" : "text-amber-600"}>
+                                                            {Math.round((analysis?.impacts[0]?.confidence || 0) * 100)}%
+                                                        </span>
+                                                    </div>
+                                                    <Progress value={(analysis?.impacts[0]?.confidence || 0) * 100} className="h-1" />
+                                                    <p className="text-[8px] text-muted-foreground mt-1.5 leading-tight opacity-70">
+                                                        {t('experiments.active.confidence_hint')}
+                                                    </p>
                                                 </div>
                                             </div>
 
-                                            {/* Status Block */}
-                                            <div className="w-full lg:w-72 bg-white dark:bg-zinc-950 rounded-2xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 flex flex-col justify-center gap-6">
-                                                <div>
-                                                    <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase mb-2">
-                                                        <span>Experiment Confidence</span>
-                                                        <span>{Math.round((analysis?.impacts[0]?.confidence || 0) * 100)}%</span>
-                                                    </div>
-                                                    <Progress value={(analysis?.impacts[0]?.confidence || 0) * 100} className="h-1.5" />
-                                                    <p className="text-[9px] text-muted-foreground mt-2 leading-tight italic">
-                                                        Based on {history.length} days of history. Accuracy improves after 30 days.
-                                                    </p>
-                                                </div>
-
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                                                        {getIcon(exp.category || 'other')}
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-muted-foreground uppercase leading-none">{exp.category}</p>
-                                                        <p className="text-xs font-bold">{exp.name}</p>
-                                                    </div>
-                                                </div>
+                                            {/* Analysis Content */}
+                                            <div>
+                                                <p className="text-[10px] font-bold text-muted-foreground uppercase mb-3">{t('experiments.active.impact_title')}</p>
+                                                <ExperimentImpactResults impacts={analysis?.impacts || []} />
                                             </div>
                                         </div>
                                     </CardContent>
@@ -354,23 +361,44 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                 ) : (
                     <div className="p-12 text-center border-2 border-dashed rounded-3xl text-muted-foreground bg-zinc-50/50">
                         <Activity className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                        <h3 className="text-lg font-medium text-foreground">No active experiments</h3>
-                        <p className="text-sm">Start a new experiment to track how interventions affect your health.</p>
+                        <h3 className="text-lg font-medium text-foreground">{t('experiments.active.no_active_title')}</h3>
+                        <p className="text-sm">{t('experiments.active.no_active_desc')}</p>
                     </div>
                 )}
             </div>
 
             {/* Past Experiments */}
-            <div className="space-y-6 w-full max-w-4xl mx-auto">
+            <div className="space-y-6 w-full max-w-7xl mx-auto">
                 <div className="flex justify-center items-center border-b pb-2">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Historical Archive</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('experiments.history.title')}</h3>
                 </div>
 
                 {pastExperiments.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {pastExperiments.map(exp => {
                             const analysis = analysisResults.find(r => r.experimentId === exp.id)
-                            const overallImpact = analysis?.impacts.find(i => i.metric === 'composite_score')?.significance || 'neutral'
+
+                            // Determine overall impact: Bio-Priority Rule (Health > Behavior)
+                            let overallImpact = 'neutral'
+                            if (analysis) {
+                                const bioMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score']
+                                let bioScore = 0
+                                let lifestyleScore = 0
+
+                                analysis.impacts.forEach(i => {
+                                    const val = i.significance === 'positive' ? 1 : i.significance === 'negative' ? -1 : 0
+                                    if (bioMetrics.includes(i.metric)) {
+                                        bioScore += val
+                                    } else {
+                                        lifestyleScore += val
+                                    }
+                                })
+
+                                if (bioScore > 0) overallImpact = 'positive'
+                                else if (bioScore < 0) overallImpact = 'negative'
+                                else if (lifestyleScore > 0) overallImpact = 'positive'
+                                else if (lifestyleScore < 0) overallImpact = 'negative'
+                            }
 
                             return (
                                 <Card key={exp.id} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
@@ -398,7 +426,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                         </div>
 
                                         <div className="pt-2">
-                                            <p className="text-[9px] font-bold text-muted-foreground uppercase mb-2">Independent Outcome</p>
+                                            <p className="text-[9px] font-bold text-muted-foreground uppercase mb-2">{t('experiments.history.independent_outcome')}</p>
                                             <div className={cn(
                                                 "flex items-center gap-2 text-[10px] font-black px-3 py-1.5 rounded-full w-fit uppercase",
                                                 overallImpact === 'positive' && "bg-green-500/10 text-green-700",
@@ -406,19 +434,19 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                 overallImpact === 'neutral' && "bg-zinc-500/10 text-zinc-700"
                                             )}>
                                                 {overallImpact === 'positive' ? <ArrowUpRight className="w-3 h-3" /> : overallImpact === 'negative' ? <ArrowDownRight className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                                                {overallImpact} Influence
+                                                {overallImpact} {t('experiments.history.influence')}
                                             </div>
 
                                             {/* Contributing Factors */}
                                             {(overallImpact === 'positive' || overallImpact === 'negative') && (
                                                 <div className="mt-3 space-y-1.5">
                                                     {analysis?.impacts
-                                                        .filter(i => i.significance !== 'neutral' && i.metric !== 'composite_score')
+                                                        .filter(i => i.significance !== 'neutral')
                                                         .sort((a, b) => Math.abs(b.zScoreShift) - Math.abs(a.zScoreShift))
                                                         .slice(0, 3)
                                                         .map(i => (
                                                             <div key={i.metric} className="flex items-center justify-between text-[10px]">
-                                                                <span className="text-muted-foreground font-medium">{getFriendlyName(i.metric)}</span>
+                                                                <span className="text-muted-foreground font-medium">{getFriendlyName(i.metric, t)}</span>
                                                                 <span className={cn(
                                                                     "font-bold",
                                                                     i.significance === 'positive' ? "text-emerald-600" : "text-rose-600"
@@ -437,7 +465,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                     </div>
                 ) : (
                     <div className="p-8 text-center text-sm text-muted-foreground opacity-50">
-                        No concluded experiments in the archive.
+                        {t('experiments.history.no_history')}
                     </div>
                 )}
             </div>

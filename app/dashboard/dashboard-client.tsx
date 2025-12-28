@@ -137,9 +137,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
             return {
                 ...d,
+                ...d.custom_metrics, // FLATTENED: Recharts can now access generic keys like 'Anxiety', 'Sleep' directly
                 adjusted_score: adjustedScore,
                 step_factor: stepFactor,
-                // Ensure composite_score is accessible at root level for charts if needed
+                // Ensure composite_score is explicit (though spread above covers it)
                 composite_score: baseScore
             }
         })
@@ -167,6 +168,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         ]
         const allOptions = [...defaults]
         dynamicOptions.forEach(key => {
+            if (key === 'Crash') return // Skip Crash, use toggle instead
             if (!allOptions.find(o => o.value === key)) {
                 allOptions.push({ value: key, label: key })
             }
@@ -186,6 +188,9 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             case 'step_count': return { label: t('dashboard.metrics.step_count.label'), color: '#06b6d4', domain: ['auto', 'auto'], unit: '', invert: false, description: t('dashboard.metrics.step_count.description'), better: t('dashboard.metrics.step_count.better') }
             case 'exertion_score': return { label: t('dashboard.metrics.exertion_score.label'), color: '#10b981', domain: [0, 10], unit: '', invert: false, description: t('dashboard.metrics.exertion_score.description'), better: t('dashboard.metrics.exertion_score.better') }
             case 'Coffee': return { label: 'Coffee', color: '#92400e', domain: [0, 'auto'], unit: 'cups', invert: false }
+            case 'Sleep Score':
+            case 'Sleep Quality':
+                return { label: 'Sleep Score', color: '#6366f1', domain: [0, 100], unit: '%', invert: false, description: 'Sleep quality score from your tracker.', better: 'Higher is better' }
         }
 
         // Dynamic Config

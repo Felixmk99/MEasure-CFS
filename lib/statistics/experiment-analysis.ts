@@ -111,13 +111,16 @@ export function analyzeExperiments(
 
             const report = reports.find(r => r.experimentId === exp.id);
             if (report) {
+                // Calculate active days from X matrix column
+                const activeDays = X.reduce((acc, row) => acc + row[idx + 1], 0);
+
                 report.impacts.push({
                     metric,
                     coefficient: coeff,
                     zScoreShift: zShift,
                     percentChange,
                     significance,
-                    confidence: calculateConfidence(y.length)
+                    confidence: calculateConfidence(y.length, activeDays)
                 });
             }
         });
@@ -208,9 +211,13 @@ function invert(M: number[][]): number[][] | null {
     return I;
 }
 
-function calculateConfidence(sampleSize: number): number {
-    // Heuristic: Confidence grows with days of data
-    // 14 days = 0.5, 30 days = 0.8, 60 days = 0.95
-    if (sampleSize < 7) return 0.1;
-    return Math.min(0.99, 1 - (5 / sampleSize));
+function calculateConfidence(historySize: number, experimentDays: number): number {
+    // 1. Baseline Confidence (How well do we know "Normal"?) - Max 0.8
+    const baselineConf = Math.min(0.8, 1 - (10 / historySize));
+
+    // 2. Experiment Confidence (Do we have enough exposure days?) - Max 0.2
+    // Need ~30 days of active experiment data to be fully confident in the result
+    const experimentConf = Math.min(0.2, (experimentDays / 30) * 0.2);
+
+    return baselineConf + experimentConf;
 }
