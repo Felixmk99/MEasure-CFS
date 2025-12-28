@@ -29,6 +29,56 @@ export interface Dictionary {
         built_by: string
         contact: string
     }
+    landing: {
+        hero: {
+            badge: string
+            title_main: string
+            title_highlight: string
+            subtitle: string
+            dropzone: {
+                title: string
+                subtitle: string
+                button_account: string
+            }
+            features: {
+                secure: string
+                instant: string
+            }
+        }
+        why: {
+            title: string
+            subtitle: string
+            cards: {
+                privacy: {
+                    title: string
+                    desc: string
+                }
+                baseline: {
+                    title: string
+                    desc: string
+                }
+                patients: {
+                    title: string
+                    desc: string
+                }
+            }
+        }
+        teaser: {
+            title: string
+            subtitle: string
+            list: {
+                pem: string
+                meds: string
+                symptom: string
+                trends: string
+            }
+            cta: string
+            card_insight: string
+        }
+        footer: {
+            copyright: string
+        }
+    }
     dashboard: {
         title: string
         subtitle_prefix: string
