@@ -45,7 +45,7 @@ export default function LoginPage() {
                     <div className="space-y-2">
                         <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
                             Welcome <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-[#3B82F6]">
                                 back home
                             </span>
                         </h1>
@@ -79,7 +79,7 @@ export default function LoginPage() {
                                 {/* Smart Redirect suggestion */}
                                 {error.includes("sign up") && (
                                     <div className="mt-2 text-center">
-                                        <Button variant="link" size="sm" asChild className="text-rose-500 h-auto p-0">
+                                        <Button variant="link" size="sm" asChild className="text-[#3B82F6] h-auto p-0">
                                             <Link href="/signup">Create an account &rarr;</Link>
                                         </Button>
                                     </div>
@@ -88,7 +88,7 @@ export default function LoginPage() {
                         )}
 
                         <Button
-                            className="w-full h-10 text-sm font-semibold bg-rose-400 hover:bg-rose-500 text-white shadow-md shadow-rose-200 dark:shadow-rose-900/20 rounded-full transition-all hover:scale-[1.01]"
+                            className="w-full h-10 text-sm font-semibold bg-[#60A5FA] hover:bg-[#3B82F6] text-white shadow-md shadow-blue-200 dark:shadow-blue-900/20 rounded-full transition-all hover:scale-[1.01]"
                             onClick={handleSignIn}
                             disabled={loading}
                         >
@@ -123,7 +123,7 @@ export default function LoginPage() {
                         <h3 className="text-xl font-bold mb-4 leading-relaxed">
                             "Health Trends processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
                         </h3>
-                        <div className="h-1 w-20 bg-rose-500 rounded-full mt-6"></div>
+                        <div className="h-1 w-20 bg-[#F59E0B] rounded-full mt-6"></div>
                     </div>
                 </div>
             </div>

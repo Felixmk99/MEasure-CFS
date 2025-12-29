@@ -151,8 +151,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         // Known static configs
         switch (key) {
 
-            case 'adjusted_score': return { label: t('dashboard.metrics.adjusted_score.label'), color: '#fb7185', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.adjusted_score.description'), better: t('dashboard.metrics.adjusted_score.better') }
-            case 'composite_score': return { label: t('dashboard.metrics.composite_score.label'), color: '#f472b6', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.composite_score.description'), better: t('dashboard.metrics.composite_score.better') }
+            case 'adjusted_score': return { label: t('dashboard.metrics.adjusted_score.label'), color: '#3B82F6', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.adjusted_score.description'), better: t('dashboard.metrics.adjusted_score.better') }
+            case 'composite_score': return { label: t('dashboard.metrics.composite_score.label'), color: '#F59E0B', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.composite_score.description'), better: t('dashboard.metrics.composite_score.better') }
             case 'hrv': return { label: t('dashboard.metrics.hrv.label'), color: '#3b82f6', domain: ['auto', 'auto'], unit: 'ms', invert: false, description: t('dashboard.metrics.hrv.description'), better: t('dashboard.metrics.hrv.better') }
             case 'resting_heart_rate': return { label: t('dashboard.metrics.resting_heart_rate.label'), color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true, description: t('dashboard.metrics.resting_heart_rate.description'), better: t('dashboard.metrics.resting_heart_rate.better') }
             case 'step_count': return { label: t('dashboard.metrics.step_count.label'), color: '#06b6d4', domain: ['auto', 'auto'], unit: '', invert: false, description: t('dashboard.metrics.step_count.description'), better: t('dashboard.metrics.step_count.better') }
@@ -599,9 +599,9 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
                                         {/* Badge 1: Period Trend (Visible Range) */}
                                         <Badge variant="outline" className={cn(
-                                            stat.periodTrendStatus === 'improving' && "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400",
-                                            stat.periodTrendStatus === 'worsening' && "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400",
-                                            stat.periodTrendStatus === 'stable' && "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400"
+                                            stat.periodTrendStatus === 'improving' && "bg-[#60A5FA]/10 text-[#3B82F6] border-[#60A5FA]/30",
+                                            stat.periodTrendStatus === 'worsening' && "bg-[#F59E0B]/10 text-[#D97706] border-[#F59E0B]/30",
+                                            stat.periodTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200"
                                         )}>
                                             <span className="text-[10px] mr-1 opacity-70">Trend:</span>
                                             {stat.periodTrendStatus === 'stable' && <Minus className="w-3 h-3 mr-1" />}
@@ -612,10 +612,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
                                         {/* Badge 2: Comparison Trend (vs Previous) */}
                                         <Badge variant="outline" className={cn(
-                                            stat.compareTrendStatus === 'improving' && "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400",
-                                            stat.compareTrendStatus === 'worsening' && "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400",
-                                            stat.compareTrendStatus === 'stable' && "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400",
-                                            stat.compareTrendStatus === 'insufficient_data' && "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
+                                            stat.compareTrendStatus === 'improving' && "bg-[#60A5FA]/10 text-[#3B82F6] border-[#60A5FA]/30",
+                                            stat.compareTrendStatus === 'worsening' && "bg-[#F59E0B]/10 text-[#D97706] border-[#F59E0B]/30",
+                                            stat.compareTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200",
+                                            stat.compareTrendStatus === 'insufficient_data' && "bg-zinc-100 text-zinc-400 border-zinc-200"
                                         )}>
                                             <span className="text-[10px] mr-1 opacity-70">vs Prev:</span>
                                             {stat.compareTrendStatus === 'insufficient_data' ? (

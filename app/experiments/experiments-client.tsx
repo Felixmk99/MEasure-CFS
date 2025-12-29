@@ -148,7 +148,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
 
     const getIcon = (category: string) => {
         switch (category) {
-            case 'medication': return <Pill className="w-5 h-5 text-rose-500" />
+            case 'medication': return <Pill className="w-5 h-5 text-[#3B82F6]" />
             case 'supplement': return <Beaker className="w-5 h-5 text-emerald-500" />
             case 'lifestyle': return <Moon className="w-5 h-5 text-indigo-500" />
             default: return <Activity className="w-5 h-5 text-blue-500" />
@@ -161,7 +161,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             {experiments.length === 0 && (
                 <div className="max-w-2xl text-center space-y-6 animate-in fade-in slide-in-from-top-4 duration-1000">
                     <div className="space-y-2">
-                        <p className="text-xs font-bold text-rose-500 uppercase tracking-widest">{t('experiments.intro.title')}</p>
+                        <p className="text-xs font-bold text-[#60A5FA] uppercase tracking-widest">{t('experiments.intro.title')}</p>
                         <h2 className="text-4xl font-serif text-foreground">{t('experiments.page_title')}</h2>
                     </div>
                     <p className="text-muted-foreground leading-relaxed">
@@ -170,13 +170,13 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                         <div className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800">
                             <p className="text-xs font-bold uppercase mb-1 flex items-center gap-2">
-                                <Activity className="w-3 h-3 text-rose-500" /> {t('experiments.intro.overlap_title')}
+                                <Activity className="w-3 h-3 text-[#3B82F6]" /> {t('experiments.intro.overlap_title')}
                             </p>
                             <p className="text-[11px] text-muted-foreground">{t('experiments.intro.overlap_desc')}</p>
                         </div>
                         <div className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800">
                             <p className="text-xs font-bold uppercase mb-1 flex items-center gap-2">
-                                <Target className="w-3 h-3 text-emerald-500" /> {t('experiments.intro.zscore_title')}
+                                <Target className="w-3 h-3 text-[#F59E0B]" /> {t('experiments.intro.zscore_title')}
                             </p>
                             <p className="text-[11px] text-muted-foreground">{t('experiments.intro.zscore_desc')}</p>
                         </div>
@@ -297,8 +297,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                             <div className="flex items-start justify-between">
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide">
-                                                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                                        <div className="bg-[#60A5FA]/10 text-[#3B82F6] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide">
+                                                            <div className="w-1.5 h-1.5 bg-[#60A5FA] rounded-full animate-pulse" />
                                                             {t('experiments.active.day')} {daysActive}
                                                         </div>
                                                         {exp.dosage && (
@@ -434,7 +434,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                                 <span className="text-muted-foreground font-medium">{getFriendlyName(i.metric, t)}</span>
                                                                 <span className={cn(
                                                                     "font-bold",
-                                                                    i.significance === 'positive' ? "text-emerald-600" : "text-rose-600"
+                                                                    i.significance === 'positive' ? "text-[#3B82F6]" : "text-[#D97706]"
                                                                 )}>
                                                                     {i.percentChange > 0 ? '+' : ''}{i.percentChange.toFixed(1)}%
                                                                 </span>

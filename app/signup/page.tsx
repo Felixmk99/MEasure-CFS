@@ -53,7 +53,7 @@ export default function SignupPage() {
                     <div className="space-y-2">
                         <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
                             Start your <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-[#3B82F6]">
                                 clarity journey
                             </span>
                         </h1>
@@ -104,7 +104,7 @@ export default function SignupPage() {
                         )}
 
                         <Button
-                            className="w-full h-10 text-sm font-semibold bg-rose-400 hover:bg-rose-500 text-white shadow-md shadow-rose-200 dark:shadow-rose-900/20 rounded-full transition-all hover:scale-[1.01]"
+                            className="w-full h-10 text-sm font-semibold bg-[#60A5FA] hover:bg-[#3B82F6] text-white shadow-md shadow-blue-200 dark:shadow-blue-900/20 rounded-full transition-all hover:scale-[1.01]"
                             onClick={handleSignUp}
                             disabled={loading}
                         >
@@ -134,7 +134,7 @@ export default function SignupPage() {
                             </div>
                         </div>
                         <div className="flex items-start gap-3">
-                            <div className="p-1.5 bg-rose-100 dark:bg-rose-900/30 rounded-lg text-rose-600 dark:text-rose-400">
+                            <div className="p-1.5 bg-[#60A5FA]/10 dark:bg-[#3B82F6]/20 rounded-lg text-[#3B82F6]">
                                 <Shield className="h-4 w-4" />
                             </div>
                             <div>
@@ -160,7 +160,7 @@ export default function SignupPage() {
                         <h3 className="text-xl font-bold mb-4 leading-relaxed">
                             "Health Trends processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
                         </h3>
-                        <div className="h-1 w-20 bg-rose-500 rounded-full mt-6"></div>
+                        <div className="h-1 w-20 bg-[#F59E0B] rounded-full mt-6"></div>
                     </div>
                 </div>
             </div>

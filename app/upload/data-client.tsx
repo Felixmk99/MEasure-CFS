@@ -149,7 +149,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
 
                     <div className="space-y-2">
                         <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                            {hasData ? (hasSteps ? 'Health History' : t('upload.title')) : <>{t('upload.subtitle_prefix')} <span className="text-rose-400">{t('upload.subtitle_highlight')}</span> {t('navbar.data')}</>}
+                            {hasData ? (hasSteps ? 'Health History' : t('upload.title')) : <>{t('upload.subtitle_prefix')} <span className="text-[#60A5FA]">{t('upload.subtitle_highlight')}</span> {t('navbar.data')}</>}
                         </h1>
                         <p className="text-muted-foreground text-sm max-w-lg mx-auto">
                             {hasData
@@ -165,14 +165,14 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                     <div className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-4">
                         <Tabs defaultValue={initialTab} className="w-full max-w-3xl mx-auto">
                             <TabsList className="grid w-full grid-cols-2 mb-8 h-12 rounded-full p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                                <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all duration-300">
+                                <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300">
                                     <Activity className="w-4 h-4 mr-2" />
                                     {t('upload.tabs.visible')}
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="apple"
                                     disabled={!hasData}
-                                    className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-blue-500 data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Smartphone className="w-4 h-4 mr-2" />
                                     {t('upload.tabs.apple')}
@@ -270,7 +270,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                             ? (!mounted ? (entry as any).step_count : (entry as any).step_count.toLocaleString())
                                                             : '-'}
                                                     </td>
-                                                    <td className="px-6 py-4 text-muted-foreground font-medium text-rose-500">{entry.symptom_score ?? '-'}</td>
+                                                    <td className="px-6 py-4 text-muted-foreground font-medium text-[#F59E0B]">{entry.symptom_score ?? '-'}</td>
                                                     <td className="px-6 py-4 text-right flex justify-end gap-1">
                                                         <Button
                                                             variant="ghost"
