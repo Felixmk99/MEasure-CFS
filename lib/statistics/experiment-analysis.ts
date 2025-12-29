@@ -144,7 +144,7 @@ export function analyzeExperiments(
             // High = Bad for: Symptoms, RHR, Pain, Fatigue, and specific negative emotional states.
             const m = metric.toLowerCase();
             const isInverted =
-                ['resting_heart_rate', 'rhr', 'symptom_score', 'composite_score', 'exertion_score', 'pain', 'fatigue', 'anxiety', 'depression', 'stress', 'fever', 'infection', 'crash', 'palpitation', 'nausea', 'dizzy', 'fog', 'headache', 'lighthead'].some(s => m.includes(s)) ||
+                ['resting_heart_rate', 'rhr', 'symptom_score', 'composite_score', 'exertion_score', 'pain', 'fatigue', 'anxiety', 'depression', 'stress', 'fever', 'infection', 'crash', 'palpitation', 'nausea', 'dizzy', 'fog', 'headache', 'lighthead', 'sleep'].some(s => m.includes(s)) ||
                 m.endsWith('_level');
 
             const isGood = isInverted ? coeff < 0 : coeff > 0;

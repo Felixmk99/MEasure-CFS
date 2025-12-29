@@ -99,6 +99,11 @@ export const de: Dictionary = {
                 label: "Crash (PEM)",
                 description: "Tage, die in Visible als 'Crash' markiert wurden.",
                 better: "Weniger ist besser"
+            },
+            sleep: {
+                label: "Schlafprobleme",
+                description: "Erfasst Schwierigkeiten mit der Schlafqualität und -dauer. Hoher Score = Schlechter Schlaf.",
+                better: "Niedriger ist besser"
             }
         },
         crash_mode: "PEM Analyse",

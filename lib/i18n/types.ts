@@ -176,6 +176,11 @@ export interface Dictionary {
                 description: string
                 better: string
             }
+            sleep: {
+                label: string
+                description: string
+                better: string
+            }
         }
         crash_mode: string
         pem_days: string

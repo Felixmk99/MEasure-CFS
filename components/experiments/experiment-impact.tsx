@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, TrendingDown, Minus, Info, Heart, Activity, Target } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, Info, Heart, Activity, Target, Moon } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { ExperimentImpact } from "@/lib/statistics/experiment-analysis"
@@ -19,6 +19,7 @@ export const getMetricIcon = (metric: string) => {
     if (m.includes('symptom') || m.includes('score')) return <Activity className="w-3.5 h-3.5" />
     if (m.includes('step')) return <TrendingUp className="w-3.5 h-3.5" />
     if (m.includes('exertion')) return <Target className="w-3.5 h-3.5" />
+    if (m.includes('sleep')) return <Moon className="w-3.5 h-3.5" />
     return <Activity className="w-3.5 h-3.5" />
 }
 

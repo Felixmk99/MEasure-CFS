@@ -193,6 +193,11 @@ export const en: Dictionary = {
                 label: "Crashes (PEM)",
                 description: "Days marked as 'Crash' in your Visible logs.",
                 better: "Fewer is better"
+            },
+            sleep: {
+                label: "Sleep Problems",
+                description: "Tracks difficulties with sleep quality and duration. High score = Poor sleep.",
+                better: "Lower is better"
             }
         },
         crash_mode: "Analyze PEM",

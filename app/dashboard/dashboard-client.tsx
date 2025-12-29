@@ -152,9 +152,19 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             case 'step_count': return { label: t('dashboard.metrics.step_count.label'), color: '#06b6d4', domain: [0, 'dataMax'], unit: '', invert: false, description: t('dashboard.metrics.step_count.description'), better: t('dashboard.metrics.step_count.description') }
             case 'exertion_score': return { label: t('dashboard.metrics.exertion_score.label'), color: '#10b981', domain: [0, 'dataMax'], unit: '', invert: false, description: t('dashboard.metrics.exertion_score.description'), better: t('dashboard.metrics.exertion_score.better') }
             case 'Coffee': return { label: 'Coffee', color: '#92400e', domain: [0, 'dataMax'], unit: 'cups', invert: false }
+            case 'Sleep':
+            case 'sleep':
             case 'Sleep Score':
             case 'Sleep Quality':
-                return { label: 'Sleep Score', color: '#6366f1', domain: [0, 'dataMax'], unit: '%', invert: false, description: 'Sleep quality score from your tracker.', better: 'Higher is better' }
+                return {
+                    label: t('dashboard.metrics.sleep.label'),
+                    color: '#6366f1',
+                    domain: [0, 'dataMax'],
+                    unit: '',
+                    invert: true,
+                    description: t('dashboard.metrics.sleep.description'),
+                    better: t('dashboard.metrics.sleep.better')
+                }
         }
 
         // Dynamic Config
