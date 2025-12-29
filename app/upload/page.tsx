@@ -25,7 +25,7 @@ export default async function DataPage() {
     if (hasData) {
         const { data } = await supabase
             .from('health_metrics')
-            .select('id, date, hrv, resting_heart_rate, step_count, custom_metrics, exertion_score, created_at')
+            .select('id, date, hrv, resting_heart_rate, step_count, custom_metrics, exertion_score, symptom_score, created_at')
             .eq('user_id', user.id)
             .order('date', { ascending: false })
             .limit(500)
