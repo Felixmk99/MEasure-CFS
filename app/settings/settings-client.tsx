@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
 import { Lock, User, Settings, FileText, Trash2, AlertTriangle, AlertCircle } from 'lucide-react'
 // import { Separator } from '@/components/ui/separator' 
 // import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -21,7 +21,6 @@ export default function SettingsClient({ user }: { user: any }) {
     // Form State
     const [firstName, setFirstName] = useState(user.user_metadata?.first_name || '')
     const [lastName, setLastName] = useState(user.user_metadata?.last_name || '')
-    const [bio, setBio] = useState(user.user_metadata?.bio || '')
 
     // Delete Account State
     const [deleteConfirmation, setDeleteConfirmation] = useState('')
@@ -37,8 +36,7 @@ export default function SettingsClient({ user }: { user: any }) {
                 data: {
                     first_name: firstName,
                     last_name: lastName,
-                    full_name: `${firstName} ${lastName}`.trim(),
-                    bio: bio
+                    full_name: `${firstName} ${lastName}`.trim()
                 }
             })
 
@@ -122,14 +120,7 @@ export default function SettingsClient({ user }: { user: any }) {
                         <CardDescription>This information will be displayed on your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {/* Avatar Section */}
-                        <div className="flex items-center gap-6">
-                            <Avatar className="h-20 w-20">
-                                <AvatarImage src={user.user_metadata?.avatar_url} />
-                                <AvatarFallback className="text-xl">{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <Button variant="outline" size="sm" disabled>Change photo</Button>
-                        </div>
+
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -150,17 +141,7 @@ export default function SettingsClient({ user }: { user: any }) {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="bio">Bio</Label>
-                            <textarea
-                                id="bio"
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                placeholder="Brief description for your medical team..."
-                                value={bio}
-                                onChange={(e) => setBio(e.target.value)}
-                            />
-                            <p className="text-[10px] text-muted-foreground">Brief description of your condition context.</p>
-                        </div>
+
                     </CardContent>
                     <CardFooter className="flex justify-between border-t px-6 py-4">
                         <p className="text-sm text-muted-foreground">{message}</p>
