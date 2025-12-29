@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Database } from "@/types/database.types"
+import { enhanceDataWithScore } from "@/lib/scoring/composite-score"
 import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
 import { ExperimentImpactResults, getFriendlyName } from "@/components/experiments/experiment-impact"
 import { useLanguage } from "@/components/providers/language-provider"
@@ -37,14 +38,22 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         end_date: ''
     })
 
+    // Enhance history with Centralized Composite Score
+    const enhancedHistory = useMemo(() => {
+        return enhanceDataWithScore(history)
+    }, [history])
+
     // Calculate Baseline Stats for Z-Scores
     const baselineStats = useMemo(() => {
         const stats: Record<string, { mean: number, std: number }> = {}
-        const excludedKeys = ['date', 'id', 'user_id', 'created_at', 'custom_metrics'];
+        const excludedKeys = ['date', 'id', 'user_id', 'created_at', 'custom_metrics', 'normalized_hrv', 'normalized_rhr', 'normalized_steps'];
+
+        // Use enhancedHistory to include composite_score in stats analysis
+        const dataToAnalyze = enhancedHistory
 
         // Find all unique numeric keys across history
         const allKeys = new Set<string>();
-        history.forEach(d => {
+        dataToAnalyze.forEach(d => {
             Object.keys(d).forEach(k => {
                 if (!excludedKeys.includes(k) && typeof d[k] === 'number') {
                     allKeys.add(k);
@@ -53,7 +62,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         });
 
         allKeys.forEach(m => {
-            const values = history.map(d => d[m]).filter(v => typeof v === 'number') as number[]
+            const values = dataToAnalyze.map(d => d[m]).filter(v => typeof v === 'number') as number[]
             if (values.length > 0) {
                 const mean = values.reduce((a, b) => a + b, 0) / values.length
                 const std = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length) || 1
@@ -61,32 +70,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             }
         });
 
-
-
-        // Calculate composite score baseline (Track-Me Score)
-        const compValues = history.map(d => {
-            const h = (d.hrv as number) || 50
-            const s = (d.symptom_score as number) || 5
-            return (h / 100) - (s / 10)
-        })
-        if (compValues.length > 0) {
-            const compMean = compValues.reduce((a, b) => a + b, 0) / compValues.length
-            const compStd = Math.sqrt(compValues.reduce((a, b) => a + Math.pow(b - compMean, 2), 0) / compValues.length) || 1
-            stats['composite_score'] = { mean: compMean, std: compStd }
-        }
-
         return stats
-    }, [history])
-
-    // Enhance history with synthetic metrics like composite_score
-    const enhancedHistory = useMemo(() => {
-        return history.map(d => ({
-            ...d,
-            composite_score: (((d.hrv as number) || 50) / 100) - (((d.symptom_score as number) || 5) / 10)
-        }))
-    }, [history])
-
-
+    }, [enhancedHistory])
 
     // Run Analysis
     const analysisResults = useMemo(() => {

@@ -44,7 +44,8 @@ export const de: Dictionary = {
             stable: "Stabil",
             improving: "Verbesserung",
             declining: "Verschlechterung",
-            worsening: "Verschlechterung"
+            worsening: "Verschlechterung",
+            insufficient_data: "Keine Daten für diesen Zeitraum gefunden"
         },
         time_ranges: {
             d7: "7T",
@@ -68,9 +69,9 @@ export const de: Dictionary = {
                 better: "Niedriger ist besser"
             },
             adjusted_score: {
-                label: "Track-ME Score",
-                description: "Gesundheits-Score angepasst an tägliche Schritte.",
-                better: "Niedriger ist besser"
+                label: "MEasure-CFS Score",
+                description: "Your daily energy budget status. High score = High symptoms / Low energy.",
+                better: "Lower is better"
             },
             hrv: {
                 label: "HRV (Herzfrequenzvariabilität)",
@@ -100,7 +101,7 @@ export const de: Dictionary = {
                 better: "Weniger ist besser"
             }
         },
-        crash_mode: "PEM",
+        crash_mode: "PEM Analyse",
         pem_days: "PEM-Tage"
     },
     landing: {
@@ -150,7 +151,7 @@ export const de: Dictionary = {
             card_insight: "Weekly Insights"
         },
         footer: {
-            copyright: "Track-ME. Open Source & Community Driven."
+            copyright: "MEasure-CFS. Open Source & Community Driven."
         }
     },
     experiments: {
@@ -239,11 +240,12 @@ export const de: Dictionary = {
             delete_all: "Delete All Data",
             delete_confirm: "WARNING: This will delete ALL your uploaded health data. This action cannot be undone. Are you sure?",
             table: {
-                date: "Date",
+                date: "Datum",
                 hrv: "HRV",
-                steps: "Steps",
-                action: "Action",
-                empty: "No recent entries found."
+                steps: "Schritte",
+                symptoms: "Symptome",
+                action: "Aktion",
+                empty: "Keine Einträge gefunden."
             }
         }
     }

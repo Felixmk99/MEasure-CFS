@@ -56,6 +56,8 @@ export function CsvUploader() {
                         date: r.date,
                         hrv: r.hrv,
                         resting_heart_rate: r.resting_heart_rate,
+                        step_count: r.step_count,
+                        symptom_score: r.symptom_score,
                         exertion_score: r.exertion_score,
                         custom_metrics: {
                             ...r.custom_metrics,
@@ -88,7 +90,8 @@ export function CsvUploader() {
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
-                            throw new Error(`DB Error: ${error.message || JSON.stringify(error)}`)
+                            const errorMsg = error.message || (error as any).details || JSON.stringify(error)
+                            throw new Error(`DB Error: ${errorMsg}`)
                         }
 
                         setMessage(`Uploaded ${Math.min(i + BATCH_SIZE, newRecords.length)} / ${newRecords.length} new days...`)

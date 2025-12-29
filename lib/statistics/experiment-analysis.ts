@@ -38,7 +38,7 @@ export function analyzeExperiments(
     baselineStats: Record<string, { mean: number, std: number }>
 ): ExperimentReport[] {
     // 1. Dynamic Metric Discovery
-    const excludedKeys = ['date', 'id', 'user_id', 'created_at', 'custom_metrics'];
+    const excludedKeys = ['date', 'id', 'user_id', 'created_at', 'custom_metrics', 'normalized_hrv', 'normalized_rhr', 'normalized_steps'];
 
     // Build a set of all unique numeric keys in history
     const allMetrics = new Set<string>();
@@ -100,12 +100,15 @@ export function analyzeExperiments(
             let significance: 'positive' | 'negative' | 'neutral' = 'neutral';
 
             // Generic logic: Assume UP is GOOD unless it's a known "inverted" metric
-            const invertedMetrics = ['resting_heart_rate', 'symptom_score', 'exertion_score', 'pain_level', 'fatigue_level'];
+            const invertedMetrics = ['resting_heart_rate', 'symptom_score', 'composite_score', 'exertion_score', 'pain_level', 'fatigue_level'];
             const isGood = invertedMetrics.includes(metric)
                 ? coeff < 0
                 : coeff > 0;
 
-            if (Math.abs(zShift) > 0.15) { // Lowered threshold slightly for more diversity
+            // Significance Thresholds
+            // 1. Z-Score (Statistical significance relative to variance)
+            // 2. Percent Change (Practical significance - if it changed > 5%, it's noteworthy to the user even if noisy)
+            if (Math.abs(zShift) > 0.1 || Math.abs(percentChange) > 5.0) {
                 significance = isGood ? 'positive' : 'negative';
             }
 

@@ -57,77 +57,90 @@ export function XmlUploader() {
                     throw new Error('No step count records found in this XML file.')
                 }
 
-                setStatus('uploading')
-                setMessage(`Found ${count} records. Aggregating into ${Object.keys(stepData).length} days...`)
-
                 const { data: { user } } = await supabase.auth.getUser()
                 if (!user) throw new Error('User not authenticated')
 
-                // Prepare DB Records
-                const dbRecords = Object.entries(stepData).map(([date, steps]) => ({
+                // 1. PRE-FILTERING: Fetch all existing dates for this user
+                // This ensures we only process steps for days the user actually cares about (Visible log days)
+                setMessage('Checking existing health records...')
+                const { data: existingDatesData } = await supabase
+                    .from('health_metrics')
+                    .select('date')
+                    .eq('user_id', user.id)
+
+                const existingDateSet = new Set((existingDatesData || []).map(r => r.date))
+
+                // 2. Filter Step Data
+                const filteredStepEntries = Object.entries(stepData).filter(([date]) => existingDateSet.has(date))
+                const totalFiltered = filteredStepEntries.length
+
+                if (totalFiltered === 0) {
+                    throw new Error('No matching log dates found. Please upload your Visible CSV first.')
+                }
+
+                setStatus('uploading')
+                setMessage(`Found ${totalFiltered} matching days. Preparing upload...`)
+
+                // 3. Prepare DB Records for existing dates only
+                const dbRecords = filteredStepEntries.map(([date, steps]) => ({
                     user_id: user.id,
                     date: date,
                     step_count: steps
                 }))
 
-                // ---------------------------------------------------------
-                // SAFE UPSERT STRATEGY
-                // We don't want to overwrite existing HRV/Symptoms if we only have Steps.
-                // But Supabase 'upsert' replaces the whole row if we don't be careful?
-                // Actually, standard SQL UPSERT needs all columns or it sets others to null if not specified? 
-                // NO: Supabase Upsert basically does INSERT ... ON CONFLICT UPDATE ...
-                // If we providing ONLY step_count, the other columns might be set to NULL if we are not careful?
-                // WAIT: Postgres 'ON CONFLICT DO UPDATE SET step_count = excluded.step_count' is what we want.
-                // Supabase JS .upsert({ ... }, { onConflict: '...' }) does a full replace of the row typically?
-                // Let's check documentation or assume safest path: Fetch existing, merge, then upsert.
-                // ---------------------------------------------------------
-
-                // Batch processing (chunks of 20 for fetch-merge-upsert safety)
+                // 4. Batch processing (chunks of 20 for fetch-merge-upsert safety)
                 const BATCH_SIZE = 20
                 for (let i = 0; i < dbRecords.length; i += BATCH_SIZE) {
                     const batch = dbRecords.slice(i, i + BATCH_SIZE)
                     const dates = batch.map(b => b.date)
 
-                    // 1. Fetch existing rows for these dates
+                    // Fetch existing rows for these dates to get full data (HRV, Symptoms, etc.)
                     const { data: existingRows } = await supabase
                         .from('health_metrics')
-                        .select('date')
+                        .select('*')
                         .in('date', dates)
-                        .eq('user_id', user.id) as { data: { date: string }[] | null }
+                        .eq('user_id', user.id)
 
                     const existingMap = new Map((existingRows || []).map((r: any) => [r.date, r]))
 
-                    // 2. Merge - STRICT FILTER: Only keep days that do NOT exist yet
-                    const mergedBatch = batch.filter(newRecord => {
-                        return !existingMap.has(newRecord.date)
-                    }).map(newRecord => ({
-                        user_id: user.id,
-                        date: newRecord.date,
-                        step_count: newRecord.step_count
-                    }))
+                    // Prepare for Upsert (Merge step_count into existing records)
+                    const upsertBatch = batch.map(newRecord => {
+                        const existing = existingMap.get(newRecord.date)
+                        return {
+                            ...existing,
+                            user_id: user.id, // Mandatory
+                            date: newRecord.date, // Mandatory
+                            step_count: newRecord.step_count
+                        }
+                    })
 
-                    if (mergedBatch.length === 0) continue
+                    if (upsertBatch.length === 0) continue
 
-                    // 3. Insert new records
+                    // Upsert records (preserving symptoms/HRV)
                     const { error } = await supabase
                         .from('health_metrics')
-                        .insert(mergedBatch as any)
+                        .upsert(upsertBatch as any, {
+                            onConflict: 'user_id, date'
+                        })
 
-                    if (error) throw error
+                    if (error) {
+                        console.error("Upsert Error:", JSON.stringify(error, null, 2))
+                        throw error
+                    }
 
                     // Update UI progress
-                    setMessage(`Uploading ${Math.min(i + BATCH_SIZE, dbRecords.length)}... (Matched ${mergedBatch.length} days)`)
+                    setMessage(`Uploading ${Math.min(i + BATCH_SIZE, dbRecords.length)} of ${totalFiltered}...`)
                 }
 
                 setStatus('success')
-                setMessage(`Successfully uploaded ${Object.keys(stepData).length} days of step data!`)
+                setMessage(`Successfully updated steps for ${totalFiltered} days!`)
 
                 setTimeout(() => {
                     window.location.href = '/dashboard'
                 }, 1500)
 
             } catch (err: any) {
-                console.error("XML Parse/Upload Error:", err)
+                console.error("XML Parse/Upload Error:", JSON.stringify(err, null, 2))
                 setStatus('error')
                 setMessage(err.message || "Failed to process XML file.")
             }

@@ -76,7 +76,7 @@ export const en: Dictionary = {
             card_insight: "Weekly Insights"
         },
         footer: {
-            copyright: "Track-ME. Open Source & Community Driven."
+            copyright: "MEasure-CFS. Open Source & Community Driven."
         }
     },
     dashboard: {
@@ -94,7 +94,8 @@ export const en: Dictionary = {
             stable: "Stable",
             improving: "Improving",
             declining: "Worsening",
-            worsening: "Worsening"
+            worsening: "Worsening",
+            insufficient_data: "No data found for this period"
         },
         time_ranges: {
             d7: "7D",
@@ -118,8 +119,8 @@ export const en: Dictionary = {
                 better: "Lower is better"
             },
             adjusted_score: {
-                label: "Track-ME Score",
-                description: "Dynamic health score adjusted for daily step count.",
+                label: "MEasure-CFS Score",
+                description: "Your daily energy budget status. High score = High symptoms / Low energy.",
                 better: "Lower is better"
             },
             hrv: {
@@ -150,7 +151,7 @@ export const en: Dictionary = {
                 better: "Fewer is better"
             }
         },
-        crash_mode: "PEM",
+        crash_mode: "Analyze PEM",
         pem_days: "PEM Days"
     },
     experiments: {
@@ -242,6 +243,7 @@ export const en: Dictionary = {
                 date: "Date",
                 hrv: "HRV",
                 steps: "Steps",
+                symptoms: "Symptoms",
                 action: "Action",
                 empty: "No recent entries found."
             }

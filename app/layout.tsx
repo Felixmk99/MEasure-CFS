@@ -8,8 +8,8 @@ import { LanguageProvider } from "@/components/providers/language-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Track-ME",
-  description: "Advanced analytics for Long Covid and ME/CFS tracking",
+  title: "MEasure-CFS",
+  description: "Privacy-focused health dashboard for Long Covid and ME/CFS",
 };
 
 export default function RootLayout({

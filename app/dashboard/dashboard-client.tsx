@@ -39,6 +39,7 @@ interface DashboardReviewProps {
 }
 
 
+import { enhanceDataWithScore } from "@/lib/scoring/composite-score"
 
 // ... imports
 
@@ -84,68 +85,37 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         // 1. Filter Data First
         const filtered = initialData
             .filter(item => {
-                const itemDate = parseISO(item.date)
-                return isAfter(itemDate, start) && (timeRange === 'custom' ? itemDate <= end : true)
+                const itemDate = startOfDay(parseISO(item.date))
+                const s = startOfDay(start)
+                const e = endOfDay(end)
+                return itemDate >= s && (timeRange === 'custom' ? itemDate <= e : true)
             })
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
-        // 2. Calculate Step Stats for Normalization (Dynamic Min/Max)
-        const stepValues = filtered
-            .map(d => d.step_count)
-            .filter(v => typeof v === 'number' && !isNaN(v))
+        // 2. Enhance with Centralized Score
+        const enhanced = enhanceDataWithScore(filtered)
 
-        const minSteps = stepValues.length ? Math.min(...stepValues) : 0
-        const maxSteps = stepValues.length ? Math.max(...stepValues) : 1 // avoid div by 0
-
-        // 3. Map with Adjusted Score
-
-
-        // 3. Map with Adjusted Score
-        return filtered.map(d => {
-            // Composite from Visible
-            const baseScore = d.custom_metrics?.composite_score ?? 0
-
-            // Step Factor (0-3 scale)
-            let stepFactor = 0
-            if (typeof d.step_count === 'number' && !isNaN(d.step_count) && stepValues.length > 0) {
-                if (maxSteps === minSteps) {
-                    stepFactor = 0 // No variance
-                } else {
-                    // Normalize 0-1 then scale to 3
-                    // Higher steps = Higher factor
-                    stepFactor = ((d.step_count - minSteps) / (maxSteps - minSteps)) * 3
-                }
-            }
-
-            // Exertion (if available, usually 'Stability Score' or sum of exertion tags if we saved it)
-            // Note: Our DB schema has 'exertion_score' column.
-            const exertionScore = d.exertion_score ?? 0
-
-            // Final Score: Symptom Sum (Bad) - Exertion (Good/Reflects Capacity) - Steps (Good/Reflects Capacity)
-            // High Score = Bad.
-            // High Exertion = Good (implies ability to do things). -> Subtract it.
-            // High Steps = Good. -> Subtract it.
-
-            let adjustedScore = baseScore - exertionScore - stepFactor
-            if (adjustedScore < 0) adjustedScore = 0
-
-            // IF we have no step data at all (e.g. stepValues is empty), then adjustedScore should JUST be baseScore.
-            // stepFactor logic above handles this by initializing to 0.
-            // However, if logic is broken:
-            // The issue might be that `baseScore` is not available if custom_metrics is null?
-            // Or 'adjusted_score' is becoming NaN?
-
-            return {
+        return enhanced.map(d => {
+            const flattened = {
                 ...d,
-                ...d.custom_metrics, // FLATTENED: Recharts can now access generic keys like 'Anxiety', 'Sleep' directly
-                adjusted_score: adjustedScore,
-                step_factor: stepFactor,
-                // Ensure composite_score is explicit (though spread above covers it)
-                composite_score: baseScore
+                ...(d.custom_metrics || {}),
+                // UI Mapping:
+                // composite_score -> mapped to "Symptom Score" in config
+                // adjusted_score -> mapped to "MEasure-CFS Score" in config
+                composite_score: Number(d.symptom_score) || 0,
+                adjusted_score: Number(d.composite_score) || 0,
+
+                // Keep raw fields accessible
+                symptom_score: Number(d.symptom_score) || 0,
+                exertion_score: Number(d.exertion_score) || 0,
+
+                // Format Date for Chart
+                formattedDate: format(parseISO(d.date), 'MMM d')
             }
+            return flattened
         })
 
-    }, [initialData, timeRange, dateRange])
+    }, [initialData, visibleRange, timeRange, dateRange])
 
     // -- 2a. Extract Dynamic Metrics --
     const availableMetrics = useMemo(() => {
@@ -158,7 +128,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         const dynamicOptions = Array.from(dynamicKeys).sort()
         const defaults = [
-            { value: 'adjusted_score', label: 'Track-ME Score' },
+            { value: 'adjusted_score', label: 'MEasure-CFS Score' },
             { value: 'composite_score', label: 'Symptom Score' },
             { value: 'exertion_score', label: 'Exertion Score' },
             { value: 'step_factor', label: 'Steps normalized' },
@@ -216,6 +186,9 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     // Only calculate trend for the PRIMARY metric to avoid clutter
     const chartData = useMemo(() => {
         const data = [...processedData]
+        // DEBUG: Check what the first item has for adjusted_score
+        console.log("Chart Data Sample:", data[0]?.adjusted_score, "Keys:", data[0] ? Object.keys(data[0]) : "No data")
+
         if (!showTrend || data.length < 2 || selectedMetrics.length === 0) return data
 
         const trendsByIndex = new Map<number, any>()
@@ -357,25 +330,12 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             const maxSteps = stepValues.length > 0 ? Math.max(...stepValues) : 0
 
             const getComputedValue = (d: any, key: string) => {
-                if (key === 'adjusted_score') {
-                    // Replicate logic from processedData EXACTLY
-                    const base = d.custom_metrics?.composite_score ?? 0
-                    const exertion = d.exertion_score ?? 0
-                    let stepFactor = 0
+                // If the data already has this key (from processedData), use it
+                if (d[key] !== undefined && d[key] !== null) return d[key]
 
-                    const sVal = d.step_count
-                    if (typeof sVal === 'number' && !isNaN(sVal) && stepValues.length > 0) {
-                        if (maxSteps === minSteps) {
-                            stepFactor = 0
-                        } else {
-                            const normalized = (sVal - minSteps) / (maxSteps - minSteps)
-                            stepFactor = normalized * 3
-                        }
-                    }
-                    const res = base - exertion - stepFactor
-                    return Math.max(0, res)
-                }
-                return getValue(d, key)
+                // Fallback for fields that might be in custom_metrics
+                const val = d[key] ?? d.custom_metrics?.[key]
+                return (val === undefined || val === null) ? null : val
             }
 
             // 2. Previous Period Data Setup
@@ -590,6 +550,19 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                             />
                         </PopoverContent>
                     </Popover>
+
+                    <div className="w-px h-4 bg-border mx-1" />
+
+                    <div className="flex items-center space-x-2 px-2">
+                        <Switch
+                            id="crash-mode-header"
+                            checked={showCrashes}
+                            onCheckedChange={setShowCrashes}
+                            className="scale-90"
+                        />
+                        <Label htmlFor="crash-mode-header" className="text-xs font-medium cursor-pointer">{t('dashboard.crash_mode')}</Label>
+                    </div>
+
                 </div>
             </div>
 
@@ -620,9 +593,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                         )}
                                     </div>
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className="text-xl font-bold tracking-tight mr-2">
-                                            {stat.periodTrendStatus === 'stable' ? t('dashboard.status.stable') :
-                                                (stat.periodTrendStatus === 'improving' ? t('dashboard.status.improving') : t('dashboard.status.declining'))}
+                                        <span className="text-2xl font-bold tracking-tight mr-2">
+                                            {stat.avg.toFixed(1)}
                                         </span>
 
                                         {/* Badge 1: Period Trend (Visible Range) */}
@@ -699,10 +671,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                             <Label htmlFor="compare-mode" className="text-xs text-muted-foreground hidden md:block">Compare</Label>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                            <Switch id="crash-mode" checked={showCrashes} onCheckedChange={setShowCrashes} />
-                            <Label htmlFor="crash-mode" className="text-xs text-muted-foreground hidden md:block">{t('dashboard.crash_mode')}</Label>
-                        </div>
+
 
                         <div className="flex items-center space-x-2">
                             <Switch id="trend-mode" checked={showTrend} onCheckedChange={setShowTrend} />
@@ -759,26 +728,41 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 </CardHeader>
 
                 <CardContent className="h-[400px] w-full pt-4 relative">
-                    {/* Step Data Warning Overlay */}
-                    {selectedMetrics.includes('step_count') && processedData.every(d => !d.step_count) && (
-                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-zinc-950/50 backdrop-blur-[1px] rounded-b-xl">
-                            <div className="bg-background border border-border shadow-lg rounded-xl p-6 max-w-sm text-center">
-                                <div className="mx-auto w-12 h-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mb-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-footprints"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 11 3.8 11 8c0 2.85-2.92 5.5-3.8 7.18L7 16z" /><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 13 7.8 13 12c0 2.85 2.92 5.5 3.8 7.18L17 20z" /></svg>
+                    {/* Step Data Warning Overlay - Only show if specifically looking for steps and they are totally missing */}
+                    {selectedMetrics.includes('step_count') &&
+                        selectedMetrics.length === 1 &&
+                        processedData.length > 0 &&
+                        processedData.every(d => !d.step_count) && (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-zinc-950/50 backdrop-blur-[1px] rounded-b-xl">
+                                <div className="bg-background border border-border shadow-lg rounded-xl p-6 max-w-sm text-center">
+                                    <div className="mx-auto w-12 h-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-footprints"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 11 3.8 11 8c0 2.85-2.92 5.5-3.8 7.18L7 16z" /><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 13 7.8 13 12c0 2.85 2.92 5.5 3.8 7.18L17 20z" /></svg>
+                                    </div>
+                                    <h3 className="font-semibold text-lg mb-2">No Step Data Found</h3>
+                                    <p className="text-sm text-muted-foreground mb-4">
+                                        Upload your Apple Health data to see your daily steps and adjusted health score.
+                                    </p>
+                                    <Button asChild size="sm">
+                                        <Link href="/upload">Upload Data</Link>
+                                    </Button>
                                 </div>
-                                <h3 className="font-semibold text-lg mb-2">No Step Data Found</h3>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    Upload your Apple Health data to see your daily steps and adjusted health score.
-                                </p>
-                                <Button asChild size="sm">
-                                    <Link href="/upload">Upload Data</Link>
+                            </div>
+                        )}
+
+                    {/* General No Data Message */}
+                    {processedData.length === 0 && (
+                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
+                            <div className="text-center space-y-2">
+                                <p className="text-muted-foreground font-medium">{t('dashboard.status.insufficient_data' as any)}</p>
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href="/upload">{t('navbar.upload_data')}</Link>
                                 </Button>
                             </div>
                         </div>
                     )}
 
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                        <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                             <defs>
                                 {selectedMetrics.map((metric, i) => {
                                     const config = getMetricConfig(metric)
@@ -814,7 +798,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                         tickLine={false}
                                         tick={{ fontSize: 12, fill: '#888' }}
                                         domain={config.domain as any}
-                                        width={50}
+                                        reversed={false}
+                                        width={40}
                                         hide={index > 1}
                                     />
                                 )

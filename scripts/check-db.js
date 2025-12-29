@@ -48,6 +48,22 @@ async function checkConnection() {
             }
         } else {
             console.log('✅ Database Reachable & Table Exists.');
+
+            // Fetch recent data for inspection
+            const { data: recent, error: dataError } = await supabase
+                .from('health_metrics')
+                .select('*')
+                .order('date', { ascending: false })
+                .limit(10);
+
+            if (dataError) {
+                console.error('❌ Data fetch error:', dataError.message);
+            } else if (recent) {
+                console.log('✅ Recent Data Sample (Descending):');
+                recent.forEach(r => {
+                    console.log(`   [${r.date}] HRV: ${r.hrv}, Steps: ${r.step_count}, Sym: ${r.symptom_score}`);
+                });
+            }
         }
 
     } catch (err) {

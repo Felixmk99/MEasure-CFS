@@ -1,20 +1,22 @@
-# Track-ME
+# MEasure-CFS
 
-**Track-ME** is a privacy-focused health dashboard designed for patients with Long Covid and ME/CFS. It empowers users to take control of their data by analyzing health trends from the **Visible** app.
+**MEasure-CFS** is a privacy-focused health dashboard designed for patients with Long Covid and ME/CFS. It empowers users to take control of their data by analyzing health trends from the **Visible** app.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black)
 ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20DB-green)
 
-## 🚀 Features
-
--   **Data Ingestion**: Drag-and-drop CSV uploads from the Visible app export (Long Format support).
+## Features
+- **Privacy First**: All data is stored locally in your browser/device (or private Supabase instance).
+- **Visible Integration**: Drag & drop CSV export parsing.
+- **Advanced Analytics**: Compare symptoms against steps, HRV, and exertion.
+- **MEasure-CFS Score**: Custom metric combining Symptoms, Exertion, Steps, Heart Rate, HRV, and Sleep.
+- **Experiment Tracking**: Track the impact of supplements/interventions with significance testing.
 -   **Smart Normalization**: Automatically processes symptoms, HRV, and Resting Heart Rate. Captures all custom trackers (e.g., "Brain Fog", "Crash") into a flexible storage system.
 -   **Composite Health Score**: Calculates a daily wellness score (0-100) combining inverted symptom severity and HRV.
--   **Experiment Engine**: Track medications or lifestyle changes (e.g., "Low Dose Naltrexone", "Pacing").
+-   **Experiment Engine**: Track medications or lifestyle changes (e.g., "Low Dose Naltroxene", "Pacing").
     -   **Statistical Analysis**: Automatically compares health metrics "Before" vs "During" an experiment.
     -   **Significance Testing**: Flags whether changes are statistically significant.
--   **Privacy First**: Row Level Security (RLS) ensures only YOU can see your data.
 
 ## 🛠 Tech Stack
 

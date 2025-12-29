@@ -33,7 +33,7 @@ export const getFriendlyName = (metric: string, t: (key: string) => string) => {
     // In Dash: composite=Symptom, adjusted=Track-Me. 
     // In Experiments: composite=Track-Me calculation?
     // Let's rely on standard keys. If 'composite_score' is passed, use its label.
-    if (m === 'composite_score') return "Track-Me Score" // Hardcoded for now due to logic mismatch or add to dictionary 
+    if (m === 'composite_score') return "MEasure-CFS Score" // Hardcoded for now due to logic mismatch or add to dictionary 
 
     // Check for explicit dictionary match
     const dashLabel = t(`dashboard.metrics.${m}.label`)

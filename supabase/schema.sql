@@ -6,11 +6,11 @@ create table if not exists health_metrics (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   date date not null,
-  symptom_score float, -- Composite Score (Sum Symptoms - Sum Exertion). No Range Limit.
+  symptom_score float, -- Sum of Symptoms logged
   hrv float,
   resting_heart_rate int,
   step_count int, -- Daily Step Count from Apple Health
-  exertion_score float,
+  exertion_score float, -- Sum of Exertion logged
   custom_metrics jsonb, -- Flexible storage for user-defined trackers
   raw_data jsonb,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,

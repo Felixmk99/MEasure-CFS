@@ -250,6 +250,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                             <th className="px-6 py-3 font-medium">{t('upload.data_log.table.date')}</th>
                                             <th className="px-6 py-3 font-medium">{t('upload.data_log.table.hrv')}</th>
                                             <th className="px-6 py-3 font-medium">{t('upload.data_log.table.steps')}</th>
+                                            <th className="px-6 py-3 font-medium">{t('upload.data_log.table.symptoms')}</th>
                                             <th className="px-6 py-3 font-medium text-right">{t('upload.data_log.table.action')}</th>
                                         </tr>
                                     </thead>
@@ -267,6 +268,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                             ? (!mounted ? (entry as any).step_count : (entry as any).step_count.toLocaleString())
                                                             : '-'}
                                                     </td>
+                                                    <td className="px-6 py-4 text-muted-foreground">{entry.symptom_score ?? '-'}</td>
                                                     <td className="px-6 py-4 text-right flex justify-end gap-1">
                                                         <Button
                                                             variant="ghost"

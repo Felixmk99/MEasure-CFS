@@ -43,6 +43,7 @@ export function normalizeLongFormatData(rows: any[]) {
                 hrv: null,
                 resting_heart_rate: null,
                 exertion_score: null,
+                step_count: null,
                 custom_metrics: {},
                 raw_symptoms: [],
                 raw_exertion: []
@@ -60,7 +61,13 @@ export function normalizeLongFormatData(rows: any[]) {
                 record.resting_heart_rate = Math.round(value);
                 break;
             case 'Stability Score':
-                record.exertion_score = value;
+                // Explicitly skip here so it falls into custom_metrics via the default case
+                // and does not influence the exertion_score sum calculation.
+                break;
+            case 'Steps':
+            case 'Step Count':
+            case 'Step count':
+                record.step_count = value;
                 break;
             default:
                 // Define Exertion Types
@@ -88,6 +95,8 @@ export function normalizeLongFormatData(rows: any[]) {
                     const symptomCategories = [
                         "Custom",
                         "General",
+                        "Symptom",
+                        "Symptoms",
                         "Brain",
                         "Heart and Lungs",
                         "Pain",
@@ -104,7 +113,7 @@ export function normalizeLongFormatData(rows: any[]) {
                     }
                 }
 
-                // Store everything in custom_metrics for flexibility, UNLESS it's a Funcap category
+                // Store in custom_metrics for flexibility (including Stability Score)
                 if (name && value !== undefined && !isNaN(value)) {
                     // Filter out Funcap values from custom_metrics based on Category (requested by user)
                     // If category starts with 'Funcap_', skip it.
@@ -118,31 +127,24 @@ export function normalizeLongFormatData(rows: any[]) {
         }
     });
 
-    // Final pass: Collapse dailyRecords into array and calc daily aggregates
+    // Final pass: Collapse dailyRecords into array
     return Object.values(dailyRecords).map(record => {
-        // Calculate Composite Score: Sum(Symptoms) - Sum(Exertion)
+        // Calculate Sums for DB storage (User requested Sums over Averages)
+        const symptomSum = record.raw_symptoms.length > 0
+            ? record.raw_symptoms.reduce((a: number, b: number) => a + b, 0)
+            : null;
 
-        const symptomSum = record.raw_symptoms.reduce((a: number, b: number) => a + b, 0);
-        const exertionSum = record.raw_exertion.reduce((a: number, b: number) => a + b, 0);
-
-        // If we have neither, score is null. If we have either, calculate.
-        let compositeScore = null;
-        if (record.raw_symptoms.length > 0) {
-            compositeScore = symptomSum;
-        }
-
-        // Backfill Exertion Score if explicit "Stability Score" wasn't found but we have raw exertion values
-        if (record.exertion_score === null && record.raw_exertion.length > 0) {
-            record.exertion_score = exertionSum;
-        }
+        const exertionSum = record.raw_exertion.length > 0
+            ? record.raw_exertion.reduce((a: number, b: number) => a + b, 0)
+            : null;
 
         // Clean up temp fields
         const { raw_symptoms, raw_exertion, ...finalRecord } = record;
 
         return {
             ...finalRecord,
-            composite_score: compositeScore, // Use new name to avoid DB constraint conflict on legacy 'symptom_score' column
-            symptom_score: null // Explicitly null the legacy column
+            symptom_score: symptomSum,
+            exertion_score: exertionSum
         };
     });
 }
