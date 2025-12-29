@@ -54,7 +54,7 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    <div className="space-y-3">
+                    <form onSubmit={(e) => { e.preventDefault(); handleSignIn() }} className="space-y-3">
                         <div className="space-y-1">
                             <Label htmlFor="email" className="text-xs font-medium">Email Address</Label>
                             <Input
@@ -88,14 +88,15 @@ export default function LoginPage() {
                         )}
 
                         <Button
+                            type="submit"
                             className="w-full h-10 text-sm font-semibold bg-[#60A5FA] hover:bg-[#3B82F6] text-white shadow-md shadow-blue-200 dark:shadow-blue-900/20 rounded-full transition-all hover:scale-[1.01]"
-                            onClick={handleSignIn}
                             disabled={loading}
                         >
                             {loading && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
                             Sign In
                             {!loading && <ArrowRight className="ml-2 h-3 w-3" />}
                         </Button>
+                    </form>
 
                         <div className="text-center pt-1">
                             <p className="text-xs text-muted-foreground">
@@ -121,12 +122,12 @@ export default function LoginPage() {
                             <span className="font-semibold tracking-wide text-sm uppercase">Privacy Guaranteed</span>
                         </div>
                         <h3 className="text-xl font-bold mb-4 leading-relaxed">
-                            "Health Trends processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
+                            "MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
                         </h3>
                         <div className="h-1 w-20 bg-[#F59E0B] rounded-full mt-6"></div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

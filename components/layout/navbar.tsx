@@ -98,9 +98,9 @@ export default function Navbar() {
                 <Link href={mounted && user ? "/dashboard" : "/"} className="mr-6 flex items-center space-x-2 group">
                     <Activity className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
                     <span className="font-bold inline-block text-lg tracking-tight">
-                        <span className="text-primary">ME</span>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">ME</span>
                         <span className="text-slate-500 dark:text-slate-400">asure-</span>
-                        <span className="text-primary">CFS</span>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">CFS</span>
                     </span>
                 </Link>
 
