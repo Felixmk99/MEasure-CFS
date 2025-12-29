@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from "@/components/providers/language-provider"
 import { useUpload } from "@/components/providers/upload-provider"
+import { revalidateApp } from '@/app/actions/revalidate'
 
 export function CsvUploader() {
     const { t } = useLanguage()
@@ -94,6 +95,7 @@ export function CsvUploader() {
 
                     setStatus('success')
                     setMessage(`Successfully synced ${recordsToUpload.length} days of health data!`)
+                    await revalidateApp()
                     router.refresh()
 
                 } catch (err: any) {
