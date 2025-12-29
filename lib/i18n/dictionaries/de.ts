@@ -70,8 +70,8 @@ export const de: Dictionary = {
             },
             adjusted_score: {
                 label: "MEasure-CFS Score",
-                description: "Your daily energy budget status. High score = High symptoms / Low energy.",
-                better: "Lower is better"
+                description: "Dein tägliches Energiebudget. Hoher Score = Starke Symptome / Wenig Energie.",
+                better: "Niedriger ist besser"
             },
             hrv: {
                 label: "HRV (Herzfrequenzvariabilität)",
@@ -109,7 +109,7 @@ export const de: Dictionary = {
             badge: "Privacy-First Gesundheitsanalyse",
             title_main: "Verstehe deinen Körper.",
             title_highlight: "Meistere deine Energie.",
-            subtitle: "Ein sicherer, freundlicher Ort für ME/CFS- und Long-Covid-Betroffene, um \"Visible\"-App-Daten zu visualisieren. Erkenne Crash-Trigger, verfolge Medikamentenwirkungen und finde deine Baseline—ohne Kompromisse beim Datenschutz.",
+            subtitle: "Ein sicherer Raum für ME/CFS- und Long-Covid-Betroffene, um Daten von \"Visible\" und anderen Symptom-Tracking-Apps zu visualisieren. Erkenne Crash-Trigger, verfolge die Wirksamkeit von Medikamenten und finde deine Baseline—ohne Kompromisse beim Datenschutz.",
             dropzone: {
                 title: "Analysiere deine CSV sofort",
                 subtitle: "Zieh dein Visible-Export hierher, um zu beginnen",
@@ -123,9 +123,8 @@ export const de: Dictionary = {
             transform_title: "Verwandle Gesundheitsdaten",
             predictive_insights: "in vorausschauende Erkenntnisse",
             drop_title: "Zieh deine Daten hierher, um zu beginnen",
-            drop_desc: "Lade CSV-Dateien von Oura, Garmin, Apple Health oder anderen Wearables hoch. Deine Reise zu vorausschauender Gesundheit beginnt hier.",
-            create_account_hint: "Neu hier? Erstelle zuerst ein Konto →",
-            file_limit_hint: "Unterstützt CSV-Dateien bis zu 100MB"
+            drop_desc: "Lade CSV-Dateien von Visible, Bearable, Daylio, Symptom Shark, Guava oder MyDataHelps hoch. Deine Reise zu vorausschauender Gesundheit beginnt hier.",
+            create_account_hint: "Neu hier? Erstelle zuerst ein Konto →"
         },
         pillars: {
             phase: {
@@ -144,7 +143,7 @@ export const de: Dictionary = {
         steps: {
             "01": {
                 title: "Lade deine Biomarker-Daten hoch",
-                desc: "Importiere CSV-Dateien von jedem Wearable. Wir unterstützen HRV, Ruhepuls, Aktivitätslevel, Schlafdaten und eigene Symptomprotokolle."
+                desc: "Importiere CSV-Dateien von jedem Symptom-Tracker. Wir unterstützen HRV, Ruhepuls, Aktivitätslevel, Schlafdaten und eigene Symptomprotokolle."
             },
             "02": {
                 title: "KI analysiert Muster",
@@ -166,124 +165,124 @@ export const de: Dictionary = {
             button_demo: "Demo ansehen"
         },
         why: {
-            title: "Why analyze your trends?",
-            subtitle: "Raw data is hard to read when you have brain fog. We turn your daily check-ins into clear, friendly stories that help you advocate for your health.",
+            title: "Warum deine Trends analysieren?",
+            subtitle: "Rohdaten sind schwer zu lesen bei Brain Fog. Wir verwandeln deine täglichen Check-ins in klare, freundliche Geschichten, die dir helfen, für deine Gesundheit einzutreten.",
             cards: {
                 privacy: {
-                    title: "Private by Design",
-                    desc: "Your health data is sensitive. That's why we use Row Level Security (RLS). You own your data, full stop."
+                    title: "Privatsphäre per Design",
+                    desc: "Deine Gesundheitsdaten sind sensibel. Deshalb nutzen wir Row Level Security (RLS). Du besitzt deine Daten, punktum."
                 },
                 baseline: {
-                    title: "Understand Your Baseline",
-                    desc: "Correlate HRV, symptoms, and rest to find your safe energy envelope. Identify crash triggers before they happen."
+                    title: "Verstehe deine Baseline",
+                    desc: "Korreliere HRV, Symptome und Ruhe, um deinen sicheren Energiebereich zu finden. Identifiziere Crash-Auslöser, bevor sie passieren."
                 },
                 patients: {
-                    title: "Made for Patients",
-                    desc: "Designed specifically for the chronic illness community. High contrast, low cognitive load, and pacing-focused."
+                    title: "Gemacht für Patienten",
+                    desc: "Speziell für die chronisch kranke Gemeinschaft entwickelt. Hoher Kontrast, geringe kognitive Belastung und Pacing-fokussiert."
                 }
             }
         },
         teaser: {
-            title: "Spot patterns, find balance.",
-            subtitle: "Our advanced analytics engine helps you evaluate if that new supplement is actually working, or if \"Resting Pacing\" is improving your baseline scores.",
+            title: "Muster erkennen, Balance finden.",
+            subtitle: "Unsere fortschrittliche Analyse-Engine hilft dir zu bewerten, ob das neue Supplement wirklich wirkt oder ob \"Resting Pacing\" deine Baseline-Werte verbessert.",
             list: {
-                pem: "PEM (Post-Exertional Malaise) Detection",
-                meds: "Medication Efficacy Tracking",
-                symptom: "Symptom Correlation Matrix",
-                trends: "HRV & Resting Heart Rate Trends"
+                pem: "PEM (Post-Exertional Malaise) Erkennung",
+                meds: "Medikamenten-Wirksamkeits-Tracking",
+                symptom: "Symptom-Korrelations-Matrix",
+                trends: "HRV & Ruhepuls Trends"
             },
-            cta: "Get Started for Free",
-            card_insight: "Weekly Insights"
+            cta: "Kostenlos starten",
+            card_insight: "Wöchentliche Einblicke"
         },
         footer: {
             copyright: "MEasure-CFS. Open Source & Community Driven."
         }
     },
     experiments: {
-        page_title: "Statistical Experimentation",
+        page_title: "Statistische Experimente",
         intro: {
-            title: "Platform Introduction",
-            welcome: "Welcome to your biological laboratory. This page helps you isolate the independent impact of medications, supplements, and lifestyle changes using Ordinary Least Squares (OLS) regression.",
-            overlap_title: "Overlap Isolation",
-            overlap_desc: "Our engine mathematically separates the effects of multiple interventions, even if they overlap in time.",
-            zscore_title: "Z-Score Impact",
-            zscore_desc: "See exactly how many standard deviations (σ) your HRV or Heart Rate shifted independently for each med."
+            title: "Plattform-Einführung",
+            welcome: "Willkommen in deinem biologischen Labor. Diese Seite hilft dir, den unabhängigen Einfluss von Medikamenten, Nahrungsergänzungsmitteln und Lebensstiländerungen mittels OLS-Regression zu isolieren.",
+            overlap_title: "Überlappungs-Isolation",
+            overlap_desc: "Unsere Engine trennt mathematisch die Effekte mehrerer Interventionen, auch wenn sie sich zeitlich überschneiden.",
+            zscore_title: "Z-Score Auswirkung",
+            zscore_desc: "Sieh genau, um wie viele Standardabweichungen (σ) sich deine HRV oder dein Puls unabhängig für jedes Medikament verschoben hat."
         },
         actions: {
-            start_new: "Start New Experiment",
-            log_new: "Log New Experiment",
-            edit: "Edit Experiment",
-            delete: "Delete Experiment",
-            save: "Start Experiment",
-            update: "Update Experiment",
-            cancel: "Cancel",
-            confirm_delete: "Are you sure you want to delete this experiment?"
+            start_new: "Neues Experiment starten",
+            log_new: "Neues Experiment erfassen",
+            edit: "Experiment bearbeiten",
+            delete: "Experiment löschen",
+            save: "Experiment starten",
+            update: "Experiment aktualisieren",
+            cancel: "Abbrechen",
+            confirm_delete: "Bist du sicher, dass du dieses Experiment löschen möchtest?"
         },
         form: {
             name: "Name",
-            dosage: "Dosage (Optional)",
-            category: "Category",
-            start_date: "Start Date",
-            end_date: "End Date (Optional)",
+            dosage: "Dosis (Optional)",
+            category: "Kategorie",
+            start_date: "Startdatum",
+            end_date: "Enddatum (Optional)",
             categories: {
-                lifestyle: "Lifestyle (Pacing, Rest)",
-                medication: "Medication",
-                supplement: "Supplement",
-                other: "Other"
+                lifestyle: "Lebensstil (Pacing, Ruhe)",
+                medication: "Medikament",
+                supplement: "Nahrungsergänzung",
+                other: "Sonstiges"
             }
         },
         active: {
-            title: "Currently Active",
-            day: "Active • Day",
-            confidence: "Model Confidence",
-            confidence_hint: "Requires ~30 days for full accuracy.",
-            impact_title: "Independent Health Impact (Controlled for overlaps)",
-            no_active_title: "No active experiments",
-            no_active_desc: "Start a new experiment to track how interventions affect your health."
+            title: "Aktuell aktiv",
+            day: "Aktiv • Tag",
+            confidence: "Modell-Konfidenz",
+            confidence_hint: "Benötigt ~30 Tage für volle Genauigkeit.",
+            impact_title: "Unabhängiger Gesundheits-Einfluss (kontrolliert auf Überlappungen)",
+            no_active_title: "Keine aktiven Experimente",
+            no_active_desc: "Starte ein neues Experiment, um zu verfolgen, wie Interventionen deine Gesundheit beeinflussen."
         },
         history: {
-            title: "Historical Archive",
-            independent_outcome: "Independent Outcome",
-            influence: "Influence",
-            no_history: "No concluded experiments in the archive."
+            title: "Historisches Archiv",
+            independent_outcome: "Unabhängiges Ergebnis",
+            influence: "Einfluss",
+            no_history: "Keine abgeschlossenen Experimente im Archiv."
         },
         impact: {
-            insufficient: "Insufficient data to isolate independent impact yet.",
+            insufficient: "Noch nicht genügend Daten, um unabhängigen Einfluss zu isolieren.",
             significance: {
-                positive: "Positive",
-                negative: "Negative",
+                positive: "Positiv",
+                negative: "Negativ",
                 neutral: "Neutral",
-                likely_positive: "Likely Positive",
-                likely_negative: "Likely Negative"
+                likely_positive: "Wahrscheinlich positiv",
+                likely_negative: "Wahrscheinlich negativ"
             }
         }
     },
     upload: {
-        title: "Manage Data",
-        subtitle_prefix: "Import your",
+        title: "Daten verwalten",
+        subtitle_prefix: "Importiere deine",
         subtitle_highlight: "Visible",
-        subtitle_manage: "Review and manage your chronic illness trends.",
-        description_empty: "Visualize your energy envelope and symptom patterns securely.",
-        description_data: "Upload new files to append data or manage existing entries.",
-        private_badge: "Private & Local Processing",
+        subtitle_manage: "Überprüfe und verwalte deine Trends chronischer Krankheiten.",
+        description_empty: "Visualisiere dein Energiebudget und Symptommuster sicher.",
+        description_data: "Lade neue Dateien hoch, um Daten anzuhängen oder bestehende Einträge zu verwalten.",
+        private_badge: "Privat & Lokal verarbeitet",
         tabs: {
             visible: "Visible App (CSV)",
-            apple: "Apple Health Steps (XML)"
+            apple: "Apple Health Schritte (XML)"
         },
         dropzone: {
-            idle: "Drag and drop your Visible export here, or click below to browse.",
-            active: "Drop the file here...",
-            success: "Upload Complete!",
-            error: "Upload Failed",
-            uploading: "Uploading...",
-            button_upload: "Upload New File",
-            button_select: "Select File",
-            button_retry: "Try Again"
+            idle: "Zieh dein Visible-Export hierher oder klicke, um zu durchsuchen.",
+            active: "Datei hier ablegen...",
+            success: "Upload vollständig!",
+            error: "Upload fehlgeschlagen",
+            uploading: "Lädt hoch...",
+            button_upload: "Neue Datei hochladen",
+            button_select: "Datei auswählen",
+            button_retry: "Erneut versuchen"
         },
         data_log: {
-            title: "Data Log",
-            delete_all: "Delete All Data",
-            delete_confirm: "WARNING: This will delete ALL your uploaded health data. This action cannot be undone. Are you sure?",
+            title: "Datenprotokoll",
+            delete_all: "Alle Daten löschen",
+            delete_confirm: "WARNUNG: Dies löscht ALLE deine hochgeladenen Gesundheitsdaten. Diese Aktion kann nicht rückgängig gemacht werden. Bist du sicher?",
             table: {
                 date: "Datum",
                 rhr: "RHR",
@@ -291,7 +290,7 @@ export const de: Dictionary = {
                 steps: "Schritte",
                 symptoms: "Symptome",
                 action: "Aktion",
-                empty: "Keine Einträge gefunden."
+                empty: "Keine aktuellen Einträge gefunden."
             }
         }
     }

@@ -34,7 +34,7 @@ export const en: Dictionary = {
             badge: "Privacy-First Health Analytics",
             title_main: "Understand your body.",
             title_highlight: "Master your energy.",
-            subtitle: "A secure, friendly space for ME/CFS and Long Covid warriors to visualize \"Visible\" app data. Spot crash triggers, track medication efficacy, and find your baseline—without compromising privacy.",
+            subtitle: "A secure space for ME/CFS and Long Covid patients to visualize \"Visible\" and other symptom tracking app data. Spot crash triggers, track medication efficacy, and find your baseline—without compromising privacy.",
             dropzone: {
                 title: "Analyze your CSV instantly",
                 subtitle: "Drag & Drop your Visible export here to start",
@@ -48,9 +48,8 @@ export const en: Dictionary = {
             transform_title: "Transform health data",
             predictive_insights: "into predictive insights",
             drop_title: "Drop your data to begin",
-            drop_desc: "Upload CSV files from Oura, Garmin, Apple Health, or any wearable. Your journey to predictive health starts here.",
-            create_account_hint: "New here? Create account first →",
-            file_limit_hint: "Supports CSV files up to 100MB"
+            drop_desc: "Upload CSV files from Visible, Bearable, Daylio, Symptom Shark, Guava or MyDataHelps. Your journey to predictive health starts here.",
+            create_account_hint: "New here? Create account first →"
         },
         pillars: {
             phase: {
@@ -69,7 +68,7 @@ export const en: Dictionary = {
         steps: {
             "01": {
                 title: "Upload your biomarker data",
-                desc: "Import CSV files from any wearable device. We support HRV, RHR, activity levels, sleep metrics, and custom symptom logs."
+                desc: "Import CSV files from any symptom tracker. We support HRV, RHR, activity levels, sleep metrics, and custom symptom logs."
             },
             "02": {
                 title: "AI analyzes patterns",

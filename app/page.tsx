@@ -126,18 +126,6 @@ export default function LandingPage() {
                 <p className="text-[#475569] mb-6 max-w-md mx-auto leading-relaxed">
                   {t('landing.hero.drop_desc')}
                 </p>
-
-                <div className="flex items-center justify-center gap-6 mb-8 flex-wrap">
-                  {['Oura', 'Garmin', 'Apple Health', 'Fitbit'].map((source) => (
-                    <div key={source} className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#3B82F6] transition-colors cursor-default">
-                      <div className="w-6 h-6 rounded-full bg-[#60A5FA]/10 border border-[#60A5FA]/30 flex items-center justify-center">
-                        <span className="text-[10px] font-bold text-[#3B82F6]">{source[0]}</span>
-                      </div>
-                      <span className="font-medium">{source}</span>
-                    </div>
-                  ))}
-                </div>
-
                 <div className="flex flex-col gap-3 items-center justify-center">
                   <Button
                     size="lg"
@@ -157,12 +145,9 @@ export default function LandingPage() {
                     {t('landing.hero.create_account_hint')}
                   </Link>
                 </div>
-
-                <p className="text-xs text-[#64748B] mt-6 font-mono">{t('landing.hero.file_limit_hint')}</p>
               </div>
             </div>
           </motion.div>
-
           {/* Three Pillars Cards */}
           <section className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#F0F9FF] py-20 mb-20 overflow-hidden">
             <div className="max-w-6xl mx-auto px-4">
