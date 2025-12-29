@@ -89,8 +89,8 @@ export default function LandingPage() {
             <div
               {...getRootProps()}
               className={`relative rounded-2xl border-2 border-dotted transition-all duration-300 cursor-pointer ${isDragActive
-                  ? "border-[#60A5FA] border-solid bg-slate-50 scale-[1.02] shadow-2xl shadow-[#60A5FA]/30 animate-pulse"
-                  : "border-[#60A5FA]/60 bg-slate-50 hover:border-[#60A5FA] hover:shadow-lg"
+                ? "border-[#60A5FA] border-solid bg-slate-50 scale-[1.02] shadow-2xl shadow-[#60A5FA]/30 animate-pulse"
+                : "border-[#60A5FA]/60 bg-slate-50 hover:border-[#60A5FA] hover:shadow-lg"
                 } backdrop-blur-xl`}
               style={{
                 boxShadow: isDragActive
@@ -153,19 +153,27 @@ export default function LandingPage() {
                 {[
                   {
                     icon: LineChart, key: 'phase', svg: (
-                      <polyline points="0,20 20,16 40,22 60,12 80,18 100,10 120,14" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                      <svg width="100%" height="32" className="text-[#60A5FA]">
+                        <polyline points="0,20 20,16 40,22 60,12 80,18 100,10 120,14" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                      </svg>
                     )
                   },
                   {
                     icon: TrendingUp, key: 'meds', svg: (
                       <div className="flex items-end gap-1 h-full">
-                        {[4, 6, 5, 7, 4].map((h, i) => <div key={i} className={`w-3 h-${h} bg-[#60A5FA] rounded-sm`} />)}
+                        <div className="w-3 h-4 bg-[#60A5FA] rounded-sm" />
+                        <div className="w-3 h-6 bg-[#60A5FA] rounded-sm" />
+                        <div className="w-3 h-5 bg-[#60A5FA] rounded-sm" />
+                        <div className="w-3 h-7 bg-[#60A5FA] rounded-sm" />
+                        <div className="w-3 h-4 bg-[#60A5FA] rounded-sm" />
                       </div>
                     )
                   },
                   {
                     icon: Zap, key: 'recovery', svg: (
-                      <path d="M0,16 Q10,16 15,8 T30,16 Q35,16 40,24 T55,16 Q65,16 70,8 T85,16" fill="none" stroke="currentColor" strokeWidth="2" />
+                      <svg width="100%" height="32" className="text-[#60A5FA]">
+                        <path d="M0,16 Q10,16 15,8 T30,16 Q35,16 40,24 T55,16 Q65,16 70,8 T85,16" fill="none" stroke="currentColor" strokeWidth="2" />
+                      </svg>
                     )
                   }
                 ].map((pillar) => (
@@ -178,13 +186,7 @@ export default function LandingPage() {
                       <pillar.icon className="h-10 w-10 text-[#3B82F6]" />
                     </div>
                     <div className="mb-3 h-8 opacity-30 group-hover:opacity-50 transition-opacity">
-                      {typeof pillar.svg === 'object' && 'type' in pillar.svg ? (
-                        pillar.svg
-                      ) : (
-                        <svg width="100%" height="32" className="text-[#60A5FA]">
-                          {pillar.svg}
-                        </svg>
-                      )}
+                      {pillar.svg}
                     </div>
                     <h3 className="text-xl font-semibold mb-3 text-[#1E293B] tracking-tight">{t(`landing.pillars.${pillar.key}.title`)}</h3>
                     <p className="text-muted-foreground leading-relaxed text-sm">
