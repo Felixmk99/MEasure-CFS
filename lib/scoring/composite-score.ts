@@ -77,10 +77,11 @@ export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedS
         const exertionSum = calculateExertionScore(entry.custom_metrics)
         const sleepVal = Number(entry.custom_metrics?.['Sleep']) || 0
 
-        // Calculate Generalized Factors (0-1 Scale) - primarily for 'normalized_steps' in formula
-        // We keep calculating others for the return object's normalized fields (for potential UI use),
-        // but the Composite Score formula strictly uses raw values except for steps.
-        const normSteps = normalize(entry.step_count, stats.steps.min, stats.steps.max)
+        // Calculate Generalized Factors
+        // Steps Normalization: User requested strict "integers 0 to 4"
+        const rawNormSteps = normalize(entry.step_count, stats.steps.min, stats.steps.max)
+        const normSteps = Math.round(rawNormSteps * 4) // Scale 0-1 to 0-4 integer
+
         const normRhr = normalize(entry.resting_heart_rate, stats.rhr.min, stats.rhr.max)
         const normHrv = normalize(entry.hrv, stats.hrv.min, stats.hrv.max)
         const normExertion = normalize(exertionSum, stats.exertion.min, stats.exertion.max)
@@ -108,7 +109,7 @@ export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedS
             composite_score: composite, // MEasure-CFS Score
             normalized_hrv: Number(normHrv.toFixed(2)),
             normalized_rhr: Number(normRhr.toFixed(2)),
-            normalized_steps: Number(normSteps.toFixed(2)),
+            normalized_steps: normSteps, // Now 0-4 integer
             normalized_exertion: Number(normExertion.toFixed(2)),
             normalized_sleep: Number(normSleep.toFixed(2))
         }
