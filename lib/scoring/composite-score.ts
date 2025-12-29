@@ -78,9 +78,9 @@ export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedS
         const sleepVal = Number(entry.custom_metrics?.['Sleep']) || 0
 
         // Calculate Generalized Factors
-        // Steps Normalization: User requested strict "integers 0 to 4"
+        // Steps Normalization: User requested 0-1 scale
         const rawNormSteps = normalize(entry.step_count, stats.steps.min, stats.steps.max)
-        const normSteps = Math.round(rawNormSteps * 4) // Scale 0-1 to 0-4 integer
+        const normSteps = Number(rawNormSteps.toFixed(2)) // Scale 0-1
 
         const normRhr = normalize(entry.resting_heart_rate, stats.rhr.min, stats.rhr.max)
         const normHrv = normalize(entry.hrv, stats.hrv.min, stats.hrv.max)
@@ -109,7 +109,7 @@ export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedS
             composite_score: composite, // MEasure-CFS Score
             normalized_hrv: Number(normHrv.toFixed(2)),
             normalized_rhr: Number(normRhr.toFixed(2)),
-            normalized_steps: normSteps, // Now 0-4 integer
+            normalized_steps: normSteps, // Now 0-1 scale
             normalized_exertion: Number(normExertion.toFixed(2)),
             normalized_sleep: Number(normSleep.toFixed(2))
         }
