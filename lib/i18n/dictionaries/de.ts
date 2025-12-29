@@ -241,6 +241,7 @@ export const de: Dictionary = {
             delete_confirm: "WARNING: This will delete ALL your uploaded health data. This action cannot be undone. Are you sure?",
             table: {
                 date: "Datum",
+                rhr: "RHR",
                 hrv: "HRV",
                 steps: "Schritte",
                 symptoms: "Symptome",

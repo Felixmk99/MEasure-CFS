@@ -248,6 +248,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                     <thead className="text-xs text-muted-foreground uppercase bg-zinc-50 dark:bg-zinc-950 border-b">
                                         <tr>
                                             <th className="px-6 py-3 font-medium">{t('upload.data_log.table.date')}</th>
+                                            <th className="px-6 py-3 font-medium">{t('upload.data_log.table.rhr')}</th>
                                             <th className="px-6 py-3 font-medium">{t('upload.data_log.table.hrv')}</th>
                                             <th className="px-6 py-3 font-medium">{t('upload.data_log.table.steps')}</th>
                                             <th className="px-6 py-3 font-medium">{t('upload.data_log.table.symptoms')}</th>
@@ -262,13 +263,14 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                         <Calendar className="w-3 h-3 text-muted-foreground" />
                                                         {!mounted ? entry.date : format(parseISO(entry.date), 'MMM d, yyyy')}
                                                     </td>
+                                                    <td className="px-6 py-4 text-muted-foreground">{entry.resting_heart_rate ? `${entry.resting_heart_rate} bpm` : '-'}</td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>
                                                     <td className="px-6 py-4 text-muted-foreground">
                                                         {(entry as any).step_count
                                                             ? (!mounted ? (entry as any).step_count : (entry as any).step_count.toLocaleString())
                                                             : '-'}
                                                     </td>
-                                                    <td className="px-6 py-4 text-muted-foreground">{entry.symptom_score ?? '-'}</td>
+                                                    <td className="px-6 py-4 text-muted-foreground font-medium text-rose-500">{entry.symptom_score ?? '-'}</td>
                                                     <td className="px-6 py-4 text-right flex justify-end gap-1">
                                                         <Button
                                                             variant="ghost"
@@ -291,7 +293,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
+                                                <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
                                                     {t('upload.data_log.table.empty')}
                                                 </td>
                                             </tr>

@@ -240,8 +240,10 @@ export interface Dictionary {
             delete_confirm: string
             table: {
                 date: string
+                rhr: string
                 hrv: string
                 steps: string
+                symptoms: string
                 action: string
                 empty: string
             }
