@@ -95,9 +95,9 @@ export default function Navbar() {
     return (
         <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-14 items-center">
-                <Link href={mounted && user ? "/dashboard" : "/"} className="mr-6 flex items-center space-x-2">
-                    <Activity className="w-5 h-5" />
-                    <span className="font-bold inline-block text-lg">MEasure-CFS</span>
+                <Link href={mounted && user ? "/dashboard" : "/"} className="mr-6 flex items-center space-x-2 group">
+                    <Activity className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                    <span className="font-bold inline-block text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-[#60A5FA]">MEasure-CFS</span>
                 </Link>
 
                 {/* Desktop Menu */}

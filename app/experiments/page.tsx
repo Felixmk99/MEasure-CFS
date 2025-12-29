@@ -35,9 +35,11 @@ export default async function ExperimentsPage() {
         .order('date', { ascending: true });
 
     return (
-        <ExperimentsClient
-            initialExperiments={experiments || []}
-            history={history || []}
-        />
+        <div className="container mx-auto py-6">
+            <ExperimentsClient
+                initialExperiments={experiments || []}
+                history={history || []}
+            />
+        </div>
     );
 }

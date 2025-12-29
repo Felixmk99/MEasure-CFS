@@ -39,11 +39,38 @@ export interface Dictionary {
                 title: string
                 subtitle: string
                 button_account: string
+                button_select: string
             }
             features: {
                 secure: string
                 instant: string
             }
+            transform_title: string
+            predictive_insights: string
+            drop_title: string
+            drop_desc: string
+            create_account_hint: string
+            file_limit_hint: string
+        }
+        pillars: {
+            phase: { title: string; desc: string }
+            meds: { title: string; desc: string }
+            recovery: { title: string; desc: string }
+        }
+        steps: {
+            "01": { title: string; desc: string }
+            "02": { title: string; desc: string }
+            "03": { title: string; desc: string }
+        }
+        privacy_badge: {
+            title: string
+            desc: string
+        }
+        cta: {
+            title: string
+            desc: string
+            button_signup: string
+            button_demo: string
         }
         why: {
             title: string
@@ -95,6 +122,7 @@ export interface Dictionary {
             improving: string
             declining: string
             worsening: string
+            insufficient_data: string
         }
         time_ranges: {
             d7: string

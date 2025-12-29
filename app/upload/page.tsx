@@ -36,6 +36,10 @@ export default async function DataPage() {
     // 3. Check for steps specifically
     const hasSteps = recentLogs.some(log => log.step_count !== null && log.step_count !== undefined)
 
-    return <DataManagementClient initialData={recentLogs} hasData={hasData} hasSteps={hasSteps} />
+    return (
+        <div className="container mx-auto py-6">
+            <DataManagementClient initialData={recentLogs} hasData={hasData} hasSteps={hasSteps} />
+        </div>
+    )
 }
 

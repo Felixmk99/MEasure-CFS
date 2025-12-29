@@ -29,9 +29,11 @@ export default async function DashboardPage() {
         .order('date', { ascending: true })
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* We pass data to the client component for interactivity */}
-            <DashboardClient data={healthMetrics || []} />
+        <div className="container mx-auto py-6">
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {/* We pass data to the client component for interactivity */}
+                <DashboardClient data={healthMetrics || []} />
+            </div>
         </div>
     )
 }

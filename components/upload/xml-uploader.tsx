@@ -68,7 +68,8 @@ export function XmlUploader() {
                     .select('date')
                     .eq('user_id', user.id)
 
-                const existingDateSet = new Set((existingDatesData || []).map(r => r.date))
+                const existingDatesDataTyped = (existingDatesData as { date: string }[] | null) || []
+                const existingDateSet = new Set(existingDatesDataTyped.map(r => r.date))
 
                 // 2. Filter Step Data
                 const filteredStepEntries = Object.entries(stepData).filter(([date]) => existingDateSet.has(date))

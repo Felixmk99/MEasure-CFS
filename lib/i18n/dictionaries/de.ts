@@ -106,19 +106,64 @@ export const de: Dictionary = {
     },
     landing: {
         hero: {
-            badge: "Privacy-First Health Analytics",
-            title_main: "Understand your body.",
-            title_highlight: "Master your energy.",
-            subtitle: "A secure, friendly space for ME/CFS and Long Covid warriors to visualize \"Visible\" app data. Spot crash triggers, track medication efficacy, and find your baseline—without compromising privacy.",
+            badge: "Privacy-First Gesundheitsanalyse",
+            title_main: "Verstehe deinen Körper.",
+            title_highlight: "Meistere deine Energie.",
+            subtitle: "Ein sicherer, freundlicher Ort für ME/CFS- und Long-Covid-Betroffene, um \"Visible\"-App-Daten zu visualisieren. Erkenne Crash-Trigger, verfolge Medikamentenwirkungen und finde deine Baseline—ohne Kompromisse beim Datenschutz.",
             dropzone: {
-                title: "Analyze your CSV instantly",
-                subtitle: "Drag & Drop your Visible export here to start",
-                button_account: "Or create an account first"
+                title: "Analysiere deine CSV sofort",
+                subtitle: "Zieh dein Visible-Export hierher, um zu beginnen",
+                button_account: "Oder erstelle zuerst ein Konto",
+                button_select: "Datei auswählen"
             },
             features: {
-                secure: "Secure Storage",
-                instant: "Instant Insights"
+                secure: "Sichere Speicherung",
+                instant: "Sofortige Einblicke"
+            },
+            transform_title: "Verwandle Gesundheitsdaten",
+            predictive_insights: "in vorausschauende Erkenntnisse",
+            drop_title: "Zieh deine Daten hierher, um zu beginnen",
+            drop_desc: "Lade CSV-Dateien von Oura, Garmin, Apple Health oder anderen Wearables hoch. Deine Reise zu vorausschauender Gesundheit beginnt hier.",
+            create_account_hint: "Neu hier? Erstelle zuerst ein Konto →",
+            file_limit_hint: "Unterstützt CSV-Dateien bis zu 100MB"
+        },
+        pillars: {
+            phase: {
+                title: "Phasenanalyse",
+                desc: "Identifiziere Aufbau-, Crash- und Erholungsphasen mit überlagerter Epochenanalyse. Erkenne biologisches Flüstern, bevor Symptome auftreten."
+            },
+            meds: {
+                title: "Medikamenten-Tracking",
+                desc: "Multivariate Regression isoliert die Wirkung jeder Behandlung. Wisse genau, was funktioniert, mit statistischer Sicherheit."
+            },
+            recovery: {
+                title: "Erholungs-Einblicke",
+                desc: "Erkenne die Hystereselücke – wenn du dich okay fühlst, aber deine Biologie noch nicht bereit ist. Verhindere Rückfälle durch vorausschauendes Handeln."
             }
+        },
+        steps: {
+            "01": {
+                title: "Lade deine Biomarker-Daten hoch",
+                desc: "Importiere CSV-Dateien von jedem Wearable. Wir unterstützen HRV, Ruhepuls, Aktivitätslevel, Schlafdaten und eigene Symptomprotokolle."
+            },
+            "02": {
+                title: "KI analysiert Muster",
+                desc: "Unsere Engine identifiziert Crash-Zyklen, berechnet die Belastungsintensität und erstellt deine einzigartige biologische Signatur."
+            },
+            "03": {
+                title: "Erhalte vorausschauende Einblicke",
+                desc: "Erhalte handlungsorientierte Empfehlungen, bevor ein Crash eintritt. Verfolge die Wirksamkeit von Behandlungen und verstehe die Warnsignale deines Körpers."
+            }
+        },
+        privacy_badge: {
+            title: "Privacy-First Design",
+            desc: "Deine Gesundheitsdaten sind sensibel. Die gesamte Verarbeitung ist sicher, verschlüsselt und wird niemals geteilt. Deine Daten gehören dir, immer."
+        },
+        cta: {
+            title: "Bereit, die Kontrolle über deine Gesundheit zu übernehmen?",
+            desc: "Schließe dich Patienten an, die Daten in Erholung verwandeln. Beginne noch heute mit der Analyse deiner Biomarker.",
+            button_signup: "Kostenloses Konto erstellen",
+            button_demo: "Demo ansehen"
         },
         why: {
             title: "Why analyze your trends?",

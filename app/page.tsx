@@ -1,233 +1,374 @@
 'use client'
 
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Upload, Activity, Shield, Heart, ArrowRight, Zap, BarChart3, Lock } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { useDropzone } from 'react-dropzone'
-import { useRouter } from 'next/navigation'
-import { useCallback } from 'react'
-import { useLanguage } from '@/components/providers/language-provider'
+import { useState, useCallback } from "react"
+import { useLanguage } from "@/components/providers/language-provider"
+import { useRouter } from "next/navigation"
+import { useDropzone } from "react-dropzone"
+import { Button } from "@/components/ui/button"
+import {
+  Upload,
+  Activity,
+  LineChart,
+  TrendingUp,
+  Zap,
+  FileSpreadsheet,
+  Cpu,
+  BarChart3,
+  FileUp,
+  Shield,
+  ArrowRight
+} from "lucide-react"
+import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function LandingPage() {
   const { t } = useLanguage()
   const router = useRouter()
 
-  // Drag & Drop Handler (Demo for now - redirects to signup)
-  // Ideally, we'd store the file in local storage or context and pass it to the secure upload page after login.
-  // For this V1, let's keep it simple: clicking it goes to the secure upload page (which asks for login).
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Check if user is logged in? 
-    // For a smooth flow: Store file in a global context? 
-    // Or simpler: Just redirect to /upload which will force login, then they drop again.
+    // For now, redirect to upload page which handles secure ingestion and auth
     router.push('/upload')
   }, [router])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    noClick: false, // Allow clicking to open file dialog
+    noClick: false,
     accept: { 'text/csv': ['.csv'] }
   })
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-[#F8FAFB] overflow-x-hidden">
+      {/* Hero Section */}
+      <section className="pt-16 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[#60A5FA] rounded-full blur-[150px] opacity-40" />
+          <div className="absolute inset-0 bg-gradient-radial from-[#0F172A] via-[#60A5FA]/20 to-transparent opacity-30" />
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-[#0F172A]/40 to-[#60A5FA]/30 rounded-full blur-[140px]" />
+          <div className="absolute top-40 right-1/4 w-[500px] h-[500px] bg-gradient-to-tl from-[#FDBA74]/20 to-[#60A5FA]/30 rounded-full blur-[120px]" />
+          <div
+            className="absolute inset-0 opacity-[0.05]"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, #60A5FA 1px, transparent 1px),
+                linear-gradient(to bottom, #60A5FA 1px, transparent 1px)
+              `,
+              backgroundSize: "40px 40px",
+            }}
+          />
+        </div>
 
-
-
-      <main className="flex-1">
-
-        {/* Hero Section */}
-        <section className="relative px-6 pt-12 pb-24 lg:px-8 flex flex-col items-center text-center overflow-hidden">
-          {/* Background Decor */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-primary/5 rounded-full blur-3xl -z-10" />
-
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl space-y-6"
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
           >
-            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/10 text-primary hover:bg-primary/20">
-              <Shield className="mr-1 h-3 w-3" /> {t('landing.hero.badge')}
-            </div>
-
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground">
-              {t('landing.hero.title_main')}<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">{t('landing.hero.title_highlight')}</span>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-balance leading-tight text-[#1E293B] tracking-tight">
+              {t('landing.hero.transform_title')}
+              <br />
+              {t('landing.hero.predictive_insights')}
             </h1>
-
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed text-pretty">
               {t('landing.hero.subtitle')}
             </p>
-
-            {/* Hero Drop Zone */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="mt-10 mx-auto max-w-xl w-full"
-            >
-              <div
-                {...getRootProps()}
-                className={`
-                    p-8 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300
-                    flex flex-col items-center justify-center gap-4 group
-                    ${isDragActive ? 'border-primary bg-primary/5 shadow-lg shadow-primary/20' : 'border-muted-foreground/20 bg-card hover:border-primary/50 hover:shadow-xl'}
-                  `}
-              >
-                <input {...getInputProps()} />
-                <div className="p-4 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                  <Upload className="h-8 w-8 text-primary" />
-                </div>
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-foreground">{t('landing.hero.dropzone.title')}</h3>
-                  <p className="text-sm text-muted-foreground">{t('landing.hero.dropzone.subtitle')}</p>
-                </div>
-                <Button variant="secondary" size="sm" className="mt-2" onClick={(e) => {
-                  e.stopPropagation();
-                  router.push('/login');
-                }}>
-                  {t('landing.hero.dropzone.button_account')} <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </div>
-            </motion.div>
-
-            <div className="flex justify-center gap-6 pt-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1"><Shield className="h-4 w-4 text-green-500" /> {t('landing.hero.features.secure')}</div>
-              <div className="flex items-center gap-1"><Zap className="h-4 w-4 text-amber-500" /> {t('landing.hero.features.instant')}</div>
-            </div>
-
           </motion.div>
-        </section>
 
-        {/* Feature Grid */}
-        <section className="py-24 bg-muted/50">
-          <div className="container px-6 mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold tracking-tight mb-4">{t('landing.why.title')}</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                {t('landing.why.subtitle')}
-              </p>
+          {/* Hero Uploader */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="max-w-4xl mx-auto mb-20 relative"
+          >
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-gradient-radial from-[#FDBA74]/30 via-[#F59E0B]/15 to-transparent blur-3xl" />
+              <div className="absolute inset-0 bg-gradient-radial from-[#60A5FA]/15 via-[#38BDF8]/10 to-transparent blur-3xl scale-110" />
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              <FeatureCard
-                icon={<Lock className="h-6 w-6 text-rose-500" />}
-                title={t('landing.why.cards.privacy.title')}
-                description={t('landing.why.cards.privacy.desc')}
-                bg="bg-rose-50 dark:bg-rose-950/20"
-              />
-              <FeatureCard
-                icon={<BarChart3 className="h-6 w-6 text-blue-500" />}
-                title={t('landing.why.cards.baseline.title')}
-                description={t('landing.why.cards.baseline.desc')}
-                bg="bg-blue-50 dark:bg-blue-950/20"
-              />
-              <FeatureCard
-                icon={<Heart className="h-6 w-6 text-violet-500" />}
-                title={t('landing.why.cards.patients.title')}
-                description={t('landing.why.cards.patients.desc')}
-                bg="bg-violet-50 dark:bg-violet-950/20"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Visualization Teaser Section */}
-        <section className="py-24 container px-6 mx-auto flex flex-col lg:flex-row items-center gap-16">
-          <div className="flex-1 space-y-8">
-            <h2 className="text-3xl sm:text-4xl font-bold">{t('landing.teaser.title')}</h2>
-            <p className="text-lg text-muted-foreground">
-              {t('landing.teaser.subtitle')}
-            </p>
-            <ul className="space-y-4">
-              <CheckItem text={t('landing.teaser.list.pem')} />
-              <CheckItem text={t('landing.teaser.list.meds')} />
-              <CheckItem text={t('landing.teaser.list.symptom')} />
-              <CheckItem text={t('landing.teaser.list.trends')} />
-            </ul>
-            <Button size="lg" className="rounded-full px-8 mt-4" asChild>
-              <Link href="/login">{t('landing.teaser.cta')}</Link>
-            </Button>
-          </div>
-          <div className="flex-1 relative">
-            {/* Placeholder for the AI Generated Image */}
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-card aspect-[4/3] group">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-50" />
-              {/* We will replace this with the actual generated image in the artifacts */}
-              <img
-                src="/hero_chart_visualization.webp"
-                alt="Dashboard Visualization"
-                className="object-cover w-full h-full scale-100 group-hover:scale-105 transition-transform duration-700"
-              />
-              {/* Overlay card look */}
-              <div className="absolute bottom-6 left-6 right-6 bg-background/80 backdrop-blur-md p-4 rounded-xl border shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold">{t('landing.teaser.card_insight')}</span>
-                  <span className="text-xs text-green-500 font-medium flex items-center gap-1">
-                    <TrendingUpIcon className="h-3 w-3" /> +12% Baseline
-                  </span>
+            <div
+              {...getRootProps()}
+              className={`relative rounded-2xl border-2 border-dotted transition-all duration-300 cursor-pointer ${isDragActive
+                  ? "border-[#60A5FA] border-solid bg-slate-50 scale-[1.02] shadow-2xl shadow-[#60A5FA]/30 animate-pulse"
+                  : "border-[#60A5FA]/60 bg-slate-50 hover:border-[#60A5FA] hover:shadow-lg"
+                } backdrop-blur-xl`}
+              style={{
+                boxShadow: isDragActive
+                  ? "0 0 0 1px rgba(96, 165, 250, 0.5) inset, 0 20px 50px -12px rgba(96, 165, 250, 0.4)"
+                  : "inset 1px 1px 0 0 rgba(255, 255, 255, 0.6), inset -1px -1px 0 0 rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)",
+              }}
+            >
+              <input {...getInputProps()} />
+              <div className="p-12 sm:p-16 text-center">
+                <div
+                  className={`mb-6 inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#60A5FA]/30 to-[#38BDF8]/20 border border-[#60A5FA]/60 shadow-lg transition-all duration-300 ${isDragActive ? "scale-110 shadow-[#60A5FA]/50" : ""
+                    }`}
+                >
+                  <Upload className="h-10 w-10 text-[#3B82F6]" />
                 </div>
-                <div className="h-2 w-full bg-secondary/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-primary w-[70%]" />
+                <h3 className="text-2xl font-semibold mb-3 text-[#1E293B] tracking-tight">{t('landing.hero.drop_title')}</h3>
+                <p className="text-[#475569] mb-6 max-w-md mx-auto leading-relaxed">
+                  {t('landing.hero.drop_desc')}
+                </p>
+
+                <div className="flex items-center justify-center gap-6 mb-8 flex-wrap">
+                  {['Oura', 'Garmin', 'Apple Health', 'Fitbit'].map((source) => (
+                    <div key={source} className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#3B82F6] transition-colors cursor-default">
+                      <div className="w-6 h-6 rounded-full bg-[#60A5FA]/10 border border-[#60A5FA]/30 flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-[#3B82F6]">{source[0]}</span>
+                      </div>
+                      <span className="font-medium">{source}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-col gap-3 items-center justify-center">
+                  <Button
+                    size="lg"
+                    className="cursor-pointer transition-all bg-[#60A5FA] hover:bg-[#3B82F6] text-white font-semibold rounded-full"
+                    style={{
+                      boxShadow: "inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 0 25px -5px rgba(96, 165, 250, 0.6), 0 8px 16px -5px rgba(96, 165, 250, 0.3)",
+                    }}
+                  >
+                    <FileUp className="mr-2 h-5 w-5" />
+                    {t('landing.hero.dropzone.button_select')}
+                  </Button>
+                  <Link
+                    href="/signup"
+                    className="text-sm text-[#64748B] hover:text-[#3B82F6] transition-colors inline-flex items-center gap-1"
+                  >
+                    {t('landing.hero.create_account_hint')}
+                  </Link>
+                </div>
+
+                <p className="text-xs text-[#64748B] mt-6 font-mono">{t('landing.hero.file_limit_hint')}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Three Pillars Cards */}
+          <section className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#F0F9FF] py-20 mb-20 overflow-hidden">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="grid md:grid-cols-3 gap-8">
+                {[
+                  {
+                    icon: LineChart, key: 'phase', svg: (
+                      <polyline points="0,20 20,16 40,22 60,12 80,18 100,10 120,14" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                    )
+                  },
+                  {
+                    icon: TrendingUp, key: 'meds', svg: (
+                      <div className="flex items-end gap-1 h-full">
+                        {[4, 6, 5, 7, 4].map((h, i) => <div key={i} className={`w-3 h-${h} bg-[#60A5FA] rounded-sm`} />)}
+                      </div>
+                    )
+                  },
+                  {
+                    icon: Zap, key: 'recovery', svg: (
+                      <path d="M0,16 Q10,16 15,8 T30,16 Q35,16 40,24 T55,16 Q65,16 70,8 T85,16" fill="none" stroke="currentColor" strokeWidth="2" />
+                    )
+                  }
+                ].map((pillar) => (
+                  <motion.div
+                    key={pillar.key}
+                    whileHover={{ y: -8 }}
+                    className="group p-8 rounded-xl bg-white border border-[#E5E7EB] hover:border-[#60A5FA] transition-all duration-300 shadow-sm"
+                  >
+                    <div className="mb-4 inline-flex items-center justify-center w-20 h-20 rounded-[20px] bg-[#60A5FA]/10 border-2 border-[#60A5FA] group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-[#60A5FA]/30 group-hover:border-[#3B82F6] transition-all duration-300">
+                      <pillar.icon className="h-10 w-10 text-[#3B82F6]" />
+                    </div>
+                    <div className="mb-3 h-8 opacity-30 group-hover:opacity-50 transition-opacity">
+                      {typeof pillar.svg === 'object' && 'type' in pillar.svg ? (
+                        pillar.svg
+                      ) : (
+                        <svg width="100%" height="32" className="text-[#60A5FA]">
+                          {pillar.svg}
+                        </svg>
+                      )}
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 text-[#1E293B] tracking-tight">{t(`landing.pillars.${pillar.key}.title`)}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm">
+                      {t(`landing.pillars.${pillar.key}.desc`)}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* How It Works */}
+          <div className="max-w-5xl mx-auto relative px-4 md:px-0">
+            <div className="absolute left-1/2 top-0 bottom-0 w-px border-l-2 border-dashed border-[#60A5FA]/20 hidden lg:block" />
+
+            {/* Step 1 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center mb-24 relative">
+              <div className="absolute left-1/2 top-12 w-3 h-3 bg-[#60A5FA] rounded-full -translate-x-1/2 hidden lg:block border-2 border-white shadow-lg" />
+              <div className="order-1 p-8 md:p-10 rounded-2xl bg-white border border-[#E5E7EB] shadow-sm">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-[#60A5FA] bg-gradient-to-br from-white to-[#60A5FA]/5 flex items-center justify-center shadow-md">
+                    <FileSpreadsheet className="h-7 w-7 text-[#60A5FA]" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-bold text-[#64748B] mb-1 tracking-wide uppercase font-mono">Step 01</div>
+                    <h3 className="text-2xl font-bold mb-3 text-[#1E293B]">{t('landing.steps.01.title')}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{t('landing.steps.01.desc')}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="order-2 p-8 md:p-10 rounded-2xl bg-gradient-to-br from-[#60A5FA]/5 to-white/50 border border-[#60A5FA]/20 relative overflow-hidden bg-gradient-radial from-[#60A5FA]/10 via-transparent to-transparent">
+                <div className="space-y-3 relative z-10">
+                  {[
+                    { label: "HRV", value: "62.4", unit: "ms", bar: "75%" },
+                    { label: "RHR", value: "68", unit: "bpm", bar: "60%" },
+                    { label: "Sleep Quality", value: "78", unit: "%", bar: "78%" },
+                  ].map((metric, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-white/90 border border-[#60A5FA]/10">
+                      <span className="text-xs font-medium text-[#1E293B]">{metric.label}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-[#60A5FA] to-[#FDBA74] rounded-full" style={{ width: metric.bar }} />
+                        </div>
+                        <span className="text-xs font-bold text-[#60A5FA]">{metric.value} {metric.unit}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center mb-24 relative">
+              <div className="absolute left-1/2 top-12 w-3 h-3 bg-[#60A5FA] rounded-full -translate-x-1/2 hidden lg:block border-2 border-white shadow-lg" />
+              <div className="order-2 lg:order-1 p-8 md:p-10 rounded-2xl bg-gradient-to-br from-white/50 to-[#60A5FA]/5 border border-[#60A5FA]/20 relative flex flex-col items-center">
+                <div className="flex items-center justify-between w-full mb-6 px-4">
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-[#1E293B] font-mono">-2.4σ</div>
+                    <div className="text-[9px] text-muted-foreground uppercase font-mono">BUILDUP</div>
+                  </div>
+                  <div className="w-px h-8 bg-[#60A5FA]/20" />
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-rose-500 font-mono">-4.1σ</div>
+                    <div className="text-[9px] text-muted-foreground uppercase font-mono">EVENT</div>
+                  </div>
+                  <div className="w-px h-8 bg-[#60A5FA]/20" />
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-[#FDBA74] font-mono">+1.8σ</div>
+                    <div className="text-[9px] text-muted-foreground uppercase font-mono">RECOVERY</div>
+                  </div>
+                </div>
+                <div className="w-full h-24 relative">
+                  <svg width="100%" height="100%" className="text-[#60A5FA]">
+                    <path d="M0,60 Q30,55 60,40 Q90,20 120,45 Q150,70 180,75 Q210,65 240,60" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="120" cy="45" r="4" fill="white" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                </div>
+              </div>
+              <div className="order-1 lg:order-2 p-8 md:p-10 rounded-2xl bg-white border border-[#E5E7EB] shadow-sm">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-[#60A5FA] bg-gradient-to-br from-white to-[#60A5FA]/5 flex items-center justify-center shadow-md">
+                    <Cpu className="h-7 w-7 text-[#60A5FA]" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-bold text-[#64748B] mb-1 tracking-wide uppercase font-mono">Step 02</div>
+                    <h3 className="text-2xl font-bold mb-3 text-[#1E293B]">{t('landing.steps.02.title')}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{t('landing.steps.02.desc')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center mb-12 relative">
+              <div className="absolute left-1/2 top-12 w-3 h-3 bg-[#60A5FA] rounded-full -translate-x-1/2 hidden lg:block border-2 border-white shadow-lg" />
+              <div className="order-1 p-8 md:p-10 rounded-2xl bg-white border border-[#E5E7EB] shadow-sm">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-[#60A5FA] bg-gradient-to-br from-white to-[#60A5FA]/5 flex items-center justify-center shadow-md">
+                    <BarChart3 className="h-7 w-7 text-[#60A5FA]" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-bold text-[#64748B] mb-1 tracking-wide uppercase font-mono">Step 03</div>
+                    <h3 className="text-2xl font-bold mb-3 text-[#1E293B]">{t('landing.steps.03.title')}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{t('landing.steps.03.desc')}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="order-2 p-8 md:p-10 rounded-2xl bg-gradient-to-br from-[#60A5FA]/5 to-white/50 border border-[#60A5FA]/20 relative bg-gradient-radial from-[#FDBA74]/10 via-transparent to-transparent">
+                <div className="space-y-3 relative z-10">
+                  <div className="p-3 rounded-lg bg-rose-50/80 border border-rose-200">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-bold text-rose-800 uppercase font-mono tracking-tighter">Crash Risk</span>
+                      <span className="text-sm font-black text-rose-600 font-mono">HIGH</span>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-amber-50/80 border border-amber-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-amber-800 uppercase font-mono tracking-tighter">Recovery Status</span>
+                      <span className="text-sm font-black text-amber-600 font-mono">75%</span>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-blue-50/80 border border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-blue-800 uppercase font-mono tracking-tighter">Impact</span>
+                      <span className="text-sm font-black text-[#60A5FA] font-mono">+18%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
 
-      </main>
+          <section className="py-20 mt-12">
+            {/* Privacy Badge */}
+            <div className="max-w-2xl mx-auto mb-20 text-center">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="p-10 rounded-2xl bg-white border border-[#E5E7EB] shadow-sm"
+              >
+                <Shield className="h-12 w-12 mx-auto mb-4 text-[#60A5FA]" />
+                <h3 className="text-2xl font-bold mb-3 text-[#1E293B]">{t('landing.privacy_badge.title')}</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t('landing.privacy_badge.desc')}
+                </p>
+              </motion.div>
+            </div>
 
-      <footer className="py-12 bg-muted/30 border-t">
-        <div className="container px-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} {t('landing.footer.copyright')}</p>
+            {/* CTA Section */}
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="p-12 md:p-16 rounded-3xl bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#60A5FA] rounded-full blur-[100px] opacity-20 -mr-32 -mt-32" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#FDBA74] rounded-full blur-[100px] opacity-10 -ml-32 -mb-32" />
+
+                <div className="relative z-10">
+                  <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
+                    {t('landing.cta.title')}
+                  </h2>
+                  <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    {t('landing.cta.desc')}
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Button
+                      size="lg"
+                      className="rounded-full px-10 h-14 text-lg font-bold bg-[#60A5FA] hover:bg-[#3B82F6] shadow-xl shadow-[#60A5FA]/20 transition-all hover:scale-105"
+                      asChild
+                    >
+                      <Link href="/signup">{t('landing.cta.button_signup')}</Link>
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="rounded-full px-10 h-14 text-lg font-bold border-white/20 hover:bg-white/10 text-white"
+                      asChild
+                    >
+                      <Link href="/login">{t('landing.cta.button_demo')}</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-      </footer>
+      </section>
     </div>
   )
 }
 
-function FeatureCard({ icon, title, description, bg }: { icon: React.ReactNode, title: string, description: string, bg: string }) {
-  return (
-    <Card className="border-none shadow-md hover:shadow-lg transition-shadow duration-300">
-      <CardContent className="pt-6">
-        <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${bg}`}>
-          {icon}
-        </div>
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-muted-foreground leading-relaxed">{description}</p>
-      </CardContent>
-    </Card>
-  )
-}
-
-function CheckItem({ text }: { text: string }) {
-  return (
-    <li className="flex items-center gap-3">
-      <div className="h-6 w-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
-        <Shield className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-      </div>
-      <span className="font-medium text-foreground">{text}</span>
-    </li>
-  )
-}
-
-function TrendingUpIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-      <polyline points="16 7 22 7 22 13" />
-    </svg>
-  )
-}

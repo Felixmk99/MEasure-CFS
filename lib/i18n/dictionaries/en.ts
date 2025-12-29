@@ -38,12 +38,57 @@ export const en: Dictionary = {
             dropzone: {
                 title: "Analyze your CSV instantly",
                 subtitle: "Drag & Drop your Visible export here to start",
-                button_account: "Or create an account first"
+                button_account: "Or create an account first",
+                button_select: "Choose file"
             },
             features: {
                 secure: "Secure Storage",
                 instant: "Instant Insights"
+            },
+            transform_title: "Transform health data",
+            predictive_insights: "into predictive insights",
+            drop_title: "Drop your data to begin",
+            drop_desc: "Upload CSV files from Oura, Garmin, Apple Health, or any wearable. Your journey to predictive health starts here.",
+            create_account_hint: "New here? Create account first →",
+            file_limit_hint: "Supports CSV files up to 100MB"
+        },
+        pillars: {
+            phase: {
+                title: "Phase Analysis",
+                desc: "Identify buildup, crash, and recovery phases with superposed epoch analysis. See biological whispers before symptoms hit."
+            },
+            meds: {
+                title: "Medication Tracking",
+                desc: "Multivariate regression isolates each treatment's impact. Know exactly what's working with statistical confidence."
+            },
+            recovery: {
+                title: "Recovery Insights",
+                desc: "Detect the hysteresis gap—when you feel okay but your biology isn't ready. Prevent relapses with predictive agency."
             }
+        },
+        steps: {
+            "01": {
+                title: "Upload your biomarker data",
+                desc: "Import CSV files from any wearable device. We support HRV, RHR, activity levels, sleep metrics, and custom symptom logs."
+            },
+            "02": {
+                title: "AI analyzes patterns",
+                desc: "Our engine identifies crash cycles, calculates impact intensity, and maps your unique biological signature using superposed epoch analysis."
+            },
+            "03": {
+                title: "Get predictive insights",
+                desc: "Receive actionable recommendations before crashes hit. Track treatment efficacy and understand your body's early warning signals."
+            }
+        },
+        privacy_badge: {
+            title: "Privacy-first design",
+            desc: "Your health data is sensitive. All processing is secure, encrypted, and never shared. You own your data, always."
+        },
+        cta: {
+            title: "Ready to take control of your health?",
+            desc: "Join patients who are turning data into recovery. Start analyzing your biomarkers today.",
+            button_signup: "Create free account",
+            button_demo: "View demo"
         },
         why: {
             title: "Why analyze your trends?",

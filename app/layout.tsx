@@ -22,7 +22,7 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`} suppressHydrationWarning>
         <LanguageProvider>
           <Navbar />
-          <main className="flex-1 container mx-auto py-6">
+          <main className="flex-1">
             {children}
           </main>
           <Footer />
