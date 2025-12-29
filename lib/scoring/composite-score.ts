@@ -1,3 +1,4 @@
+import { calculateSymptomScore, calculateExertionScore, calculateCompositeScore } from "@/lib/scoring/logic";
 
 export interface ScoreComponents {
     composite_score: number | null
@@ -52,7 +53,7 @@ export function calculateMinMaxStats(data: ScorableEntry[]): NormalizationStats 
  * Enhances a dataset with the unified Composite Score (MEasure-CFS Score).
  * 
  * Formula (Strain/Risk Index):
- * Score = Symptoms + (NormRHR * 3) + (NormSteps * 3) + (NormExertion * 3) - (NormHRV * 3) - (NormSleep * 3)
+ * Score = Symptoms + Sleep - Exertion + RHR - HRV - NormalizedSteps
  * 
  * Result:
  * - High Score = High Strain/Symptoms (Bad)
@@ -70,36 +71,41 @@ export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedS
 
     // 2. Enhance Each Entry
     return data.map(entry => {
-        const symptomSum = Number(entry.symptom_score) || 0
-        const exertionSum = Number(entry.exertion_score) || 0
+        // DYNAMIC CALCULATION: Do not trust DB 'symptom_score'/ 'exertion_score' as they may be outdated.
+        // We recalculate sums from custom_metrics strictly using the Centralized Logic.
+        const symptomSum = calculateSymptomScore(entry.custom_metrics)
+        const exertionSum = calculateExertionScore(entry.custom_metrics)
+        const sleepVal = Number(entry.custom_metrics?.['Sleep']) || 0
 
-        // Extract Sleep (Strict "Sleep" key)
-        let sleepVal = 0
-        if (entry.custom_metrics?.['Sleep']) {
-            const val = entry.custom_metrics['Sleep']
-            if (isNumber(val)) sleepVal = val
-        }
+        // Calculate Generalized Factors (0-1 Scale) - primarily for 'normalized_steps' in formula
+        // We keep calculating others for the return object's normalized fields (for potential UI use),
+        // but the Composite Score formula strictly uses raw values except for steps.
+        const normSteps = normalize(entry.step_count, stats.steps.min, stats.steps.max)
+        const normRhr = normalize(entry.resting_heart_rate, stats.rhr.min, stats.rhr.max)
+        const normHrv = normalize(entry.hrv, stats.hrv.min, stats.hrv.max)
+        const normExertion = normalize(exertionSum, stats.exertion.min, stats.exertion.max)
+        const normSleep = normalize(sleepVal, stats.sleep.min, stats.sleep.max)
 
-        const WEIGHT = 3
+        // MEasure-CFS Score Calculation (User Defined Strict Formula) via Logic Module
+        const rhr = Number(entry.resting_heart_rate) || 0
+        const hrv = Number(entry.hrv) || 0
 
-        // Calculate Generalized Factors (0-1 Scale * Weight)
-        const normSteps = normalize(entry.step_count, stats.steps.min, stats.steps.max) * WEIGHT
-        const normRhr = normalize(entry.resting_heart_rate, stats.rhr.min, stats.rhr.max) * WEIGHT
-        const normHrv = normalize(entry.hrv, stats.hrv.min, stats.hrv.max) * WEIGHT
-        const normExertion = normalize(exertionSum, stats.exertion.min, stats.exertion.max) * WEIGHT
-        const normSleep = normalize(sleepVal, stats.sleep.min, stats.sleep.max) * WEIGHT
-
-        // MEasure-CFS Score Calculation:
-        // Base: Symptom Sum
-        // Add Stressors: RHR (High=Bad), Steps (Activity=Risk), Exertion (Load=Risk)
-        // Subtract Recovery: HRV (High=Good), Sleep (High=Good)
-        let composite = (symptomSum + normRhr + normSteps + normExertion) - (normHrv + normSleep)
-
-        if (composite < 0) composite = 0
+        const composite = calculateCompositeScore({
+            symptomScore: symptomSum,
+            exertionScore: exertionSum,
+            sleepScore: sleepVal,
+            rhr,
+            hrv,
+            normalizedSteps: normSteps
+        })
 
         return {
             ...entry,
-            composite_score: Number(composite.toFixed(1)), // MEasure-CFS Score
+            // OVERRIDE with dynamically calculated strict sums to fix dashboard graph
+            symptom_score: symptomSum,
+            exertion_score: exertionSum,
+
+            composite_score: composite, // MEasure-CFS Score
             normalized_hrv: Number(normHrv.toFixed(2)),
             normalized_rhr: Number(normRhr.toFixed(2)),
             normalized_steps: Number(normSteps.toFixed(2)),
@@ -125,19 +131,3 @@ function normalize(val: number | null | undefined, min: number, max: number): nu
     if (val === null || val === undefined) return 0
     return (val - min) / (max - min)
 }
-
-function findKey(obj: any, candidates: string[]): string | null {
-    if (!obj) return null
-    const keys = Object.keys(obj)
-    // Precise match first
-    for (const c of candidates) {
-        if (keys.find(k => k.toLowerCase() === c.toLowerCase())) return keys.find(k => k.toLowerCase() === c.toLowerCase())!
-    }
-    // Fuzzy match
-    for (const c of candidates) {
-        const found = keys.find(k => k.toLowerCase().replace(/_/g, ' ').includes(c.toLowerCase().replace(/_/g, ' ')))
-        if (found) return found
-    }
-    return null
-}
-

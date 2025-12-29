@@ -145,16 +145,16 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         // Known static configs
         switch (key) {
 
-            case 'adjusted_score': return { label: t('dashboard.metrics.adjusted_score.label'), color: '#3B82F6', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.adjusted_score.description'), better: t('dashboard.metrics.adjusted_score.better') }
-            case 'symptom_score': return { label: t('dashboard.metrics.composite_score.label'), color: '#F59E0B', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.composite_score.description'), better: t('dashboard.metrics.composite_score.better') }
-            case 'hrv': return { label: t('dashboard.metrics.hrv.label'), color: '#3b82f6', domain: ['auto', 'auto'], unit: 'ms', invert: false, description: t('dashboard.metrics.hrv.description'), better: t('dashboard.metrics.hrv.better') }
-            case 'resting_heart_rate': return { label: t('dashboard.metrics.resting_heart_rate.label'), color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true, description: t('dashboard.metrics.resting_heart_rate.description'), better: t('dashboard.metrics.resting_heart_rate.better') }
-            case 'step_count': return { label: t('dashboard.metrics.step_count.label'), color: '#06b6d4', domain: ['auto', 'auto'], unit: '', invert: false, description: t('dashboard.metrics.step_count.description'), better: t('dashboard.metrics.step_count.better') }
-            case 'exertion_score': return { label: t('dashboard.metrics.exertion_score.label'), color: '#10b981', domain: [0, 10], unit: '', invert: false, description: t('dashboard.metrics.exertion_score.description'), better: t('dashboard.metrics.exertion_score.better') }
-            case 'Coffee': return { label: 'Coffee', color: '#92400e', domain: [0, 'auto'], unit: 'cups', invert: false }
+            case 'adjusted_score': return { label: t('dashboard.metrics.adjusted_score.label'), color: '#3B82F6', domain: ['auto', 'dataMax'], unit: '', invert: true, description: t('dashboard.metrics.adjusted_score.description'), better: t('dashboard.metrics.adjusted_score.better') }
+            case 'symptom_score': return { label: t('dashboard.metrics.composite_score.label'), color: '#F59E0B', domain: [0, 'dataMax'], unit: '', invert: true, description: t('dashboard.metrics.composite_score.description'), better: t('dashboard.metrics.composite_score.better') }
+            case 'hrv': return { label: t('dashboard.metrics.hrv.label'), color: '#3b82f6', domain: ['auto', 'dataMax'], unit: 'ms', invert: false, description: t('dashboard.metrics.hrv.description'), better: t('dashboard.metrics.hrv.better') }
+            case 'resting_heart_rate': return { label: t('dashboard.metrics.resting_heart_rate.label'), color: '#f59e0b', domain: ['auto', 'dataMax'], unit: 'bpm', invert: true, description: t('dashboard.metrics.resting_heart_rate.description'), better: t('dashboard.metrics.resting_heart_rate.better') }
+            case 'step_count': return { label: t('dashboard.metrics.step_count.label'), color: '#06b6d4', domain: [0, 'dataMax'], unit: '', invert: false, description: t('dashboard.metrics.step_count.description'), better: t('dashboard.metrics.step_count.description') }
+            case 'exertion_score': return { label: t('dashboard.metrics.exertion_score.label'), color: '#10b981', domain: [0, 'dataMax'], unit: '', invert: false, description: t('dashboard.metrics.exertion_score.description'), better: t('dashboard.metrics.exertion_score.better') }
+            case 'Coffee': return { label: 'Coffee', color: '#92400e', domain: [0, 'dataMax'], unit: 'cups', invert: false }
             case 'Sleep Score':
             case 'Sleep Quality':
-                return { label: 'Sleep Score', color: '#6366f1', domain: [0, 100], unit: '%', invert: false, description: 'Sleep quality score from your tracker.', better: 'Higher is better' }
+                return { label: 'Sleep Score', color: '#6366f1', domain: [0, 'dataMax'], unit: '%', invert: false, description: 'Sleep quality score from your tracker.', better: 'Higher is better' }
         }
 
         // Dynamic Config
@@ -167,10 +167,12 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         let color = '#8b5cf6'
 
         if (exertionKeywords.some(k => lower.includes(k))) {
-            return { label: key, color: '#10b981', domain: [0, 5], unit: '', invert: false }
+            return { label: key, color: '#10b981', domain: [0, 'dataMax'], unit: '', invert: false }
         }
 
-        return { label: key, color: color, domain: [0, 5], unit: '', invert: true }
+        // Default: Use dataMax to scale Y axis exactly to the visible max value
+        // This prevents showing an axis up to 5 when max data is 4, or up to 4 when max data is 1.
+        return { label: key, color: color, domain: [0, 'dataMax'], unit: '', invert: true }
     }
 
     // -- 1b. Enhanced Chart Data (Trend Line) --

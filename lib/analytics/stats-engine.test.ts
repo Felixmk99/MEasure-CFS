@@ -17,6 +17,7 @@ const generateMetrics = (count: number, startDay: string, baseScore: number) => 
             hrv: baseScore, // Simplified: use HRV as proxy for Health Score
             resting_heart_rate: 60,
             exertion_score: 0,
+            step_count: 0,
             custom_metrics: null,
             raw_data: null,
             created_at: new Date().toISOString()

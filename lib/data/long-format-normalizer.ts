@@ -1,4 +1,5 @@
 import { Database } from "@/types/database.types";
+import { calculateSymptomScore, calculateExertionScore } from "@/lib/scoring/logic";
 
 /**
  * Normalizes "Long Format" CSV data from Visible.
@@ -21,8 +22,6 @@ export function normalizeLongFormatData(rows: any[]) {
     // Detect keys from first row if possible, or just look per row (slightly slower but safer)
     if (rows.length === 0) return [];
 
-    // console.log("First row raw:", rows[0]); // Debug
-
     rows.forEach(row => {
         const dateKey = findKey(row, ['observation_date', 'date', 'day', 'timestamp']);
         const nameKey = findKey(row, ['tracker_name', 'name', 'metric', 'type', 'symptom', 'variable']);
@@ -44,9 +43,7 @@ export function normalizeLongFormatData(rows: any[]) {
                 resting_heart_rate: null,
                 exertion_score: null,
                 step_count: null,
-                custom_metrics: {},
-                raw_symptoms: [],
-                raw_exertion: []
+                custom_metrics: {}
             };
         }
 
@@ -60,58 +57,18 @@ export function normalizeLongFormatData(rows: any[]) {
             case 'Resting HR':
                 record.resting_heart_rate = Math.round(value);
                 break;
-            case 'Stability Score':
-                // Explicitly skip here so it falls into custom_metrics via the default case
-                // and does not influence the exertion_score sum calculation.
-                break;
             case 'Steps':
             case 'Step Count':
             case 'Step count':
                 record.step_count = value;
                 break;
             default:
-                // Define Exertion Types
-                // We include both the "Ideal" names and the actual Visible CSV names
-                const exertionTypes = [
-                    "Cognitive Exertion",
-                    "Emotional Exertion",
-                    "Physical Exertion",
-                    "Social Exertion",
-                    // visible csv specific names:
-                    "Mentally demanding",
-                    "Emotionally stressful",
-                    "Physically active",
-                    "Socially demanding"
-                ];
+                // Everything else goes into Custom Metrics
+                // (Inc. Symptoms, Exertion, Sleep, Stability Score, Metadata, etc)
+                // We let the centralized scoring logic decide what to sum.
 
-                const isExertion = exertionTypes.includes(name || '');
-
-                if (isExertion) {
-                    if (!isNaN(value)) {
-                        record.raw_exertion.push(value);
-                    }
-                } else {
-                    // Fallback: If it's not Exertion, HRV, Steps, or explicitly skipped, treat it as a Symptom.
-                    // This ensures Custom Symptoms with random categories are captured.
-                    // We skip specific metadata if known, but generally default to inclusion.
-
-                    // Exclusions (Metrics we definitely don't want to sum):
-                    const excludeFromScore = ['Menstrual Flow', 'Note', 'Tag'];
-                    const isExcluded = excludeFromScore.includes(name || '');
-
-                    // Strict Sleep exclusion: User confirmed "Sleep" is the exact tracker_name.
-                    // We must NOT sum "Sleep" into the Symptom Score.
-                    const isSleep = name === 'Sleep';
-
-                    if (!isExcluded && !isSleep && !isNaN(value)) {
-                        record.raw_symptoms.push(value);
-                    }
-                }
-
-                // Store in custom_metrics for flexibility (including Stability Score)
                 if (name && value !== undefined && !isNaN(value)) {
                     // Filter out Funcap values from custom_metrics based on Category (requested by user)
-                    // If category starts with 'Funcap_', skip it.
                     if (category && category.toLowerCase().startsWith('funcap_')) {
                         // Skip
                     } else {
@@ -124,20 +81,13 @@ export function normalizeLongFormatData(rows: any[]) {
 
     // Final pass: Collapse dailyRecords into array
     return Object.values(dailyRecords).map(record => {
-        // Calculate Sums for DB storage (User requested Sums over Averages)
-        const symptomSum = record.raw_symptoms.length > 0
-            ? record.raw_symptoms.reduce((a: number, b: number) => a + b, 0)
-            : null;
-
-        const exertionSum = record.raw_exertion.length > 0
-            ? record.raw_exertion.reduce((a: number, b: number) => a + b, 0)
-            : null;
-
-        // Clean up temp fields
-        const { raw_symptoms, raw_exertion, ...finalRecord } = record;
+        // Calculate Sums using Single Source of Truth Logic
+        // This ensures the DB gets values consistent with the App's dynamic calculation.
+        const symptomSum = calculateSymptomScore(record.custom_metrics)
+        const exertionSum = calculateExertionScore(record.custom_metrics)
 
         return {
-            ...finalRecord,
+            ...record,
             symptom_score: symptomSum,
             exertion_score: exertionSum
         };

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { format, parseISO } from "date-fns"
+import { calculateExertionScore, calculateSymptomScore } from "@/lib/scoring/logic";
 
 interface EditDataDialogProps {
     open: boolean
@@ -48,13 +49,26 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
     }
 
     const handleCustomChange = (key: string, value: string) => {
-        setFormData((prev: any) => ({
-            ...prev,
-            custom_metrics: {
+        const numVal = value === '' ? null : Number(value)
+
+        setFormData((prev: any) => {
+            const newCustom = {
                 ...prev.custom_metrics,
-                [key]: value === '' ? null : Number(value)
+                [key]: numVal
             }
-        }))
+
+            // Recalculate Scores using Single Source of Truth
+            // This guarantees that edits match the dashboard logic exactly.
+            const newExertion = calculateExertionScore(newCustom)
+            const newSymptom = calculateSymptomScore(newCustom)
+
+            return {
+                ...prev,
+                custom_metrics: newCustom,
+                exertion_score: newExertion,
+                symptom_score: newSymptom
+            }
+        })
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
