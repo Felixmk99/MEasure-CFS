@@ -285,7 +285,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                             : '-'}
                                                     </td>
                                                     <td className="px-6 py-4 text-muted-foreground font-medium text-[#F59E0B]">
-                                                        {entry.symptom_score ?? (entry.custom_metrics?.composite_score ?? '-')}
+                                                        {entry.symptom_score ?? '-'}
                                                     </td>
                                                     <td className="px-6 py-4 text-right flex justify-end gap-1">
                                                         <Button
