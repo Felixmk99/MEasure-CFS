@@ -109,32 +109,3 @@ function findKey(obj: any, candidates: string[]): string | null {
     }
     return null
 }
-
-/**
- * Recalculates the composite score for a single day based on updated stats.
- * Uses hardcoded defaults if min/max stats aren't available, assuming "average" user range.
- */
-export function calculateDailyCompositeScore(entry: ScorableEntry): number {
-    const symptomSum = Number(entry.symptom_score) || 0
-    const exertionSum = Number(entry.exertion_score) || 0
-
-    let sleepScore = 0
-    const sleepKey = findKey(entry.custom_metrics || {}, ['sleep', 'sleep_quality', 'sleep_score', 'quality_of_sleep'])
-    if (sleepKey) {
-        const val = entry.custom_metrics[sleepKey]
-        if (isNumber(val)) sleepScore = val
-    }
-
-    // Default normalization ranges (approximations)
-    // HRV: 10-100, RHR: 40-100, Steps: 0-10000
-    // In a tailored system, we'd pass in the User's specific historical min/max here.
-    const WEIGHT = 3
-    const normSteps = normalize(entry.step_count, 0, 10000) * WEIGHT
-    const normRhr = normalize(entry.resting_heart_rate, 40, 100) * WEIGHT
-    const normHrv = normalize(entry.hrv, 10, 100) * WEIGHT
-
-    let composite = (symptomSum + normRhr + sleepScore) - (exertionSum + normSteps + normHrv)
-    if (composite < 0) composite = 0
-
-    return Number(composite.toFixed(2))
-}

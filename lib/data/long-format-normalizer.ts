@@ -24,9 +24,9 @@ export function normalizeLongFormatData(rows: any[]) {
     // console.log("First row raw:", rows[0]); // Debug
 
     rows.forEach(row => {
-        const dateKey = findKey(row, ['observation_date', 'date', 'day']);
-        const nameKey = findKey(row, ['tracker_name', 'name', 'metric', 'type']);
-        const valueKey = findKey(row, ['observation_value', 'value', 'score', 'rating']);
+        const dateKey = findKey(row, ['observation_date', 'date', 'day', 'timestamp']);
+        const nameKey = findKey(row, ['tracker_name', 'name', 'metric', 'type', 'symptom', 'variable']);
+        const valueKey = findKey(row, ['observation_value', 'value', 'score', 'rating', 'level']);
         const categoryKey = findKey(row, ['tracker_category', 'category', 'group']);
 
         const date = dateKey ? row[dateKey] : null;
