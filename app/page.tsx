@@ -135,6 +135,7 @@ export default function LandingPage() {
                   </Button>
                   <Link
                     href="/signup"
+                    onClick={(e) => e.stopPropagation()}
                     className="text-sm text-[#64748B] hover:text-[#3B82F6] transition-colors inline-flex items-center gap-1"
                   >
                     {t('landing.hero.create_account_hint')}
