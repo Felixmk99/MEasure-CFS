@@ -87,9 +87,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             ...d,
             ...(d.custom_metrics || {}),
             // UI Mapping (Ensuring fields are always available for comparison)
-            composite_score: Number(d.symptom_score) || 0,
-            adjusted_score: Number(d.composite_score) || 0,
-            symptom_score: Number(d.symptom_score) || 0,
+            adjusted_score: Number(d.composite_score) || 0, // Maps MEasure-CFS Score to UI 'Adjusted Score'
+            symptom_score: Number(d.symptom_score) || 0,    // Maps DB Symptom Score to UI 'Symptom Score'
             exertion_score: Number(d.exertion_score) || 0,
             step_factor: d.normalized_steps || 0,
             formattedDate: format(parseISO(d.date), 'MMM d')
@@ -124,7 +123,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         const dynamicOptions = Array.from(dynamicKeys).sort()
         const defaults = [
             { value: 'adjusted_score', label: 'MEasure-CFS Score' },
-            { value: 'composite_score', label: 'Symptom Score' },
+            { value: 'symptom_score', label: 'Symptom Score' },
             { value: 'exertion_score', label: 'Exertion Score' },
             { value: 'step_factor', label: 'Steps normalized' },
             { value: 'hrv', label: 'Heart Rate Variability' },
@@ -147,7 +146,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         switch (key) {
 
             case 'adjusted_score': return { label: t('dashboard.metrics.adjusted_score.label'), color: '#3B82F6', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.adjusted_score.description'), better: t('dashboard.metrics.adjusted_score.better') }
-            case 'composite_score': return { label: t('dashboard.metrics.composite_score.label'), color: '#F59E0B', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.composite_score.description'), better: t('dashboard.metrics.composite_score.better') }
+            case 'symptom_score': return { label: t('dashboard.metrics.composite_score.label'), color: '#F59E0B', domain: ['auto', 'auto'], unit: '', invert: true, description: t('dashboard.metrics.composite_score.description'), better: t('dashboard.metrics.composite_score.better') }
             case 'hrv': return { label: t('dashboard.metrics.hrv.label'), color: '#3b82f6', domain: ['auto', 'auto'], unit: 'ms', invert: false, description: t('dashboard.metrics.hrv.description'), better: t('dashboard.metrics.hrv.better') }
             case 'resting_heart_rate': return { label: t('dashboard.metrics.resting_heart_rate.label'), color: '#f59e0b', domain: ['auto', 'auto'], unit: 'bpm', invert: true, description: t('dashboard.metrics.resting_heart_rate.description'), better: t('dashboard.metrics.resting_heart_rate.better') }
             case 'step_count': return { label: t('dashboard.metrics.step_count.label'), color: '#06b6d4', domain: ['auto', 'auto'], unit: '', invert: false, description: t('dashboard.metrics.step_count.description'), better: t('dashboard.metrics.step_count.better') }
