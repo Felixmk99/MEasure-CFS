@@ -450,7 +450,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                                 <span className="text-muted-foreground font-medium">{getFriendlyName(i.metric, t)}</span>
                                                                 <span className={cn(
                                                                     "font-bold",
-                                                                    i.significance === 'positive' ? "text-[#3B82F6]" : "text-[#D97706]"
+                                                                    i.significance === 'positive' ? "text-green-600" : "text-red-600"
                                                                 )}>
                                                                     {i.percentChange > 0 ? '+' : ''}{i.percentChange.toFixed(1)}%
                                                                 </span>

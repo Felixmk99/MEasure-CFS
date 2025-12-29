@@ -138,11 +138,14 @@ export function analyzeExperiments(
 
             let significance: 'positive' | 'negative' | 'neutral' = 'neutral';
 
-            // Known "inverted" logic: High Symptom Score = Bad, so Coeff < 0 = Positive
-            const invertedMetrics = ['resting_heart_rate', 'symptom_score', 'composite_score', 'exertion_score', 'pain_level', 'fatigue_level'];
-            const isGood = invertedMetrics.includes(metric)
-                ? coeff < 0
-                : coeff > 0;
+            // Improved "Inverted" Logic:
+            // High = Bad for: Symptoms, RHR, Pain, Fatigue, and specific negative emotional states.
+            const m = metric.toLowerCase();
+            const isInverted =
+                ['resting_heart_rate', 'rhr', 'symptom_score', 'composite_score', 'exertion_score', 'pain', 'fatigue', 'anxiety', 'depression', 'stress', 'fever', 'infection', 'crash', 'palpitation', 'nausea', 'dizzy', 'fog', 'headache', 'lighthead'].some(s => m.includes(s)) ||
+                m.endsWith('_level');
+
+            const isGood = isInverted ? coeff < 0 : coeff > 0;
 
             // Significance Thresholds: Scientific Rigor
             // Significant: p < 0.05
