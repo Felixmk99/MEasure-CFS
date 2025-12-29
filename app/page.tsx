@@ -20,15 +20,31 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
+import { createClient } from "@/lib/supabase/client"
+
+import { useUpload } from "@/components/providers/upload-provider"
 
 export default function LandingPage() {
   const { t } = useLanguage()
   const router = useRouter()
+  const { setPendingUpload } = useUpload()
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // For now, redirect to upload page which handles secure ingestion and auth
-    router.push('/upload')
-  }, [router])
+    if (acceptedFiles.length > 0) {
+      setPendingUpload({ file: acceptedFiles[0], type: 'visible' })
+
+      const checkSession = async () => {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          router.push('/upload')
+        } else {
+          router.push('/signup')
+        }
+      }
+      checkSession()
+    }
+  }, [router, setPendingUpload])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

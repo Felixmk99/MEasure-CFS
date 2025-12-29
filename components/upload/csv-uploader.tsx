@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Papa from 'papaparse'
 import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react'
@@ -11,9 +11,11 @@ import { normalizeLongFormatData } from '@/lib/data/long-format-normalizer'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from "@/components/providers/language-provider"
+import { useUpload } from "@/components/providers/upload-provider"
 
 export function CsvUploader() {
     const { t } = useLanguage()
+    const { pendingUpload, clearPendingUpload } = useUpload()
     const [uploading, setUploading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
@@ -21,10 +23,7 @@ export function CsvUploader() {
     const supabase = createClient()
     const router = useRouter()
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        const file = acceptedFiles[0]
-        if (!file) return
-
+    const processFile = useCallback(async (file: File) => {
         setStatus('parsing')
         setMessage('Parsing CSV file...')
 
@@ -98,15 +97,11 @@ export function CsvUploader() {
                     }
 
                     setStatus('success')
-                    setMessage(`Successfully uploaded ${records.length} days of data!`)
+                    setMessage(`Successfully imported ${newRecords.length} new days of health data!`)
                     router.refresh()
 
-                    setTimeout(() => {
-                        window.location.href = '/dashboard'
-                    }, 1500)
-
                 } catch (err: any) {
-                    console.error("Upload Error Details:", err)
+                    console.error("Upload Error:", err)
                     setStatus('error')
                     const msg = err.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload data.'
                     setMessage(msg)
@@ -120,6 +115,20 @@ export function CsvUploader() {
             }
         })
     }, [supabase, router])
+
+    useEffect(() => {
+        if (pendingUpload && pendingUpload.type === 'visible') {
+            const file = pendingUpload.file
+            clearPendingUpload()
+            processFile(file)
+        }
+    }, [pendingUpload, clearPendingUpload, processFile])
+
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        const file = acceptedFiles[0]
+        if (!file) return
+        processFile(file)
+    }, [processFile])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,

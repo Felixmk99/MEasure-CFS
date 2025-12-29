@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { LanguageProvider } from "@/components/providers/language-provider";
+import { UploadProvider } from "@/components/providers/upload-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,11 +22,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`} suppressHydrationWarning>
         <LanguageProvider>
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
+          <UploadProvider>
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </UploadProvider>
         </LanguageProvider>
       </body>
     </html>

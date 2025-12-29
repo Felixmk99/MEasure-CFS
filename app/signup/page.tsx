@@ -8,8 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ArrowRight, Loader2, Shield, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
+import { useUpload } from '@/components/providers/upload-provider'
 
 export default function SignupPage() {
+    const { pendingUpload } = useUpload()
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
     const [email, setEmail] = useState('')
@@ -34,7 +36,13 @@ export default function SignupPage() {
             },
         })
         if (error) setError(error.message)
-        else setError('Check your email for the confirmation link.')
+        else {
+            if (pendingUpload) {
+                setError('Account created! Please check your email to confirm. After confirming, we will automatically process your uploaded data.')
+            } else {
+                setError('Check your email for the confirmation link.')
+            }
+        }
         setLoading(false)
     }
 
