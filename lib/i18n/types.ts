@@ -50,7 +50,6 @@ export interface Dictionary {
             drop_title: string
             drop_desc: string
             create_account_hint: string
-            file_limit_hint: string
         }
         pillars: {
             phase: { title: string; desc: string }
