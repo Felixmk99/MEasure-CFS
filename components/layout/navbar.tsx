@@ -97,7 +97,11 @@ export default function Navbar() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-14 items-center">
                 <Link href={mounted && user ? "/dashboard" : "/"} className="mr-6 flex items-center space-x-2 group">
                     <Activity className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                    <span className="font-bold inline-block text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-[#60A5FA]">MEasure-CFS</span>
+                    <span className="font-bold inline-block text-lg tracking-tight">
+                        <span className="text-primary">ME</span>
+                        <span className="text-slate-500 dark:text-slate-400">asure-</span>
+                        <span className="text-primary">CFS</span>
+                    </span>
                 </Link>
 
                 {/* Desktop Menu */}
