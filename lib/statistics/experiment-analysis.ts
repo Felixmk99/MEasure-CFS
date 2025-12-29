@@ -19,8 +19,10 @@ export interface ExperimentImpact {
     coefficient: number; // The "Independent Impact" (shift in units, e.g. HRV ms)
     zScoreShift: number; // Shift in Standard Deviations
     percentChange: number; // Shift in Percentage relative to baseline mean
+    standardError: number; // Standard error of the coefficient
+    pValue: number; // Statistical significance
     significance: 'positive' | 'negative' | 'neutral';
-    confidence: number; // 0-1
+    confidence: number; // Statistical confidence (e.g. 1 - pValue)
 }
 
 export interface ExperimentReport {
@@ -41,7 +43,8 @@ export function analyzeExperiments(
     const excludedKeys = [
         'date', 'id', 'user_id', 'created_at', 'custom_metrics',
         'normalized_hrv', 'normalized_rhr', 'normalized_steps',
-        'normalized_sleep', 'normalized_exertion'
+        'normalized_sleep', 'normalized_exertion',
+        'Crash', 'Cognitive Exertion', 'Emotional Exertion', 'Physical Exertion', 'Social Exertion'
     ];
 
     // Build a set of all unique numeric keys in history
@@ -100,45 +103,65 @@ export function analyzeExperiments(
 
         if (y.length < 10) return;
 
-        const betas = solveOLS(X, y);
-        if (!betas) return;
+        const regression = solveOLS(X, y);
+        if (!regression) return;
+
+        const { betas, XTXInv, rss } = regression;
+        const n = y.length;
+        const k = betas.length;
+        const df = n - k; // Degrees of freedom
+
+        if (df <= 0) return;
+
+        // Variance of residuals: sigma^2 = RSS / (n - k)
+        const sigmaSq = rss / df;
 
         experiments.forEach((exp, idx) => {
-            const coeff = betas[idx + 1];
+            const coeff = betas[idx + 1]; // idx+1 because index 0 is intercept
+
+            // Standard Error: sqrt(sigma^2 * XTXInv[j][j])
+            const se = Math.sqrt(sigmaSq * XTXInv[idx + 1][idx + 1]);
+
+            // T-Statistic (or Z-score for large n)
+            const tStat = coeff / (se || 1e-10);
+
+            // P-Value Approximation (Two-tailed Z-test logic)
+            // For health tracking (N > 30 usually), Z is a good proxy.
+            const pValue = 2 * (1 - normalCDF(Math.abs(tStat)));
+
             const stats = baselineStats[metric];
             const std = stats?.std || 1;
-            const mean = stats?.mean || 1; // Avoid division by zero
+            const mean = stats?.mean || 1;
 
             const zShift = coeff / std;
             const percentChange = (coeff / mean) * 100;
 
             let significance: 'positive' | 'negative' | 'neutral' = 'neutral';
 
-            // Generic logic: Assume UP is GOOD unless it's a known "inverted" metric
+            // Known "inverted" logic: High Symptom Score = Bad, so Coeff < 0 = Positive
             const invertedMetrics = ['resting_heart_rate', 'symptom_score', 'composite_score', 'exertion_score', 'pain_level', 'fatigue_level'];
             const isGood = invertedMetrics.includes(metric)
                 ? coeff < 0
                 : coeff > 0;
 
-            // Significance Thresholds
-            // 1. Z-Score (Statistical significance relative to variance)
-            // 2. Percent Change (Practical significance - if it changed > 5%, it's noteworthy to the user even if noisy)
-            if (Math.abs(zShift) > 0.1 || Math.abs(percentChange) > 5.0) {
+            // Significance Thresholds: Scientific Rigor
+            // Significant: p < 0.05
+            // Trend: p < 0.20
+            if (pValue < 0.20) {
                 significance = isGood ? 'positive' : 'negative';
             }
 
             const report = reports.find(r => r.experimentId === exp.id);
             if (report) {
-                // Calculate active days from X matrix column
-                const activeDays = X.reduce((acc, row) => acc + row[idx + 1], 0);
-
                 report.impacts.push({
                     metric,
                     coefficient: coeff,
                     zScoreShift: zShift,
                     percentChange,
+                    standardError: se,
+                    pValue,
                     significance,
-                    confidence: calculateConfidence(y.length, activeDays)
+                    confidence: 1 - pValue
                 });
             }
         });
@@ -150,8 +173,9 @@ export function analyzeExperiments(
 /**
  * Basic Matrix OLS Solver
  * Uses the Normal Equation: (X^T * X)^-1 * X^T * y
+ * Returns coefficients, (X'X)^-1 (for SE), and RSS (for Variance).
  */
-function solveOLS(X: number[][], y: number[]): number[] | null {
+function solveOLS(X: number[][], y: number[]): { betas: number[], XTXInv: number[][], rss: number } | null {
     try {
         const XT = transpose(X);
         const XTX = multiply(XT, X);
@@ -159,7 +183,19 @@ function solveOLS(X: number[][], y: number[]): number[] | null {
         if (!XTXInv) return null;
 
         const XTy = multiplyVec(XT, y);
-        return multiplyVec(XTXInv, XTy);
+        const betas = multiplyVec(XTXInv, XTy);
+
+        // Calculate RSS: sum of (y - X*beta)^2
+        let rss = 0;
+        for (let i = 0; i < y.length; i++) {
+            let pred = 0;
+            for (let j = 0; j < betas.length; j++) {
+                pred += X[i][j] * betas[j];
+            }
+            rss += Math.pow(y[i] - pred, 2);
+        }
+
+        return { betas, XTXInv, rss };
     } catch (e) {
         return null;
     }
@@ -229,13 +265,13 @@ function invert(M: number[][]): number[][] | null {
     return I;
 }
 
-function calculateConfidence(historySize: number, experimentDays: number): number {
-    // 1. Baseline Confidence (How well do we know "Normal"?) - Max 0.8
-    const baselineConf = Math.min(0.8, 1 - (10 / historySize));
-
-    // 2. Experiment Confidence (Do we have enough exposure days?) - Max 0.2
-    // Need ~30 days of active experiment data to be fully confident in the result
-    const experimentConf = Math.min(0.2, (experimentDays / 30) * 0.2);
-
-    return baselineConf + experimentConf;
+/**
+ * Normal Cumulative Distribution Function (CDF) approximation.
+ * Used for P-Value calculation from Z-scores.
+ */
+function normalCDF(x: number): number {
+    const t = 1 / (1 + 0.2316419 * Math.abs(x));
+    const d = 0.3989423 * Math.exp(-x * x / 2);
+    const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+    return x > 0 ? 1 - p : p;
 }

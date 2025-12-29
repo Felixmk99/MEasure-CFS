@@ -75,11 +75,15 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                 const isNegative = impact.significance === 'negative'
                 const isNeutral = impact.significance === 'neutral'
 
-                // Translate significance
-                // Need to handle 'usually positive' etc if they exist? Interface says: positive, negative, neutral, likely_positive...
-                const sigKey = `experiments.impact.significance.${impact.significance}`
-                // Handle complex keys if needed
-                const sigLabel = t(sigKey)
+                // Statistical significance labels
+                let sigLabel = t(`experiments.impact.significance.neutral`)
+                if (impact.pValue < 0.05) {
+                    sigLabel = t(`experiments.impact.significance.significant`) || "Significant"
+                } else if (impact.pValue < 0.20) {
+                    sigLabel = t(`experiments.impact.significance.trend`) || "Trend"
+                }
+
+                const sigColor = impact.pValue < 0.05 ? "opacity-100" : "opacity-70"
 
                 return (
                     <Card key={impact.metric} className={cn(
@@ -98,14 +102,31 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                 )}>
                                     {getMetricIcon(impact.metric)}
                                 </div>
-                                <Badge variant="outline" className={cn(
-                                    "text-[9px] font-bold uppercase",
-                                    isPositive && "border-green-500/20 text-green-600",
-                                    isNegative && "border-red-500/20 text-red-600",
-                                    isNeutral && "border-zinc-500/20 text-zinc-500"
-                                )}>
-                                    {sigLabel}
-                                </Badge>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Badge variant="outline" className={cn(
+                                                "text-[9px] font-bold uppercase",
+                                                isPositive && "border-green-500/20 text-green-600",
+                                                isNegative && "border-red-500/20 text-red-600",
+                                                isNeutral && "border-zinc-500/20 text-zinc-500",
+                                                sigColor
+                                            )}>
+                                                {sigLabel}
+                                            </Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">
+                                            <p className="text-xs">p-value: {impact.pValue.toFixed(3)}</p>
+                                            {impact.pValue < 0.05 ? (
+                                                <p className="text-[10px] opacity-70">Highly likely to be a real effect (95% confidence).</p>
+                                            ) : impact.pValue < 0.20 ? (
+                                                <p className="text-[10px] opacity-70">Suggested trend, but more data may be needed.</p>
+                                            ) : (
+                                                <p className="text-[10px] opacity-70">Not statistically significant.</p>
+                                            )}
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             </div>
 
                             <div className="space-y-1">

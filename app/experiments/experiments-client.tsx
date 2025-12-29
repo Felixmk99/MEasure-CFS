@@ -340,7 +340,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                     </div>
                                                     <Progress value={(analysis?.impacts[0]?.confidence || 0) * 100} className="h-1" />
                                                     <p className="text-[8px] text-muted-foreground mt-1.5 leading-tight opacity-70">
-                                                        {t('experiments.active.confidence_hint')}
+                                                        Statistical confidence based on current data volume and variance.
                                                     </p>
                                                 </div>
                                             </div>
@@ -384,6 +384,9 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                 let lifestyleScore = 0
 
                                 analysis.impacts.forEach(i => {
+                                    // Only consider trends or significant results (p < 0.20)
+                                    if (i.pValue >= 0.20) return;
+
                                     const val = i.significance === 'positive' ? 1 : i.significance === 'negative' ? -1 : 0
                                     if (bioMetrics.includes(i.metric)) {
                                         bioScore += val
