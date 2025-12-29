@@ -35,7 +35,13 @@ export default function SignupPage() {
                 }
             },
         })
-        if (error) setError(error.message)
+        if (error) {
+            if (error.message.includes("already registered")) {
+                setError("Account already exists. Please Log In.")
+            } else {
+                setError(error.message)
+            }
+        }
         else {
             if (pendingUpload) {
                 setError('Account created! Please check your email to confirm. After confirming, we will automatically process your uploaded data.')

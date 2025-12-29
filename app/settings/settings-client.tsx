@@ -62,10 +62,18 @@ export default function SettingsClient({ user }: { user: any }) {
             await supabase.from('health_metrics').delete().eq('user_id', user.id)
             await supabase.from('experiments').delete().eq('user_id', user.id)
 
-            // 2. Sign Out
+            // 2. Delete Auth User (Server-Side)
+            const response = await fetch('/api/auth/delete-account', { method: 'DELETE' })
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to delete account from authentication system.')
+            }
+
+            // 3. Sign Out (only if deletion was successful)
             await supabase.auth.signOut()
 
-            // 3. Redirect
+            // 4. Redirect
             router.push('/')
             router.refresh()
 

@@ -8,8 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ArrowRight, Loader2, Shield } from 'lucide-react'
 import Link from 'next/link'
+import { useUpload } from '@/components/providers/upload-provider'
 
 export default function LoginPage() {
+    const { pendingUpload } = useUpload()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -32,7 +34,11 @@ export default function LoginPage() {
                 setError(error.message)
             }
         } else {
-            router.push('/dashboard')
+            if (pendingUpload) {
+                router.push('/upload')
+            } else {
+                router.push('/dashboard')
+            }
             router.refresh()
         }
         setLoading(false)

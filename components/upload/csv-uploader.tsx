@@ -64,28 +64,24 @@ export function CsvUploader() {
                         }
                     }))
 
-                    const { data: existingDates } = await supabase
-                        .from('health_metrics')
-                        .select('date')
-                        .eq('user_id', user.id) as { data: { date: string }[] | null }
+                    // We no longer filter existing dates to allow for updates/corrections.
+                    // We use Upsert to handle conflicts.
+                    const recordsToUpload = dbRecords
 
-                    const existingSet = new Set((existingDates || []).map(d => d.date))
-                    const newRecords = dbRecords.filter(r => !existingSet.has(r.date))
-
-                    if (newRecords.length === 0) {
+                    if (recordsToUpload.length === 0) {
                         setStatus('success')
-                        setMessage('No new days to add. All data in the file is already present.')
+                        setMessage('No valid records found to process.')
                         return
                     }
 
-                    setMessage(`Adding ${newRecords.length} new days of data...`)
+                    setMessage(`Syncing ${recordsToUpload.length} days of data...`)
 
                     const BATCH_SIZE = 50
-                    for (let i = 0; i < newRecords.length; i += BATCH_SIZE) {
-                        const batch = newRecords.slice(i, i + BATCH_SIZE)
+                    for (let i = 0; i < recordsToUpload.length; i += BATCH_SIZE) {
+                        const batch = recordsToUpload.slice(i, i + BATCH_SIZE)
                         const { error } = await supabase
                             .from('health_metrics')
-                            .insert(batch as any)
+                            .upsert(batch as any, { onConflict: 'user_id, date' })
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
@@ -93,11 +89,11 @@ export function CsvUploader() {
                             throw new Error(`DB Error: ${errorMsg}`)
                         }
 
-                        setMessage(`Uploaded ${Math.min(i + BATCH_SIZE, newRecords.length)} / ${newRecords.length} new days...`)
+                        setMessage(`Processed ${Math.min(i + BATCH_SIZE, recordsToUpload.length)} / ${recordsToUpload.length} days...`)
                     }
 
                     setStatus('success')
-                    setMessage(`Successfully imported ${newRecords.length} new days of health data!`)
+                    setMessage(`Successfully synced ${recordsToUpload.length} days of health data!`)
                     router.refresh()
 
                 } catch (err: any) {
