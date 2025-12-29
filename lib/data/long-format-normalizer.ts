@@ -91,24 +91,15 @@ export function normalizeLongFormatData(rows: any[]) {
                         record.raw_exertion.push(value);
                     }
                 } else {
-                    // Identify Symptoms based on strict Category Allowlist
-                    const symptomCategories = [
-                        "Custom",
-                        "General",
-                        "Symptom",
-                        "Symptoms",
-                        "Brain",
-                        "Heart and Lungs",
-                        "Pain",
-                        "Muscles",
-                        "Sensory",
-                        "Gastrointestinal"
-                    ];
+                    // Fallback: If it's not Exertion, HRV, Steps, or explicitly skipped, treat it as a Symptom.
+                    // This ensures Custom Symptoms with random categories are captured.
+                    // We skip specific metadata if known, but generally default to inclusion.
 
-                    // Use case-insensitive check just in case, though usually they match exactly
-                    const isSymptom = symptomCategories.some(c => c.toLowerCase() === (category || '').toLowerCase());
+                    // Exclusions (Metrics we definitely don't want to sum):
+                    const excludeFromScore = ['Menstrual Flow', 'Note', 'Tag'];
+                    const isExcluded = excludeFromScore.includes(name || '');
 
-                    if (isSymptom && !isNaN(value)) {
+                    if (!isExcluded && !isNaN(value)) {
                         record.raw_symptoms.push(value);
                     }
                 }
