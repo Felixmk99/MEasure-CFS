@@ -42,6 +42,7 @@ export default function SettingsClient({ user }: { user: any }) {
 
             if (error) throw error
             setMessage('Profile updated successfully.')
+            router.refresh()
         } catch (error: any) {
             setMessage(`Error: ${error.message}`)
         } finally {
@@ -55,12 +56,7 @@ export default function SettingsClient({ user }: { user: any }) {
         setIsDeleting(true)
 
         try {
-            // 1. Delete all user data
-            // We do this explicitly to ensure "Secure Deletion" even if Cascade fails or to be double sure.
-            await supabase.from('health_metrics').delete().eq('user_id', user.id)
-            await supabase.from('experiments').delete().eq('user_id', user.id)
-
-            // 2. Delete Auth User (Server-Side)
+            // 1. Delete Account & Data (Server-Side Secure Wipe)
             const response = await fetch('/api/auth/delete-account', { method: 'DELETE' })
             const result = await response.json()
 

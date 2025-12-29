@@ -38,16 +38,30 @@ export function analyzeExperiments(
     baselineStats: Record<string, { mean: number, std: number }>
 ): ExperimentReport[] {
     // 1. Dynamic Metric Discovery
-    const excludedKeys = ['date', 'id', 'user_id', 'created_at', 'custom_metrics', 'normalized_hrv', 'normalized_rhr', 'normalized_steps'];
+    const excludedKeys = [
+        'date', 'id', 'user_id', 'created_at', 'custom_metrics',
+        'normalized_hrv', 'normalized_rhr', 'normalized_steps',
+        'normalized_sleep', 'normalized_exertion'
+    ];
 
     // Build a set of all unique numeric keys in history
     const allMetrics = new Set<string>();
     history.forEach(day => {
+        // 1. Top-level keys
         Object.keys(day).forEach(key => {
             if (!excludedKeys.includes(key) && typeof day[key] === 'number') {
                 allMetrics.add(key);
             }
         });
+
+        // 2. Custom Metrics (Flattening)
+        if (day.custom_metrics && typeof day.custom_metrics === 'object') {
+            Object.keys(day.custom_metrics).forEach(key => {
+                if (!excludedKeys.includes(key) && typeof day.custom_metrics[key] === 'number') {
+                    allMetrics.add(key);
+                }
+            });
+        }
     });
 
     const metricsToAnalyze = Array.from(allMetrics);
@@ -67,8 +81,9 @@ export function analyzeExperiments(
         const X: number[][] = [];
 
         validDays.forEach(day => {
-            const val = day[metric];
-            if (val === null || val === undefined) return;
+            // Check top-level, then custom_metrics
+            const val = day[metric] ?? day.custom_metrics?.[metric];
+            if (val === null || val === undefined || typeof val !== 'number') return;
 
             y.push(val);
             const row = [1];

@@ -33,7 +33,35 @@ export async function DELETE(request: Request) {
             }
         )
 
-        // Delete the user from Auth
+        // 1. Secure Data Wipe (Bypass RLS)
+        // We manually delete related data to ensure no orphans remain, 
+        // even if CASCADE is not configured in the DB.
+        const { error: metricsError } = await supabaseAdmin
+            .from('health_metrics')
+            .delete()
+            .eq('user_id', user.id)
+
+        if (metricsError) {
+            console.error('Error deleting health_metrics:', metricsError)
+            // We continue to try to delete the account even if data wipe fails partially? 
+            // Ideally we want to be clean. Let's log and proceed or fail?
+            // "Account deletion actually works" -> blocking on data might prevent deletion.
+            // But "Secure deletion" implies data IS gone.
+            // Let's return error to be safe.
+            return NextResponse.json({ error: 'Failed to wipe health data. Account not deleted.' }, { status: 500 })
+        }
+
+        const { error: expError } = await supabaseAdmin
+            .from('experiments')
+            .delete()
+            .eq('user_id', user.id)
+
+        if (expError) {
+            console.error('Error deleting experiments:', expError)
+            return NextResponse.json({ error: 'Failed to wipe experiments. Account not deleted.' }, { status: 500 })
+        }
+
+        // 2. Delete the user from Auth
         const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id)
 
         if (error) {

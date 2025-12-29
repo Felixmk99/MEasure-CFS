@@ -54,15 +54,28 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         // Find all unique numeric keys across history
         const allKeys = new Set<string>();
         dataToAnalyze.forEach(d => {
+            // 1. Top-Level Keys
             Object.keys(d).forEach(k => {
                 if (!excludedKeys.includes(k) && typeof d[k] === 'number') {
                     allKeys.add(k);
                 }
             });
+            // 2. Custom Metrics Keys
+            if (d.custom_metrics && typeof d.custom_metrics === 'object') {
+                Object.keys(d.custom_metrics).forEach(k => {
+                    if (!excludedKeys.includes(k) && typeof d.custom_metrics[k] === 'number') {
+                        allKeys.add(k);
+                    }
+                });
+            }
         });
 
         allKeys.forEach(m => {
-            const values = dataToAnalyze.map(d => d[m]).filter(v => typeof v === 'number') as number[]
+            // Retrieve value from top-level OR custom_metrics
+            const values = dataToAnalyze
+                .map(d => d[m] ?? d.custom_metrics?.[m])
+                .filter(v => typeof v === 'number') as number[]
+
             if (values.length > 0) {
                 const mean = values.reduce((a, b) => a + b, 0) / values.length
                 const std = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length) || 1
