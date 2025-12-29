@@ -94,9 +94,11 @@ export function CsvUploader() {
                     }
 
                     setStatus('success')
-                    setMessage(`Successfully synced ${recordsToUpload.length} days of health data!`)
                     await revalidateApp()
-                    router.refresh()
+                    // Redirect to dashboard after short delay for user to see success
+                    setTimeout(() => {
+                        router.push('/dashboard')
+                    }, 1500)
 
                 } catch (err: any) {
                     console.error("Upload Error:", err)

@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { parseISO, format } from 'date-fns'
+import { revalidateApp } from '@/app/actions/revalidate'
 
 export function XmlUploader() {
     const [uploading, setUploading] = useState(false)
@@ -136,8 +137,10 @@ export function XmlUploader() {
                 setStatus('success')
                 setMessage(`Successfully updated steps for ${totalFiltered} days!`)
 
+                await revalidateApp()
+
                 setTimeout(() => {
-                    window.location.href = '/dashboard'
+                    router.push('/dashboard')
                 }, 1500)
 
             } catch (err: any) {

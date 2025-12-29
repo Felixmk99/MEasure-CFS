@@ -21,6 +21,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useLanguage } from "@/components/providers/language-provider"
+import { revalidateApp } from '@/app/actions/revalidate'
 
 interface DataEntry {
     id: string
@@ -94,6 +95,11 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             setDataLog(newData)
             if (newData.length === 0) {
                 setHasData(false)
+                await revalidateApp()
+                router.refresh()
+            } else {
+                // Also revalidate on single delete if it affects charts
+                await revalidateApp()
                 router.refresh()
             }
         }
@@ -110,6 +116,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         if (!error) {
             setDataLog([])
             setHasData(false)
+            await revalidateApp()
             router.refresh()
         }
     }
@@ -130,6 +137,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         if (!error) {
             const newData = dataLog.map(item => item.id === id ? { ...item, ...updatedData } : item)
             setDataLog(newData)
+            await revalidateApp()
             router.refresh()
         } else {
             throw error
