@@ -47,6 +47,12 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         setMounted(true)
     }, [])
 
+    // Sync state with server/prop updates (e.g. after router.refresh())
+    useEffect(() => {
+        setDataLog(initialData)
+        setHasData(initialHasData)
+    }, [initialData, initialHasData])
+
     const filteredData = useMemo(() => {
         if (timeRange === 'all') return dataLog
 
