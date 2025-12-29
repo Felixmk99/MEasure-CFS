@@ -59,13 +59,34 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
     }
 
     const priority = ['composite_score', 'hrv', 'resting_heart_rate', 'symptom_score'];
-    const sortedImpacts = [...impacts].sort((a, b) => {
+
+    // 1. Filter: Only show trends (p < 0.20) or significant (p < 0.05)
+    // This reduces clutter significantly as requested by the user.
+    const relevantImpacts = impacts.filter(i => i.pValue < 0.20);
+
+    if (relevantImpacts.length === 0) {
+        return (
+            <div className="flex items-center gap-2 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg text-xs text-muted-foreground italic">
+                <Info className="w-3.5 h-3.5" />
+                No statistically significant impacts detected for this experiment yet.
+            </div>
+        )
+    }
+
+    const sortedImpacts = [...relevantImpacts].sort((a, b) => {
+        // Priority Metrics first
         const indexA = priority.indexOf(a.metric);
         const indexB = priority.indexOf(b.metric);
         if (indexA !== -1 && indexB !== -1) return indexA - indexB;
         if (indexA !== -1) return -1;
         if (indexB !== -1) return 1;
-        return a.metric.localeCompare(b.metric);
+
+        // Then Significant (p < 0.05) before Trend (p < 0.20)
+        if (a.pValue < 0.05 && b.pValue >= 0.05) return -1;
+        if (a.pValue >= 0.05 && b.pValue < 0.05) return 1;
+
+        // Then by absolute magnitude of change
+        return Math.abs(b.percentChange) - Math.abs(a.percentChange);
     });
 
     return (

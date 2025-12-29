@@ -249,11 +249,11 @@ export const de: Dictionary = {
         impact: {
             insufficient: "Noch nicht genügend Daten, um unabhängigen Einfluss zu isolieren.",
             significance: {
+                significant: "Signifikant",
+                trend: "Trend",
                 positive: "Positiv",
                 negative: "Negativ",
-                neutral: "Neutral",
-                likely_positive: "Wahrscheinlich positiv",
-                likely_negative: "Wahrscheinlich negativ"
+                neutral: "Neutral"
             }
         }
     },

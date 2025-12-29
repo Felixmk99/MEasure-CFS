@@ -231,11 +231,11 @@ export interface Dictionary {
         impact: {
             insufficient: string
             significance: {
+                significant: string
+                trend: string
                 positive: string
                 negative: string
                 neutral: string
-                likely_positive: string
-                likely_negative: string
             }
         }
     }
