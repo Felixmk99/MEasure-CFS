@@ -287,11 +287,14 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                         {activeExperiments.map(exp => {
                             const daysActive = differenceInDays(new Date(), parseISO(exp.start_date))
                             const analysis = analysisResults.find(r => r.experimentId === exp.id)
-                            // Safe translation access using dynamic key with fallback logic is risky in raw TS without strictly typed strings? 
-                            // No, strict type check would fail if I pass a string that isn't a key. 
-                            // But here I know 'lifestyle', 'medication' etc are valid keys.
-                            const categoryKey = exp.category as keyof typeof t extends 'experiments.form.categories' ? string : string;
-                            // Actually 't' accepts any string path.
+
+                            // Calculate Overall Model Confidence:
+                            // We use the MAX confidence of core metrics to show if any signal was detected.
+                            const coreMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score'];
+                            const coreImpacts = analysis?.impacts.filter(i => coreMetrics.includes(i.metric)) || [];
+                            const overallConfidence = analysis?.impacts.length
+                                ? Math.max(...(coreImpacts.length ? coreImpacts : analysis.impacts).map(i => i.confidence))
+                                : 0;
 
                             return (
                                 <Card key={exp.id} className="bg-zinc-50/50 dark:bg-zinc-900/30 border-0 shadow-sm overflow-hidden relative group">
@@ -334,11 +337,11 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                 <div className="min-w-[180px] bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-3 border border-zinc-100 dark:border-zinc-800/50">
                                                     <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5">
                                                         <span>{t('experiments.active.confidence')}</span>
-                                                        <span className={(analysis?.impacts[0]?.confidence || 0) > 0.8 ? "text-emerald-600" : "text-amber-600"}>
-                                                            {Math.round((analysis?.impacts[0]?.confidence || 0) * 100)}%
+                                                        <span className={overallConfidence > 0.8 ? "text-emerald-600" : "text-amber-600"}>
+                                                            {Math.round(overallConfidence * 100)}%
                                                         </span>
                                                     </div>
-                                                    <Progress value={(analysis?.impacts[0]?.confidence || 0) * 100} className="h-1" />
+                                                    <Progress value={overallConfidence * 100} className="h-1" />
                                                     <p className="text-[8px] text-muted-foreground mt-1.5 leading-tight opacity-70">
                                                         Statistical confidence based on current data volume and variance.
                                                     </p>
@@ -384,8 +387,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                 let lifestyleScore = 0
 
                                 analysis.impacts.forEach(i => {
-                                    // Only consider trends or significant results (p < 0.20)
-                                    if (i.pValue >= 0.20) return;
+                                    // Only consider significant results (p < 0.05)
+                                    if (i.pValue >= 0.05) return;
 
                                     const val = i.significance === 'positive' ? 1 : i.significance === 'negative' ? -1 : 0
                                     if (bioMetrics.includes(i.metric)) {
@@ -442,9 +445,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                             {(overallImpact === 'positive' || overallImpact === 'negative') && (
                                                 <div className="mt-3 space-y-1.5">
                                                     {analysis?.impacts
-                                                        .filter(i => i.significance !== 'neutral')
-                                                        .sort((a, b) => Math.abs(b.zScoreShift) - Math.abs(a.zScoreShift))
-                                                        .slice(0, 3)
+                                                        .filter(i => i.pValue < 0.05)
+                                                        .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
                                                         .map(i => (
                                                             <div key={i.metric} className="flex items-center justify-between text-[10px]">
                                                                 <span className="text-muted-foreground font-medium">{getFriendlyName(i.metric, t)}</span>

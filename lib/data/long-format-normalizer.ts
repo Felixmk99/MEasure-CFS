@@ -68,8 +68,8 @@ export function normalizeLongFormatData(rows: any[]) {
                 // We let the centralized scoring logic decide what to sum.
 
                 if (name && value !== undefined && !isNaN(value)) {
-                    // Filter out Funcap values from custom_metrics based on Category (requested by user)
-                    if (category && category.toLowerCase().startsWith('funcap_')) {
+                    // Filter out Funcap values or 'Infection' from custom_metrics (requested by user)
+                    if ((category && category.toLowerCase().startsWith('funcap_')) || name === 'Infection') {
                         // Skip
                     } else {
                         record.custom_metrics[name] = value;

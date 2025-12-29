@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils"
 import { ExperimentImpact } from "@/lib/statistics/experiment-analysis"
 import { useLanguage } from "@/components/providers/language-provider"
+import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 
 interface ExperimentImpactProps {
     impacts: ExperimentImpact[]
@@ -25,20 +26,20 @@ export const getMetricIcon = (metric: string) => {
 
 export const getFriendlyName = (metric: string, t: (key: string) => string) => {
     const m = metric.toLowerCase();
+    const registry = getMetricRegistryConfig(metric);
 
     // Try to find in dashboard config first
     if (m === 'hrv') return t('dashboard.metrics.hrv.label');
     if (m === 'resting_heart_rate' || m === 'rhr') return t('dashboard.metrics.resting_heart_rate.label');
-    if (m === 'symptom_score') return t('dashboard.metrics.composite_score.label'); // Mapped to Symptom Score in config
-    if (m === 'composite_score') return t('dashboard.metrics.adjusted_score.label'); // Mapped to Track-ME Score logic? No, wait. 
-    // In Dash: composite=Symptom, adjusted=Track-Me. 
-    // In Experiments: composite=Track-Me calculation?
-    // Let's rely on standard keys. If 'composite_score' is passed, use its label.
-    if (m === 'composite_score') return "MEasure-CFS Score" // Hardcoded for now due to logic mismatch or add to dictionary 
+    if (m === 'symptom_score') return t('dashboard.metrics.composite_score.label');
+    if (m === 'composite_score') return "MEasure-CFS Score"
 
     // Check for explicit dictionary match
     const dashLabel = t(`dashboard.metrics.${m}.label`)
     if (dashLabel && !dashLabel.includes('dashboard.metrics')) return dashLabel
+
+    // Use registry label if it differs from the metric ID (indicating a rename)
+    if (registry.label && registry.label !== metric) return registry.label;
 
     // Fallback: Title Case
     return metric
@@ -61,9 +62,8 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
 
     const priority = ['composite_score', 'hrv', 'resting_heart_rate', 'symptom_score'];
 
-    // 1. Filter: Only show trends (p < 0.20) or significant (p < 0.05)
-    // This reduces clutter significantly as requested by the user.
-    const relevantImpacts = impacts.filter(i => i.pValue < 0.20);
+    // 1. Filter: Only show significant (p < 0.05)
+    const relevantImpacts = impacts.filter(i => i.pValue < 0.05);
 
     if (relevantImpacts.length === 0) {
         return (
@@ -75,18 +75,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
     }
 
     const sortedImpacts = [...relevantImpacts].sort((a, b) => {
-        // Priority Metrics first
-        const indexA = priority.indexOf(a.metric);
-        const indexB = priority.indexOf(b.metric);
-        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
-
-        // Then Significant (p < 0.05) before Trend (p < 0.20)
-        if (a.pValue < 0.05 && b.pValue >= 0.05) return -1;
-        if (a.pValue >= 0.05 && b.pValue < 0.05) return 1;
-
-        // Then by absolute magnitude of change
+        // Sort by absolute magnitude of change descending
         return Math.abs(b.percentChange) - Math.abs(a.percentChange);
     });
 

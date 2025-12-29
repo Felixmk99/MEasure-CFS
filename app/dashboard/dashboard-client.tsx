@@ -45,6 +45,7 @@ import { enhanceDataWithScore } from "@/lib/scoring/composite-score"
 
 import { useLanguage } from "@/components/providers/language-provider"
 import { PEMAnalysis } from "@/components/dashboard/pem-analysis"
+import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 
 export default function DashboardClient({ data: initialData }: DashboardReviewProps) {
     const { t, locale } = useLanguage()
@@ -142,47 +143,63 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
     // -- 2b. Helper to get Config for ANY metric --
     const getMetricConfig = (key: string) => {
-        // Known static configs
-        switch (key) {
+        const registry = getMetricRegistryConfig(key);
+        const invert = registry.direction === 'lower';
 
-            case 'adjusted_score': return { label: t('dashboard.metrics.adjusted_score.label'), color: '#3B82F6', domain: ['auto', 'dataMax'], unit: '', invert: true, description: t('dashboard.metrics.adjusted_score.description'), better: t('dashboard.metrics.adjusted_score.better') }
-            case 'symptom_score': return { label: t('dashboard.metrics.composite_score.label'), color: '#F59E0B', domain: [0, 'dataMax'], unit: '', invert: true, description: t('dashboard.metrics.composite_score.description'), better: t('dashboard.metrics.composite_score.better') }
-            case 'hrv': return { label: t('dashboard.metrics.hrv.label'), color: '#3b82f6', domain: ['auto', 'dataMax'], unit: 'ms', invert: false, description: t('dashboard.metrics.hrv.description'), better: t('dashboard.metrics.hrv.better') }
-            case 'resting_heart_rate': return { label: t('dashboard.metrics.resting_heart_rate.label'), color: '#f59e0b', domain: ['auto', 'dataMax'], unit: 'bpm', invert: true, description: t('dashboard.metrics.resting_heart_rate.description'), better: t('dashboard.metrics.resting_heart_rate.better') }
-            case 'step_count': return { label: t('dashboard.metrics.step_count.label'), color: '#06b6d4', domain: [0, 'dataMax'], unit: '', invert: false, description: t('dashboard.metrics.step_count.description'), better: t('dashboard.metrics.step_count.description') }
-            case 'exertion_score': return { label: t('dashboard.metrics.exertion_score.label'), color: '#10b981', domain: [0, 'dataMax'], unit: '', invert: false, description: t('dashboard.metrics.exertion_score.description'), better: t('dashboard.metrics.exertion_score.better') }
-            case 'Coffee': return { label: 'Coffee', color: '#92400e', domain: [0, 'dataMax'], unit: 'cups', invert: false }
+        // Base config from registry
+        const config = {
+            label: registry.label || registry.key,
+            color: registry.color || '#8b5cf6',
+            domain: (key.includes('score') || key.includes('hrv') || key.includes('heart')) ? ['auto', 'dataMax'] : [0, 'dataMax'],
+            unit: registry.unit || '',
+            invert: invert,
+            description: '',
+            better: invert ? t('dashboard.metrics.composite_score.better') : t('dashboard.metrics.hrv.better')
+        };
+
+        // Specific overrides / Translations
+        switch (key) {
+            case 'adjusted_score':
+                config.label = t('dashboard.metrics.adjusted_score.label');
+                config.description = t('dashboard.metrics.adjusted_score.description');
+                config.better = t('dashboard.metrics.adjusted_score.better');
+                break;
+            case 'symptom_score':
+                config.label = t('dashboard.metrics.composite_score.label');
+                config.description = t('dashboard.metrics.composite_score.description');
+                config.better = t('dashboard.metrics.composite_score.better');
+                break;
+            case 'hrv':
+                config.label = t('dashboard.metrics.hrv.label');
+                config.description = t('dashboard.metrics.hrv.description');
+                config.better = t('dashboard.metrics.hrv.better');
+                break;
+            case 'resting_heart_rate':
+                config.label = t('dashboard.metrics.resting_heart_rate.label');
+                config.description = t('dashboard.metrics.resting_heart_rate.description');
+                config.better = t('dashboard.metrics.resting_heart_rate.better');
+                break;
+            case 'step_count':
+                config.label = t('dashboard.metrics.step_count.label');
+                config.description = t('dashboard.metrics.step_count.description');
+                config.better = t('dashboard.metrics.step_count.better');
+                break;
+            case 'exertion_score':
+                config.label = t('dashboard.metrics.exertion_score.label');
+                config.description = t('dashboard.metrics.exertion_score.description');
+                config.better = t('dashboard.metrics.exertion_score.better');
+                break;
             case 'Sleep':
             case 'sleep':
             case 'Sleep Score':
             case 'Sleep Quality':
-                return {
-                    label: t('dashboard.metrics.sleep.label'),
-                    color: '#6366f1',
-                    domain: [0, 'dataMax'],
-                    unit: '',
-                    invert: true,
-                    description: t('dashboard.metrics.sleep.description'),
-                    better: t('dashboard.metrics.sleep.better')
-                }
+                config.label = t('dashboard.metrics.sleep.label');
+                config.description = t('dashboard.metrics.sleep.description');
+                config.better = t('dashboard.metrics.sleep.better');
+                break;
         }
 
-        // Dynamic Config
-        const lower = key.toLowerCase()
-        const exertionKeywords = ['exertion', 'demanding', 'active', 'activity', 'walk', 'run', 'cycle', 'sport', 'gym', 'train', 'cook', 'clean', 'social', 'work', 'focus']
-
-        // Auto-assign colors for comparison if not standard
-        // We use a palette if we don't have a specific color
-        const palette = ['#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
-        let color = '#8b5cf6'
-
-        if (exertionKeywords.some(k => lower.includes(k))) {
-            return { label: key, color: '#10b981', domain: [0, 'dataMax'], unit: '', invert: false }
-        }
-
-        // Default: Use dataMax to scale Y axis exactly to the visible max value
-        // This prevents showing an axis up to 5 when max data is 4, or up to 4 when max data is 1.
-        return { label: key, color: color, domain: [0, 'dataMax'], unit: '', invert: true }
+        return config;
     }
 
     // -- 1b. Enhanced Chart Data (Trend Line) --

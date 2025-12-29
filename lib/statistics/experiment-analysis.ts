@@ -1,5 +1,6 @@
 import { format, parseISO, isWithinInterval, addDays, subDays, differenceInDays } from "date-fns";
 import { EXERTION_METRICS } from "@/lib/scoring/logic";
+import { getMetricRegistryConfig } from "@/lib/metrics/registry";
 
 export interface Experiment {
     id: string;
@@ -45,7 +46,7 @@ export function analyzeExperiments(
         'date', 'id', 'user_id', 'created_at', 'custom_metrics',
         'normalized_hrv', 'normalized_rhr', 'normalized_steps',
         'normalized_sleep', 'normalized_exertion',
-        'Crash', 'exertion_score',
+        'Crash', 'Infection', 'exertion_score',
         ...EXERTION_METRICS
     ];
 
@@ -140,14 +141,11 @@ export function analyzeExperiments(
 
             let significance: 'positive' | 'negative' | 'neutral' = 'neutral';
 
-            // Improved "Inverted" Logic:
-            // High = Bad for: Symptoms, RHR, Pain, Fatigue, and specific negative emotional states.
-            const m = metric.toLowerCase();
-            const isInverted =
-                ['resting_heart_rate', 'rhr', 'symptom_score', 'composite_score', 'exertion_score', 'pain', 'fatigue', 'anxiety', 'depression', 'stress', 'fever', 'infection', 'crash', 'palpitation', 'nausea', 'dizzy', 'fog', 'headache', 'lighthead', 'sleep'].some(s => m.includes(s)) ||
-                m.endsWith('_level');
-
-            const isGood = isInverted ? coeff < 0 : coeff > 0;
+            // Central Source of Truth for "Good" outcome logic:
+            const metricConfig = getMetricRegistryConfig(metric);
+            const isGood = metricConfig.direction === 'lower'
+                ? coeff < 0 // Decrease is desirable
+                : coeff > 0; // Increase is desirable
 
             // Significance Thresholds: Scientific Rigor
             // Significant: p < 0.05
