@@ -374,8 +374,7 @@ export default function LandingPage() {
                     </Button>
                     <Button
                       size="lg"
-                      variant="outline"
-                      className="rounded-full px-10 h-14 text-lg font-bold border-white/20 hover:bg-white/10 text-white"
+                      className="rounded-full px-10 h-14 text-lg font-bold bg-white text-slate-950 hover:bg-slate-100 transition-all hover:scale-105 shadow-xl"
                       asChild
                     >
                       <Link href="/login">{t('landing.cta.button_demo')}</Link>

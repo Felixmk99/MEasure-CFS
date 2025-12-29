@@ -76,14 +76,33 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         return { start, end }
     }, [timeRange, dateRange])
 
-    // -- 1. Process Data & Time Filtering --
+    // -- 1. Process Data (Score all data once for stable history) --
+    const enhancedInitialData = useMemo(() => {
+        if (!initialData || initialData.length === 0) return []
+
+        // Enhance with Centralized Score using all-time history for stable normalization
+        const enhanced = enhanceDataWithScore(initialData)
+
+        return enhanced.map(d => ({
+            ...d,
+            ...(d.custom_metrics || {}),
+            // UI Mapping (Ensuring fields are always available for comparison)
+            composite_score: Number(d.symptom_score) || 0,
+            adjusted_score: Number(d.composite_score) || 0,
+            symptom_score: Number(d.symptom_score) || 0,
+            exertion_score: Number(d.exertion_score) || 0,
+            step_factor: d.normalized_steps || 0,
+            formattedDate: format(parseISO(d.date), 'MMM d')
+        }))
+    }, [initialData])
+
+    // -- 1b. Time Filtering for Charts --
     const processedData = useMemo(() => {
-        if (!initialData || initialData.length === 0) return generateMockData()
+        if (enhancedInitialData.length === 0) return generateMockData()
 
         const { start, end } = visibleRange
 
-        // 1. Filter Data First
-        const filtered = initialData
+        return enhancedInitialData
             .filter(item => {
                 const itemDate = startOfDay(parseISO(item.date))
                 const s = startOfDay(start)
@@ -91,31 +110,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 return itemDate >= s && (timeRange === 'custom' ? itemDate <= e : true)
             })
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-
-        // 2. Enhance with Centralized Score
-        const enhanced = enhanceDataWithScore(filtered)
-
-        return enhanced.map(d => {
-            const flattened = {
-                ...d,
-                ...(d.custom_metrics || {}),
-                // UI Mapping:
-                // composite_score -> mapped to "Symptom Score" in config
-                // adjusted_score -> mapped to "MEasure-CFS Score" in config
-                composite_score: Number(d.symptom_score) || 0,
-                adjusted_score: Number(d.composite_score) || 0,
-
-                // Keep raw fields accessible
-                symptom_score: Number(d.symptom_score) || 0,
-                exertion_score: Number(d.exertion_score) || 0,
-
-                // Format Date for Chart
-                formattedDate: format(parseISO(d.date), 'MMM d')
-            }
-            return flattened
-        })
-
-    }, [initialData, visibleRange, timeRange, dateRange])
+    }, [enhancedInitialData, visibleRange, timeRange, dateRange])
 
     // -- 2a. Extract Dynamic Metrics --
     const availableMetrics = useMemo(() => {
@@ -307,59 +302,20 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         return selectedMetrics.map(metric => {
             const config = getMetricConfig(metric)
-            const getValue = (d: any, k: string) => {
-                const v = d[k] ?? d.custom_metrics?.[k]
-                return (v === undefined || v === null) ? null : v
-            }
 
-            // 1. Current Period Data (Use processedData directly as it contains computed metrics like adjusted_score)
-            // 'processedData' is already filtered to the selected timeRange/dateRange and sorted.
+            // 1. Current Period Data
             const currentValues = processedData
-                .map(d => getValue(d, metric))
+                .map(d => d[metric])
                 .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
             const currentAvg = currentValues.length > 0 ? currentValues.reduce((a, b) => a + b, 0) / currentValues.length : 0
-
-            // Helper: Compute Metric for Previous Data (which is raw initialData)
-            // We use the CURRENT view's step normalization (min/max) to ensure fair comparison.
-            // Recalculate stats from processedData for safety within this scope
-            const stepValues = processedData
-                .map(d => d.step_count)
-                .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
-            const minSteps = stepValues.length > 0 ? Math.min(...stepValues) : 0
-            const maxSteps = stepValues.length > 0 ? Math.max(...stepValues) : 0
-
-            const getComputedValue = (d: any, key: string) => {
-                // If the data already has this key (from processedData), use it
-                if (d[key] !== undefined && d[key] !== null) return d[key]
-
-                // Fallback for fields that might be in custom_metrics
-                const val = d[key] ?? d.custom_metrics?.[key]
-                return (val === undefined || val === null) ? null : val
-            }
 
             // 2. Previous Period Data Setup
             let prevStart: Date
             let prevEnd: Date
             const now = new Date()
 
-            // Derive Current Start/End from processedData to allow precise previous calculation
-            // Fallback to logic if processedData is empty
-            let cStart: Date
-            let cEnd: Date
-
-            if (processedData.length > 0) {
-                cStart = startOfDay(parseISO(processedData[0].date))
-                cEnd = endOfDay(parseISO(processedData[processedData.length - 1].date))
-            } else {
-                cEnd = endOfDay(now)
-                if (timeRange === '7d') cStart = subDays(now, 7)
-                else if (timeRange === '30d') cStart = subDays(now, 30)
-                else if (timeRange === '3m') cStart = subDays(now, 90)
-                else if (timeRange === 'all') cStart = subDays(now, 30)
-                else cStart = subDays(now, 30)
-                // Custom is handled by processedData check mostly, keeping fallbacks safe
-            }
+            const { start: cStart, end: cEnd } = visibleRange
 
             if (timeRange === 'all') {
                 prevEnd = subDays(cStart, 1)
@@ -373,35 +329,24 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             const pStart = startOfDay(prevStart)
             const pEnd = endOfDay(prevEnd)
 
-            const prevData = initialData.filter(item => {
+            const prevData = enhancedInitialData.filter(item => {
                 const d = parseISO(item.date)
                 return d >= pStart && d <= pEnd
             })
-            // Use getComputedValue here!
-            const prevValues = prevData.map(d => getComputedValue(d, metric)).filter(v => typeof v === 'number' && !isNaN(v)) as number[]
+
+            const prevValues = prevData
+                .map(d => d[metric])
+                .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
             // 3. Calculate "Period Change" (Linear Regression on Current Data)
-            // "Percentage of how the data changed in the timeframe that you can see"
             let periodTrendPct = 0
             let periodTrendStatus = 'stable'
 
             if (currentValues.length >= 2) {
-                // Map to [x, y] for regression. x = index.
                 const dataPoints = currentValues.map((val, idx) => [idx, val])
                 const { m, b } = linearRegression(dataPoints)
-
-                // Start Value (y at x=0)
                 const startVal = b
-                // End Value (y at x=n-1)
                 const endVal = m * (currentValues.length - 1) + b
-
-                // Avoid division by zero-ish numbers
-                const safeStart = Math.abs(startVal) < 0.01 ? 0.01 : startVal
-
-                // Calculate percentage change over the period
-                // Logic: (End - Start) / Denominator
-                // We use the midpoint (average of regression ends) as a more stable denominator
-                // than just the start point, preventing "exploding" percentages on low start values.
                 const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
                 const denominator = midpoint < 0.5 ? 0.5 : midpoint
 
@@ -419,10 +364,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             if (prevValues.length > 0 && currentValues.length > 0) {
                 const trendPrevAvg = prevValues.reduce((a, b) => a + b, 0) / prevValues.length
                 const trendCurrAvg = currentValues.reduce((a, b) => a + b, 0) / currentValues.length
-
                 const midpoint = (Math.abs(trendPrevAvg) + Math.abs(trendCurrAvg)) / 2
                 const denominator = midpoint < 0.5 ? 0.5 : midpoint
-
                 const diff = trendCurrAvg - trendPrevAvg
                 compareTrendPct = (diff / denominator) * 100
 
@@ -432,7 +375,6 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             }
 
             // 5. Crash Analysis (PEM)
-            // Count days with Crash=1
             const crashCount = processedData.filter(d => d.custom_metrics?.Crash === 1 || d.custom_metrics?.Crash === "1").length
             const prevCrashCount = prevData.filter(d => d.custom_metrics?.Crash === 1 || d.custom_metrics?.Crash === "1").length
 
@@ -441,21 +383,15 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 label: config.label,
                 unit: config.unit,
                 avg: currentAvg,
-
-                // Badge 1: Period Trend (Change within selected view)
                 periodTrendPct,
                 periodTrendStatus,
-
-                // Badge 2: Comparison Trend (Change vs History)
                 compareTrendPct,
                 compareTrendStatus,
-
-                // Crash Data
                 crashCount,
                 prevCrashCount
             }
         })
-    }, [processedData, initialData, selectedMetrics, timeRange, dateRange])
+    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, dateRange, visibleRange])
 
 
     // ... UI Render ...
@@ -599,9 +535,9 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
                                         {/* Badge 1: Period Trend (Visible Range) */}
                                         <Badge variant="outline" className={cn(
-                                            stat.periodTrendStatus === 'improving' && "bg-[#60A5FA]/10 text-[#3B82F6] border-[#60A5FA]/30",
-                                            stat.periodTrendStatus === 'worsening' && "bg-[#F59E0B]/10 text-[#D97706] border-[#F59E0B]/30",
-                                            stat.periodTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200"
+                                            stat.periodTrendStatus === 'improving' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30",
+                                            stat.periodTrendStatus === 'worsening' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30",
+                                            stat.periodTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800"
                                         )}>
                                             <span className="text-[10px] mr-1 opacity-70">Trend:</span>
                                             {stat.periodTrendStatus === 'stable' && <Minus className="w-3 h-3 mr-1" />}
@@ -612,10 +548,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
                                         {/* Badge 2: Comparison Trend (vs Previous) */}
                                         <Badge variant="outline" className={cn(
-                                            stat.compareTrendStatus === 'improving' && "bg-[#60A5FA]/10 text-[#3B82F6] border-[#60A5FA]/30",
-                                            stat.compareTrendStatus === 'worsening' && "bg-[#F59E0B]/10 text-[#D97706] border-[#F59E0B]/30",
-                                            stat.compareTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200",
-                                            stat.compareTrendStatus === 'insufficient_data' && "bg-zinc-100 text-zinc-400 border-zinc-200"
+                                            stat.compareTrendStatus === 'improving' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30",
+                                            stat.compareTrendStatus === 'worsening' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30",
+                                            stat.compareTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800",
+                                            stat.compareTrendStatus === 'insufficient_data' && "bg-zinc-100 text-zinc-400 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-500"
                                         )}>
                                             <span className="text-[10px] mr-1 opacity-70">vs Prev:</span>
                                             {stat.compareTrendStatus === 'insufficient_data' ? (
