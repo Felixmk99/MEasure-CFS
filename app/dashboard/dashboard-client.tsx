@@ -529,6 +529,16 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                         )}
                                     </div>
                                     <div className="flex flex-wrap items-center gap-2">
+                                        {stat.periodTrendStatus !== 'stable' && stat.periodTrendStatus !== 'insufficient_data' && (
+                                            <span className={cn(
+                                                "text-xl md:text-2xl font-black uppercase tracking-tight mr-2 transition-all animate-in fade-in slide-in-from-left-4 duration-700",
+                                                stat.periodTrendStatus === 'improving'
+                                                    ? "text-emerald-600 dark:text-emerald-400"
+                                                    : "text-rose-600 dark:text-rose-400"
+                                            )}>
+                                                {t(`dashboard.status.${stat.periodTrendStatus}`)}
+                                            </span>
+                                        )}
                                         <span className="text-2xl font-bold tracking-tight mr-2">
                                             {stat.avg.toFixed(1)}
                                         </span>
