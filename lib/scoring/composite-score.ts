@@ -36,11 +36,8 @@ export function calculateMinMaxStats(data: ScorableEntry[]): NormalizationStats 
     const validSteps = data.map(d => d.step_count).filter(isNumber)
     const validExertion = data.map(d => d.exertion_score).filter(isNumber)
 
-    // Sleep is tricky as it's in custom_metrics matching various keys
-    const validSleep = data.map(d => {
-        const key = findKey(d.custom_metrics || {}, ['sleep', 'sleep_quality', 'sleep_score', 'quality_of_sleep'])
-        return key ? d.custom_metrics[key] : null
-    }).filter(isNumber)
+    // Sleep is strictly identified by the key "Sleep"
+    const validSleep = data.map(d => d.custom_metrics?.['Sleep']).filter(isNumber)
 
     return {
         hrv: getMinMax(validHrv), // HRV Natural variation
@@ -76,11 +73,10 @@ export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedS
         const symptomSum = Number(entry.symptom_score) || 0
         const exertionSum = Number(entry.exertion_score) || 0
 
-        // Extract Sleep
+        // Extract Sleep (Strict "Sleep" key)
         let sleepVal = 0
-        const sleepKey = findKey(entry.custom_metrics || {}, ['sleep', 'sleep_quality', 'sleep_score', 'quality_of_sleep'])
-        if (sleepKey) {
-            const val = entry.custom_metrics[sleepKey]
+        if (entry.custom_metrics?.['Sleep']) {
+            const val = entry.custom_metrics['Sleep']
             if (isNumber(val)) sleepVal = val
         }
 

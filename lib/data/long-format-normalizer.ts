@@ -98,7 +98,10 @@ export function normalizeLongFormatData(rows: any[]) {
                     // Exclusions (Metrics we definitely don't want to sum):
                     const excludeFromScore = ['Menstrual Flow', 'Note', 'Tag'];
                     const isExcluded = excludeFromScore.includes(name || '');
-                    const isSleep = (name || '').toLowerCase().includes('sleep');
+
+                    // Strict Sleep exclusion: User confirmed "Sleep" is the exact tracker_name.
+                    // We must NOT sum "Sleep" into the Symptom Score.
+                    const isSleep = name === 'Sleep';
 
                     if (!isExcluded && !isSleep && !isNaN(value)) {
                         record.raw_symptoms.push(value);
