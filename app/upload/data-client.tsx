@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { useLanguage } from "@/components/providers/language-provider"
 import { revalidateApp } from '@/app/actions/revalidate'
+import { calculateDailyCompositeScore } from '@/lib/scoring/composite-score'
 
 interface DataEntry {
     id: string
@@ -128,6 +129,18 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     }
 
     const handleUpdate = async (id: string, updatedData: any) => {
+        // Recalculate Composite Score locally before saving
+        // This ensures the dashboard reflects the new "Impact" immediately
+        const newComposite = calculateDailyCompositeScore({
+            date: '', // Not needed for single score calc if using defaults
+            ...updatedData
+        })
+
+        updatedData.custom_metrics = {
+            ...updatedData.custom_metrics,
+            composite_score: newComposite
+        }
+
         const { error } = await (supabase as any)
             .from('health_metrics')
             .update({
