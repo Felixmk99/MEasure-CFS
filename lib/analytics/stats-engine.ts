@@ -1,7 +1,7 @@
 import * as ss from 'simple-statistics'
 import { isBefore, isAfter, isWithinInterval, subDays, parseISO } from 'date-fns'
 import { Database } from '@/types/database.types'
-import { calculateHealthScore } from './composite-score'
+import { enhanceDataWithScore } from '@/lib/scoring/composite-score'
 
 type Experiment = Database['public']['Tables']['experiments']['Row']
 type Metric = Database['public']['Tables']['health_metrics']['Row']
@@ -25,34 +25,42 @@ export function analyzeExperiment(experiment: Experiment, metrics: Metric[]): Ex
     const startDate = parseISO(experiment.start_date)
     const endDate = experiment.end_date ? parseISO(experiment.end_date) : new Date()
 
+    // 1. Score ALL metrics first to ensure consistent normalization across the dataset
+    // We cast to any because enhanceDataWithScore expects ScorableEntry but Metric is Database Row
+    // They are compatible enough for this purpose (date, hrv, etc.)
+    const scoredMetrics = enhanceDataWithScore(metrics as any)
+
     // Define Baseline Period: Look back same duration as the treatment duration
     // e.g. If treatment is 30 days, look at 30 days before start.
-    // Cap baseline lookback at 90 days to stay relevant.
     const treatmentDuration = endDate.getTime() - startDate.getTime()
     const baselineStart = new Date(startDate.getTime() - treatmentDuration)
 
     // Filter metrics
-    const baselineMetrics = metrics
+    const baselineValues = scoredMetrics
         .filter(m => isWithinInterval(parseISO(m.date), { start: baselineStart, end: subDays(startDate, 1) }))
-        .map(m => calculateHealthScore(m))
+        .map(m => m.composite_score)
         .filter((s): s is number => s !== null)
 
-    const treatmentMetrics = metrics
+    const treatmentValues = scoredMetrics
         .filter(m => isWithinInterval(parseISO(m.date), { start: startDate, end: endDate }))
-        .map(m => calculateHealthScore(m))
+        .map(m => m.composite_score)
         .filter((s): s is number => s !== null)
 
-    if (baselineMetrics.length < 3 || treatmentMetrics.length < 3) {
+    if (baselineValues.length < 3 || treatmentValues.length < 3) {
         return null; // Not enough data
     }
 
-    const baselineMean = ss.mean(baselineMetrics)
-    const treatmentMean = ss.mean(treatmentMetrics)
-    const changePercent = ((treatmentMean - baselineMean) / baselineMean) * 100
+    const baselineMean = ss.mean(baselineValues)
+    const treatmentMean = ss.mean(treatmentValues)
+
+    // Calculate percentage change
+    // Avoid division by zero
+    const changePercent = baselineMean !== 0
+        ? ((treatmentMean - baselineMean) / baselineMean) * 100
+        : 0
 
     // T-Test logic is complex to implement robustly from scratch without errors.
     // For now, we consider > 5% change as "Significant" for the UI highlight.
-    // Real statistical significance would require ss.tTestTwoSample if available or custom impl.
     const isSignificant = Math.abs(changePercent) > 5
 
     return {
@@ -62,7 +70,7 @@ export function analyzeExperiment(experiment: Experiment, metrics: Metric[]): Ex
         treatmentMean: Math.round(treatmentMean),
         changePercent: Math.round(changePercent * 10) / 10,
         isSignificant,
-        sampleSizeBaseline: baselineMetrics.length,
-        sampleSizeTreatment: treatmentMetrics.length
+        sampleSizeBaseline: baselineValues.length,
+        sampleSizeTreatment: treatmentValues.length
     }
 }

@@ -98,8 +98,9 @@ export function normalizeLongFormatData(rows: any[]) {
                     // Exclusions (Metrics we definitely don't want to sum):
                     const excludeFromScore = ['Menstrual Flow', 'Note', 'Tag'];
                     const isExcluded = excludeFromScore.includes(name || '');
+                    const isSleep = (name || '').toLowerCase().includes('sleep');
 
-                    if (!isExcluded && !isNaN(value)) {
+                    if (!isExcluded && !isSleep && !isNaN(value)) {
                         record.raw_symptoms.push(value);
                     }
                 }
