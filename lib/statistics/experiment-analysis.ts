@@ -1,4 +1,5 @@
 import { format, parseISO, isWithinInterval, addDays, subDays, differenceInDays } from "date-fns";
+import { EXERTION_METRICS } from "@/lib/scoring/logic";
 
 export interface Experiment {
     id: string;
@@ -44,7 +45,8 @@ export function analyzeExperiments(
         'date', 'id', 'user_id', 'created_at', 'custom_metrics',
         'normalized_hrv', 'normalized_rhr', 'normalized_steps',
         'normalized_sleep', 'normalized_exertion',
-        'Crash', 'Cognitive Exertion', 'Emotional Exertion', 'Physical Exertion', 'Social Exertion', 'exertion_score'
+        'Crash', 'exertion_score',
+        ...EXERTION_METRICS
     ];
 
     // Build a set of all unique numeric keys in history
