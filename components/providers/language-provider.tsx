@@ -22,11 +22,19 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     const [locale, setLocaleState] = useState<Locale>('en')
     const [mounted, setMounted] = useState(false)
 
-    // Load persisted preference
+    // Load persisted preference or detect domain
     useEffect(() => {
         const saved = localStorage.getItem('track-me-locale') as Locale
         if (saved && (saved === 'en' || saved === 'de')) {
             setLocaleState(saved)
+        } else {
+            // Domain-aware defaulting
+            const hostname = window.location.hostname
+            if (hostname.endsWith('.de')) {
+                setLocaleState('de')
+            } else {
+                setLocaleState('en')
+            }
         }
         setMounted(true)
     }, [])
