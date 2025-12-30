@@ -45,16 +45,16 @@ export const en: Dictionary = {
                 secure: "Secure Storage",
                 instant: "Instant Insights"
             },
-            transform_title: "Transform health data",
-            predictive_insights: "into predictive insights",
-            drop_title: "Drop your data to begin",
-            drop_desc: "Upload CSV files from Visible, Bearable, Daylio, Symptom Shark, Guava or MyDataHelps. Your journey to predictive health starts here.",
+            transform_title: "Understand your health",
+            predictive_insights: "with data-driven correlations",
+            drop_title: "Drop Visible APP export to begin",
+            drop_desc: "Upload CSV files from Visible, Bearable, Daylio, Symptom Shark, Guava or MyDataHelps. Your journey to clarity starts here.",
             create_account_hint: "New here? Create account first →"
         },
         pillars: {
             phase: {
                 title: "Phase Analysis",
-                desc: "Identify buildup, crash, and recovery phases with superposed epoch analysis. See biological whispers before symptoms hit."
+                desc: "Identify buildup, crash, and recovery phases with superposed epoch analysis. See patterns in your biological data."
             },
             meds: {
                 title: "Medication Tracking",
@@ -297,6 +297,16 @@ export const en: Dictionary = {
                 action: "Action",
                 empty: "No recent entries found."
             }
+        },
+        legal: {
+            impressum: "Legal Notice",
+            privacy: "Privacy Policy",
+            terms: "Terms of Use",
+            agree_terms_privacy: "I accept the Terms of Use and Privacy Policy.",
+            agree_health_data: "I explicitly consent to the processing of my sensitive health data as described in the Privacy Policy (Art. 9 GDPR).",
+            medical_disclaimer: "Medical Disclaimer",
+            medical_disclaimer_text: "This app is for informational purposes only and does not provide medical advice, diagnosis, or treatment. Always seek the advice of your physician.",
+            copyright: "© 2025 Visible Analytics. All rights reserved."
         }
     }
 }

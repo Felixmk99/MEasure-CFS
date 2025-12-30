@@ -16,21 +16,30 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Smartphone, Activity, Watch } from 'lucide-react'
+import { Smartphone, Activity, Watch, Info } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { useLanguage } from '@/components/providers/language-provider'
 
 export default function SignupPage() {
+    const { t, locale } = useLanguage()
     const { pendingUpload } = useUpload()
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [stepProvider, setStepProvider] = useState<string>('apple')
+    const [agreeTerms, setAgreeTerms] = useState(false)
+    const [agreeHealth, setAgreeHealth] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const router = useRouter()
     const supabase = createClient()
 
     const handleSignUp = async () => {
+        if (!agreeTerms || !agreeHealth) {
+            setError(locale === 'de' ? "Bitte akzeptieren Sie die Nutzungsbedingungen und willigen Sie in die Datenverarbeitung ein." : "Please accept terms and consent to data processing.")
+            return
+        }
         setLoading(true)
         setError(null)
         const { error } = await supabase.auth.signUp({
@@ -41,7 +50,9 @@ export default function SignupPage() {
                 data: {
                     first_name: firstName,
                     last_name: lastName,
-                    step_provider: stepProvider
+                    step_provider: stepProvider,
+                    consent_terms_at: new Date().toISOString(),
+                    consent_health_data_at: new Date().toISOString()
                 }
             },
         })
@@ -151,6 +162,39 @@ export default function SignupPage() {
                                 </SelectContent>
                             </Select>
                             <p className="text-[10px] text-muted-foreground">Choose the app you use to track your daily steps.</p>
+                        </div>
+
+                        {/* Legal Selection */}
+                        <div className="space-y-3 py-2">
+                            <div className="flex items-start space-x-3">
+                                <Checkbox
+                                    id="terms"
+                                    checked={agreeTerms}
+                                    onCheckedChange={setAgreeTerms}
+                                />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="terms" className="text-xs font-normal text-muted-foreground cursor-pointer leading-relaxed">
+                                        {t('legal.agree_terms_privacy')}
+                                        <div className="flex gap-2 mt-1">
+                                            <Link href="/terms" target="_blank" className="text-blue-500 hover:underline">Terms</Link>
+                                            <Link href="/privacy" target="_blank" className="text-blue-500 hover:underline">Privacy</Link>
+                                        </div>
+                                    </Label>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start space-x-3">
+                                <Checkbox
+                                    id="health"
+                                    checked={agreeHealth}
+                                    onCheckedChange={setAgreeHealth}
+                                />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="health" className="text-xs font-normal text-muted-foreground cursor-pointer leading-relaxed">
+                                        {t('legal.agree_health_data')}
+                                    </Label>
+                                </div>
+                            </div>
                         </div>
 
                         {error && (

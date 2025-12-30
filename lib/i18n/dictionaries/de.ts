@@ -125,16 +125,16 @@ export const de: Dictionary = {
                 secure: "Sichere Speicherung",
                 instant: "Sofortige Einblicke"
             },
-            transform_title: "Verwandle Gesundheitsdaten",
-            predictive_insights: "in vorausschauende Erkenntnisse",
-            drop_title: "Zieh deine Daten hierher, um zu beginnen",
-            drop_desc: "Lade CSV-Dateien von Visible, Bearable, Daylio, Symptom Shark, Guava oder MyDataHelps hoch. Deine Reise zu vorausschauender Gesundheit beginnt hier.",
+            transform_title: "Verstehe deine Gesundheit",
+            predictive_insights: "mit datengestützten Korrelationen",
+            drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
+            drop_desc: "Lade CSV-Dateien von Visible, Bearable, Daylio, Symptom Shark, Guava oder MyDataHelps hoch. Deine Reise zur Klarheit beginnt hier.",
             create_account_hint: "Neu hier? Erstelle zuerst ein Konto →"
         },
         pillars: {
             phase: {
                 title: "Phasenanalyse",
-                desc: "Identifiziere Aufbau-, Crash- und Erholungsphasen mit überlagerter Epochenanalyse. Erkenne biologisches Flüstern, bevor Symptome auftreten."
+                desc: "Identifiziere Aufbau-, Crash- und Erholungsphasen mit überlagerter Epochenanalyse. Erkenne Muster in deinen biologischen Daten."
             },
             meds: {
                 title: "Medikamenten-Tracking",
@@ -297,6 +297,16 @@ export const de: Dictionary = {
                 action: "Aktion",
                 empty: "Keine aktuellen Einträge gefunden."
             }
+        },
+        legal: {
+            impressum: "Impressum",
+            privacy: "Datenschutzerklärung",
+            terms: "Nutzungsbedingungen",
+            agree_terms_privacy: "Ich akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.",
+            agree_health_data: "Ich willige ausdrücklich in die Verarbeitung meiner sensiblen Gesundheitsdaten ein, wie in der Datenschutzerklärung beschrieben (Art. 9 DSGVO).",
+            medical_disclaimer: "Medizinischer Haftungsausschluss",
+            medical_disclaimer_text: "Diese App dient ausschließlich Informationszwecken und bietet keine medizinische Beratung, Diagnose oder Behandlung. Lassen Sie sich immer von Ihrem Arzt beraten.",
+            copyright: "© 2025 Visible Analytics. Alle Rechte vorbehalten."
         }
     }
 }
