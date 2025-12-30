@@ -23,6 +23,7 @@ import {
 import { useLanguage } from "@/components/providers/language-provider"
 import { useUser } from "@/components/providers/user-provider"
 import { GoogleFitUploader } from "@/components/upload/google-fit-uploader"
+import { SamsungHealthUploader } from "@/components/upload/samsung-health-uploader"
 import { revalidateApp } from '@/app/actions/revalidate'
 
 interface DataEntry {
@@ -164,6 +165,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 return <XmlUploader />
             case 'google':
                 return <GoogleFitUploader />
+            case 'samsung':
+                return <SamsungHealthUploader />
             default:
                 return (
                     <div className="p-12 text-center border-2 border-dashed rounded-[2.5rem] border-zinc-200 dark:border-zinc-800">

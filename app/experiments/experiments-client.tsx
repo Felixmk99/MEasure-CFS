@@ -307,10 +307,10 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                         </Button>
                                     </div>
 
-                                    <CardContent className="p-8">
+                                    <CardContent className="p-4 sm:p-8">
                                         <div className="flex flex-col gap-6">
                                             {/* Header Section */}
-                                            <div className="flex items-start justify-between">
+                                            <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-3">
                                                         <div className="bg-[#60A5FA]/10 text-[#3B82F6] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide">
@@ -327,14 +327,14 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                             <span className="text-[10px] font-bold uppercase">{t(`experiments.form.categories.${exp.category || 'other'}`)}</span>
                                                         </div>
                                                     </div>
-                                                    <h2 className="text-3xl font-serif text-foreground">{exp.name}</h2>
-                                                    <p className="text-muted-foreground text-xs uppercase tracking-tight font-bold">
+                                                    <h2 className="text-2xl sm:text-3xl font-serif text-foreground break-words">{exp.name}</h2>
+                                                    <p className="text-muted-foreground text-[10px] uppercase tracking-tight font-bold">
                                                         Started {format(parseISO(exp.start_date), 'MMMM d, yyyy')}
                                                     </p>
                                                 </div>
 
                                                 {/* Compact Confidence Meter */}
-                                                <div className="min-w-[180px] bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-3 border border-zinc-100 dark:border-zinc-800/50">
+                                                <div className="w-full sm:min-w-[180px] bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-3 border border-zinc-100 dark:border-zinc-800/50 mt-4 sm:mt-0">
                                                     <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5">
                                                         <span>{t('experiments.active.confidence')}</span>
                                                         <span className={overallConfidence > 0.8 ? "text-emerald-600" : "text-amber-600"}>
@@ -349,7 +349,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                             </div>
 
                                             {/* Analysis Content */}
-                                            <div>
+                                            <div className="pt-2 sm:pt-0">
                                                 <p className="text-[10px] font-bold text-muted-foreground uppercase mb-3">{t('experiments.active.impact_title')}</p>
                                                 <ExperimentImpactResults impacts={analysis?.impacts || []} />
                                             </div>

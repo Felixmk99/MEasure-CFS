@@ -23,7 +23,7 @@ export const de: Dictionary = {
         profile: "Profil",
         welcome: "Willkommen",
         missing_steps_hint: "Schritte fehlen?",
-        missing_steps_tooltip: "Lade Apple Health Schrittdaten hoch, um die Genauigkeit deines Gesundheits-Scores zu verbessern."
+        missing_steps_tooltip: "Lade Apple Health, Google Fit oder Samsung Health Schrittdaten hoch, um die Genauigkeit deines Gesundheits-Scores zu verbessern."
     },
     footer: {
         built_by: "Entwickelt von Felix Kania",
@@ -85,7 +85,7 @@ export const de: Dictionary = {
             },
             step_count: {
                 label: "Schritte",
-                description: "Tägliche Schrittzahl (Apple Health).",
+                description: "Tägliche Schrittzahl deines Gesundheits-Anbieters.",
                 better: "Höher ist besser"
             },
             exertion_score: {
@@ -272,7 +272,9 @@ export const de: Dictionary = {
         private_badge: "Privat & Lokal verarbeitet",
         tabs: {
             visible: "Visible App (CSV)",
-            apple: "Apple Health Schritte (XML)"
+            apple: "Schritte (Health App)",
+            google: "Google Fit (CSV)",
+            samsung: "Samsung Health (CSV)"
         },
         dropzone: {
             idle: "Zieh dein Visible-Export hierher oder klicke, um zu durchsuchen.",

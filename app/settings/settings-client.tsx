@@ -273,8 +273,10 @@ function StepProviderCard() {
                             <SelectItem value="garmin" disabled>
                                 <span className="flex items-center gap-2">Garmin (Soon)</span>
                             </SelectItem>
-                            <SelectItem value="samsung" disabled>
-                                <span className="flex items-center gap-2">Samsung (Soon)</span>
+                            <SelectItem value="samsung">
+                                <span className="flex items-center gap-2">
+                                    <Smartphone className="w-4 h-4" /> Samsung Health
+                                </span>
                             </SelectItem>
                             <SelectItem value="whoop" disabled>
                                 <span className="flex items-center gap-2">Whoop (Soon)</span>

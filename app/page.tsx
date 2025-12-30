@@ -80,7 +80,7 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-balance leading-tight text-[#1E293B] tracking-tight">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-balance leading-tight text-[#1E293B] tracking-tight">
               {t('landing.hero.transform_title')}
               <br />
               {t('landing.hero.predictive_insights')}
@@ -115,7 +115,7 @@ export default function LandingPage() {
               }}
             >
               <input {...getInputProps()} />
-              <div className="p-12 sm:p-16 text-center">
+              <div className="p-8 sm:p-16 text-center">
                 <div
                   className={`mb-6 inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#60A5FA]/30 to-[#38BDF8]/20 border border-[#60A5FA]/60 shadow-lg transition-all duration-300 ${isDragActive ? "scale-110 shadow-[#60A5FA]/50" : ""
                     }`}

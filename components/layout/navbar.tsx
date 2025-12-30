@@ -157,6 +157,47 @@ export default function Navbar() {
                     )}
                 </div>
 
+                {/* Mobile Menu Trigger (Visible only on small screens) */}
+                <div className="flex md:hidden items-center mr-2">
+                    {mounted && user && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 flex flex-col items-center justify-center gap-1">
+                                    <div className="w-5 h-0.5 bg-foreground"></div>
+                                    <div className="w-5 h-0.5 bg-foreground"></div>
+                                    <div className="w-5 h-0.5 bg-foreground"></div>
+                                    <span className="sr-only">Toggle menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-[200px] mt-2">
+                                {hasData && (
+                                    <>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/dashboard" className="w-full">{t('navbar.dashboard')}</Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/experiments" className="w-full">{t('navbar.experiments')}</Link>
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
+                                <DropdownMenuItem asChild>
+                                    <Link href="/upload" className="w-full">
+                                        {hasData ? t('navbar.data') : t('navbar.upload_data')}
+                                    </Link>
+                                </DropdownMenuItem>
+                                {hasMissingSteps && (
+                                    <DropdownMenuItem asChild className="text-blue-500 focus:text-blue-600">
+                                        <Link href="/upload?tab=apple" className="flex items-center gap-2">
+                                            <Footprints className="w-4 h-4" />
+                                            {t('navbar.missing_steps_hint')}
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                </div>
+
                 <div className="ml-auto flex items-center space-x-4">
                     <LanguageSwitcher />
                     {!mounted ? (

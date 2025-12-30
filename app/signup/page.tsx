@@ -90,7 +90,7 @@ export default function SignupPage() {
                     </div>
 
                     <div className="space-y-2.5">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-1">
                                 <Label htmlFor="firstName" className="text-xs font-medium">First Name</Label>
                                 <Input
@@ -156,10 +156,12 @@ export default function SignupPage() {
                                             <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">Soon</span>
                                         </div>
                                     </SelectItem>
-                                    <SelectItem value="samsung" disabled className="py-2.5 opacity-50 cursor-not-allowed">
-                                        <div className="flex items-center justify-between w-full">
+                                    <SelectItem value="samsung" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                                                <Smartphone className="w-3 h-3 text-orange-600 dark:text-orange-400" />
+                                            </div>
                                             <span>Samsung Health</span>
-                                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">Soon</span>
                                         </div>
                                     </SelectItem>
                                     <SelectItem value="whoop" disabled className="py-2.5 opacity-50 cursor-not-allowed">
