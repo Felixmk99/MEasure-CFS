@@ -9,6 +9,14 @@ import { Label } from '@/components/ui/label'
 import { ArrowRight, Loader2, Shield, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { useUpload } from '@/components/providers/upload-provider'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { Smartphone, Activity, Watch } from 'lucide-react'
 
 export default function SignupPage() {
     const { pendingUpload } = useUpload()
@@ -16,6 +24,7 @@ export default function SignupPage() {
     const [lastName, setLastName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [stepProvider, setStepProvider] = useState<string>('apple')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const router = useRouter()
@@ -31,7 +40,8 @@ export default function SignupPage() {
                 emailRedirectTo: `${location.origin}/auth/callback`,
                 data: {
                     first_name: firstName,
-                    last_name: lastName
+                    last_name: lastName,
+                    step_provider: stepProvider
                 }
             },
         })
@@ -101,6 +111,46 @@ export default function SignupPage() {
                                 value={password} onChange={e => setPassword(e.target.value)}
                             />
                             <p className="text-[10px] text-muted-foreground">Must be at least 8 characters</p>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label htmlFor="stepProvider" className="text-xs font-medium flex items-center gap-1.5">
+                                <Activity className="w-3 h-3 text-blue-500" />
+                                Health Data Source (Steps)
+                            </Label>
+                            <Select value={stepProvider} onValueChange={setStepProvider}>
+                                <SelectTrigger id="stepProvider" className="bg-muted/30 border-muted-foreground/20 h-10 transition-all focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/20">
+                                    <SelectValue placeholder="Select provider" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-2xl border-muted-foreground/20 shadow-xl overflow-hidden">
+                                    <SelectItem value="apple" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                                                <Watch className="w-3 h-3 text-red-600 dark:text-red-400" />
+                                            </div>
+                                            <span>Apple Health</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="google" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                                <Smartphone className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                                            </div>
+                                            <span>Google Fit (Android)</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="garmin" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
+                                        <span>Garmin (via Connect)</span>
+                                    </SelectItem>
+                                    <SelectItem value="samsung" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
+                                        <span>Samsung Health</span>
+                                    </SelectItem>
+                                    <SelectItem value="whoop" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
+                                        <span>Whoop</span>
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p className="text-[10px] text-muted-foreground">Choose the app you use to track your daily steps.</p>
                         </div>
 
                         {error && (
