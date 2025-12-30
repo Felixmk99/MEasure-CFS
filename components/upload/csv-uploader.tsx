@@ -73,7 +73,7 @@ export function CsvUploader() {
                         .select('date')
                         .eq('user_id', user.id)
 
-                    const existingDateSet = new Set((existingDatesData || []).map(r => r.date))
+                    const existingDateSet = new Set((existingDatesData as any[] || []).map(r => r.date))
 
                     // 2. Filter for brand-new days only
                     const recordsToUpload = dbRecords.filter(r => !existingDateSet.has(r.date))
