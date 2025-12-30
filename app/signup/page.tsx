@@ -75,21 +75,21 @@ export default function SignupPage() {
 
     return (
         <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-            <div className="flex-1 flex flex-col justify-center px-6 lg:px-16 py-4 bg-white dark:bg-background overflow-y-auto">
-                <div className="max-w-md w-full mx-auto space-y-4">
-                    <div className="space-y-2">
+            <div className="flex-1 flex flex-col justify-start lg:justify-center px-6 lg:px-16 py-4 bg-white dark:bg-background overflow-y-auto">
+                <div className="max-w-md w-full mx-auto space-y-3">
+                    <div className="space-y-1">
                         <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
                             Start your <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-[#3B82F6]">
                                 clarity journey
                             </span>
                         </h1>
-                        <p className="text-muted-foreground text-base">
+                        <p className="text-muted-foreground text-sm">
                             Create a secure space to analyze your trends.
                         </p>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1">
                                 <Label htmlFor="firstName" className="text-xs font-medium">First Name</Label>
@@ -170,11 +170,10 @@ export default function SignupPage() {
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
-                            <p className="text-[10px] text-muted-foreground">Choose the app you use to track your daily steps.</p>
                         </div>
 
                         {/* Legal Selection */}
-                        <div className="space-y-3 py-2">
+                        <div className="space-y-2">
                             <div className="flex items-start space-x-3">
                                 <Checkbox
                                     id="terms"
@@ -231,27 +230,6 @@ export default function SignupPage() {
                             </p>
                         </div>
                     </div>
-
-                    <div className="pt-4 grid gap-3">
-                        <div className="flex items-start gap-3">
-                            <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                                <TrendingUp className="h-4 w-4" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-xs">Visualize Your Baseline</h4>
-                                <p className="text-[11px] text-muted-foreground">Understand your energy envelope.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                            <div className="p-1.5 bg-[#60A5FA]/10 dark:bg-[#3B82F6]/20 rounded-lg text-[#3B82F6]">
-                                <Shield className="h-4 w-4" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-xs">Patient-First Design</h4>
-                                <p className="text-[11px] text-muted-foreground">Built for the chronic illness community.</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -269,7 +247,28 @@ export default function SignupPage() {
                         <h3 className="text-xl font-bold mb-4 leading-relaxed">
                             "Health Trends processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
                         </h3>
-                        <div className="h-1 w-20 bg-[#F59E0B] rounded-full mt-6"></div>
+                        <div className="h-1 w-20 bg-[#F59E0B] rounded-full my-6"></div>
+
+                        <div className="grid gap-4 mt-8 opacity-80">
+                            <div className="flex items-start gap-3">
+                                <div className="p-1.5 bg-white/10 rounded-lg text-white">
+                                    <TrendingUp className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-sm">Visualize Your Baseline</h4>
+                                    <p className="text-xs text-white/60">Understand your energy envelope.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="p-1.5 bg-white/10 rounded-lg text-white">
+                                    <Shield className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-sm">Patient-First Design</h4>
+                                    <p className="text-xs text-white/60">Built for the chronic illness community.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
