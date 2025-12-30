@@ -82,36 +82,35 @@ export interface Database {
                     created_at?: string
                 }
             }
+            profiles: {
+                Row: {
+                    id: string
+                    step_provider: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | null
+                    updated_at: string
+                }
+                Insert: {
+                    id: string
+                    step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | null
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | null
+                    updated_at?: string
+                }
+            }
         }
-        profiles: {
-            Row: {
-                id: string
-                step_provider: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop'
-                updated_at: string
-            }
-            Insert: {
-                id: string
-                step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop'
-                updated_at?: string
-            }
-            Update: {
-                id?: string
-                step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop'
-                updated_at?: string
-            }
+        Views: {
+            [_ in never]: never
+        }
+        Functions: {
+            [_ in never]: never
+        }
+        Enums: {
+            [_ in never]: never
+        }
+        CompositeTypes: {
+            [_ in never]: never
         }
     }
-    Views: {
-        [_ in never]: never
-    }
-    Functions: {
-        [_ in never]: never
-    }
-    Enums: {
-        [_ in never]: never
-    }
-    CompositeTypes: {
-        [_ in never]: never
-    }
-}
 }
