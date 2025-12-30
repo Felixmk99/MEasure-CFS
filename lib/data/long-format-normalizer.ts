@@ -39,10 +39,6 @@ export function normalizeLongFormatData(rows: any[]) {
         if (!dailyRecords[date]) {
             dailyRecords[date] = {
                 date,
-                hrv: null,
-                resting_heart_rate: null,
-                exertion_score: null,
-                step_count: null,
                 custom_metrics: {}
             };
         }
@@ -64,15 +60,13 @@ export function normalizeLongFormatData(rows: any[]) {
                 break;
             default:
                 // Everything else goes into Custom Metrics
-                // (Inc. Symptoms, Exertion, Sleep, Stability Score, Metadata, etc)
-                // We let the centralized scoring logic decide what to sum.
-
                 if (name && value !== undefined && !isNaN(value)) {
                     // Filter out Funcap values or 'Infection' from custom_metrics (requested by user)
                     if ((category && category.toLowerCase().startsWith('funcap_')) || name === 'Infection') {
                         // Skip
                     } else {
                         record.custom_metrics[name] = value;
+                        record._has_trackers = true;
                     }
                 }
                 break;
@@ -81,15 +75,14 @@ export function normalizeLongFormatData(rows: any[]) {
 
     // Final pass: Collapse dailyRecords into array
     return Object.values(dailyRecords).map(record => {
-        // Calculate Sums using Single Source of Truth Logic
-        // This ensures the DB gets values consistent with the App's dynamic calculation.
-        const symptomSum = calculateSymptomScore(record.custom_metrics)
-        const exertionSum = calculateExertionScore(record.custom_metrics)
+        // Only calculate/update scores if tracker data was actually found in this CSV for this date.
+        // This prevents overwriting existing scores with 0 if processing a partial CSV (e.g. only Wellness data).
+        if (record._has_trackers) {
+            record.symptom_score = calculateSymptomScore(record.custom_metrics)
+            record.exertion_score = calculateExertionScore(record.custom_metrics)
+        }
+        delete record._has_trackers;
 
-        return {
-            ...record,
-            symptom_score: symptomSum,
-            exertion_score: exertionSum
-        };
+        return record;
     });
 }

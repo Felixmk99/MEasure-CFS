@@ -69,7 +69,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             return isAfter(itemDate, cutoff) || itemDate.getTime() === cutoff.getTime()
         })
     }, [dataLog, timeRange])
-    const supabase = createClient()
+    const supabase = useMemo(() => createClient(), [])
     const searchParams = useSearchParams()
     const initialTab = searchParams.get('tab') === 'apple' ? 'apple' : 'visible'
     const router = useRouter()
@@ -102,6 +102,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             if (newData.length === 0) {
                 setHasData(false)
                 await revalidateApp()
+                window.dispatchEvent(new CustomEvent('health-data-updated'))
                 router.refresh()
             } else {
                 // Also revalidate on single delete if it affects charts
@@ -123,6 +124,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             setDataLog([])
             setHasData(false)
             await revalidateApp()
+            window.dispatchEvent(new CustomEvent('health-data-updated'))
             router.refresh()
         }
     }
@@ -144,6 +146,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             const newData = dataLog.map(item => item.id === id ? { ...item, ...updatedData } : item)
             setDataLog(newData)
             await revalidateApp()
+            window.dispatchEvent(new CustomEvent('health-data-updated'))
             router.refresh()
         } else {
             throw error

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, FileCode, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,7 @@ export function XmlUploader() {
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
-    const supabase = createClient()
+    const supabase = useMemo(() => createClient(), [])
     const router = useRouter()
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -138,6 +138,7 @@ export function XmlUploader() {
                 setMessage(`Successfully updated steps for ${totalFiltered} days!`)
 
                 await revalidateApp()
+                window.dispatchEvent(new CustomEvent('health-data-updated'))
 
                 setTimeout(() => {
                     router.push('/dashboard')

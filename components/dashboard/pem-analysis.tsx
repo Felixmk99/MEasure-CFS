@@ -7,7 +7,6 @@ import { ArrowUp, ArrowDown, Activity, Footprints, Heart, AlertCircle, Info, Tre
 import { parseISO, subDays, addDays, isSameDay, isWithinInterval, startOfDay, endOfDay } from "date-fns"
 import { useLanguage } from '@/components/providers/language-provider'
 import { calculateBaselineStats, extractEpochs, calculateZScores, aggregateEpochs, analyzePreCrashPhase, analyzeRecoveryPhase, analyzeCrashPhase } from "@/lib/statistics/pem-cycle"
-import { PSTHChart } from "@/components/charts/psth-chart"
 import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
@@ -20,7 +19,6 @@ interface CycleAnalysisResult {
     noCrashes: boolean
     filterApplied: boolean
     episodeCount?: number
-    aggregatedProfile?: any[]
     phase1?: any
     phase2?: any
     phase3?: any
@@ -105,7 +103,6 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
         return {
             noCrashes: false,
             episodeCount: filteredCrashIndices.length,
-            aggregatedProfile,
             phase1,
             phase2,
             phase3,
@@ -158,9 +155,34 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
             <div className="flex flex-col gap-6">
                 <Card className="border-l-4 border-l-orange-500 bg-card/50 overflow-hidden">
                     <CardHeader className="py-4 pb-2 border-b border-orange-500/10">
-                        <div className="flex items-center gap-2 text-sm font-semibold text-orange-500 uppercase tracking-widest">
-                            <TrendingUp className="w-4 h-4" />
-                            Phase 1: Buildup
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-orange-500 uppercase tracking-widest">
+                                <TrendingUp className="w-4 h-4" />
+                                Phase 1: Buildup
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {analysis.phase1?.cumulativeLoadDetected && (
+                                    <Badge variant="outline" className="text-[10px] bg-orange-500/10 border-orange-500/20 text-orange-600">
+                                        Cumulative Load Detected
+                                    </Badge>
+                                )}
+                                <div className="flex items-center gap-1.5" title="Statistical confidence based on consistency across episodes">
+                                    <span className="text-[10px] font-bold text-muted-foreground uppercase">Confidence:</span>
+                                    <div className="flex gap-0.5">
+                                        {[1, 2, 3, 4, 5].map((i) => (
+                                            <div
+                                                key={i}
+                                                className={cn(
+                                                    "w-2.5 h-1 rounded-full",
+                                                    (analysis.phase1?.confidence || 0) * 5 >= i
+                                                        ? "bg-orange-500"
+                                                        : "bg-orange-200 dark:bg-orange-950"
+                                                )}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent className="pt-4">
@@ -178,16 +200,49 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                             )}
                                         >
                                             {/* Header: Icon + Name */}
-                                            <div className="flex items-center gap-2">
-                                                <div className={cn(
-                                                    "p-1.5 rounded-lg shrink-0",
-                                                    d.type === 'spike' ? "bg-orange-100 text-orange-600 dark:bg-orange-950/50" : "bg-blue-100 text-blue-600 dark:bg-blue-950/50"
-                                                )}>
-                                                    {getMetricIcon(d.metric, "w-3.5 h-3.5")}
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className="flex items-center gap-1.5 min-w-0">
+                                                    <div className={cn(
+                                                        "p-1.5 rounded-lg shrink-0",
+                                                        d.type === 'spike' ? "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                                                    )}>
+                                                        {getMetricIcon(d.metric, "w-3.5 h-3.5")}
+                                                    </div>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="text-xs font-bold truncate leading-tight">
+                                                            {getFriendlyName(d.metric)}
+                                                        </span>
+                                                        {d.isSynergy && (
+                                                            <span className="text-[8px] font-medium text-purple-500 flex items-center gap-0.5 uppercase tracking-tighter">
+                                                                <Target className="w-2 h-2" /> Synergy
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <span className="text-xs font-bold truncate">
-                                                    {getFriendlyName(d.metric)}
-                                                </span>
+                                                <TooltipProvider>
+                                                    <InfoTooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Badge variant="outline" className={cn(
+                                                                "text-[9px] font-black border-transparent uppercase px-1.5 py-0 cursor-help",
+                                                                d.classification === 'Acute' && "bg-red-500/10 text-red-600",
+                                                                d.classification === 'Lagged' && "bg-orange-500/10 text-orange-600",
+                                                                d.classification === 'Historical' && "bg-zinc-500/10 text-zinc-600",
+                                                                d.classification === 'Cumulative' && "bg-amber-500/10 text-amber-600",
+                                                                !d.classification && d.isAcute && "bg-red-500/10 text-red-600",
+                                                                !d.classification && !d.isAcute && "bg-orange-500/10 text-orange-600"
+                                                            )}>
+                                                                {d.classification || (d.isAcute ? 'Acute' : 'Cumulative')}
+                                                            </Badge>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent className="max-w-[200px] text-[10px]">
+                                                            {d.classification === 'Acute' && "Trigger happened on the same day the crash started."}
+                                                            {d.classification === 'Lagged' && "Short delay (1-2 days) between cause and effect."}
+                                                            {d.classification === 'Historical' && "A single event from 3+ days ago that likely contributed."}
+                                                            {d.classification === 'Cumulative' && "A sustained buildup of strain over multiple days."}
+                                                            {!d.classification && (d.isAcute ? "Trigger happened on onset day." : "Trigger happened before onset.")}
+                                                        </TooltipContent>
+                                                    </InfoTooltip>
+                                                </TooltipProvider>
                                             </div>
 
                                             {/* Data: Pct + Direction */}
@@ -207,7 +262,9 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
 
                                                 {/* Timeframe Pill */}
                                                 <div className="bg-background/80 dark:bg-zinc-900/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold border border-border/50 shadow-sm">
-                                                    {d.leadDaysStart === d.leadDaysEnd ? (
+                                                    {d.leadDaysStart === 0 && d.leadDaysEnd === 0 ? (
+                                                        <span>On onset (Day 0)</span>
+                                                    ) : d.leadDaysStart === d.leadDaysEnd ? (
                                                         <span>{d.leadDaysStart}d before</span>
                                                     ) : (
                                                         <span>{d.leadDaysStart}-{d.leadDaysEnd}d before</span>
@@ -241,19 +298,19 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
 
                 {/* PHASE 2: THE EVENT (Impact Profile) */}
                 <Card className="border-l-4 border-l-red-500 bg-card/50 overflow-hidden">
-                    <CardHeader className="py-4 pb-2 border-b border-red-500/10">
+                    <CardHeader className="py-3 pb-2 border-b border-red-500/10">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-sm font-semibold text-red-500 uppercase tracking-widest">
                                 <Target className="w-4 h-4" />
                                 Phase 2: The Event
                             </div>
-                            <div className="flex gap-4 text-[10px] font-bold uppercase text-muted-foreground">
-                                <div className="flex items-center gap-1.5">
-                                    <span className="w-2 h-2 rounded-full bg-red-400 opacity-60" />
+                            <div className="flex gap-4">
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100/50 dark:bg-red-900/20 text-[10px] font-bold uppercase text-red-600 dark:text-red-400 border border-red-200/50 dark:border-red-900/30">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
                                     Logged: {analysis.phase2?.avgLoggedDuration.toFixed(1)}d
                                 </div>
-                                <div className="flex items-center gap-1.5" title="Window where biomarkers deviate > 1.0 sigma from normal">
-                                    <span className="w-2 h-2 rounded-full bg-red-600" />
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-600/10 dark:bg-red-900/40 text-[10px] font-bold uppercase text-red-700 dark:text-red-400 border border-red-300/50 dark:border-red-900/50" title="Window where biomarkers deviate > 1.0 sigma from normal">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
                                     Physiological: {analysis.phase2?.avgPhysiologicalDuration.toFixed(1)}d
                                 </div>
                             </div>
@@ -261,34 +318,52 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                     </CardHeader>
                     <CardContent className="pt-4">
                         <div className="space-y-4">
-                            <div className="flex items-baseline justify-between mb-2">
-                                <h3 className="text-xl font-black text-red-600 dark:text-red-400 leading-none">
-                                    {analysis.phase2?.type || 'Unknown'}
-                                </h3>
-                                <div className="text-right">
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">
-                                        Baseline: Last 90 non-crash days
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex flex-col gap-1">
+                                    <h3 className="text-2xl font-black text-red-600 dark:text-red-500 leading-none uppercase tracking-tighter">
+                                        {analysis.phase2?.type || 'Unknown'}
+                                    </h3>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
+                                        Impact Classification • Baseline: 90 Days
                                     </p>
-                                    <p className="text-xs font-bold text-muted-foreground uppercase flex items-center justify-end gap-1.5">
-                                        {analysis.phase2?.avgPhysiologicalDuration > analysis.phase2?.avgLoggedDuration
-                                            ? `Stress persists +${(analysis.phase2.avgPhysiologicalDuration - analysis.phase2.avgLoggedDuration).toFixed(1)}d after logs`
-                                            : "Stress matches logging pattern"}
+                                </div>
+
+                                <div className="flex flex-col items-end text-right min-w-[200px]">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className={cn(
+                                            "text-xs font-black uppercase tracking-tight",
+                                            analysis.phase2?.avgPhysiologicalDuration > analysis.phase2?.avgLoggedDuration ? "text-red-600 dark:text-red-400" : "text-emerald-600"
+                                        )}>
+                                            {analysis.phase2?.avgPhysiologicalDuration > analysis.phase2?.avgLoggedDuration
+                                                ? `Bio-Stress Persists +${(analysis.phase2.avgPhysiologicalDuration - analysis.phase2.avgLoggedDuration).toFixed(1)}d`
+                                                : "Recovered with logs"}
+                                        </span>
                                         <TooltipProvider>
                                             <InfoTooltip>
                                                 <TooltipTrigger asChild>
-                                                    <Info className="w-3.5 h-3.5 opacity-50 hover:opacity-100 cursor-help" />
+                                                    <Info className="w-3.5 h-3.5 opacity-40 hover:opacity-100 cursor-help" />
                                                 </TooltipTrigger>
                                                 <TooltipContent className="max-w-[250px] text-[11px]">
-                                                    <p className="font-bold mb-1">Physiological Duration</p>
-                                                    <p>Calculated based on when your metrics (HRV, Resting HR, etc.) return to within 1.0 standard deviation of your 90-day "Normal".</p>
+                                                    <p className="font-bold mb-1">Biological Stress Duration</p>
+                                                    <p>Measures how long your body stays in a "Strained" state (Low HRV, High Heart Rate, or High Symptoms). Temporary "good" shifts in biomarkers are ignored to ensure accuracy.</p>
                                                 </TooltipContent>
                                             </InfoTooltip>
                                         </TooltipProvider>
-                                    </p>
+                                    </div>
+
                                     {analysis.phase2?.extendingMetrics?.length > 0 && (
-                                        <p className="text-[10px] text-muted-foreground italic">
-                                            Extended by: {analysis.phase2.extendingMetrics.map((m: string) => getFriendlyName(m)).join(", ")}
-                                        </p>
+                                        <div className="flex flex-wrap justify-end gap-1">
+                                            <span className="text-[9px] font-bold text-muted-foreground uppercase mr-1 mt-0.5">Extended by:</span>
+                                            {analysis.phase2.extendingMetrics.map((m: string) => (
+                                                <Badge
+                                                    key={m}
+                                                    variant="outline"
+                                                    className="text-[9px] h-4 font-bold border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20 text-red-600 dark:text-red-400 px-1 py-0"
+                                                >
+                                                    {getFriendlyName(m)}
+                                                </Badge>
+                                            ))}
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -353,13 +428,13 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                 Phase 3: The Recovery Tail
                             </div>
                             <div className="flex gap-4 text-[10px] font-bold uppercase text-muted-foreground">
-                                <div className="flex items-center gap-1.5" title="Days until symptoms hit baseline after you stopped logging 'Crash'">
+                                <div className="flex items-center gap-1.5" title="The period where you were actively logging a crash.">
                                     <span className="w-2 h-2 rounded-full bg-blue-400 opacity-60" />
-                                    Subjective Tail: +{analysis.phase3?.avgSymptomRecoveryTail.toFixed(1)}d
+                                    Subjective Log: +{analysis.phase3?.avgSymptomRecoveryTail.toFixed(1)}d
                                 </div>
-                                <div className="flex items-center gap-1.5" title="Days until vitals (HRV/RHR) hit baseline after you stopped logging 'Crash'">
+                                <div className="flex items-center gap-1.5" title="The period where your body remained in a strained state.">
                                     <span className="w-2 h-2 rounded-full bg-blue-600" />
-                                    Biological Tail: +{analysis.phase3?.avgBiologicalRecoveryTail.toFixed(1)}d
+                                    Biological Lag: +{analysis.phase3?.avgBiologicalRecoveryTail.toFixed(1)}d
                                 </div>
                             </div>
                         </div>
@@ -371,7 +446,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                     {analysis.phase3?.avgBiologicalRecoveryTail > analysis.phase3?.avgSymptomRecoveryTail ? "Biological Lag" : "Fast Recovery"}
                                 </h3>
                                 <div className="text-right">
-                                    <p className="text-xs font-bold text-muted-foreground uppercase flex items-center justify-end gap-1.5">
+                                    <div className="text-xs font-bold text-muted-foreground uppercase flex items-center justify-end gap-1.5">
                                         {analysis.phase3?.hysteresisGap > 1
                                             ? `Body lag: +${analysis.phase3.hysteresisGap.toFixed(1)}d after feeling better`
                                             : "Body resets alongside symptoms"}
@@ -381,40 +456,43 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                     <Info className="w-3.5 h-3.5 opacity-50 hover:opacity-100 cursor-help" />
                                                 </TooltipTrigger>
                                                 <TooltipContent className="max-w-[250px] text-[11px]">
-                                                    <p className="font-bold mb-1">The Recovery Tail</p>
-                                                    <p>Phase 3 measures the "invisible" period after you stopped logging your crash. It identifies which metrics take the longest to return to your 90-day normal baseline.</p>
+                                                    <p className="font-bold mb-1">Biological Lag (Hysteresis)</p>
+                                                    <p>Measures how long your biomarkers (HRV, RHR) take to return to baseline <strong>after</strong> you stopped feeling the acute effects of the crash. This is the "hangover" your body is still processing.</p>
                                                 </TooltipContent>
                                             </InfoTooltip>
                                         </TooltipProvider>
-                                    </p>
+                                    </div>
                                 </div>
                             </div>
 
                             {analysis.phase3?.slowestRecoverers?.length > 0 && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {analysis.phase3.slowestRecoverers.map((metric: string) => (
-                                        <div
-                                            key={metric}
-                                            className="bg-background/40 border border-blue-500/10 rounded-xl p-3 flex flex-col justify-between group hover:border-blue-500/30 transition-colors"
-                                        >
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div className="p-1.5 rounded-lg bg-blue-500/5 text-blue-500">
-                                                    {getMetricIcon(metric)}
-                                                </div>
-                                                <Badge variant="outline" className="text-[9px] font-bold border-blue-500/20 text-blue-600 dark:text-blue-400 uppercase">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    {analysis.phase3.slowestRecoverers.map((m: string) => (
+                                        <div key={m} className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30 rounded-xl p-3 relative group">
+                                            <div className="absolute top-3 right-3">
+                                                <Badge variant="outline" className="text-[8px] font-black border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 uppercase px-1.5 py-0">
                                                     Slowest
                                                 </Badge>
                                             </div>
-                                            <div>
-                                                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight truncate">
-                                                    {getFriendlyName(metric)}
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <TooltipProvider>
+                                                        <InfoTooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <div className="p-1.5 bg-white dark:bg-zinc-900 border border-blue-100 dark:border-blue-800 rounded-lg shadow-sm cursor-help">
+                                                                    <Info className="w-3 h-3 text-blue-500" />
+                                                                </div>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent className="max-w-[200px] text-[10px]">
+                                                                <p>This metric takes an average of {analysis.phase3.avgBiologicalRecoveryTail.toFixed(1)} days to return to your normal range after a crash starts.</p>
+                                                            </TooltipContent>
+                                                        </InfoTooltip>
+                                                    </TooltipProvider>
+                                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{getFriendlyName(m)}</span>
                                                 </div>
-                                                <div className="flex items-baseline gap-1 mt-0.5">
-                                                    <span className="text-lg font-black text-foreground leading-none">
-                                                        +{analysis.phase3.avgBiologicalRecoveryTail.toFixed(1)}
-                                                    </span>
-                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase">days tail</span>
-                                                </div>
+                                                <span className="text-xl font-black text-blue-700 dark:text-blue-500 tracking-tighter">
+                                                    +{analysis.phase3.avgBiologicalRecoveryTail.toFixed(1)} <span className="text-[10px] uppercase text-blue-500/60 font-bold ml-1">Days Tail</span>
+                                                </span>
                                             </div>
                                         </div>
                                     ))}
@@ -424,14 +502,6 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                     </CardContent>
                 </Card>
 
-                {/* 4. Visualization: The Shape of the Crash */}
-                <div className="pt-4">
-                    <PSTHChart
-                        data={analysis.aggregatedProfile || []}
-                        phase2LoggedEnd={analysis.phase2?.avgLoggedDuration}
-                        phase2PhysEnd={analysis.phase2?.avgPhysiologicalDuration}
-                    />
-                </div>
             </div>
             <p className="text-xs text-muted-foreground text-center pt-2 max-w-2xl mx-auto">
                 * Analysis based on <strong>{analysis.episodeCount} crash episodes</strong> using Superposed Epoch Analysis (SEA).

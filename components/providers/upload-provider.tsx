@@ -19,7 +19,7 @@ const UploadContext = createContext<UploadContextType | undefined>(undefined)
 
 export function UploadProvider({ children }: { children: React.ReactNode }) {
     const [pendingUpload, setPendingUploadState] = useState<PendingUpload | null>(null)
-    const supabase = createClient()
+    const supabase = React.useMemo(() => createClient(), [])
     const router = useRouter()
 
     const setPendingUpload = useCallback((upload: PendingUpload | null) => {

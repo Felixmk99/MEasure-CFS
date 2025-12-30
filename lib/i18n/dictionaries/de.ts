@@ -64,13 +64,13 @@ export const de: Dictionary = {
         },
         metrics: {
             composite_score: {
-                label: "Symptom Score",
-                description: "Gesamtüberblick deiner Gesundheit basierend auf Symptom-Schwere.",
+                label: "Symptom-Score",
+                description: "Die Summe all deiner getrackten Symptome.",
                 better: "Niedriger ist besser"
             },
             adjusted_score: {
                 label: "MEasure-CFS Score",
-                description: "Dein tägliches Energiebudget. Hoher Score = Starke Symptome / Wenig Energie.",
+                description: "Unser individueller Krankheits-Tracker, der alle Symptome, Vitalwerte und Belastungen berücksichtigt. Wir gehen davon aus, dass mehr Belastung wünschenswert ist.",
                 better: "Niedriger ist besser"
             },
             hrv: {
@@ -90,8 +90,8 @@ export const de: Dictionary = {
             },
             exertion_score: {
                 label: "Belastung",
-                description: "Dein selbstberichtetes Level an physischer und mentaler Anstrengung.",
-                better: "Höhere Werte zeigen mehr Aktivität"
+                description: "Die Summe all deiner getrackten Belastungen.",
+                better: "Höher ist besser."
             },
             trend: "Trend",
             about: "Über",

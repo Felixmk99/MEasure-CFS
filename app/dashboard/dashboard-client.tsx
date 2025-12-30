@@ -515,17 +515,9 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                         </PopoverContent>
                     </Popover>
 
-                    <div className="w-px h-4 bg-border mx-1" />
 
-                    <div className="flex items-center space-x-2 px-2">
-                        <Switch
-                            id="crash-mode-header"
-                            checked={showCrashes}
-                            onCheckedChange={setShowCrashes}
-                            className="scale-90"
-                        />
-                        <Label htmlFor="crash-mode-header" className="text-xs font-medium cursor-pointer">{t('dashboard.crash_mode')}</Label>
-                    </div>
+
+
 
                 </div>
             </div>
@@ -630,6 +622,14 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
 
                     <div className="flex items-center gap-4 self-start">
+                        <div className="flex items-center space-x-2">
+                            <Switch
+                                id="pem-mode"
+                                checked={showCrashes}
+                                onCheckedChange={setShowCrashes}
+                            />
+                            <Label htmlFor="pem-mode" className="text-xs text-muted-foreground hidden md:block">PEM</Label>
+                        </div>
                         <div className="flex items-center space-x-2">
                             <Switch
                                 id="compare-mode"
@@ -740,8 +740,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                             <defs>
                                 {selectedMetrics.map((metric, i) => {
                                     const config = getMetricConfig(metric)
+                                    // Sanitize ID for SVG (no spaces allowed)
+                                    const safeId = metric.replace(/\s+/g, '-')
                                     return (
-                                        <linearGradient key={metric} id={'colorMetric-' + metric} x1="0" y1="0" x2="0" y2="1">
+                                        <linearGradient key={metric} id={'colorMetric-' + safeId} x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor={config.color} stopOpacity={0.3} />
                                             <stop offset="95%" stopColor={config.color} stopOpacity={0.0} />
                                         </linearGradient>
@@ -828,10 +830,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                             type="monotone"
                                             dataKey={metric}
                                             stroke={config.color}
-                                            fill={`url(#colorMetric-${metric})`}
+                                            fill={`url(#colorMetric-${metric.replace(/\s+/g, '-')})`}
                                             strokeWidth={2}
                                             strokeOpacity={showTrend ? 0.2 : 1}
-                                            fillOpacity={showTrend ? 0.2 : 1}
+                                            fillOpacity={showTrend ? 0.3 : 0.6}
                                             activeDot={{ r: 6 }}
                                             yAxisId={metric}
                                         />
@@ -913,11 +915,15 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             </Card>
 
             {/* PEM (Crash) Trigger Analysis */}
-            {showCrashes && (
-                <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="mt-12 space-y-6">
+                <div className="flex items-center gap-2 border-b border-border/50 pb-2">
+                    <Activity className="w-4 h-4 text-rose-500" />
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">PEM insights</h3>
+                </div>
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <PEMAnalysis data={initialData} filterRange={visibleRange} />
                 </div>
-            )}
+            </div>
 
 
 

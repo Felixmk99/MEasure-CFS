@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Activity, Footprints } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
@@ -27,16 +27,16 @@ import {
 } from "@/components/ui/tooltip"
 
 export default function Navbar() {
+    const supabase = useMemo(() => createClient(), [])
     const [user, setUser] = useState<any>(null)
     const [hasData, setHasData] = useState<boolean>(false)
-    const [hasSteps, setHasSteps] = useState<boolean>(false)
+    const [hasMissingSteps, setHasMissingSteps] = useState<boolean>(false)
     const [mounted, setMounted] = useState(false)
-    const { t, locale } = useLanguage()
+    const { t } = useLanguage()
     const pathname = usePathname()
     const router = useRouter()
-    const supabase = createClient()
 
-    const checkUserAndData = async () => {
+    const checkUserAndData = useCallback(async () => {
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
 
@@ -49,21 +49,20 @@ export default function Navbar() {
 
             setHasData((count || 0) > 0)
 
-            // Check if user has ANY non-null step_count data
-            // We use .not('step_count', 'is', null) which is more robust than .gt(0)
-            const { data: stepRow } = await supabase
+            // Check if user is missing any steps for their uploaded data
+            const { data: missingStepRow } = await supabase
                 .from('health_metrics')
-                .select('step_count')
+                .select('date')
                 .eq('user_id', user.id)
-                .not('step_count', 'is', null)
+                .is('step_count', null)
                 .limit(1)
 
-            setHasSteps(!!stepRow && stepRow.length > 0)
+            setHasMissingSteps(!!missingStepRow && missingStepRow.length > 0)
         } else {
             setHasData(false)
-            setHasSteps(false)
+            setHasMissingSteps(false)
         }
-    }
+    }, [supabase])
 
     useEffect(() => {
         setMounted(true)
@@ -76,12 +75,25 @@ export default function Navbar() {
             } else {
                 setUser(null)
                 setHasData(false)
-                setHasSteps(false)
+                setHasMissingSteps(false)
             }
         })
 
-        return () => subscription.unsubscribe()
-    }, [supabase])
+        // Listen for internal data update events (sent from Upload flows)
+        window.addEventListener('health-data-updated', checkUserAndData)
+
+        return () => {
+            subscription.unsubscribe()
+            window.removeEventListener('health-data-updated', checkUserAndData)
+        }
+    }, [supabase, checkUserAndData])
+
+    // Safety: Re-check on pathname change in case a navigation implies a stale local state
+    useEffect(() => {
+        if (mounted && user) {
+            checkUserAndData()
+        }
+    }, [pathname, mounted, user, checkUserAndData])
 
     // Helper for link styles
     const getLinkClass = (path: string) => {
@@ -123,7 +135,7 @@ export default function Navbar() {
                             </Link>
 
                             {/* Missing Steps Hint */}
-                            {hasData && !hasSteps && (
+                            {hasData && hasMissingSteps && (
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
@@ -179,6 +191,7 @@ export default function Navbar() {
                                         await supabase.auth.signOut()
                                         setUser(null)
                                         setHasData(false)
+                                        setHasMissingSteps(false)
                                         router.push('/')
                                         router.refresh()
                                     }}>

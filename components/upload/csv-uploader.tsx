@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useEffect, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Papa from 'papaparse'
 import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react'
@@ -21,7 +21,7 @@ export function CsvUploader() {
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
-    const supabase = createClient()
+    const supabase = useMemo(() => createClient(), [])
     const router = useRouter()
 
     const processFile = useCallback(async (file: File) => {
@@ -65,24 +65,34 @@ export function CsvUploader() {
                         }
                     }))
 
-                    // We no longer filter existing dates to allow for updates/corrections.
-                    // We use Upsert to handle conflicts.
-                    const recordsToUpload = dbRecords
+                    // 1. Fetch existing dates to implement "Append-Only" strategy
+                    // This protects manual edits and speeds up the process significantly.
+                    setMessage('Checking for existing days...')
+                    const { data: existingDatesData } = await supabase
+                        .from('health_metrics')
+                        .select('date')
+                        .eq('user_id', user.id)
+
+                    const existingDateSet = new Set((existingDatesData || []).map(r => r.date))
+
+                    // 2. Filter for brand-new days only
+                    const recordsToUpload = dbRecords.filter(r => !existingDateSet.has(r.date))
 
                     if (recordsToUpload.length === 0) {
                         setStatus('success')
-                        setMessage('No valid records found to process.')
+                        setMessage('All data in this CSV is already in your history. No new days to add.')
                         return
                     }
 
-                    setMessage(`Syncing ${recordsToUpload.length} days of data...`)
+                    setMessage(`Adding ${recordsToUpload.length} new days of data...`)
 
                     const BATCH_SIZE = 50
                     for (let i = 0; i < recordsToUpload.length; i += BATCH_SIZE) {
                         const batch = recordsToUpload.slice(i, i + BATCH_SIZE)
+
                         const { error } = await supabase
                             .from('health_metrics')
-                            .upsert(batch as any, { onConflict: 'user_id, date' })
+                            .insert(batch as any)
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
@@ -95,6 +105,7 @@ export function CsvUploader() {
 
                     setStatus('success')
                     await revalidateApp()
+                    window.dispatchEvent(new CustomEvent('health-data-updated'))
                     // Redirect to dashboard after short delay for user to see success
                     setTimeout(() => {
                         router.push('/dashboard')
