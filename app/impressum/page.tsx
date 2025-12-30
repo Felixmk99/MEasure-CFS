@@ -32,8 +32,9 @@ export default function ImpressumPage() {
                     <div className="flex items-start gap-3">
                         <MapPin className="w-4 h-4 text-muted-foreground mt-1" />
                         <div>
-                            <p className="text-foreground">[Strasse, Hausnummer]</p>
-                            <p className="text-foreground">[PLZ, Stadt]</p>
+                            <p className="text-foreground">Felix Kania</p>
+                            <p className="text-foreground">Falkenaustraße 1a</p>
+                            <p className="text-foreground">83454 Anger</p>
                             <p className="text-foreground">Deutschland</p>
                         </div>
                     </div>
@@ -41,7 +42,7 @@ export default function ImpressumPage() {
                     <div className="flex items-start gap-3">
                         <Mail className="w-4 h-4 text-muted-foreground mt-1" />
                         <div>
-                            <p className="text-foreground">Email: [Deine Email-Adresse]</p>
+                            <p className="text-foreground">Email: felixmkania@gmail.com</p>
                         </div>
                     </div>
                 </CardContent>
@@ -62,9 +63,6 @@ export default function ImpressumPage() {
                     </p>
                 </section>
 
-                <p className="text-xs pt-8">
-                    Quelle: Erstellt mit dem Impressum-Generator von e-recht24.de
-                </p>
             </div>
         </div>
     )
