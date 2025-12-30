@@ -27,8 +27,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
-            const { data, error } = await supabase
-                .from('profiles')
+            const { data, error } = await (supabase
+                .from('profiles') as any)
                 .select('*')
                 .eq('id', user.id)
                 .single()
@@ -40,7 +40,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 // Auto-create an empty profile so they trigger the onboarding redirect.
                 const { data: newProfile, error: createError } = await supabase
                     .from('profiles')
-                    .insert({ id: user.id })
+                    .insert({ id: user.id } as any)
                     .select()
                     .single()
 
@@ -88,8 +88,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
-        const { error } = await supabase
-            .from('profiles')
+        const { error } = await (supabase
+            .from('profiles') as any)
             .upsert({ id: user.id, step_provider: provider })
 
         if (!error) {

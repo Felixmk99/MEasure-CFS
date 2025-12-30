@@ -81,25 +81,25 @@ export interface Database {
                     category?: 'medication' | 'supplement' | 'lifestyle' | 'other' | null
                     created_at?: string
                 }
-            }
+            },
             profiles: {
                 Row: {
                     id: string
                     step_provider: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | null
                     updated_at: string
-                }
+                },
                 Insert: {
                     id: string
                     step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | null
                     updated_at?: string
-                }
+                },
                 Update: {
                     id?: string
                     step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | null
                     updated_at?: string
                 }
             }
-        }
+        },
         Views: {
             [_ in never]: never
         }
