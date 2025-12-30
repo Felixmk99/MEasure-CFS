@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { LanguageProvider } from "@/components/providers/language-provider";
+import { UserProvider } from "@/components/providers/user-provider";
 import { UploadProvider } from "@/components/providers/upload-provider";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -24,15 +25,17 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`} suppressHydrationWarning>
         <LanguageProvider>
-          <UploadProvider>
-            <Navbar />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-            <Analytics />
-            <SpeedInsights />
-          </UploadProvider>
+          <UserProvider>
+            <UploadProvider>
+              <Navbar />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+              <Analytics />
+              <SpeedInsights />
+            </UploadProvider>
+          </UserProvider>
         </LanguageProvider>
       </body>
     </html>

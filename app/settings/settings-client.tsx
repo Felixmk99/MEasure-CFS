@@ -8,9 +8,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Lock, User, Settings, FileText, Trash2, AlertTriangle, AlertCircle } from 'lucide-react'
-// import { Separator } from '@/components/ui/separator' 
-// import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Lock, User, Settings, FileText, Trash2, AlertTriangle, Activity, Smartphone } from 'lucide-react'
+import { useUser } from '@/components/providers/user-provider'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export default function SettingsClient({ user }: { user: any }) {
     const supabase = createClient()
@@ -161,6 +167,9 @@ export default function SettingsClient({ user }: { user: any }) {
                     </CardContent>
                 </Card>
 
+                {/* Step Data Integration Card */}
+                <StepProviderCard />
+
                 {/* Delete Account Card */}
                 <Card className="border-red-200 dark:border-red-900/50 bg-red-50/10 dark:bg-red-900/10">
                     <CardHeader>
@@ -215,5 +224,69 @@ export default function SettingsClient({ user }: { user: any }) {
 
             </main>
         </div>
+    )
+}
+
+function StepProviderCard() {
+    const { profile, updateStepProvider } = useUser()
+    const [updating, setUpdating] = useState(false)
+
+    const handleProviderChange = async (val: string) => {
+        setUpdating(true)
+        try {
+            await updateStepProvider(val as any)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setUpdating(false)
+        }
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Health Data Integration</CardTitle>
+                <CardDescription>Choose which app provides your daily step data.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label>Step Data Provider</Label>
+                    <Select
+                        value={profile?.step_provider || 'apple'}
+                        onValueChange={handleProviderChange}
+                        disabled={updating}
+                    >
+                        <SelectTrigger className="w-full md:w-[300px]">
+                            <SelectValue placeholder="Select provider" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="apple">
+                                <span className="flex items-center gap-2">
+                                    <Smartphone className="w-4 h-4" /> Apple Health
+                                </span>
+                            </SelectItem>
+                            <SelectItem value="google">
+                                <span className="flex items-center gap-2">
+                                    <Activity className="w-4 h-4" /> Google Fit
+                                </span>
+                            </SelectItem>
+                            <SelectItem value="garmin" disabled>
+                                <span className="flex items-center gap-2">Garmin (Soon)</span>
+                            </SelectItem>
+                            <SelectItem value="samsung" disabled>
+                                <span className="flex items-center gap-2">Samsung (Soon)</span>
+                            </SelectItem>
+                            <SelectItem value="whoop" disabled>
+                                <span className="flex items-center gap-2">Whoop (Soon)</span>
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                        Changing this will only affect how the uploader in the Data tab looks and behaves.
+                        Your existing data remains safe.
+                    </p>
+                </div>
+            </CardContent>
+        </Card>
     )
 }

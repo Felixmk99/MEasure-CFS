@@ -21,6 +21,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useLanguage } from "@/components/providers/language-provider"
+import { useUser } from "@/components/providers/user-provider"
+import { GoogleFitUploader } from "@/components/upload/google-fit-uploader"
 import { revalidateApp } from '@/app/actions/revalidate'
 
 interface DataEntry {
@@ -153,6 +155,29 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         }
     }
 
+    const { profile } = useUser()
+    const stepProvider = profile?.step_provider || 'apple'
+
+    const renderStepUploader = () => {
+        switch (stepProvider) {
+            case 'apple':
+                return <XmlUploader />
+            case 'google':
+                return <GoogleFitUploader />
+            default:
+                return (
+                    <div className="p-12 text-center border-2 border-dashed rounded-[2.5rem] border-zinc-200 dark:border-zinc-800">
+                        <Smartphone className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
+                        <h3 className="text-xl font-bold">Provider Coming Soon</h3>
+                        <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">
+                            Integrations for {stepProvider.charAt(0).toUpperCase() + stepProvider.slice(1)} are being built.
+                            Change your provider in Settings if you want to use another one.
+                        </p>
+                    </div>
+                )
+        }
+    }
+
     return (
         <div className="min-h-[calc(100vh-4rem)] p-4 md:p-8">
             <div className="max-w-4xl mx-auto space-y-12">
@@ -192,7 +217,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                     className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Smartphone className="w-4 h-4 mr-2" />
-                                    {t('upload.tabs.apple')}
+                                    {stepProvider.charAt(0).toUpperCase() + stepProvider.slice(1)} Steps
                                     {!hasData && <span className="ml-2 text-[10px] text-zinc-500">(Requires Health Data)</span>}
                                 </TabsTrigger>
                             </TabsList>
@@ -200,7 +225,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                 <CsvUploader />
                             </TabsContent>
                             <TabsContent value="apple" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
-                                <XmlUploader />
+                                {renderStepUploader()}
                             </TabsContent>
                         </Tabs>
 

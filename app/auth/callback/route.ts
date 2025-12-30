@@ -31,8 +31,18 @@ export async function GET(request: Request) {
                 },
             }
         )
-        const { error } = await supabase.auth.exchangeCodeForSession(code)
-        if (!error) {
+        const { error, data } = await supabase.auth.exchangeCodeForSession(code)
+        if (!error && data.user) {
+            // Check if user has a profile with a step provider
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('step_provider')
+                .eq('id', data.user.id)
+                .single()
+
+            if (!profile?.step_provider) {
+                return NextResponse.redirect(`${origin}/onboarding`)
+            }
             return NextResponse.redirect(`${origin}${next}`)
         }
     }
