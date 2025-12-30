@@ -255,6 +255,8 @@ export interface Dictionary {
         tabs: {
             visible: string
             apple: string
+            google: string
+            samsung: string
         }
         dropzone: {
             idle: string
