@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { useLanguage } from '@/components/providers/language-provider'
 import React from 'react'

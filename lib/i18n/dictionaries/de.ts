@@ -297,16 +297,16 @@ export const de: Dictionary = {
                 action: "Aktion",
                 empty: "Keine aktuellen Einträge gefunden."
             }
-        },
-        legal: {
-            impressum: "Impressum",
-            privacy: "Datenschutzerklärung",
-            terms: "Nutzungsbedingungen",
-            agree_terms_privacy: "Ich akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.",
-            agree_health_data: "Ich willige ausdrücklich in die Verarbeitung meiner sensiblen Gesundheitsdaten ein, wie in der Datenschutzerklärung beschrieben (Art. 9 DSGVO).",
-            medical_disclaimer: "Medizinischer Haftungsausschluss",
-            medical_disclaimer_text: "Diese App dient ausschließlich Informationszwecken und bietet keine medizinische Beratung, Diagnose oder Behandlung. Lassen Sie sich immer von Ihrem Arzt beraten.",
-            copyright: "© 2025 Visible Analytics. Alle Rechte vorbehalten."
         }
+    },
+    legal: {
+        impressum: "Impressum",
+        privacy: "Datenschutzerklärung",
+        terms: "Nutzungsbedingungen",
+        agree_terms_privacy: "Ich akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.",
+        agree_health_data: "Ich willige ausdrücklich in die Verarbeitung meiner sensiblen Gesundheitsdaten ein, wie in der Datenschutzerklärung beschrieben (Art. 9 DSGVO).",
+        medical_disclaimer: "Medizinischer Haftungsausschluss",
+        medical_disclaimer_text: "Diese App dient ausschließlich Informationszwecken und bietet keine medizinische Beratung, Diagnose oder Behandlung. Lassen Sie sich immer von Ihrem Arzt beraten.",
+        copyright: "© 2025 Visible Analytics. Alle Rechte vorbehalten."
     }
 }

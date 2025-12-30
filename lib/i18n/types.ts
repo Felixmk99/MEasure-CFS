@@ -281,4 +281,14 @@ export interface Dictionary {
             }
         }
     }
+    legal: {
+        impressum: string
+        privacy: string
+        terms: string
+        agree_terms_privacy: string
+        agree_health_data: string
+        medical_disclaimer: string
+        medical_disclaimer_text: string
+        copyright: string
+    }
 }
