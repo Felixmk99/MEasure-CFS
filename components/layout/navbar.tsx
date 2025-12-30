@@ -93,7 +93,8 @@ export default function Navbar() {
         if (mounted && user) {
             checkUserAndData()
         }
-    }, [pathname, mounted, user, checkUserAndData])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pathname, mounted])
 
     // Helper for link styles
     const getLinkClass = (path: string) => {
