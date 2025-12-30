@@ -150,14 +150,23 @@ export default function SignupPage() {
                                             <span>Google Fit (Android)</span>
                                         </div>
                                     </SelectItem>
-                                    <SelectItem value="garmin" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
-                                        <span>Garmin (via Connect)</span>
+                                    <SelectItem value="garmin" disabled className="py-2.5 opacity-50 cursor-not-allowed">
+                                        <div className="flex items-center justify-between w-full">
+                                            <span>Garmin (via Connect)</span>
+                                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">Soon</span>
+                                        </div>
                                     </SelectItem>
-                                    <SelectItem value="samsung" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
-                                        <span>Samsung Health</span>
+                                    <SelectItem value="samsung" disabled className="py-2.5 opacity-50 cursor-not-allowed">
+                                        <div className="flex items-center justify-between w-full">
+                                            <span>Samsung Health</span>
+                                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">Soon</span>
+                                        </div>
                                     </SelectItem>
-                                    <SelectItem value="whoop" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
-                                        <span>Whoop</span>
+                                    <SelectItem value="whoop" disabled className="py-2.5 opacity-50 cursor-not-allowed">
+                                        <div className="flex items-center justify-between w-full">
+                                            <span>Whoop</span>
+                                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">Soon</span>
+                                        </div>
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
