@@ -190,7 +190,7 @@ export function XmlUploader() {
                 {/* Text Content */}
                 <div className="space-y-2">
                     <h3 className="text-2xl font-bold text-foreground">
-                        {status === 'parsing' ? 'Parshing XML...' :
+                        {status === 'parsing' ? 'Parsing XML...' :
                             status === 'uploading' ? 'Uploading...' :
                                 status === 'success' ? 'Upload Complete!' :
                                     'Upload Apple Health Export'}

@@ -153,7 +153,7 @@ export function GoogleFitUploader() {
 
                 <div className="space-y-2">
                     <h3 className="text-2xl font-bold text-foreground">
-                        {status === 'parsing' ? 'Parshing CSV...' :
+                        {status === 'parsing' ? 'Parsing CSV...' :
                             status === 'uploading' ? 'Uploading...' :
                                 status === 'success' ? 'Upload Complete!' :
                                     'Upload Google Fit Export'}
