@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select"
 import { Smartphone, Activity, Watch, Info } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
+import { useLanguage } from '@/components/providers/language-provider'
 import { signupSchema } from '@/lib/validation/auth'
 
 export default function SignupPage() {
