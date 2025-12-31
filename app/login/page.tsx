@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ArrowRight, Loader2, Shield } from 'lucide-react'
 import Link from 'next/link'
+import { useUpload } from '@/components/providers/upload-provider'
 import { loginSchema } from '@/lib/validation/auth'
 
 export default function LoginPage() {
