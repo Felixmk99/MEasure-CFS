@@ -167,8 +167,11 @@ export default function SettingsClient({ user }: { user: any }) {
                     </CardContent>
                 </Card>
 
-                {/* Integrations Card */}
-                <IntegrationsCard />
+                {/* Symptom Data Integration Card */}
+                <SymptomProviderCard />
+
+                {/* Step Data Integration Card */}
+                <StepProviderCard />
 
                 {/* Delete Account Card */}
                 <Card className="border-red-200 dark:border-red-900/50 bg-red-50/10 dark:bg-red-900/10">
@@ -227,47 +230,34 @@ export default function SettingsClient({ user }: { user: any }) {
     )
 }
 
-function IntegrationsCard() {
-    const { profile, updateStepProvider, updateSymptomProvider } = useUser()
-    const [updatingSymptom, setUpdatingSymptom] = useState(false)
-    const [updatingStep, setUpdatingStep] = useState(false)
+function SymptomProviderCard() {
+    const { profile, updateSymptomProvider } = useUser()
+    const [updating, setUpdating] = useState(false)
 
-    const handleSymptomChange = async (val: string) => {
-        setUpdatingSymptom(true)
+    const handleProviderChange = async (val: string) => {
+        setUpdating(true)
         try {
             await updateSymptomProvider(val as any)
         } catch (error) {
             console.error(error)
         } finally {
-            setUpdatingSymptom(false)
-        }
-    }
-
-    const handleStepChange = async (val: string) => {
-        setUpdatingStep(true)
-        try {
-            await updateStepProvider(val as any)
-        } catch (error) {
-            console.error(error)
-        } finally {
-            setUpdatingStep(false)
+            setUpdating(false)
         }
     }
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Health Data Integration</CardTitle>
-                <CardDescription>Choose the apps that provide your health and activity data.</CardDescription>
+                <CardTitle>Symptom Tracker Integration</CardTitle>
+                <CardDescription>Choose which app you use to track your daily symptoms.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-                {/* Symptom Provider Row */}
+            <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label className="text-sm font-medium">Symptom Provider</Label>
                     <Select
                         value={profile?.symptom_provider || 'visible'}
-                        onValueChange={handleSymptomChange}
-                        disabled={updatingSymptom}
+                        onValueChange={handleProviderChange}
+                        disabled={updating}
                     >
                         <SelectTrigger className="w-full md:w-[350px]">
                             <SelectValue placeholder="Select symptom tracker" />
@@ -289,16 +279,39 @@ function IntegrationsCard() {
                         This switches the uploader in the Data tab. Existing data is never overwritten.
                     </p>
                 </div>
+            </CardContent>
+        </Card>
+    )
+}
 
-                <div className="h-px bg-zinc-100 dark:bg-zinc-800" />
+function StepProviderCard() {
+    const { profile, updateStepProvider } = useUser()
+    const [updating, setUpdating] = useState(false)
 
-                {/* Step Provider Row */}
+    const handleProviderChange = async (val: string) => {
+        setUpdating(true)
+        try {
+            await updateStepProvider(val as any)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setUpdating(false)
+        }
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Health Data Integration</CardTitle>
+                <CardDescription>Choose which app provides your daily step data.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label className="text-sm font-medium">Step Data Provider</Label>
                     <Select
                         value={profile?.step_provider || 'apple'}
-                        onValueChange={handleStepChange}
-                        disabled={updatingStep}
+                        onValueChange={handleProviderChange}
+                        disabled={updating}
                     >
                         <SelectTrigger className="w-full md:w-[350px]">
                             <SelectValue placeholder="Select step provider" />
