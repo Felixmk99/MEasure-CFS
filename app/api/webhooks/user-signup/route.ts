@@ -1,33 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendSignupNotification } from '@/lib/notifications/email';
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(req: NextRequest) {
     try {
         const authHeader = req.headers.get('authorization');
+        // Also check query params as a fallback because Supabase sometimes misconfigures them
+        const authParam = req.nextUrl.searchParams.get('Authorization');
 
-        // Basic security: check for a secret token in the Authorization header
-        // In Supabase, you can set this as a header in the webhook configuration:
-        // Authorization: Bearer [YOUR_WEBHOOK_SECRET]
-        if (authHeader !== `Bearer ${process.env.WEBHOOK_SECRET}`) {
+        const secret = process.env.WEBHOOK_SECRET;
+
+        if (!authHeader?.includes(secret!) && !authParam?.includes(secret!)) {
+            console.error('Unauthorized webhook attempt');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const payload = await req.json();
+        console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
 
-        // Supabase Webhook payload structure:
-        // { type: 'INSERT', table: 'profiles', record: { ... }, schema: 'public', ... }
         if (payload.type === 'INSERT' && payload.table === 'profiles') {
-            const { id, step_provider } = payload.record;
+            const { id } = payload.record;
 
-            // We might want to fetch more user details from auth.users, 
-            // but the webhook record only contains the profiles table data.
-            // The signup process already puts first_name, last_name into raw_user_meta_data
-            // which is eventually synced or available, but for now we'll notify with what we have.
+            // Initialize Supabase Admin client to fetch user details
+            const supabaseAdmin = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.SUPABASE_SERVICE_ROLE_KEY!,
+                {
+                    auth: {
+                        autoRefreshToken: false,
+                        persistSession: false
+                    }
+                }
+            );
+
+            const { data: { user }, error: userError } = await supabaseAdmin.auth.admin.getUserById(id);
+
+            if (userError || !user) {
+                console.error('Error fetching user for notification:', userError);
+            }
+
+            // Extract metadata
+            const metadata = user?.user_metadata || {};
 
             await sendSignupNotification({
                 id,
-                step_provider,
-                // Optional: you could extend this by fetching from supabase-js if needed
+                email: user?.email,
+                first_name: metadata.first_name,
+                last_name: metadata.last_name,
+                step_provider: payload.record.step_provider || 'Not yet selected'
             });
         }
 
