@@ -51,7 +51,7 @@ export default function SignupPage() {
         })
 
         if (!result.success) {
-            const firstError = result.error.errors[0].message
+            const firstError = result.error.issues[0].message
             setError(firstError)
             setLoading(false)
             return
