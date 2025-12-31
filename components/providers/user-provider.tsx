@@ -7,11 +7,13 @@ import { useRouter, usePathname } from 'next/navigation'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 type StepProvider = Profile['step_provider']
+type SymptomProvider = Profile['symptom_provider']
 
 interface UserContextType {
     profile: Profile | null
     loading: boolean
     updateStepProvider: (provider: StepProvider) => Promise<void>
+    updateSymptomProvider: (provider: SymptomProvider) => Promise<void>
     refreshProfile: () => Promise<void>
 }
 
@@ -72,9 +74,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         return () => subscription.unsubscribe()
     }, [supabase, fetchProfile])
 
-    // Redirect to onboarding if profile is missing step_provider
+    // Redirect to onboarding if profile is missing step_provider OR symptom_provider
     useEffect(() => {
-        if (!loading && profile && !profile.step_provider) {
+        if (!loading && profile && (!profile.step_provider || !profile.symptom_provider)) {
             const excludedPaths = ['/onboarding', '/login', '/signup', '/auth/callback', '/forgot-password', '/reset-password']
             const isExcluded = excludedPaths.some(path => pathname?.startsWith(path))
 
@@ -99,8 +101,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const updateSymptomProvider = async (provider: SymptomProvider) => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { error } = await (supabase
+            .from('profiles') as any)
+            .upsert({ id: user.id, symptom_provider: provider })
+
+        if (!error) {
+            setProfile(prev => prev ? { ...prev, symptom_provider: provider } : { id: user.id, symptom_provider: provider, updated_at: new Date().toISOString() })
+        } else {
+            throw error
+        }
+    }
+
     return (
-        <UserContext.Provider value={{ profile, loading, updateStepProvider, refreshProfile: fetchProfile }}>
+        <UserContext.Provider value={{ profile, loading, updateStepProvider, updateSymptomProvider, refreshProfile: fetchProfile }}>
             {children}
         </UserContext.Provider>
     )

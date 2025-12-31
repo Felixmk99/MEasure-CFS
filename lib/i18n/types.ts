@@ -255,6 +255,7 @@ export interface Dictionary {
         private_badge: string
         tabs: {
             visible: string
+            bearable: string
             apple: string
             google: string
             samsung: string

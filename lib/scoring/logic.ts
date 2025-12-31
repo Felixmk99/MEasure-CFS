@@ -9,7 +9,8 @@ export const EXERTION_METRICS = [
     "Mentally demanding",
     "Emotionally stressful",
     "Physically active",
-    "Socially demanding"
+    "Socially demanding",
+    "Work Exertion"
 ]
 
 // Metrics that should NEVER be summed into the Symptom Score

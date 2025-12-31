@@ -24,6 +24,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { useUser } from "@/components/providers/user-provider"
 import { GoogleFitUploader } from "@/components/upload/google-fit-uploader"
 import { SamsungHealthUploader } from "@/components/upload/samsung-health-uploader"
+import { BearableUploader } from "@/components/upload/bearable-uploader"
 import { revalidateApp } from '@/app/actions/revalidate'
 
 interface DataEntry {
@@ -212,7 +213,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                             <TabsList className="grid w-full grid-cols-2 mb-8 h-12 rounded-full p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                                 <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300">
                                     <Activity className="w-4 h-4 mr-2" />
-                                    {t('upload.tabs.visible')}
+                                    {profile?.symptom_provider === 'bearable' ? 'Bearable App (CSV)' : t('upload.tabs.visible')}
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="apple"
@@ -225,7 +226,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                 </TabsTrigger>
                             </TabsList>
                             <TabsContent value="visible" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
-                                <CsvUploader />
+                                {profile?.symptom_provider === 'bearable' ? <BearableUploader /> : <CsvUploader />}
                             </TabsContent>
                             <TabsContent value="apple" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
                                 {renderStepUploader()}

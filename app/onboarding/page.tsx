@@ -1,13 +1,30 @@
-'use client'
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/user-provider'
 import { Button } from '@/components/ui/button'
-import { Smartphone, Activity, Laptop, Watch, Heart } from 'lucide-react'
+import { Smartphone, Activity, Laptop, Watch, Heart, FileText, ClipboardList } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const PROVIDERS = [
+const SYMPTOM_PROVIDERS = [
+    {
+        id: 'visible',
+        name: 'Visible App',
+        icon: Activity,
+        color: 'bg-rose-50 dark:bg-rose-900/20',
+        textColor: 'text-rose-600 dark:text-rose-400',
+        description: 'Morning stability and daily check-ins'
+    },
+    {
+        id: 'bearable',
+        name: 'Bearable App',
+        icon: ClipboardList,
+        color: 'bg-orange-50 dark:bg-orange-900/20',
+        textColor: 'text-orange-600 dark:text-orange-400',
+        description: 'Extensive symptom and factor tracking'
+    }
+] as const
+
+const STEP_PROVIDERS = [
     {
         id: 'apple',
         name: 'Apple Health',
@@ -38,7 +55,7 @@ const PROVIDERS = [
         icon: Laptop,
         color: 'bg-indigo-50 dark:bg-indigo-900/20',
         textColor: 'text-indigo-600 dark:text-indigo-400',
-        description: 'Samsung Galaxy devices (Coming Soon)'
+        description: 'Samsung Galaxy devices'
     },
     {
         id: 'whoop',
@@ -51,18 +68,26 @@ const PROVIDERS = [
 ] as const
 
 export default function OnboardingPage() {
-    const [selected, setSelected] = useState<typeof PROVIDERS[number]['id']>('apple')
+    const [step, setStep] = useState<1 | 2>(1)
+    const [selectedSymptom, setSelectedSymptom] = useState<typeof SYMPTOM_PROVIDERS[number]['id']>('visible')
+    const [selectedStep, setSelectedStep] = useState<typeof STEP_PROVIDERS[number]['id']>('apple')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const { updateStepProvider } = useUser()
+    const { updateStepProvider, updateSymptomProvider } = useUser()
     const router = useRouter()
 
     const handleContinue = async () => {
+        if (step === 1) {
+            setStep(2)
+            return
+        }
+
         setLoading(true)
         setError(null)
         try {
-            await updateStepProvider(selected)
-            // Force a refresh to ensure layout/providers pick up the new step_provider
+            await updateSymptomProvider(selectedSymptom)
+            await updateStepProvider(selectedStep)
+            // Force a refresh to ensure layout/providers pick up the new selections
             router.refresh()
             // Using replace to prevent going back to onboarding
             router.replace('/upload')
@@ -74,27 +99,39 @@ export default function OnboardingPage() {
         }
     }
 
+    const currentProviders = step === 1 ? SYMPTOM_PROVIDERS : STEP_PROVIDERS
+    const selectedId = step === 1 ? selectedSymptom : selectedStep
+    const setSelected = (id: any) => step === 1 ? setSelectedSymptom(id) : setSelectedStep(id)
+
     return (
         <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-950">
             <div className="max-w-xl w-full space-y-8 text-center">
+                {/* Step Indicator */}
+                <div className="flex justify-center gap-2">
+                    <div className={cn("h-1.5 w-12 rounded-full transition-colors", step >= 1 ? "bg-[#3B82F6]" : "bg-zinc-200 dark:bg-zinc-800")} />
+                    <div className={cn("h-1.5 w-12 rounded-full transition-colors", step >= 2 ? "bg-[#3B82F6]" : "bg-zinc-200 dark:bg-zinc-800")} />
+                </div>
+
                 <div className="space-y-2">
                     <h1 className="text-4xl font-extrabold tracking-tight">
-                        Choose your <br />
+                        {step === 1 ? 'Which app do you use for' : 'Choose your'} <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-[#3B82F6]">
-                            Step Provider
+                            {step === 1 ? 'Symptom Tracking?' : 'Step Provider'}
                         </span>
                     </h1>
                     <p className="text-muted-foreground">
-                        Select which app you use to track your daily steps.
-                        You can always change this in your profile settings.
+                        {step === 1
+                            ? "Select the primary source of your health measurements and symptom scores."
+                            : "Select which app you use to track your daily steps."}
+                        <br />You can always change this in your settings later.
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                    {PROVIDERS.map((provider) => {
+                    {currentProviders.map((provider) => {
                         const Icon = provider.icon
-                        const isSelected = selected === provider.id
-                        const isComingSoon = ['garmin', 'samsung', 'whoop'].includes(provider.id)
+                        const isSelected = selectedId === provider.id
+                        const isComingSoon = (provider as any).description.includes('Coming Soon')
 
                         return (
                             <button
@@ -137,13 +174,22 @@ export default function OnboardingPage() {
                     </div>
                 )}
 
-                <div className="pt-8">
+                <div className="pt-8 flex gap-4">
+                    {step === 2 && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setStep(1)}
+                            className="h-12 rounded-full px-8 font-bold border-zinc-200 dark:border-zinc-800"
+                        >
+                            Back
+                        </Button>
+                    )}
                     <Button
                         onClick={handleContinue}
                         disabled={loading}
-                        className="w-full h-12 rounded-full text-base font-bold bg-[#3B82F6] hover:bg-blue-600 shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
+                        className="flex-1 h-12 rounded-full text-base font-bold bg-[#3B82F6] hover:bg-blue-600 shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
                     >
-                        {loading ? 'Setting up...' : 'Continue to Data Upload'}
+                        {loading ? 'Setting up...' : step === 1 ? 'Continue' : 'Complete Setup'}
                     </Button>
                 </div>
             </div>

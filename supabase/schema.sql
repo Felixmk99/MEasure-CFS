@@ -72,6 +72,7 @@ create policy "Users can delete their own experiments"
 create table if not exists profiles (
   id uuid references auth.users(id) on delete cascade primary key,
   step_provider text check (step_provider in ('apple', 'google', 'garmin', 'samsung', 'whoop')),
+  symptom_provider text check (symptom_provider in ('visible', 'bearable')) default 'visible',
   updated_at timestamp with time zone default now()
 );
 
@@ -97,10 +98,11 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, step_provider)
+  insert into public.profiles (id, step_provider, symptom_provider)
   values (
     new.id,
-    (new.raw_user_meta_data->>'step_provider')
+    (new.raw_user_meta_data->>'step_provider'),
+    coalesce((new.raw_user_meta_data->>'symptom_provider'), 'visible')
   );
   return new;
 end;

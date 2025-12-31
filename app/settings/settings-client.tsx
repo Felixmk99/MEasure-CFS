@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Lock, User, Settings, FileText, Trash2, AlertTriangle, Activity, Smartphone } from 'lucide-react'
+import { Lock, User, Settings, FileText, Trash2, AlertTriangle, Activity, Smartphone, ClipboardList } from 'lucide-react'
 import { useUser } from '@/components/providers/user-provider'
 import {
     Select,
@@ -167,6 +167,9 @@ export default function SettingsClient({ user }: { user: any }) {
                     </CardContent>
                 </Card>
 
+                {/* Symptom Data Integration Card */}
+                <SymptomProviderCard />
+
                 {/* Step Data Integration Card */}
                 <StepProviderCard />
 
@@ -224,6 +227,61 @@ export default function SettingsClient({ user }: { user: any }) {
 
             </main>
         </div>
+    )
+}
+
+function SymptomProviderCard() {
+    const { profile, updateSymptomProvider } = useUser()
+    const [updating, setUpdating] = useState(false)
+
+    const handleProviderChange = async (val: string) => {
+        setUpdating(true)
+        try {
+            await updateSymptomProvider(val as any)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setUpdating(false)
+        }
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Symptom Tracker Integration</CardTitle>
+                <CardDescription>Choose which app you use to track your daily symptoms.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label>Symptom Provider</Label>
+                    <Select
+                        value={profile?.symptom_provider || 'visible'}
+                        onValueChange={handleProviderChange}
+                        disabled={updating}
+                    >
+                        <SelectTrigger className="w-full md:w-[300px]">
+                            <SelectValue placeholder="Select provider" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="visible">
+                                <span className="flex items-center gap-2">
+                                    <Activity className="w-4 h-4" /> Visible App
+                                </span>
+                            </SelectItem>
+                            <SelectItem value="bearable">
+                                <span className="flex items-center gap-2">
+                                    <ClipboardList className="w-4 h-4" /> Bearable App
+                                </span>
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                        Changing this switches the uploader in the Data tab.
+                        Your existing data remains safe and will not be overwritten.
+                    </p>
+                </div>
+            </CardContent>
+        </Card>
     )
 }
 

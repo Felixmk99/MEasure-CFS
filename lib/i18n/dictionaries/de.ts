@@ -273,6 +273,7 @@ export const de: Dictionary = {
         private_badge: "Privat & Lokal verarbeitet",
         tabs: {
             visible: "Visible App (CSV)",
+            bearable: "Bearable App (CSV)",
             apple: "Schritte (Health App)",
             google: "Google Fit (CSV)",
             samsung: "Samsung Health (CSV)"
