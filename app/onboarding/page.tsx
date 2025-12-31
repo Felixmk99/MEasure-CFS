@@ -53,16 +53,22 @@ const PROVIDERS = [
 export default function OnboardingPage() {
     const [selected, setSelected] = useState<typeof PROVIDERS[number]['id']>('apple')
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
     const { updateStepProvider } = useUser()
     const router = useRouter()
 
     const handleContinue = async () => {
         setLoading(true)
+        setError(null)
         try {
             await updateStepProvider(selected)
-            router.push('/dashboard')
-        } catch (error) {
-            console.error(error)
+            // Force a refresh to ensure layout/providers pick up the new step_provider
+            router.refresh()
+            // Using replace to prevent going back to onboarding
+            router.replace('/upload')
+        } catch (err: any) {
+            console.error(err)
+            setError(err.message || 'Failed to update selection. Please try again.')
         } finally {
             setLoading(false)
         }
@@ -125,13 +131,19 @@ export default function OnboardingPage() {
                     })}
                 </div>
 
+                {error && (
+                    <div className="p-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-200 dark:border-red-900/20">
+                        {error}
+                    </div>
+                )}
+
                 <div className="pt-8">
                     <Button
                         onClick={handleContinue}
                         disabled={loading}
                         className="w-full h-12 rounded-full text-base font-bold bg-[#3B82F6] hover:bg-blue-600 shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
                     >
-                        {loading ? 'Setting up...' : 'Continue to Dashboard'}
+                        {loading ? 'Setting up...' : 'Continue to Data Upload'}
                     </Button>
                 </div>
             </div>
