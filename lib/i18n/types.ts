@@ -292,6 +292,7 @@ export interface Dictionary {
         agree_health_data: string
         medical_disclaimer: string
         medical_disclaimer_text: string
+        not_medical_product: string
         copyright: string
     }
 }
