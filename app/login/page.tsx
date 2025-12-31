@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ArrowRight, Loader2, Shield } from 'lucide-react'
 import Link from 'next/link'
-import { useUpload } from '@/components/providers/upload-provider'
+import { loginSchema } from '@/lib/validation/auth'
 
 export default function LoginPage() {
     const { pendingUpload } = useUpload()
@@ -22,9 +22,19 @@ export default function LoginPage() {
     const handleSignIn = async () => {
         setLoading(true)
         setError(null)
+
+        const result = loginSchema.safeParse({ email, password })
+        if (!result.success) {
+            setError(result.error.errors[0].message)
+            setLoading(false)
+            return
+        }
+
+        const { data } = result
+
         const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
+            email: data.email,
+            password: data.password,
         })
         if (error) {
             // Check if error suggests invalid credentials (could be "User not found" masked)

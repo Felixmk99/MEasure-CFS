@@ -27,7 +27,7 @@ export const en: Dictionary = {
     },
     footer: {
         built_by: "Built by Felix Kania",
-        contact: "Contact & Feature Ideas: felixmkania@gmail.com"
+        contact: "Questions & Feature Ideas"
     },
     landing: {
         hero: {
@@ -46,7 +46,7 @@ export const en: Dictionary = {
                 instant: "Instant Insights"
             },
             transform_title: "Understand your health",
-            predictive_insights: "with data-driven correlations",
+            predictive_insights: "with data-driven insights",
             drop_title: "Drop Visible APP export to begin",
             drop_desc: "Upload CSV files from Visible, Bearable, Daylio, Symptom Shark, Guava or MyDataHelps. Your journey to clarity starts here.",
             create_account_hint: "New here? Create account first →"
@@ -145,6 +145,7 @@ export const en: Dictionary = {
             d7: "7D",
             d30: "30D",
             m3: "3M",
+            y1: "1Y",
             all: "All Time"
         },
         cards: {
@@ -309,6 +310,7 @@ export const en: Dictionary = {
         agree_health_data: "I explicitly consent to the processing of my sensitive health data as described in the Privacy Policy (Art. 9 GDPR).",
         medical_disclaimer: "Medical Disclaimer",
         medical_disclaimer_text: "This app is for informational purposes only and does not provide medical advice, diagnosis, or treatment. Always seek the advice of your physician.",
+        not_medical_product: "Not for medical use",
         copyright: "© 2025 Visible Analytics. All rights reserved."
     }
 }

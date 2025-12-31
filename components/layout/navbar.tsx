@@ -19,6 +19,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useLanguage } from "@/components/providers/language-provider"
 import { LanguageSwitcher } from "./language-switcher"
+import { BrandLogo } from "@/components/brand/brand-logo"
 import {
     Tooltip,
     TooltipContent,
@@ -108,13 +109,8 @@ export default function Navbar() {
     return (
         <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-14 items-center">
-                <Link href={mounted && user ? "/dashboard" : "/"} className="mr-6 flex items-center space-x-2 group">
-                    <Activity className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                    <span className="font-bold inline-block text-lg tracking-tight">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">ME</span>
-                        <span className="text-slate-500 dark:text-slate-400">asure-</span>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">CFS</span>
-                    </span>
+                <Link href={mounted && user ? "/dashboard" : "/"} className="mr-6 flex items-center group">
+                    <BrandLogo size={32} />
                 </Link>
 
                 {/* Desktop Menu */}

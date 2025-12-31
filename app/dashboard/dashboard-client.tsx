@@ -32,7 +32,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMe
 import { ChevronDown } from "lucide-react"
 import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-type TimeRange = '7d' | '30d' | '3m' | 'all' | 'custom'
+type TimeRange = '7d' | '30d' | '3m' | '1y' | 'all' | 'custom'
 
 interface DashboardReviewProps {
     data: any[]
@@ -68,6 +68,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         if (timeRange === '7d') start = subDays(now, 7)
         if (timeRange === '30d') start = subDays(now, 30)
         if (timeRange === '3m') start = subDays(now, 90)
+        if (timeRange === '1y') start = subDays(now, 365)
         if (timeRange === 'all') start = subDays(now, 365 * 5)
 
         if (timeRange === 'custom' && dateRange?.from) {
@@ -236,6 +237,9 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             } else if (['3m'].includes(timeRange)) {
                 strategy = 'moving_average'
                 maWindow = 7
+            } else if (timeRange === '1y') {
+                strategy = 'moving_average'
+                maWindow = 14
             } else if (timeRange === 'all') {
                 strategy = 'moving_average'
                 maWindow = 30
@@ -448,10 +452,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         <div className="space-y-6">
 
             {/* Header Area - Sticky Navigation */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-14 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-3 -mx-4 px-4 border-b border-border/50 mb-2 transition-all">
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-4 sticky top-14 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-3 -mx-4 px-4 border-b border-border/50 mb-2 transition-all">
                 <div className="bg-muted/30 p-1 rounded-lg flex items-center gap-1 w-full sm:w-auto overflow-x-auto no-scrollbar">
-                    {(['7d', '30d', '3m', 'all'] as TimeRange[]).map((r) => {
-                        const rangeMap: Record<string, string> = { '7d': 'd7', '30d': 'd30', '3m': 'm3', 'all': 'all' }
+                    {(['7d', '30d', '3m', '1y', 'all'] as TimeRange[]).map((r) => {
+                        const rangeMap: Record<string, string> = { '7d': 'd7', '30d': 'd30', '3m': 'm3', '1y': 'y1', 'all': 'all' }
                         const labelKey = 'dashboard.time_ranges.' + rangeMap[r]
                         return (
                             <button
@@ -918,9 +922,11 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
             {/* PEM (Crash) Trigger Analysis */}
             <div className="mt-12 space-y-6">
-                <div className="flex items-center gap-2 border-b border-border/50 pb-2">
-                    <Activity className="w-4 h-4 text-rose-500" />
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">PEM insights</h3>
+                <div className="flex items-center gap-3 border-b border-border/50 pb-3">
+                    <Activity className="w-6 h-6 text-rose-600 dark:text-rose-500" />
+                    <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
+                        PEM Insights
+                    </h3>
                 </div>
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <PEMAnalysis data={initialData} filterRange={visibleRange} />

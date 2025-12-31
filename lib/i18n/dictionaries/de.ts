@@ -51,6 +51,7 @@ export const de: Dictionary = {
             d7: "7T",
             d30: "30T",
             m3: "3M",
+            y1: "1J",
             all: "Gesamt"
         },
         cards: {
@@ -126,7 +127,7 @@ export const de: Dictionary = {
                 instant: "Sofortige Einblicke"
             },
             transform_title: "Verstehe deine Gesundheit",
-            predictive_insights: "mit datengestützten Korrelationen",
+            predictive_insights: "mit datengestützten Analysen",
             drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
             drop_desc: "Lade CSV-Dateien von Visible, Bearable, Daylio, Symptom Shark, Guava oder MyDataHelps hoch. Deine Reise zur Klarheit beginnt hier.",
             create_account_hint: "Neu hier? Erstelle zuerst ein Konto →"
@@ -309,6 +310,7 @@ export const de: Dictionary = {
         agree_health_data: "Ich willige ausdrücklich in die Verarbeitung meiner sensiblen Gesundheitsdaten ein, wie in der Datenschutzerklärung beschrieben (Art. 9 DSGVO).",
         medical_disclaimer: "Medizinischer Haftungsausschluss",
         medical_disclaimer_text: "Diese App dient ausschließlich Informationszwecken und bietet keine medizinische Beratung, Diagnose oder Behandlung. Lassen Sie sich immer von Ihrem Arzt beraten.",
+        not_medical_product: "Kein Medizinprodukt",
         copyright: "© 2025 Visible Analytics. Alle Rechte vorbehalten."
     }
 }

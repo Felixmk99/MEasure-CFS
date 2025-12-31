@@ -201,7 +201,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             )}
 
             {/* Action Bar */}
-            <div className="w-full flex justify-center">
+            <div className="w-full max-w-7xl mx-auto flex justify-end px-4 sm:px-8">
                 <Dialog open={isDialogOpen} onOpenChange={(open) => {
                     setIsDialogOpen(open)
                     if (!open) {
@@ -313,8 +313,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                             <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="bg-[#60A5FA]/10 text-[#3B82F6] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide">
-                                                            <div className="w-1.5 h-1.5 bg-[#60A5FA] rounded-full animate-pulse" />
+                                                        <div className="bg-[#60A5FA]/10 text-[#3B82F6] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide whitespace-nowrap">
+                                                            <div className="w-1.5 h-1.5 bg-[#60A5FA] rounded-full animate-pulse shrink-0" />
                                                             {t('experiments.active.day')} {daysActive}
                                                         </div>
                                                         {exp.dosage && (

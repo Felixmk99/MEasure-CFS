@@ -14,6 +14,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "MEasure-CFS",
   description: "Privacy-focused health dashboard for Long Covid and ME/CFS",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

@@ -127,6 +127,7 @@ export interface Dictionary {
             d7: string
             d30: string
             m3: string
+            y1: string
             all: string
         }
         cards: {

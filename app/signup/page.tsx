@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select"
 import { Smartphone, Activity, Watch, Info } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useLanguage } from '@/components/providers/language-provider'
+import { signupSchema } from '@/lib/validation/auth'
 
 export default function SignupPage() {
     const { t, locale } = useLanguage()
@@ -36,21 +36,38 @@ export default function SignupPage() {
     const supabase = createClient()
 
     const handleSignUp = async () => {
-        if (!agreeTerms || !agreeHealth) {
-            setError(locale === 'de' ? "Bitte akzeptieren Sie die Nutzungsbedingungen und willigen Sie in die Datenverarbeitung ein." : "Please accept terms and consent to data processing.")
-            return
-        }
         setLoading(true)
         setError(null)
-        const { error } = await supabase.auth.signUp({
+
+        // Validate with Zod
+        const result = signupSchema.safeParse({
+            firstName,
+            lastName,
             email,
             password,
+            stepProvider,
+            agreeTerms,
+            agreeHealth
+        })
+
+        if (!result.success) {
+            const firstError = result.error.errors[0].message
+            setError(firstError)
+            setLoading(false)
+            return
+        }
+
+        const { data } = result
+
+        const { error } = await supabase.auth.signUp({
+            email: data.email,
+            password: data.password,
             options: {
                 emailRedirectTo: `${location.origin}/auth/callback`,
                 data: {
-                    first_name: firstName,
-                    last_name: lastName,
-                    step_provider: stepProvider,
+                    first_name: data.firstName,
+                    last_name: data.lastName,
+                    step_provider: data.stepProvider,
                     consent_terms_at: new Date().toISOString(),
                     consent_health_data_at: new Date().toISOString()
                 }
@@ -127,7 +144,7 @@ export default function SignupPage() {
                         <div className="space-y-1.5">
                             <Label htmlFor="stepProvider" className="text-xs font-medium flex items-center gap-1.5">
                                 <Activity className="w-3 h-3 text-blue-500" />
-                                Health Data Source (Steps)
+                                Step Data Source
                             </Label>
                             <Select value={stepProvider} onValueChange={setStepProvider}>
                                 <SelectTrigger id="stepProvider" className="bg-muted/30 border-muted-foreground/20 h-10 transition-all focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/20">
@@ -247,7 +264,7 @@ export default function SignupPage() {
                             <span className="font-semibold tracking-wide text-sm uppercase">Privacy Guaranteed</span>
                         </div>
                         <h3 className="text-xl font-bold mb-4 leading-relaxed">
-                            "Health Trends processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
+                            "MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
                         </h3>
                         <div className="h-1 w-20 bg-[#F59E0B] rounded-full my-6"></div>
 
@@ -270,6 +287,13 @@ export default function SignupPage() {
                                     <p className="text-xs text-white/60">Built for the chronic illness community.</p>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="mt-8 pt-6 border-t border-white/10 flex items-center gap-2">
+                            <Info className="w-4 h-4 text-amber-400 shrink-0" />
+                            <span className="text-[11px] font-black uppercase tracking-widest text-white/90">
+                                {t('legal.not_medical_product')}
+                            </span>
                         </div>
                     </div>
                 </div>
