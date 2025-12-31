@@ -24,19 +24,16 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
     // Load persisted preference or detect domain
     useEffect(() => {
-        const hostname = window.location.hostname
+        const hostname = window.location.hostname.toLowerCase()
         const saved = localStorage.getItem('track-me-locale') as Locale
 
-        // Priority 1: Smart domain-based defaulting for the first visit or if on .de
-        if (hostname.endsWith('.de')) {
-            // Even if EN was saved (maybe on .com), if they are specifically on .de, 
-            // we should probably default to DE unless they explicitly switched *on this domain*.
-            // For now, let's just force DE if on .de and no explicit overriding signal exists.
-            setLocaleState('de')
-        } else if (saved && (saved === 'en' || saved === 'de')) {
+        // Smart domain-based defaulting
+        const domainDefault: Locale = hostname.endsWith('.de') ? 'de' : 'en'
+
+        if (saved && (saved === 'en' || saved === 'de')) {
             setLocaleState(saved)
         } else {
-            setLocaleState('en')
+            setLocaleState(domainDefault)
         }
         setMounted(true)
     }, [])
