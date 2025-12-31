@@ -28,7 +28,6 @@ export default function SignupPage() {
     const [lastName, setLastName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [stepProvider, setStepProvider] = useState<string>('apple')
     const [agreeTerms, setAgreeTerms] = useState(false)
     const [agreeHealth, setAgreeHealth] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -46,7 +45,6 @@ export default function SignupPage() {
             lastName,
             email,
             password,
-            stepProvider,
             agreeTerms,
             agreeHealth
         })
@@ -68,7 +66,6 @@ export default function SignupPage() {
                 data: {
                     first_name: data.firstName,
                     last_name: data.lastName,
-                    step_provider: data.stepProvider,
                     consent_terms_at: new Date().toISOString(),
                     consent_health_data_at: new Date().toISOString()
                 }
@@ -140,56 +137,6 @@ export default function SignupPage() {
                                 value={password} onChange={e => setPassword(e.target.value)}
                             />
                             <p className="text-[10px] text-muted-foreground">Must be at least 8 characters</p>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <Label htmlFor="stepProvider" className="text-xs font-medium flex items-center gap-1.5">
-                                <Activity className="w-3 h-3 text-blue-500" />
-                                Step Data Source
-                            </Label>
-                            <Select value={stepProvider} onValueChange={setStepProvider}>
-                                <SelectTrigger id="stepProvider" className="bg-muted/30 border-muted-foreground/20 h-10 transition-all focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/20">
-                                    <SelectValue placeholder="Select provider" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-2xl border-muted-foreground/20 shadow-xl overflow-hidden">
-                                    <SelectItem value="apple" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                                                <Watch className="w-3 h-3 text-red-600 dark:text-red-400" />
-                                            </div>
-                                            <span>Apple Health</span>
-                                        </div>
-                                    </SelectItem>
-                                    <SelectItem value="google" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                                <Smartphone className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                                            </div>
-                                            <span>Google Fit (Android)</span>
-                                        </div>
-                                    </SelectItem>
-                                    <SelectItem value="garmin" disabled className="py-2.5 opacity-50 cursor-not-allowed">
-                                        <div className="flex items-center justify-between w-full">
-                                            <span>Garmin (via Connect)</span>
-                                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">Soon</span>
-                                        </div>
-                                    </SelectItem>
-                                    <SelectItem value="samsung" className="py-2.5 focus:bg-blue-50 dark:focus:bg-blue-900/20 transition-colors">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                                                <Smartphone className="w-3 h-3 text-orange-600 dark:text-orange-400" />
-                                            </div>
-                                            <span>Samsung Health</span>
-                                        </div>
-                                    </SelectItem>
-                                    <SelectItem value="whoop" disabled className="py-2.5 opacity-50 cursor-not-allowed">
-                                        <div className="flex items-center justify-between w-full">
-                                            <span>Whoop</span>
-                                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">Soon</span>
-                                        </div>
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
                         </div>
 
                         {/* Legal Selection */}

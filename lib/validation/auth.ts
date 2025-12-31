@@ -10,9 +10,6 @@ export const signupSchema = z.object({
     lastName: z.string().trim().min(1, { message: "Last name is required" }),
     email: z.string().trim().email({ message: "Invalid email address" }),
     password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-    stepProvider: z.enum(['apple', 'google', 'garmin', 'samsung', 'whoop'], {
-        message: "Please select a valid step provider"
-    }),
     agreeTerms: z.boolean().refine(v => v === true, { message: "You must agree to the terms" }),
     agreeHealth: z.boolean().refine(v => v === true, { message: "You must consent to health data processing" }),
 });
