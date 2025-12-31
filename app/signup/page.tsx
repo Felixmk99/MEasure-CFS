@@ -9,13 +9,6 @@ import { Label } from '@/components/ui/label'
 import { ArrowRight, Loader2, Shield, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { useUpload } from '@/components/providers/upload-provider'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Smartphone, Activity, Watch, Info } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useLanguage } from '@/components/providers/language-provider'
