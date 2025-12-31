@@ -167,11 +167,8 @@ export default function SettingsClient({ user }: { user: any }) {
                     </CardContent>
                 </Card>
 
-                {/* Symptom Data Integration Card */}
-                <SymptomProviderCard />
-
-                {/* Step Data Integration Card */}
-                <StepProviderCard />
+                {/* Integrations Card */}
+                <IntegrationsCard />
 
                 {/* Delete Account Card */}
                 <Card className="border-red-200 dark:border-red-900/50 bg-red-50/10 dark:bg-red-900/10">
@@ -230,73 +227,30 @@ export default function SettingsClient({ user }: { user: any }) {
     )
 }
 
-function SymptomProviderCard() {
-    const { profile, updateSymptomProvider } = useUser()
-    const [updating, setUpdating] = useState(false)
+function IntegrationsCard() {
+    const { profile, updateStepProvider, updateSymptomProvider } = useUser()
+    const [updatingSymptom, setUpdatingSymptom] = useState(false)
+    const [updatingStep, setUpdatingStep] = useState(false)
 
-    const handleProviderChange = async (val: string) => {
-        setUpdating(true)
+    const handleSymptomChange = async (val: string) => {
+        setUpdatingSymptom(true)
         try {
             await updateSymptomProvider(val as any)
         } catch (error) {
             console.error(error)
         } finally {
-            setUpdating(false)
+            setUpdatingSymptom(false)
         }
     }
 
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Symptom Tracker Integration</CardTitle>
-                <CardDescription>Choose which app you use to track your daily symptoms.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <Label>Symptom Provider</Label>
-                    <Select
-                        value={profile?.symptom_provider || 'visible'}
-                        onValueChange={handleProviderChange}
-                        disabled={updating}
-                    >
-                        <SelectTrigger className="w-full md:w-[300px]">
-                            <SelectValue placeholder="Select provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="visible">
-                                <span className="flex items-center gap-2">
-                                    <Activity className="w-4 h-4" /> Visible App
-                                </span>
-                            </SelectItem>
-                            <SelectItem value="bearable">
-                                <span className="flex items-center gap-2">
-                                    <ClipboardList className="w-4 h-4" /> Bearable App
-                                </span>
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <p className="text-[10px] text-muted-foreground mt-2">
-                        Changing this switches the uploader in the Data tab.
-                        Your existing data remains safe and will not be overwritten.
-                    </p>
-                </div>
-            </CardContent>
-        </Card>
-    )
-}
-
-function StepProviderCard() {
-    const { profile, updateStepProvider } = useUser()
-    const [updating, setUpdating] = useState(false)
-
-    const handleProviderChange = async (val: string) => {
-        setUpdating(true)
+    const handleStepChange = async (val: string) => {
+        setUpdatingStep(true)
         try {
             await updateStepProvider(val as any)
         } catch (error) {
             console.error(error)
         } finally {
-            setUpdating(false)
+            setUpdatingStep(false)
         }
     }
 
@@ -304,18 +258,50 @@ function StepProviderCard() {
         <Card>
             <CardHeader>
                 <CardTitle>Health Data Integration</CardTitle>
-                <CardDescription>Choose which app provides your daily step data.</CardDescription>
+                <CardDescription>Choose the apps that provide your health and activity data.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+                {/* Symptom Provider Row */}
                 <div className="space-y-2">
-                    <Label>Step Data Provider</Label>
+                    <Label className="text-sm font-medium">Symptom Provider</Label>
+                    <Select
+                        value={profile?.symptom_provider || 'visible'}
+                        onValueChange={handleSymptomChange}
+                        disabled={updatingSymptom}
+                    >
+                        <SelectTrigger className="w-full md:w-[350px]">
+                            <SelectValue placeholder="Select symptom tracker" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="visible">
+                                <span className="flex items-center gap-2">
+                                    <Activity className="w-4 h-4 text-rose-500" /> Visible App
+                                </span>
+                            </SelectItem>
+                            <SelectItem value="bearable">
+                                <span className="flex items-center gap-2">
+                                    <ClipboardList className="w-4 h-4 text-orange-500" /> Bearable App
+                                </span>
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-[10px] text-muted-foreground">
+                        This switches the uploader in the Data tab. Existing data is never overwritten.
+                    </p>
+                </div>
+
+                <div className="h-px bg-zinc-100 dark:bg-zinc-800" />
+
+                {/* Step Provider Row */}
+                <div className="space-y-2">
+                    <Label className="text-sm font-medium">Step Data Provider</Label>
                     <Select
                         value={profile?.step_provider || 'apple'}
-                        onValueChange={handleProviderChange}
-                        disabled={updating}
+                        onValueChange={handleStepChange}
+                        disabled={updatingStep}
                     >
-                        <SelectTrigger className="w-full md:w-[300px]">
-                            <SelectValue placeholder="Select provider" />
+                        <SelectTrigger className="w-full md:w-[350px]">
+                            <SelectValue placeholder="Select step provider" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="apple">
@@ -325,7 +311,7 @@ function StepProviderCard() {
                             </SelectItem>
                             <SelectItem value="google">
                                 <span className="flex items-center gap-2">
-                                    <Activity className="w-4 h-4" /> Google Fit
+                                    <Activity className="w-4 h-4 text-blue-500" /> Google Fit
                                 </span>
                             </SelectItem>
                             <SelectItem value="garmin" disabled>
@@ -333,7 +319,7 @@ function StepProviderCard() {
                             </SelectItem>
                             <SelectItem value="samsung">
                                 <span className="flex items-center gap-2">
-                                    <Smartphone className="w-4 h-4" /> Samsung Health
+                                    <Smartphone className="w-4 h-4 text-indigo-500" /> Samsung Health
                                 </span>
                             </SelectItem>
                             <SelectItem value="whoop" disabled>
@@ -341,9 +327,8 @@ function StepProviderCard() {
                             </SelectItem>
                         </SelectContent>
                     </Select>
-                    <p className="text-[10px] text-muted-foreground mt-2">
-                        Changing this will only affect how the uploader in the Data tab looks and behaves.
-                        Your existing data remains safe.
+                    <p className="text-[10px] text-muted-foreground">
+                        Determines which steps uploader is shown in the Data tab.
                     </p>
                 </div>
             </CardContent>
