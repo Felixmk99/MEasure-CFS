@@ -95,7 +95,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             .upsert({ id: user.id, step_provider: provider })
 
         if (!error) {
-            setProfile(prev => prev ? { ...prev, step_provider: provider } : { id: user.id, step_provider: provider, updated_at: new Date().toISOString() })
+            setProfile(prev => prev
+                ? { ...prev, step_provider: provider }
+                : {
+                    id: user.id,
+                    step_provider: provider,
+                    symptom_provider: 'visible', // Default for new profile
+                    updated_at: new Date().toISOString()
+                }
+            )
         } else {
             throw error
         }
@@ -110,7 +118,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             .upsert({ id: user.id, symptom_provider: provider })
 
         if (!error) {
-            setProfile(prev => prev ? { ...prev, symptom_provider: provider } : { id: user.id, symptom_provider: provider, updated_at: new Date().toISOString() })
+            setProfile(prev => prev
+                ? { ...prev, symptom_provider: provider }
+                : {
+                    id: user.id,
+                    step_provider: 'apple', // Default for new profile
+                    symptom_provider: provider,
+                    updated_at: new Date().toISOString()
+                }
+            )
         } else {
             throw error
         }
