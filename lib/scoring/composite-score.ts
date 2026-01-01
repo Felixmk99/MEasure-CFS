@@ -16,8 +16,8 @@ export type ScorableEntry = {
     step_count?: number | null
     symptom_score?: number | null
     exertion_score?: number | null
-    custom_metrics?: any
-    [key: string]: any
+    custom_metrics?: Record<string, unknown>
+    [key: string]: unknown
 }
 
 export type NormalizationStats = {
@@ -117,7 +117,7 @@ export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedS
 }
 
 // Helpers
-function isNumber(v: any): v is number {
+function isNumber(v: unknown): v is number {
     return typeof v === 'number' && !isNaN(v)
 }
 

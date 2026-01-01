@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /** @jest-environment jsdom */
 import React from 'react';
 import { render, renderHook, act, screen, waitFor } from '@testing-library/react';
@@ -45,9 +46,9 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock FileReader
 class MockFileReader {
-    onload: any;
+    onload: ((event: { target: { result: string | null } }) => void) | null = null;
     result: string = '';
-    readAsText(file: File) {
+    readAsText(_file: File) {
         this.result = 'test content';
         setTimeout(() => {
             if (this.onload) this.onload({ target: { result: this.result } });
@@ -57,8 +58,8 @@ class MockFileReader {
 Object.defineProperty(window, 'FileReader', { value: MockFileReader });
 
 describe('Persistence & Onboarding Logic', () => {
-    let mockRouter: any;
-    let mockUser: any;
+    let mockRouter: { push: jest.Mock; replace: jest.Mock; refresh: jest.Mock };
+    let mockUser: { profile: null; updateSymptomProvider: jest.Mock; updateStepProvider: jest.Mock };
 
     beforeEach(() => {
         jest.clearAllMocks();

@@ -128,8 +128,7 @@ export default function ResetPasswordPage() {
                         <div className="space-y-2">
                             <h3 className="text-xl font-bold">Password updated</h3>
                             <p className="text-sm text-muted-foreground">
-                                Your password has been changed successfully. <br />
-                                You'll be redirected to login in a moment.
+                                You can now log in with your new password. Redirecting to login page...
                             </p>
                         </div>
                         <Button variant="outline" className="w-full rounded-full h-11" asChild>

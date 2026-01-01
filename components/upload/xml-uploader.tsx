@@ -103,7 +103,7 @@ export function XmlUploader() {
                         .in('date', dates)
                         .eq('user_id', user.id)
 
-                    const existingMap = new Map((existingRows || []).map((r: any) => [r.date, r]))
+                    const existingMap = new Map((existingRows || []).map((r: { date: string }) => [r.date, r]))
 
                     // Prepare for Upsert (Merge step_count into existing records)
                     const upsertBatch = batch.map(newRecord => {
@@ -121,7 +121,7 @@ export function XmlUploader() {
                     // Upsert records (preserving symptoms/HRV)
                     const { error } = await supabase
                         .from('health_metrics')
-                        .upsert(upsertBatch as any, {
+                        .upsert(upsertBatch, {
                             onConflict: 'user_id, date'
                         })
 
@@ -144,10 +144,12 @@ export function XmlUploader() {
                     router.push('/dashboard')
                 }, 1500)
 
-            } catch (err: any) {
-                console.error("XML Parse/Upload Error:", JSON.stringify(err, null, 2))
+            } catch (err: unknown) {
+                console.error("XML Upload Error:", err)
                 setStatus('error')
-                setMessage(err.message || "Failed to process XML file.")
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload XML data.'
+                setMessage(msg)
             }
         }
 
@@ -211,6 +213,8 @@ export function XmlUploader() {
                         variant={status === 'success' ? "outline" : "default"}
                         className={`rounded-full px-8 h-12 text-sm font-semibold shadow-lg transition-transform hover:scale-105 ${status === 'success' ? 'border-green-200 text-green-700 hover:text-green-800 hover:bg-green-50' : 'bg-zinc-900 text-white hover:bg-zinc-800'}`}
                         onClick={(e) => {
+                            // For now, assume generic type if needed or 'visible'
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             if (status === 'success' || status === 'error') {
                                 e.stopPropagation();
                                 setStatus('idle');

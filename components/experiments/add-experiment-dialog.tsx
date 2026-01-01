@@ -31,8 +31,8 @@ export function AddExperimentDialog() {
                 user_id: user.id,
                 name,
                 start_date: startDate,
-                category: category as any
-            } as any)
+                category: category as 'medication' | 'supplement' | 'lifestyle' | 'other'
+            })
 
             setOpen(false)
             setName('')

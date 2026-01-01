@@ -31,8 +31,9 @@ export default function TermsPage() {
                         <Scale className="w-6 h-6 text-blue-500" />
                         <h2 className="text-2xl font-bold text-foreground">1. Geltungsbereich</h2>
                     </div>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Track-ME is provided &quot;as is&quot; without warranties of any kind. We do not guarantee that the service will be uninterrupted or error-free.</p>
                     <p className="text-muted-foreground leading-relaxed">
-                        Durch die Nutzung der Web-App "Visible Analytics" erklären Sie sich mit den folgenden Nutzungsbedingungen einverstanden. Die App wird von Felix Kania als kostenloses Tool zur Verfügung gestellt.
+                        Durch die Nutzung der Web-App &quot;Visible Analytics&quot; erklären Sie sich mit den folgenden Nutzungsbedingungen einverstanden. Die App wird von Felix Kania als kostenloses Tool zur Verfügung gestellt.
                     </p>
                 </section>
 
@@ -41,8 +42,9 @@ export default function TermsPage() {
                         <Activity className="w-6 h-6 text-blue-500" />
                         <h2 className="text-2xl font-bold text-foreground">2. Leistungsumfang</h2>
                     </div>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">The Insights feature provides statistical correlations based on your data. These are mathematical observations &quot;as calculated&quot; and do not imply medical causation. Always consult a healthcare professional for medical advice.</p>
                     <p className="text-muted-foreground leading-relaxed">
-                        "Visible Analytics" ermöglicht Nutzern den Upload von Gesundheitsdaten (z.B. aus der Visible App oder Apple Health) zur grafischen Aufarbeitung und statistischen Auswertung persönlicher Trends. Wir übernehmen keine Garantie für die ständige Verfügbarkeit der App oder die Fehlerfreiheit der Berechnungen.
+                        &quot;Visible Analytics&quot; ermöglicht Nutzern den Upload von Gesundheitsdaten (z.B. aus der Visible App oder Apple Health) zur grafischen Aufarbeitung und statistischen Auswertung persönlicher Trends. Wir übernehmen keine Garantie für die ständige Verfügbarkeit der App oder die Fehlerfreiheit der Berechnungen.
                     </p>
                 </section>
 

@@ -2,7 +2,8 @@ import * as ss from 'simple-statistics';
 
 export interface InsightMetric {
     date: string;
-    [key: string]: any;
+    custom_metrics?: Record<string, number>;
+    [key: string]: unknown;
 }
 
 export interface CorrelationResult {
@@ -78,7 +79,7 @@ export function detectThresholds(
 
     metrics.forEach(m => {
         const pairs = data
-            .map(d => ({ x: Number(d[m]), y: Number(d[impactMetric]) }))
+            .map(d => ({ x: Number(d[m] as number), y: Number(d[impactMetric] as number) }))
             .filter(p => !isNaN(p.x) && !isNaN(p.y));
 
         if (pairs.length < 10) return;
@@ -128,7 +129,7 @@ function extractAvailableMetrics(data: InsightMetric[]): string[] {
     const keys = new Set<string>();
     data.forEach(d => {
         Object.keys(d).forEach(k => {
-            if (k !== 'date' && typeof d[k] === 'number') keys.add(k);
+            if (k !== 'date' && k !== 'custom_metrics' && typeof d[k] === 'number') keys.add(k);
         });
         if (d.custom_metrics) {
             Object.keys(d.custom_metrics).forEach(k => {
@@ -156,7 +157,7 @@ function getAlignedPairs(data: InsightMetric[], keyA: string, keyB: string, lag:
 }
 
 function getValue(record: InsightMetric, key: string): number | null {
-    if (record[key] !== undefined && typeof record[key] === 'number' && !isNaN(record[key])) return record[key];
+    if (record[key] !== undefined && typeof record[key] === 'number' && !isNaN(record[key] as number)) return record[key] as number;
     if (record.custom_metrics && record.custom_metrics[key] !== undefined && !isNaN(Number(record.custom_metrics[key]))) return Number(record.custom_metrics[key]);
     return null;
 }

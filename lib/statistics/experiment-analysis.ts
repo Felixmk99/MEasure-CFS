@@ -13,7 +13,8 @@ export interface Experiment {
 
 export interface MetricDay {
     date: string;
-    [key: string]: any;
+    custom_metrics?: Record<string, number> | null;
+    [key: string]: unknown;
 }
 
 export interface ExperimentImpact {
@@ -55,15 +56,18 @@ export function analyzeExperiments(
     history.forEach(day => {
         // 1. Top-level keys
         Object.keys(day).forEach(key => {
-            if (!excludedKeys.includes(key) && typeof day[key] === 'number') {
+            const val = day[key]
+            if (!excludedKeys.includes(key) && typeof val === 'number') {
                 allMetrics.add(key);
             }
         });
 
         // 2. Custom Metrics (Flattening)
-        if (day.custom_metrics && typeof day.custom_metrics === 'object') {
-            Object.keys(day.custom_metrics).forEach(key => {
-                if (!excludedKeys.includes(key) && typeof day.custom_metrics[key] === 'number') {
+        const customMetrics = day.custom_metrics as Record<string, unknown> | null | undefined;
+        if (customMetrics && typeof customMetrics === 'object') {
+            Object.keys(customMetrics).forEach(key => {
+                const val = (customMetrics as Record<string, number>)[key];
+                if (!excludedKeys.includes(key) && typeof val === 'number') {
                     allMetrics.add(key);
                 }
             });
@@ -88,7 +92,7 @@ export function analyzeExperiments(
 
         validDays.forEach(day => {
             // Check top-level, then custom_metrics
-            const val = day[metric] ?? day.custom_metrics?.[metric];
+            const val = (day[metric] as number ?? (day.custom_metrics as Record<string, number>)?.[metric]);
             if (val === null || val === undefined || typeof val !== 'number') return;
 
             y.push(val);

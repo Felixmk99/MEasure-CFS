@@ -18,11 +18,18 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-interface ExperimentListProps {
-    experiments: any[]
+import { Database } from '@/types/database.types'
+
+type ExperimentWithAnalysis = Database['public']['Tables']['experiments']['Row'] & {
+    analysis?: {
+        baselineMean: number;
+        treatmentMean: number;
+        changePercent: number;
+        sampleSizeTreatment: number;
+    }
 }
 
-export function ExperimentList({ experiments }: ExperimentListProps) {
+export function ExperimentList({ experiments, onEdit, onDelete }: { experiments: ExperimentWithAnalysis[], onEdit: (exp: ExperimentWithAnalysis) => void, onDelete: (id: string) => void }) {
     const supabase = createClient()
     const router = useRouter()
     const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -50,7 +57,7 @@ export function ExperimentList({ experiments }: ExperimentListProps) {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Delete Experiment?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This will permanently delete "{exp.name}". This action cannot be undone.
+                                        This will permanently delete &quot;{exp.name}&quot;. This action cannot be undone.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

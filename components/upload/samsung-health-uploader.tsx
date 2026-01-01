@@ -45,8 +45,7 @@ export function SamsungHealthUploader() {
                     .select('date')
                     .eq('user_id', user.id)
 
-                const existingDatesDataTyped = (existingDatesData as { date: string }[] | null) || []
-                const existingDateSet = new Set(existingDatesDataTyped.map(r => r.date))
+                const existingDateSet = new Set((existingDatesData as { date: string }[] || []).map(r => r.date))
 
                 const filteredStepEntries = stepData.filter(entry => existingDateSet.has(entry.date))
                 const totalFiltered = filteredStepEntries.length
@@ -75,7 +74,7 @@ export function SamsungHealthUploader() {
                         .in('date', dates)
                         .eq('user_id', user.id)
 
-                    const existingMap = new Map((existingRows || []).map((r: any) => [r.date, r]))
+                    const existingMap = new Map((existingRows || []).map((r: { date: string }) => [r.date, r]))
 
                     const upsertBatch = batch.map(newRecord => {
                         const existing = existingMap.get(newRecord.date)
@@ -91,7 +90,7 @@ export function SamsungHealthUploader() {
 
                     const { error } = await supabase
                         .from('health_metrics')
-                        .upsert(upsertBatch as any, {
+                        .upsert(upsertBatch, {
                             onConflict: 'user_id, date'
                         })
 
@@ -109,10 +108,14 @@ export function SamsungHealthUploader() {
                     router.push('/dashboard')
                 }, 1500)
 
-            } catch (err: any) {
-                console.error("Samsung Health Error:", err)
+            } catch (err: unknown) {
+                console.error("Samsung Health Upload Error:", err)
                 setStatus('error')
-                setMessage(err.message || "Failed to process Samsung Health file.")
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload.'
+                setMessage(msg)
+            } finally {
+                // Any cleanup or final actions can go here
             }
         }
 

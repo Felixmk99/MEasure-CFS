@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { calculateAdvancedCorrelations, detectThresholds } from '@/lib/stats/insights-logic';
 
 describe('Insights Logic', () => {

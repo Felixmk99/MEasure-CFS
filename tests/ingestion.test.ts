@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { normalizeBearableData } from '../lib/data/bearable-normalizer';
 import { normalizeLongFormatData } from '../lib/data/long-format-normalizer';
 

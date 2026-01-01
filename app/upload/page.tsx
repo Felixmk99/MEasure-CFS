@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import DataManagementClient from "./data-client";
+import { ScorableEntry } from '@/lib/scoring/composite-score';
 
 export default async function DataPage() {
     const supabase = await createClient()
@@ -21,7 +22,7 @@ export default async function DataPage() {
 
     // 2. Fetch Recent Logs (for the table)
     // Only if hasData to save resources
-    let recentLogs: any[] = []
+    let recentLogs: ScorableEntry[] = []
     if (hasData) {
         const { data } = await supabase
             .from('health_metrics')

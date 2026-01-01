@@ -15,15 +15,17 @@ import { Label } from "@/components/ui/label"
 import { format, parseISO } from "date-fns"
 import { calculateExertionScore, calculateSymptomScore } from "@/lib/scoring/logic";
 
+import { ScorableEntry } from '@/lib/scoring/composite-score'
+
 interface EditDataDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    entry: any
-    onSave: (id: string, updatedData: any) => Promise<void>
+    entry: ScorableEntry
+    onSave: (id: string, updatedData: Partial<ScorableEntry>) => Promise<void>
 }
 
 export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDialogProps) {
-    const [formData, setFormData] = useState<any>(null)
+    const [formData, setFormData] = useState<Partial<ScorableEntry> | null>(null)
     const [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
@@ -42,19 +44,23 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
     if (!entry || !formData) return null
 
     const handleBaseChange = (field: string, value: string) => {
-        setFormData((prev: any) => ({
-            ...prev,
-            [field]: value === '' ? null : Number(value)
-        }))
+        setFormData((prev) => {
+            if (!prev) return null
+            return {
+                ...prev,
+                [field]: value === '' ? null : Number(value)
+            }
+        })
     }
 
     const handleCustomChange = (key: string, value: string) => {
         const numVal = value === '' ? null : Number(value)
 
-        setFormData((prev: any) => {
+        setFormData((prev) => {
+            if (!prev) return null
             const newCustom = {
-                ...prev.custom_metrics,
-                [key]: numVal
+                ...(prev.custom_metrics as Record<string, number> || {}),
+                [key]: numVal as number
             }
 
             // Recalculate Scores using Single Source of Truth
@@ -77,9 +83,10 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
         try {
             await onSave(entry.id, formData)
             onOpenChange(false)
-        } catch (error: any) {
+        } catch (error) {
             console.error("Failed to update entry:", error)
-            alert(`Failed to save changes: ${error.message || 'Unknown error'}`)
+            const message = error instanceof Error ? error.message : 'Unknown error'
+            alert(`Failed to save changes: ${message}`)
         } finally {
             setSubmitting(false)
         }
@@ -137,7 +144,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                         </div>
 
                         {/* 2. Exertion */}
-                        {['Cognitive', 'Emotional', 'Physical', 'Social'].some(k => formData.custom_metrics[k] !== undefined) && (
+                        {['Cognitive', 'Emotional', 'Physical', 'Social'].some(k => formData.custom_metrics?.[k] !== undefined) && (
                             <div className="space-y-4 pt-2 border-t border-dashed">
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
@@ -145,7 +152,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     {['Cognitive', 'Emotional', 'Physical', 'Social'].map(key => (
-                                        formData.custom_metrics[key] !== undefined && (
+                                        formData.custom_metrics?.[key] !== undefined && (
                                             <div key={key} className="space-y-2">
                                                 <Label htmlFor={`exertion-${key}`}>{key}</Label>
                                                 <Input
@@ -153,7 +160,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                                     type="number"
                                                     min="0"
                                                     max="4"
-                                                    value={formData.custom_metrics[key] ?? ''}
+                                                    value={(formData.custom_metrics?.[key] as number) ?? ''}
                                                     onChange={(e) => handleCustomChange(key, e.target.value)}
                                                     placeholder="0"
                                                 />
@@ -165,7 +172,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                         )}
 
                         {/* 3. Special Trackers */}
-                        {['Sleep', 'Coffee', 'Crash', 'Stability Score'].some(k => formData.custom_metrics[k] !== undefined) && (
+                        {['Sleep', 'Coffee', 'Crash', 'Stability Score'].some(k => formData.custom_metrics?.[k] !== undefined) && (
                             <div className="space-y-4 pt-2 border-t border-dashed">
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
@@ -173,14 +180,14 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     {['Sleep', 'Coffee', 'Crash', 'Stability Score'].map(key => (
-                                        formData.custom_metrics[key] !== undefined && (
+                                        formData.custom_metrics?.[key] !== undefined && (
                                             <div key={key} className="space-y-2">
                                                 <Label htmlFor={`special-${key}`}>{key}</Label>
                                                 <Input
                                                     id={`special-${key}`}
                                                     type="number"
                                                     step={key === 'Coffee' ? '0.5' : '1'}
-                                                    value={formData.custom_metrics[key] ?? ''}
+                                                    value={(formData.custom_metrics?.[key] as number) ?? ''}
                                                     onChange={(e) => handleCustomChange(key, e.target.value)}
                                                     placeholder="--"
                                                 />
@@ -192,7 +199,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                         )}
 
                         {/* 4. Symptoms (All other custom metrics) */}
-                        {Object.keys(formData.custom_metrics).filter(k =>
+                        {Object.keys(formData.custom_metrics || {}).filter(k =>
                             !['Cognitive', 'Emotional', 'Physical', 'Social', 'Sleep', 'Coffee', 'Crash', 'Stability Score', 'composite_score'].includes(k)
                         ).length > 0 && (
                                 <div className="space-y-4 pt-2 border-t border-dashed">
@@ -201,7 +208,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                         Symptoms
                                     </h4>
                                     <div className="grid grid-cols-2 gap-4">
-                                        {Object.keys(formData.custom_metrics)
+                                        {Object.keys(formData.custom_metrics || {})
                                             .filter(k => !['Cognitive', 'Emotional', 'Physical', 'Social', 'Sleep', 'Coffee', 'Crash', 'Stability Score', 'composite_score'].includes(k))
                                             .map((key) => (
                                                 <div key={key} className="space-y-2">
@@ -211,7 +218,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                                     <Input
                                                         id={`custom-${key}`}
                                                         type="number"
-                                                        value={formData.custom_metrics[key] ?? ''}
+                                                        value={(formData.custom_metrics?.[key] as number) ?? ''}
                                                         onChange={(e) => handleCustomChange(key, e.target.value)}
                                                         placeholder="--"
                                                     />

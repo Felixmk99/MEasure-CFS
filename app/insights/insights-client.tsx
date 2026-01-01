@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { InsightMetric, calculateAdvancedCorrelations, detectThresholds } from '@/lib/stats/insights-logic'
 import { enhanceDataWithScore } from '@/lib/scoring/composite-score'
 import { CorrelationMatrix } from './_components/correlation-matrix'
@@ -10,14 +10,15 @@ import { BrainCircuit, Loader2, Database } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
+const MIN_DAYS_FOR_INSIGHTS = 7
+
 interface InsightsClientProps {
     data: InsightMetric[]
 }
 
 export default function InsightsClient({ data }: InsightsClientProps) {
     const hasData = data && data.length > 0
-    const hasInsufficientData = hasData && data.length < 7
-
+    const hasInsufficientData = hasData && data.length < MIN_DAYS_FOR_INSIGHTS
     // 1. Enhance Data with Composite Score (Client-Side Calc)
     const enhancedData = useMemo(() => {
         if (!data || data.length === 0) return []
@@ -26,10 +27,14 @@ export default function InsightsClient({ data }: InsightsClientProps) {
 
     // 2. Process all-time analysis
     const { correlations, thresholds } = useMemo(() => {
-        if (!enhancedData || enhancedData.length < 5) return { correlations: [], thresholds: [] }
+        if (!enhancedData || enhancedData.length < MIN_DAYS_FOR_INSIGHTS) return { correlations: [], thresholds: [] }
+
+        // 1. Calculate Correlations
+        const corrs = calculateAdvancedCorrelations(enhancedData)
+        const thres = detectThresholds(enhancedData)
         return {
-            correlations: calculateAdvancedCorrelations(enhancedData),
-            thresholds: detectThresholds(enhancedData)
+            correlations: corrs,
+            thresholds: thres
         }
     }, [enhancedData])
 

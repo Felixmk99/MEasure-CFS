@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { middleware } from '../middleware';
 import { GET as authCallback } from '../app/auth/callback/route';
 import { NextResponse, NextRequest } from 'next/server';

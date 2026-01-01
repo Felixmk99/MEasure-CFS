@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,13 +8,13 @@ import { Label } from '@/components/ui/label'
 import { ArrowRight, Loader2, Shield, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { useUpload } from '@/components/providers/upload-provider'
-import { Smartphone, Activity, Watch, Info } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useLanguage } from '@/components/providers/language-provider'
 import { signupSchema } from '@/lib/validation/auth'
 
 export default function SignupPage() {
-    const { t, locale } = useLanguage()
+    const { t } = useLanguage()
     const { pendingUpload } = useUpload()
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
@@ -25,7 +24,6 @@ export default function SignupPage() {
     const [agreeHealth, setAgreeHealth] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const router = useRouter()
     const supabase = createClient()
 
     const handleSignUp = async () => {
@@ -92,6 +90,7 @@ export default function SignupPage() {
                                 clarity journey
                             </span>
                         </h1>
+                        <p className="text-muted-foreground italic mb-4">&quot;{t('auth.login.testimonial.quote')}&quot;</p>
                         <p className="text-muted-foreground text-sm">
                             Create a secure space to analyze your trends.
                         </p>
@@ -205,7 +204,7 @@ export default function SignupPage() {
                             <span className="font-semibold tracking-wide text-sm uppercase">Privacy Guaranteed</span>
                         </div>
                         <h3 className="text-xl font-bold mb-4 leading-relaxed">
-                            "MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
+                            &quot;MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold.&quot;
                         </h3>
                         <div className="h-1 w-20 bg-[#F59E0B] rounded-full my-6"></div>
 

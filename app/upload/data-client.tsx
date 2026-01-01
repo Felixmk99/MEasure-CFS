@@ -33,7 +33,7 @@ interface DataEntry {
     hrv: number | null
     resting_heart_rate: number | null
     symptom_score: number | null
-    custom_metrics: any
+    custom_metrics: Record<string, number> | null
     exertion_score: number | null
     created_at: string
 }
@@ -50,13 +50,18 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     const [editingEntry, setEditingEntry] = useState<DataEntry | null>(null)
 
     useEffect(() => {
-        setMounted(true)
+        setTimeout(() => setMounted(true), 0)
     }, [])
 
     // Sync state with server/prop updates (e.g. after router.refresh())
+    // Sync state with server/prop updates
     useEffect(() => {
-        setDataLog(initialData)
-        setHasData(initialHasData)
+        if (initialData !== dataLog) {
+            setTimeout(() => setDataLog(initialData), 0)
+        }
+        if (initialHasData !== hasData) {
+            setTimeout(() => setHasData(initialHasData), 0)
+        }
     }, [initialData, initialHasData])
 
     const filteredData = useMemo(() => {
@@ -135,8 +140,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         }
     }
 
-    const handleUpdate = async (id: string, updatedData: any) => {
-        const { error } = await (supabase as any)
+    const handleUpdate = async (id: string, updatedData: Partial<ScorableEntry>) => {
+        const { error } = await supabase
             .from('health_metrics')
             .update({
                 hrv: updatedData.hrv,
@@ -145,7 +150,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 exertion_score: updatedData.exertion_score,
                 symptom_score: updatedData.symptom_score,
                 custom_metrics: updatedData.custom_metrics
-            } as any)
+            })
             .eq('id', id)
 
         if (!error) {
@@ -313,8 +318,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.resting_heart_rate ? `${entry.resting_heart_rate} bpm` : '-'}</td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>
                                                     <td className="px-6 py-4 text-muted-foreground">
-                                                        {(entry as any).step_count
-                                                            ? (!mounted ? (entry as any).step_count : (entry as any).step_count.toLocaleString())
+                                                        {entry.step_count
+                                                            ? (!mounted ? entry.step_count : entry.step_count.toLocaleString())
                                                             : '-'}
                                                     </td>
                                                     <td className="px-6 py-4 text-muted-foreground font-medium text-[#F59E0B]">
@@ -366,7 +371,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                         <div className="w-3 h-3 rounded-full bg-sky-500/20 flex items-center justify-center">
                             <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />
                         </div>
-                        Your health data is processed 100% locally in your browser.
+                        Your health data is processed 100&percnt; locally in your browser.
                     </div>
                 )}
 

@@ -78,7 +78,7 @@ export default function PrivacyPage() {
                             <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
                                 <li>Auskunft über Ihre gespeicherten Daten zu erhalten (Art. 15 DSGVO)</li>
                                 <li>Die Berichtigung unrichtiger Daten zu verlangen (Art. 16 DSGVO)</li>
-                                <li>Die Löschung Ihrer Daten zu verlangen ("Recht auf Vergessenwerden", Art. 17 DSGVO)</li>
+                                <li>Die Löschung Ihrer Daten zu verlangen (&quot;Recht auf Vergessenwerden&quot;, Art. 17 DSGVO)</li>
                                 <li>Widerspruch gegen die Verarbeitung einzulegen (Art. 21 DSGVO)</li>
                                 <li>Ihre Einwilligung mit Wirkung für die Zukunft zu widerrufen</li>
                             </ul>

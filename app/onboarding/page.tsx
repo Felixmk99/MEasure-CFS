@@ -118,21 +118,25 @@ export default function OnboardingPage() {
         try {
             await updateSymptomProvider(selectedSymptom)
             await updateStepProvider(selectedStep)
-            // Force a refresh to ensure layout/providers pick up the new selections
+            // Helper to safely access auth error message
+            const getAuthErrorMessage = (err: unknown): string => {
+                if (err instanceof Error) return err.message
+                if (typeof err === 'string') return err
+                return 'Unknown error'
+            } // Force a refresh to ensure layout/providers pick up the new selections
             router.refresh()
             // Using replace to prevent going back to onboarding
             router.replace('/upload')
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
-            setError(err.message || 'Failed to update selection. Please try again.')
-        } finally {
+            setError('Failed to update selection' + ': ' + getAuthErrorMessage(err))
             setLoading(false)
         }
     }
 
     const currentProviders = step === 1 ? SYMPTOM_PROVIDERS : STEP_PROVIDERS
     const selectedId = step === 1 ? selectedSymptom : selectedStep
-    const setSelected = (id: any) => step === 1 ? setSelectedSymptom(id) : setSelectedStep(id)
+    const setSelected = (id: string) => step === 1 ? setSelectedSymptom(id) : setSelectedStep(id)
 
     return (
         <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-950">
@@ -162,7 +166,7 @@ export default function OnboardingPage() {
                     {currentProviders.map((provider) => {
                         const Icon = provider.icon
                         const isSelected = selectedId === provider.id
-                        const isComingSoon = (provider as any).description.includes('Coming Soon')
+                        const isComingSoon = provider.description.includes('Coming Soon')
 
                         return (
                             <button

@@ -32,11 +32,11 @@ export function LanguageProvider({ children, initialLocale }: LanguageProviderPr
         const domainDefault: Locale = hostname.endsWith('.de') ? 'de' : 'en'
 
         if (saved && (saved === 'en' || saved === 'de')) {
-            setLocaleState(saved)
+            setTimeout(() => setLocaleState(saved), 0)
         } else {
-            setLocaleState(domainDefault)
+            setTimeout(() => setLocaleState(domainDefault), 0)
         }
-        setMounted(true)
+        setTimeout(() => setMounted(true), 0)
     }, [])
 
     const setLocale = (newLocale: Locale) => {
@@ -48,13 +48,13 @@ export function LanguageProvider({ children, initialLocale }: LanguageProviderPr
 
     const t = (path: string): string => {
         const keys = path.split('.')
-        let current: any = dictionary
+        let current: unknown = dictionary
         for (const key of keys) {
-            if (current[key] === undefined) {
+            if (typeof current !== 'object' || current === null || (current as Record<string, unknown>)[key] === undefined) {
                 console.warn(`Translation missing for key: ${path}`)
                 return path
             }
-            current = current[key]
+            current = (current as Record<string, unknown>)[key]
         }
         return current as string
     }

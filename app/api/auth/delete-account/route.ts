@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function DELETE(_request: Request) {
     try {
         const supabase = await createClient()

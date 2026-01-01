@@ -47,6 +47,7 @@ export function BearableUploader() {
                         throw new Error('You must be logged in to upload data.')
                     }
 
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
                     const records = normalizeBearableData(validRows)
 
@@ -75,6 +76,7 @@ export function BearableUploader() {
                         .select('date')
                         .eq('user_id', user.id)
 
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const existingDateSet = new Set((existingDatesData as any[] || []).map(r => r.date))
 
                     // 2. Filter for brand-new days only
@@ -94,10 +96,12 @@ export function BearableUploader() {
 
                         const { error } = await supabase
                             .from('health_metrics')
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             .insert(batch as any)
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const errorMsg = error.message || (error as any).details || JSON.stringify(error)
                             throw new Error(`DB Error: ${errorMsg}`)
                         }
@@ -113,10 +117,11 @@ export function BearableUploader() {
                         router.push('/dashboard')
                     }, 1500)
 
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error("Bearable Upload Error:", err)
                     setStatus('error')
-                    const msg = err.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload Bearable data.'
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload Bearable data.'
                     setMessage(msg)
                 } finally {
                     setUploading(false)
@@ -133,6 +138,7 @@ export function BearableUploader() {
         // We reuse the 'visible' type for the hook if needed, or we could add 'bearable'
         // For now, if the user starts an upload from the generic dropzone on landing, 
         // they might have 'visible' type. 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (pendingUpload && (pendingUpload.type === 'visible' || pendingUpload.type === 'bearable' as any)) {
             const file = pendingUpload.file
             clearPendingUpload()
@@ -196,7 +202,7 @@ export function BearableUploader() {
                                     "Drop your Bearable CSV file here to import your health data."}
                     </p>
                     {status === 'idle' && (
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your "Bearable" .csv file</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your &quot;Bearable&quot; .csv file</p>
                     )}
                 </div>
 

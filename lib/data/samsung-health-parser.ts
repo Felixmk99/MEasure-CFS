@@ -26,7 +26,7 @@ export async function parseSamsungHealthCsv(csvContent: string): Promise<ParsedS
                 // If there's garbage rows before the actual data, we might need to skip them.
                 // Usually Samsung CSVs start with a row of metadata (device info) or just headers.
 
-                results.data.forEach((row: any) => {
+                results.data.forEach((row: Record<string, unknown>) => {
                     // Extract fields
                     const startTime = row['start_time']
                     const count = row['count']
@@ -64,7 +64,7 @@ export async function parseSamsungHealthCsv(csvContent: string): Promise<ParsedS
 
                 resolve(data)
             },
-            error: (error: any) => {
+            error: (error: Error) => {
                 reject(error)
             }
         })

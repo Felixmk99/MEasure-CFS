@@ -20,6 +20,28 @@ import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/expe
 import { ExperimentImpactResults, getFriendlyName } from "@/components/experiments/experiment-impact"
 import { useLanguage } from "@/components/providers/language-provider"
 
+// Form State logic moved outside component
+type ExperimentCategory = 'lifestyle' | 'medication' | 'supplement' | 'other'
+
+interface ExperimentFormData {
+    name: string
+    dosage: string
+    category: ExperimentCategory
+    start_date: string
+    end_date: string
+}
+
+const initialFormState: ExperimentFormData = {
+    name: '',
+    dosage: '',
+    category: 'lifestyle',
+    start_date: format(new Date(), 'yyyy-MM-dd'),
+    end_date: ''
+}
+
+const isValidCategory = (cat: string): cat is ExperimentCategory =>
+    ['lifestyle', 'medication', 'supplement', 'other'].includes(cat)
+
 export default function ExperimentsClient({ initialExperiments, history }: { initialExperiments: Experiment[], history: MetricDay[] }) {
     const { t } = useLanguage()
     const [experiments, setExperiments] = useState<Experiment[]>(initialExperiments)
@@ -29,29 +51,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
     const supabase = createClient()
     const router = useRouter()
 
-    // Form State
-    type ExperimentCategory = 'lifestyle' | 'medication' | 'supplement' | 'other'
-
-    interface ExperimentFormData {
-        name: string
-        dosage: string
-        category: ExperimentCategory
-        start_date: string
-        end_date: string
-    }
-
-    const initialFormState: ExperimentFormData = {
-        name: '',
-        dosage: '',
-        category: 'lifestyle',
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: ''
-    }
-
     const [formData, setFormData] = useState<ExperimentFormData>(initialFormState)
-
-    const isValidCategory = (cat: string): cat is ExperimentCategory =>
-        ['lifestyle', 'medication', 'supplement', 'other'].includes(cat)
 
     // Enhance history with Centralized Composite Score
     const enhancedHistory = useMemo(() => {
@@ -123,8 +123,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                     category: formData.category,
                     start_date: formData.start_date,
                     end_date: formData.end_date || null
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any).eq('id', editingExp.id).select().single()
+                }).eq('id', editingExp.id).select().single()
 
                 if (error) throw error
                 if (data) setExperiments(experiments.map(e => e.id === data.id ? (data as Experiment) : e))
@@ -137,15 +136,13 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                     category: formData.category,
                     start_date: formData.start_date,
                     end_date: formData.end_date || null
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any).select().single()
+                }).select().single()
 
                 if (error) throw error
                 if (data) setExperiments([data as Experiment, ...experiments])
             }
 
             setIsDialogOpen(false)
-            setEditingExp(null)
             setEditingExp(null)
             setFormData(initialFormState)
             router.refresh()

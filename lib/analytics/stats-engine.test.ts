@@ -1,4 +1,6 @@
 import { analyzeExperiment } from './stats-engine'
+import { ScorableEntry } from '@/lib/scoring/composite-score'
+import { Experiment } from '@/lib/statistics/experiment-analysis'
 
 
 // Mock dependencies if needed, but here we integration test with the pure function logic
@@ -32,10 +34,13 @@ describe('analyzeExperiment', () => {
         // Treatment: 30 days of good health (HRV 100 ~ Score 100)
         const treatment = generateMetrics(30, '2023-01-31', 100)
 
-        const allMetrics: any[] = [...baseline, ...treatment]
+        const allMetrics: ScorableEntry[] = [...baseline, ...treatment]
 
-        const experiment: any = {
+        const experiment: Experiment = {
             id: 'exp1',
+            name: 'Test Exp',
+            dosage: '10mg',
+            category: 'medication',
             start_date: '2023-01-31',
             end_date: '2023-03-02'
         }
@@ -43,19 +48,21 @@ describe('analyzeExperiment', () => {
         const result = analyzeExperiment(experiment, allMetrics)
 
         expect(result).not.toBeNull()
-        expect(result?.baselineMean).toBeLessThan(result?.treatmentMean!)
-        expect(result?.isSignificant).toBe(true)
-        expect(result?.changePercent).toBeGreaterThan(0)
+        if (result) {
+            expect(result.baselineMean).toBeLessThan(result.treatmentMean)
+            expect(result.isSignificant).toBe(true)
+            expect(result.changePercent).toBeGreaterThan(0)
+        }
     })
 
     it('should return null if insufficient data', () => {
         const metrics = generateMetrics(2, '2023-01-01', 50)
-        const experiment: any = {
+        const experiment: Partial<Experiment> = {
             start_date: '2023-01-02',
             end_date: '2023-01-05'
         }
 
         // Not enough baseline days
-        expect(analyzeExperiment(experiment, metrics)).toBeNull()
+        expect(analyzeExperiment(experiment as Experiment, metrics)).toBeNull()
     })
 })

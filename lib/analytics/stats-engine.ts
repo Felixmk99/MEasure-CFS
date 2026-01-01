@@ -1,7 +1,7 @@
 import * as ss from 'simple-statistics'
 import { isBefore, isAfter, isWithinInterval, subDays, parseISO } from 'date-fns'
 import { Database } from '@/types/database.types'
-import { enhanceDataWithScore } from '@/lib/scoring/composite-score'
+import { enhanceDataWithScore, ScorableEntry } from '@/lib/scoring/composite-score'
 
 type Experiment = Database['public']['Tables']['experiments']['Row']
 type Metric = Database['public']['Tables']['health_metrics']['Row']
@@ -25,10 +25,8 @@ export function analyzeExperiment(experiment: Experiment, metrics: Metric[]): Ex
     const startDate = parseISO(experiment.start_date)
     const endDate = experiment.end_date ? parseISO(experiment.end_date) : new Date()
 
-    // 1. Score ALL metrics first to ensure consistent normalization across the dataset
-    // We cast to any because enhanceDataWithScore expects ScorableEntry but Metric is Database Row
-    // They are compatible enough for this purpose (date, hrv, etc.)
-    const scoredMetrics = enhanceDataWithScore(metrics as any)
+    // We cast strictly to ScorableEntry[] to satisfy the scoring logic
+    const scoredMetrics = enhanceDataWithScore(metrics as unknown as ScorableEntry[])
 
     // Define Baseline Period: Look back same duration as the treatment duration
     // e.g. If treatment is 30 days, look at 30 days before start.

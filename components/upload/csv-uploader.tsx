@@ -47,6 +47,7 @@ export function CsvUploader() {
                         throw new Error('You must be logged in to upload data.')
                     }
 
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
                     const records = normalizeLongFormatData(validRows)
 
@@ -79,6 +80,7 @@ export function CsvUploader() {
                         .select('date')
                         .eq('user_id', user.id)
 
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const existingDateSet = new Set((existingDatesData as any[] || []).map(r => r.date))
 
                     // 2. Filter for brand-new days only
@@ -98,11 +100,11 @@ export function CsvUploader() {
 
                         const { error } = await supabase
                             .from('health_metrics')
-                            .insert(batch as any)
+                            .insert(batch)
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
-                            const errorMsg = error.message || (error as any).details || JSON.stringify(error)
+                            const errorMsg = error.message || (error as { details?: string }).details || JSON.stringify(error)
                             throw new Error(`DB Error: ${errorMsg}`)
                         }
 
@@ -117,10 +119,11 @@ export function CsvUploader() {
                         router.push('/dashboard')
                     }, 1500)
 
-                } catch (err: any) {
-                    console.error("Upload Error:", err)
+                } catch (err: unknown) {
+                    console.error("CSV Upload Error:", err)
                     setStatus('error')
-                    const msg = err.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload data.'
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload CSV data.'
                     setMessage(msg)
                 } finally {
                     setUploading(false)
@@ -197,7 +200,7 @@ export function CsvUploader() {
                                     t('upload.dropzone.idle')}
                     </p>
                     {status === 'idle' && (
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your "Visible" .csv file</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your &quot;Visible&quot; .csv file</p>
                     )}
                 </div>
 

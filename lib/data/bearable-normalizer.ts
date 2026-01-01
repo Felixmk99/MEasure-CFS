@@ -1,11 +1,27 @@
 import { calculateSymptomScore, calculateExertionScore } from "@/lib/scoring/logic";
 
+interface BearableRow {
+    'date formatted': string;
+    category: string;
+    'rating/amount'?: string;
+    detail?: string;
+}
+
+interface DailyRecord {
+    date: string;
+    custom_metrics: Record<string, number>;
+    _has_trackers: boolean;
+    step_count?: number;
+    symptom_score?: number;
+    exertion_score?: number;
+}
+
 /**
  * Normalizes Bearable "Long Format" CSV data.
  * Columns: date, date formatted, weekday, time of day, category, rating/amount, detail, notes
  */
-export function normalizeBearableData(rows: any[]) {
-    const dailyRecords: Record<string, any> = {};
+export function normalizeBearableData(rows: BearableRow[]) {
+    const dailyRecords: Record<string, DailyRecord> = {};
 
     const levelMap: Record<string, number> = {
         'none': 0,
@@ -14,7 +30,7 @@ export function normalizeBearableData(rows: any[]) {
         'a lot': 3
     };
 
-    rows.forEach((row: any) => {
+    rows.forEach((row) => {
         const date = row['date formatted'];
         const category = row['category'];
         const ratingStr = row['rating/amount'] || '';
@@ -128,7 +144,7 @@ export function normalizeBearableData(rows: any[]) {
     });
 
     // Final pass: Collapse dailyRecords into array and calculate scores
-    return Object.values(dailyRecords).map((record: any) => {
+    return Object.values(dailyRecords).map((record) => {
         if (record._has_trackers) {
             record.symptom_score = calculateSymptomScore(record.custom_metrics);
             record.exertion_score = calculateExertionScore(record.custom_metrics);

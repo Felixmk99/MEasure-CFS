@@ -20,9 +20,9 @@ export async function parseGoogleFitCsv(csvContent: string): Promise<ParsedStepD
             complete: (results) => {
                 const dailyAggregation: Record<string, number> = {}
 
-                results.data.forEach((row: any) => {
+                results.data.forEach((row: Record<string, unknown>) => {
                     // Normalize headers (Google Fit headers can have many variations)
-                    const normalizedRow: Record<string, any> = {}
+                    const normalizedRow: Record<string, unknown> = {}
                     Object.keys(row).forEach(key => {
                         normalizedRow[key.toLowerCase().replace(/[\s_-]/g, '')] = row[key]
                     })
@@ -69,7 +69,7 @@ export async function parseGoogleFitCsv(csvContent: string): Promise<ParsedStepD
 
                 resolve(data)
             },
-            error: (error: any) => {
+            error: (error: Error) => {
                 reject(error)
             }
         })

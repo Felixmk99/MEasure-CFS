@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Activity, Footprints } from "lucide-react"
+import { Footprints } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
@@ -29,7 +29,7 @@ import {
 
 export default function Navbar() {
     const supabase = useMemo(() => createClient(), [])
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<User | null>(null)
     const [hasData, setHasData] = useState<boolean>(false)
     const [hasMissingSteps, setHasMissingSteps] = useState<boolean>(false)
     const [mounted, setMounted] = useState(false)

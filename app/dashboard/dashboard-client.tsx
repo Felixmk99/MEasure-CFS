@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
     ResponsiveContainer,
@@ -45,7 +45,7 @@ interface MetricConfig {
 }
 
 interface DashboardReviewProps {
-    data: ({ date: string, custom_metrics?: Record<string, any> } & Record<string, unknown>)[]
+    data: ({ date: string, custom_metrics?: Record<string, unknown> } & Record<string, unknown>)[]
 }
 
 
@@ -127,7 +127,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 return itemDate >= s && (timeRange === 'custom' ? itemDate <= e : true)
             })
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    }, [enhancedInitialData, visibleRange, timeRange, dateRange])
+    }, [enhancedInitialData, visibleRange, timeRange])
 
     // -- 2a. Extract Dynamic Metrics --
     const availableMetrics = useMemo(() => {
@@ -159,7 +159,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     }, [processedData, hasVisibleData])
 
     // -- 2b. Helper to get Config for ANY metric --
-    const getMetricConfig = (key: string): MetricConfig => {
+    const getMetricConfig = useCallback((key: string): MetricConfig => {
         const registry = getMetricRegistryConfig(key);
         const invert = registry.direction === 'lower';
 
@@ -217,7 +217,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         }
 
         return config;
-    }
+    }, [t])
 
     // -- 1b. Enhanced Chart Data (Trend Line) --
     // Only calculate trend for the PRIMARY metric to avoid clutter
@@ -234,7 +234,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         // Helper to retrieve value safely (including computed fields like adjusted_score)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const getValue = (d: any, key: string) => {
+        // Helper to retrieve value safely (including computed fields like adjusted_score)
+        const getValue = (d: Record<string, unknown>, key: string) => {
             // Check top-level (like adjusted_score, step_count)
             if (d[key] !== undefined) return d[key]
             // Check custom_metrics (like composite_score)
@@ -353,7 +354,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
             // 1. Current Period Data
             const currentValues = processedData
-                .map(d => d[metric])
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                .map(d => (d as Record<string, number>)[metric])
                 .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
             const currentAvg = currentValues.length > 0 ? currentValues.reduce((a, b) => a + b, 0) / currentValues.length : 0
@@ -382,7 +384,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             })
 
             const prevValues = prevData
-                .map(d => d[metric])
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                .map(d => (d as Record<string, number>)[metric])
                 .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
             // 3. Calculate "Period Change" (Linear Regression on Current Data)
@@ -882,7 +885,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 const episodes: { start: string, end: string }[] = []
                                 let currentEpisode: { start: string, end: string } | null = null
 
-                                chartData.forEach((d: any, i) => {
+                                chartData.forEach((d, i) => {
                                     const isCrash = d.custom_metrics?.Crash == 1 || d.custom_metrics?.crash == 1
                                     if (isCrash) {
                                         if (!currentEpisode) currentEpisode = { start: d.date, end: d.date }

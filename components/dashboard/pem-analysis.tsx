@@ -3,15 +3,17 @@
 import React, { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowUp, ArrowDown, Activity, Footprints, Heart, AlertCircle, Info, TrendingUp, Target, Settings2 } from "lucide-react"
-import { parseISO, subDays, addDays, isSameDay, isWithinInterval, startOfDay, endOfDay } from "date-fns"
+import { ArrowUp, ArrowDown, Activity, Footprints, Heart, Info, TrendingUp, Target } from "lucide-react"
+import { parseISO, startOfDay, endOfDay } from "date-fns"
 import { useLanguage } from '@/components/providers/language-provider'
 import { calculateBaselineStats, extractEpochs, calculateZScores, aggregateEpochs, analyzePreCrashPhase, analyzeRecoveryPhase, analyzeCrashPhase } from "@/lib/statistics/pem-cycle"
 import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
+import { ScorableEntry } from '@/lib/scoring/composite-score'
+
 interface PEMAnalysisProps {
-    data: any[]
+    data: ScorableEntry[]
     filterRange?: { start: Date, end: Date } | null
 }
 
@@ -19,13 +21,24 @@ interface CycleAnalysisResult {
     noCrashes: boolean
     filterApplied: boolean
     episodeCount?: number
-    phase1?: any
-    phase2?: any
-    phase3?: any
+    phase1?: ReturnType<typeof analyzePreCrashPhase>
+    phase2?: ReturnType<typeof analyzeCrashPhase>
+    phase3?: ReturnType<typeof analyzeRecoveryPhase>
+}
+
+interface Discovery {
+    metric: string;
+    type: 'spike' | 'drop';
+    magnitude: number;
+    pctChange: number;
+    leadDaysStart?: number;
+    leadDaysEnd?: number;
+    isAcute?: boolean;
+    classification?: string;
+    isSynergy?: boolean;
 }
 
 export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
-    const { t } = useLanguage()
 
     const analysis: CycleAnalysisResult | null = useMemo(() => {
         if (!data || data.length < 10) return null
@@ -189,7 +202,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                         <div className="space-y-4">
                             {analysis.phase1?.discoveries && analysis.phase1.discoveries.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {analysis.phase1.discoveries.map((d: any) => (
+                                    {analysis.phase1.discoveries.map((d: Discovery) => (
                                         <div
                                             key={d.metric}
                                             className={cn(
@@ -288,7 +301,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                         No clear trigger pattern
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        No acute statistical spikes found in your metrics during the 7-day buildup. Your crashes may be caused by a "slow burn" of cumulative baseline energy expenditure.
+                                        No acute statistical spikes found in your metrics during the 7-day buildup. Your crashes may be caused by a &quot;slow burn&quot; of cumulative baseline energy expenditure.
                                     </p>
                                 </div>
                             )}
@@ -345,7 +358,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                 </TooltipTrigger>
                                                 <TooltipContent className="max-w-[250px] text-[11px]">
                                                     <p className="font-bold mb-1">Biological Stress Duration</p>
-                                                    <p>Measures how long your body stays in a "Strained" state (Low HRV, High Heart Rate, or High Symptoms). Temporary "good" shifts in biomarkers are ignored to ensure accuracy.</p>
+                                                    <p>Measures how long your body stays in a &quot;Strained&quot; state (Low HRV, High Heart Rate, or High Symptoms). Temporary &quot;good&quot; shifts in biomarkers are ignored to ensure accuracy.</p>
                                                 </TooltipContent>
                                             </InfoTooltip>
                                         </TooltipProvider>
@@ -369,7 +382,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {analysis.phase2?.discoveries?.map((d: any) => (
+                                {analysis.phase2?.discoveries?.map((d: Discovery) => (
                                     <div
                                         key={d.metric}
                                         className={cn(
@@ -457,7 +470,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                 </TooltipTrigger>
                                                 <TooltipContent className="max-w-[250px] text-[11px]">
                                                     <p className="font-bold mb-1">Biological Lag (Hysteresis)</p>
-                                                    <p>Measures how long your biomarkers (HRV, RHR) take to return to baseline <strong>after</strong> you stopped feeling the acute effects of the crash. This is the "hangover" your body is still processing.</p>
+                                                    <p>Measures how long your biomarkers (HRV, RHR) take to return to baseline <strong>after</strong> you stopped feeling the acute effects of the crash. This is the &quot;hangover&quot; your body is still processing.</p>
                                                 </TooltipContent>
                                             </InfoTooltip>
                                         </TooltipProvider>

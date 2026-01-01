@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports */
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 
@@ -21,7 +22,7 @@ async function checkConnection() {
     try {
         // 1. Check if we can reach the server (Auth check)
         // We try to sign in anonymously or just fetch session (which will be null but shouldn't throw network error)
-        const { data: authData, error: authError } = await supabase.auth.getSession();
+        const { error: authError } = await supabase.auth.getSession();
 
         if (authError) {
             console.error('❌ Auth Service Unreachable:', authError.message);
@@ -32,7 +33,7 @@ async function checkConnection() {
         // 2. Check Database Table access
         // We try to select 0 rows just to see if the table exists and we have permission
         // Note: If RLS is on and we are anon, we might get 0 rows back (success) or an error if table doesn't exist.
-        const { data, error, count } = await supabase
+        const { error, count } = await supabase
             .from('health_metrics')
             .select('*', { count: 'exact', head: true });
 

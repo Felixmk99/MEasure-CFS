@@ -29,8 +29,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
-            const { data, error } = await (supabase
-                .from('profiles') as any)
+            const { data, error } = await supabase
+                .from('profiles')
                 .select('*')
                 .eq('id', user.id)
                 .single()
@@ -42,7 +42,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 // Auto-create an empty profile so they trigger the onboarding redirect.
                 const { data: newProfile, error: createError } = await supabase
                     .from('profiles')
-                    .insert({ id: user.id } as any)
+                    .insert({ id: user.id })
                     .select()
                     .single()
 
@@ -60,7 +60,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
 
     useEffect(() => {
-        fetchProfile()
+        setTimeout(() => fetchProfile(), 0)
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
             if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
@@ -90,8 +90,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
-        const { error } = await (supabase
-            .from('profiles') as any)
+        const { error } = await supabase
+            .from('profiles')
             .upsert({ id: user.id, step_provider: provider })
 
         if (!error) {
@@ -113,8 +113,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
-        const { error } = await (supabase
-            .from('profiles') as any)
+        const { error } = await supabase
+            .from('profiles')
             .upsert({ id: user.id, symptom_provider: provider })
 
         if (!error) {

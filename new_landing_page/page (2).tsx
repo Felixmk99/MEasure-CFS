@@ -128,11 +128,10 @@ export default function LandingPage() {
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              className={`relative rounded-2xl border-2 border-dashed transition-all duration-300 ${
-                isDragging
-                  ? "border-[#60A5FA] border-solid bg-slate-50 scale-[1.02] shadow-2xl shadow-[#60A5FA]/30 animate-pulse"
-                  : "border-[#60A5FA]/60 bg-slate-50"
-              } backdrop-blur-xl`}
+              className={`relative rounded-2xl border-2 border-dashed transition-all duration-300 ${isDragging
+                ? "border-[#60A5FA] border-solid bg-slate-50 scale-[1.02] shadow-2xl shadow-[#60A5FA]/30 animate-pulse"
+                : "border-[#60A5FA]/60 bg-slate-50"
+                } backdrop-blur-xl`}
               style={{
                 boxShadow: isDragging
                   ? "0 0 0 1px rgba(96, 165, 250, 0.5) inset, 0 20px 50px -12px rgba(96, 165, 250, 0.4)"
@@ -145,9 +144,8 @@ export default function LandingPage() {
             >
               <div className="p-12 sm:p-16 text-center">
                 <div
-                  className={`mb-6 inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#60A5FA]/30 to-[#38BDF8]/20 border border-[#60A5FA]/60 shadow-lg transition-all duration-300 ${
-                    isDragging ? "scale-110 shadow-[#60A5FA]/50" : ""
-                  }`}
+                  className={`mb-6 inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#60A5FA]/30 to-[#38BDF8]/20 border border-[#60A5FA]/60 shadow-lg transition-all duration-300 ${isDragging ? "scale-110 shadow-[#60A5FA]/50" : ""
+                    }`}
                 >
                   <Upload className="h-10 w-10 text-[#3B82F6]" />
                 </div>
@@ -286,7 +284,7 @@ export default function LandingPage() {
                   </div>
                   <h3 className="text-xl font-semibold mb-3 text-[#1E293B] tracking-tight">Medication Tracking</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Multivariate regression isolates each treatment's impact. Know exactly what's working with
+                    Multivariate regression isolates each treatment&apos;s impact. Know exactly what&apos;s working with
                     statistical confidence.
                   </p>
                 </div>
@@ -320,7 +318,7 @@ export default function LandingPage() {
                   </div>
                   <h3 className="text-xl font-semibold mb-3 text-[#1E293B] tracking-tight">Recovery Insights</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Detect the hysteresis gap—when you feel okay but your biology isn't ready. Prevent relapses with
+                    Detect the hysteresis gap—when you feel okay but your biology isn&apos;t ready. Prevent relapses with
                     predictive agency.
                   </p>
                 </div>
@@ -528,7 +526,7 @@ export default function LandingPage() {
                     </h3>
                     <p className="text-muted-foreground leading-relaxed text-lg">
                       Receive actionable recommendations before crashes hit. Track treatment efficacy and understand
-                      your body's early warning signals.
+                      your body&apos;s early warning signals.
                     </p>
                   </div>
                 </div>

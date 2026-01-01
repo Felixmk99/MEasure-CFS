@@ -2,7 +2,7 @@ import { analyzeExperiments, Experiment, MetricDay } from './experiment-analysis
 import { parseISO } from 'date-fns'
 
 describe('analyzeExperiments (Multivariate OLS)', () => {
-    const generateHistory = (count: number, startDay: string, config: (i: number) => any): MetricDay[] => {
+    const generateHistory = (count: number, startDay: string, config: (i: number) => Record<string, unknown>): MetricDay[] => {
         const msPerDay = 86400000
         const start = new Date(startDay).getTime()
 
