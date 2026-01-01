@@ -2,11 +2,11 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface PendingUpload {
     file: File;
-    type: 'visible' | 'apple';
+    type: 'visible' | 'bearable' | 'apple';
 }
 
 interface UploadContextType {
@@ -22,16 +22,53 @@ export function UploadProvider({ children }: { children: React.ReactNode }) {
     const supabase = React.useMemo(() => createClient(), [])
     const router = useRouter()
 
+    // Restore from localStorage on mount
+    useEffect(() => {
+        const stored = localStorage.getItem('pending_upload')
+        if (stored) {
+            try {
+                const { name, content, type } = JSON.parse(stored)
+                if (name && content && type) {
+                    const file = new File([content], name, { type: 'text/csv' })
+                    setPendingUploadState({ file, type })
+                }
+            } catch (e) {
+                console.error("Failed to restore pending upload", e)
+                localStorage.removeItem('pending_upload')
+            }
+        }
+    }, [])
+
     const setPendingUpload = useCallback((upload: PendingUpload | null) => {
         setPendingUploadState(upload)
+        if (upload) {
+            // Read file content to store in localStorage
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                const content = e.target?.result
+                if (typeof content === 'string') {
+                    localStorage.setItem('pending_upload', JSON.stringify({
+                        name: upload.file.name,
+                        type: upload.type,
+                        content: content
+                    }))
+                }
+            }
+            reader.readAsText(upload.file)
+        } else {
+            localStorage.removeItem('pending_upload')
+        }
     }, [])
 
     const clearPendingUpload = useCallback(() => {
         setPendingUploadState(null)
+        localStorage.removeItem('pending_upload')
     }, [])
 
+    const pathname = usePathname()
+
     useEffect(() => {
-        if (pendingUpload) {
+        if (pendingUpload && pathname !== '/onboarding') {
             const checkAuth = async () => {
                 const { data: { user } } = await supabase.auth.getUser()
                 if (user) {
@@ -40,16 +77,15 @@ export function UploadProvider({ children }: { children: React.ReactNode }) {
             }
             checkAuth()
 
-            // Also listen for auth state changes (e.g. after login/signup)
-            const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-                if (session?.user) {
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+                if (session?.user && pathname !== '/onboarding') {
                     router.push('/upload')
                 }
             })
 
             return () => subscription.unsubscribe()
         }
-    }, [pendingUpload, supabase, router])
+    }, [pendingUpload, supabase, router, pathname])
 
     return (
         <UploadContext.Provider value={{ pendingUpload, setPendingUpload, clearPendingUpload }}>

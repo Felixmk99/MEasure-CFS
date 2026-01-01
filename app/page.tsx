@@ -33,7 +33,9 @@ export default function LandingPage() {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      setPendingUpload({ file: acceptedFiles[0], type: 'visible' })
+      const file = acceptedFiles[0]
+      const isBearable = file.name.toLowerCase().includes('bearable')
+      setPendingUpload({ file, type: isBearable ? 'bearable' : 'visible' })
 
       const checkSession = async () => {
         const supabase = createClient()
@@ -124,7 +126,7 @@ export default function LandingPage() {
                 >
                   <Upload className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-3 text-slate-900 tracking-tight">{t('landing.hero.drop_title')}</h3>
+                <h3 className="text-2xl font-semibold mb-3 text-slate-900 tracking-tight">{t('landing.hero.drop_title_generic') || "Drop App export to begin"}</h3>
                 <p className="text-slate-600 mb-6 max-w-md mx-auto leading-relaxed">
                   {t('landing.hero.drop_desc')}
                 </p>

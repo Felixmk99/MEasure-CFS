@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/user-provider'
+import { useUpload } from '@/components/providers/upload-provider'
 import { Button } from '@/components/ui/button'
 import { Smartphone, Activity, Laptop, Watch, Heart, FileText, ClipboardList } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -76,7 +77,15 @@ export default function OnboardingPage() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const { updateStepProvider, updateSymptomProvider } = useUser()
+    const { pendingUpload } = useUpload()
     const router = useRouter()
+
+    useEffect(() => {
+        if (pendingUpload && (pendingUpload.type === 'visible' || pendingUpload.type === 'bearable')) {
+            setSelectedSymptom(pendingUpload.type)
+            setStep(2)
+        }
+    }, [pendingUpload])
 
     const handleContinue = async () => {
         if (step === 1) {

@@ -48,6 +48,7 @@ export interface Dictionary {
             transform_title: string
             predictive_insights: string
             drop_title: string
+            drop_title_generic: string
             drop_desc: string
             create_account_hint: string
         }
