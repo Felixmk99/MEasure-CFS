@@ -76,16 +76,36 @@ export default function OnboardingPage() {
     const [selectedStep, setSelectedStep] = useState<typeof STEP_PROVIDERS[number]['id']>('apple')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const { updateStepProvider, updateSymptomProvider } = useUser()
+    const { profile, updateStepProvider, updateSymptomProvider } = useUser()
     const { pendingUpload } = useUpload()
     const router = useRouter()
 
     useEffect(() => {
-        if (pendingUpload && (pendingUpload.type === 'visible' || pendingUpload.type === 'bearable')) {
-            setSelectedSymptom(pendingUpload.type)
+        if (!pendingUpload || (profile?.step_provider && profile?.symptom_provider)) return;
+
+        if (pendingUpload.type === 'bearable') {
+            // Bearable data includes steps, so we can auto-complete setup 
+            // and get the user straight to their dashboard after processing.
+            const autoConfigure = async () => {
+                setLoading(true)
+                try {
+                    await updateSymptomProvider('bearable')
+                    await updateStepProvider('apple') // Default for future tracking
+                    router.refresh()
+                    router.replace('/upload')
+                } catch (err) {
+                    console.error("Auto onboarding failed:", err)
+                    setStep(2) // Fallback to manual step 2
+                } finally {
+                    setLoading(false)
+                }
+            }
+            autoConfigure()
+        } else if (pendingUpload.type === 'visible') {
+            setSelectedSymptom('visible')
             setStep(2)
         }
-    }, [pendingUpload])
+    }, [pendingUpload, profile, updateSymptomProvider, updateStepProvider, router])
 
     const handleContinue = async () => {
         if (step === 1) {

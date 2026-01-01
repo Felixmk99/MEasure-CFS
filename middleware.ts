@@ -2,6 +2,12 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+    // Handle cases where Supabase redirects to root with a code (fallback)
+    const code = request.nextUrl.searchParams.get('code')
+    if (code && request.nextUrl.pathname === '/') {
+        return NextResponse.redirect(new URL(`/auth/callback${request.nextUrl.search}`, request.url))
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
