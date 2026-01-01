@@ -14,7 +14,7 @@ export function normalizeBearableData(rows: any[]) {
         'a lot': 3
     };
 
-    rows.forEach(row => {
+    rows.forEach((row: any) => {
         const date = row['date formatted'];
         const category = row['category'];
         const ratingStr = row['rating/amount'] || '';
@@ -128,7 +128,7 @@ export function normalizeBearableData(rows: any[]) {
     });
 
     // Final pass: Collapse dailyRecords into array and calculate scores
-    return Object.values(dailyRecords).map(record => {
+    return Object.values(dailyRecords).map((record: any) => {
         if (record._has_trackers) {
             record.symptom_score = calculateSymptomScore(record.custom_metrics);
             record.exertion_score = calculateExertionScore(record.custom_metrics);
