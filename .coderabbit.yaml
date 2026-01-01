@@ -1,51 +1,31 @@
 # CodeRabbit Configuration for Visible Analytics (track-ME)
-# Documentation: https://docs.coderabbit.ai/getting-started/configure-coderabbit
+# Updated to resolve "unrecognized properties" warnings.
 
-# General settings
-language: "en-US"
+# Core settings
+system_language: "en-US"
 
 # Review settings
 reviews:
-  profile: "assertive" # We want it to be strict about our coding standards
-  request_changes_workflow: true
-  high_level_summary: true
-  chat:
+  auto_review:
     enabled: true
+    drafts: false
+  high_level_summary: true
 
-# Technical constraints and context for the AI Reviewer
-# These instructions are passed to CodeRabbit to inform its review process.
+# Domain-specific instructions for the AI
+# These are used to ensure the AI understands the ME/CFS health context.
 instructions: >
   You are reviewing "Visible Analytics", a health dashboard for Long Covid and ME/CFS data.
-  Please adhere to these strict project rules:
+  
+  CRITICAL RULES:
+  1. Symptom scales use INVERTED logic: High Score = Bad (Worsening).
+  2. HRV logic: High HRV = Good (Recovery).
+  3. Metric System must be used for all measurements.
+  4. Ensure all statistical calculations handle empty datasets without crashing.
+  5. Favor Server Components and strict TypeScript types (no 'any').
 
-  1. **Tech Stack**: Next.js 15 (App Router), TypeScript (Strict), Tailwind CSS, shadcn/ui, Supabase, TanStack Query, Recharts.
-  2. **Domain Logic (CRITICAL)**:
-     - Symptom scales use inverted logic: High Symptom Score = Bad (Worsening).
-     - HRV logic: High HRV = Good (Recovery).
-     - Standard metrics (HRV, RHR, Steps) should NOT be summed into the Symptom Score.
-     - Use the Metric System for all measurements.
-  3. **Coding Standards**:
-     - Favor Server Components by default.
-     - No 'any' types. Use strict interfaces or Zod schemas.
-     - Avoid custom UI components if a shadcn primitive exists.
-     - Files should use kebab-case.
-  4. **Security**:
-     - Ensure RLS is considered for all database interactions.
-     - Authenticated routes must be guarded via middleware or server-side session checks.
-  5. **Data Handling**:
-     - Every API or data fetch must have try/catch blocks.
-     - Statistical calculations (Mean/SD) must handle empty or insufficient datasets gracefully.
-
-# Tools integration
-tools:
-  github_checks:
-    enabled: true
-  linters:
-    enabled: true
-
-# Path-specific overrides
-overrides:
-  - path: "tests/**/*"
-    instructions: "Ensure tests cover edge cases like division-by-zero, empty data, and malformed CSV rows."
+# Path-specific instructions
+path_instructions:
   - path: "lib/scoring/**/*"
-    instructions: "Pay extra attention to arithmetic correctness and polarity of health scores."
+    instructions: "Verify arithmetic correctness and polarity of health scores (Symptom vs HRV)."
+  - path: "tests/**/*"
+    instructions: "Ensure tests cover edge cases like division-by-zero and malformed data."
