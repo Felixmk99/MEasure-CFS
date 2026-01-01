@@ -49,8 +49,14 @@ import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 
 export default function DashboardClient({ data: initialData }: DashboardReviewProps) {
     const { t, locale } = useLanguage()
+
+    // -- 0a. Source Detection (Check if Visible data exists: HRV or RHR) --
+    const hasVisibleData = useMemo(() => {
+        return initialData.some(d => (d.hrv !== undefined && d.hrv !== null) || (d.resting_heart_rate !== undefined && d.resting_heart_rate !== null));
+    }, [initialData]);
+
     const [timeRange, setTimeRange] = useState<TimeRange>('30d')
-    const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['adjusted_score'])
+    const [selectedMetrics, setSelectedMetrics] = useState<string[]>(hasVisibleData ? ['adjusted_score'] : ['symptom_score'])
     const [isCompareMode, setIsCompareMode] = useState(false)
     const [showTrend, setShowTrend] = useState(false)
     const [showCrashes, setShowCrashes] = useState(false)
@@ -124,12 +130,12 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         const dynamicOptions = Array.from(dynamicKeys).sort()
         const defaults = [
-            { value: 'adjusted_score', label: 'MEasure-CFS Score' },
+            ...(hasVisibleData ? [{ value: 'adjusted_score', label: 'MEasure-CFS Score' }] : []),
             { value: 'symptom_score', label: 'Symptom Score' },
             { value: 'exertion_score', label: 'Exertion Score' },
             { value: 'step_factor', label: 'Steps normalized' },
-            { value: 'hrv', label: 'Heart Rate Variability' },
-            { value: 'resting_heart_rate', label: 'Resting HR' },
+            ...(hasVisibleData ? [{ value: 'hrv', label: 'Heart Rate Variability' }] : []),
+            ...(hasVisibleData ? [{ value: 'resting_heart_rate', label: 'Resting HR' }] : []),
             { value: 'step_count', label: 'Steps' }
         ]
         const allOptions = [...defaults]
