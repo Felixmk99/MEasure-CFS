@@ -34,7 +34,15 @@ export default function LandingPage() {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0]
-      const isBearable = file.name.toLowerCase().includes('bearable')
+      const name = file.name.toLowerCase()
+      const isVisible = name.includes('visible')
+      const isBearable = name.includes('bearable')
+
+      if (!isVisible && !isBearable) {
+        alert("Invalid file. Please upload a 'Visible' or 'Bearable' export file.")
+        return
+      }
+
       setPendingUpload({ file, type: isBearable ? 'bearable' : 'visible' })
 
       const checkSession = async () => {
