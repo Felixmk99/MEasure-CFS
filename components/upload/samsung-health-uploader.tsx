@@ -10,7 +10,6 @@ import { revalidateApp } from '@/app/actions/revalidate'
 import { parseSamsungHealthCsv } from '@/lib/data/samsung-health-parser'
 
 export function SamsungHealthUploader() {
-    const [uploading, setUploading] = useState(false)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -90,7 +89,7 @@ export function SamsungHealthUploader() {
 
                     const { error } = await supabase
                         .from('health_metrics')
-                        .upsert(upsertBatch, {
+                        .upsert(upsertBatch as any, {
                             onConflict: 'user_id, date'
                         })
 

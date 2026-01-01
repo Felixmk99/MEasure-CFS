@@ -1,5 +1,5 @@
 import * as ss from 'simple-statistics'
-import { isBefore, isAfter, isWithinInterval, subDays, parseISO } from 'date-fns'
+import { isWithinInterval, subDays, parseISO } from 'date-fns'
 import { Database } from '@/types/database.types'
 import { enhanceDataWithScore, ScorableEntry } from '@/lib/scoring/composite-score'
 

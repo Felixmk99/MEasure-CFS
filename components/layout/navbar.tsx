@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { Footprints } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState, useCallback, useMemo } from "react"
+import type { User } from "@supabase/supabase-js"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {

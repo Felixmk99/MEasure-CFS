@@ -10,7 +10,6 @@ import { revalidateApp } from '@/app/actions/revalidate'
 import { parseGoogleFitCsv } from '@/lib/data/google-fit-parser'
 
 export function GoogleFitUploader() {
-    const [uploading, setUploading] = useState(false)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -90,7 +89,7 @@ export function GoogleFitUploader() {
 
                     const { error } = await supabase
                         .from('health_metrics')
-                        .upsert(upsertBatch, {
+                        .upsert(upsertBatch as any, {
                             onConflict: 'user_id, date'
                         })
 

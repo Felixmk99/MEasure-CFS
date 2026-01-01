@@ -1,5 +1,5 @@
 import Papa from 'papaparse'
-import { format, isValid, parse } from 'date-fns'
+import { format, isValid } from 'date-fns'
 
 export interface ParsedStepData {
     date: string
@@ -26,7 +26,7 @@ export async function parseSamsungHealthCsv(csvContent: string): Promise<ParsedS
                 // If there's garbage rows before the actual data, we might need to skip them.
                 // Usually Samsung CSVs start with a row of metadata (device info) or just headers.
 
-                results.data.forEach((row: Record<string, unknown>) => {
+                results.data.forEach((row: any) => {
                     // Extract fields
                     const startTime = row['start_time']
                     const count = row['count']
@@ -52,7 +52,7 @@ export async function parseSamsungHealthCsv(csvContent: string): Promise<ParsedS
                                     dailyAggregation[dateKey] = (dailyAggregation[dateKey] || 0) + steps
                                 }
                             }
-                        } catch (e) {
+                        } catch {
                             // Skip malformed rows
                         }
                     }

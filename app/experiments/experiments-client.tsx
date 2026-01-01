@@ -76,9 +76,11 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                 }
             });
             // 2. Custom Metrics Keys
-            if (d.custom_metrics && typeof d.custom_metrics === 'object') {
-                Object.keys(d.custom_metrics).forEach(k => {
-                    if (!excludedKeys.includes(k) && typeof d.custom_metrics[k] === 'number') {
+            const cm = d.custom_metrics;
+            if (cm && typeof cm === 'object') {
+                Object.keys(cm).forEach(k => {
+                    const val = cm[k];
+                    if (!excludedKeys.includes(k) && typeof val === 'number') {
                         allKeys.add(k);
                     }
                 });
@@ -88,7 +90,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         allKeys.forEach(m => {
             // Retrieve value from top-level OR custom_metrics
             const values = dataToAnalyze
-                .map(d => d[m] ?? d.custom_metrics?.[m])
+                .map(d => (d as any)[m] ?? (d.custom_metrics as any)?.[m])
                 .filter(v => typeof v === 'number') as number[]
 
             if (values.length > 0) {

@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ArrowUp, ArrowDown, Activity, Footprints, Heart, Info, TrendingUp, Target } from "lucide-react"
 import { parseISO, startOfDay, endOfDay } from "date-fns"
-import { useLanguage } from '@/components/providers/language-provider'
 import { calculateBaselineStats, extractEpochs, calculateZScores, aggregateEpochs, analyzePreCrashPhase, analyzeRecoveryPhase, analyzeCrashPhase } from "@/lib/statistics/pem-cycle"
 import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
@@ -345,10 +344,10 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                     <div className="flex items-center gap-2 mb-1">
                                         <span className={cn(
                                             "text-xs font-black uppercase tracking-tight",
-                                            analysis.phase2?.avgPhysiologicalDuration > analysis.phase2?.avgLoggedDuration ? "text-red-600 dark:text-red-400" : "text-emerald-600"
+                                            (analysis.phase2?.avgPhysiologicalDuration ?? 0) > (analysis.phase2?.avgLoggedDuration ?? 0) ? "text-red-600 dark:text-red-400" : "text-emerald-600"
                                         )}>
-                                            {analysis.phase2?.avgPhysiologicalDuration > analysis.phase2?.avgLoggedDuration
-                                                ? `Bio-Stress Persists +${(analysis.phase2.avgPhysiologicalDuration - analysis.phase2.avgLoggedDuration).toFixed(1)}d`
+                                            {(analysis.phase2?.avgPhysiologicalDuration ?? 0) > (analysis.phase2?.avgLoggedDuration ?? 0)
+                                                ? `Bio-Stress Persists +${((analysis.phase2?.avgPhysiologicalDuration ?? 0) - (analysis.phase2?.avgLoggedDuration ?? 0)).toFixed(1)}d`
                                                 : "Recovered with logs"}
                                         </span>
                                         <TooltipProvider>
@@ -364,10 +363,10 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                         </TooltipProvider>
                                     </div>
 
-                                    {analysis.phase2?.extendingMetrics?.length > 0 && (
+                                    {(analysis.phase2?.extendingMetrics?.length ?? 0) > 0 && (
                                         <div className="flex flex-wrap justify-end gap-1">
                                             <span className="text-[9px] font-bold text-muted-foreground uppercase mr-1 mt-0.5">Extended by:</span>
-                                            {analysis.phase2.extendingMetrics.map((m: string) => (
+                                            {analysis.phase2?.extendingMetrics?.map((m: string) => (
                                                 <Badge
                                                     key={m}
                                                     variant="outline"
@@ -456,12 +455,12 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                         <div className="space-y-4">
                             <div className="flex items-baseline justify-between mb-2">
                                 <h3 className="text-xl font-black text-blue-600 dark:text-blue-400 leading-none uppercase tracking-tighter">
-                                    {analysis.phase3?.avgBiologicalRecoveryTail > analysis.phase3?.avgSymptomRecoveryTail ? "Biological Lag" : "Fast Recovery"}
+                                    {(analysis.phase3?.avgBiologicalRecoveryTail ?? 0) > (analysis.phase3?.avgSymptomRecoveryTail ?? 0) ? "Biological Lag" : "Fast Recovery"}
                                 </h3>
                                 <div className="text-right">
                                     <div className="text-xs font-bold text-muted-foreground uppercase flex items-center justify-end gap-1.5">
-                                        {analysis.phase3?.hysteresisGap > 1
-                                            ? `Body lag: +${analysis.phase3.hysteresisGap.toFixed(1)}d after feeling better`
+                                        {(analysis.phase3?.hysteresisGap ?? 0) > 1
+                                            ? `Body lag: +${analysis.phase3?.hysteresisGap?.toFixed(1)}d after feeling better`
                                             : "Body resets alongside symptoms"}
                                         <TooltipProvider>
                                             <InfoTooltip>
@@ -478,9 +477,9 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                 </div>
                             </div>
 
-                            {analysis.phase3?.slowestRecoverers?.length > 0 && (
+                            {(analysis.phase3?.slowestRecoverers?.length ?? 0) > 0 && (
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    {analysis.phase3.slowestRecoverers.map((m: string) => (
+                                    {analysis.phase3?.slowestRecoverers?.map((m: string) => (
                                         <div key={m} className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30 rounded-xl p-3 relative group">
                                             <div className="absolute top-3 right-3">
                                                 <Badge variant="outline" className="text-[8px] font-black border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 uppercase px-1.5 py-0">
@@ -497,14 +496,14 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                                 </div>
                                                             </TooltipTrigger>
                                                             <TooltipContent className="max-w-[200px] text-[10px]">
-                                                                <p>This metric takes an average of {analysis.phase3.avgBiologicalRecoveryTail.toFixed(1)} days to return to your normal range after a crash starts.</p>
+                                                                <p>This metric takes an average of {analysis.phase3?.avgBiologicalRecoveryTail?.toFixed(1)} days to return to your normal range after a crash starts.</p>
                                                             </TooltipContent>
                                                         </InfoTooltip>
                                                     </TooltipProvider>
                                                     <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{getFriendlyName(m)}</span>
                                                 </div>
                                                 <span className="text-xl font-black text-blue-700 dark:text-blue-500 tracking-tighter">
-                                                    +{analysis.phase3.avgBiologicalRecoveryTail.toFixed(1)} <span className="text-[10px] uppercase text-blue-500/60 font-bold ml-1">Days Tail</span>
+                                                    +{analysis.phase3?.avgBiologicalRecoveryTail?.toFixed(1)} <span className="text-[10px] uppercase text-blue-500/60 font-bold ml-1">Days Tail</span>
                                                 </span>
                                             </div>
                                         </div>

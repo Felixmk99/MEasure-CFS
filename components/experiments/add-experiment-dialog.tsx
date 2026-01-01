@@ -27,7 +27,7 @@ export function AddExperimentDialog() {
         const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
-            await supabase.from('experiments').insert({
+            await (supabase.from('experiments') as any).insert({
                 user_id: user.id,
                 name,
                 start_date: startDate,

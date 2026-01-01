@@ -14,6 +14,8 @@ interface DailyRecord {
     step_count?: number;
     symptom_score?: number;
     exertion_score?: number;
+    resting_heart_rate?: number;
+    hrv?: number;
 }
 
 /**
@@ -149,7 +151,7 @@ export function normalizeBearableData(rows: BearableRow[]) {
             record.symptom_score = calculateSymptomScore(record.custom_metrics);
             record.exertion_score = calculateExertionScore(record.custom_metrics);
         }
-        delete record._has_trackers;
+        delete (record as any)._has_trackers;
         return record;
     });
 }

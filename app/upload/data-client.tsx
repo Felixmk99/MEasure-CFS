@@ -13,6 +13,7 @@ import { Plus, ChevronDown, ChevronUp } from "lucide-react"
 import { EditDataDialog } from "@/components/dashboard/edit-data-dialog"
 import { subDays, isAfter, startOfDay } from "date-fns"
 import { useMemo } from 'react'
+import { ScorableEntry } from "@/lib/scoring/composite-score"
 import {
     Select,
     SelectContent,
@@ -35,6 +36,7 @@ interface DataEntry {
     symptom_score: number | null
     custom_metrics: Record<string, number> | null
     exertion_score: number | null
+    step_count: number | null
     created_at: string
 }
 
@@ -62,7 +64,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         if (initialHasData !== hasData) {
             setTimeout(() => setHasData(initialHasData), 0)
         }
-    }, [initialData, initialHasData])
+    }, [initialData, initialHasData, dataLog, hasData])
 
     const filteredData = useMemo(() => {
         if (timeRange === 'all') return dataLog
@@ -141,8 +143,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     }
 
     const handleUpdate = async (id: string, updatedData: Partial<ScorableEntry>) => {
-        const { error } = await supabase
-            .from('health_metrics')
+        const { error } = await (supabase.from('health_metrics') as any)
             .update({
                 hrv: updatedData.hrv,
                 resting_heart_rate: updatedData.resting_heart_rate,
@@ -155,7 +156,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
 
         if (!error) {
             const newData = dataLog.map(item => item.id === id ? { ...item, ...updatedData } : item)
-            setDataLog(newData)
+            setDataLog(newData as any)
             await revalidateApp()
             window.dispatchEvent(new CustomEvent('health-data-updated'))
             router.refresh()
@@ -378,7 +379,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 <EditDataDialog
                     open={!!editingEntry}
                     onOpenChange={(open) => !open && setEditingEntry(null)}
-                    entry={editingEntry}
+                    entry={editingEntry as any}
                     onSave={handleUpdate}
                 />
             </div>

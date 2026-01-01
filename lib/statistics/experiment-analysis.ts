@@ -1,4 +1,4 @@
-import { format, parseISO, isWithinInterval, addDays, subDays, differenceInDays } from "date-fns";
+import { parseISO, isWithinInterval } from "date-fns";
 import { EXERTION_METRICS } from "@/lib/scoring/logic";
 import { getMetricRegistryConfig } from "@/lib/metrics/registry";
 
@@ -13,7 +13,7 @@ export interface Experiment {
 
 export interface MetricDay {
     date: string;
-    custom_metrics?: Record<string, number> | null;
+    custom_metrics?: Record<string, number>;
     [key: string]: unknown;
 }
 
@@ -203,7 +203,7 @@ function solveOLS(X: number[][], y: number[]): { betas: number[], XTXInv: number
         }
 
         return { betas, XTXInv, rss };
-    } catch (e) {
+    } catch {
         return null;
     }
 }

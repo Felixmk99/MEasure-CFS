@@ -3,8 +3,7 @@
 import { useCallback, useState, useEffect, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Papa from 'papaparse'
-import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Upload, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { normalizeLongFormatData } from '@/lib/data/long-format-normalizer'
@@ -17,8 +16,6 @@ import { revalidateApp } from '@/app/actions/revalidate'
 export function CsvUploader() {
     const { t } = useLanguage()
     const { pendingUpload, clearPendingUpload } = useUpload()
-    const [uploading, setUploading] = useState(false)
-    const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -49,7 +46,7 @@ export function CsvUploader() {
 
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
-                    const records = normalizeLongFormatData(validRows)
+                    const records = normalizeLongFormatData(validRows as any)
 
                     if (records.length === 0) {
                         const headers = results.meta.fields || []
@@ -100,7 +97,7 @@ export function CsvUploader() {
 
                         const { error } = await supabase
                             .from('health_metrics')
-                            .insert(batch)
+                            .insert(batch as any)
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
@@ -125,8 +122,6 @@ export function CsvUploader() {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload CSV data.'
                     setMessage(msg)
-                } finally {
-                    setUploading(false)
                 }
             },
             error: (err) => {

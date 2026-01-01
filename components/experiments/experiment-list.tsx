@@ -29,7 +29,7 @@ type ExperimentWithAnalysis = Database['public']['Tables']['experiments']['Row']
     }
 }
 
-export function ExperimentList({ experiments, onEdit, onDelete }: { experiments: ExperimentWithAnalysis[], onEdit: (exp: ExperimentWithAnalysis) => void, onDelete: (id: string) => void }) {
+export function ExperimentList({ experiments }: { experiments: ExperimentWithAnalysis[] }) {
     const supabase = createClient()
     const router = useRouter()
     const [deletingId, setDeletingId] = useState<string | null>(null)

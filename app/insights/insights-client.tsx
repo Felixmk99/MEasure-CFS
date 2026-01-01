@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { InsightMetric, calculateAdvancedCorrelations, detectThresholds } from '@/lib/stats/insights-logic'
 import { enhanceDataWithScore } from '@/lib/scoring/composite-score'
 import { CorrelationMatrix } from './_components/correlation-matrix'

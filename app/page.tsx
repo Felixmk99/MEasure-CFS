@@ -5,7 +5,8 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { useRouter } from "next/navigation"
 import { useDropzone } from "react-dropzone"
 import { Button } from "@/components/ui/button"
-Upload,
+import {
+  Upload,
   LineChart,
   TrendingUp,
   Zap,

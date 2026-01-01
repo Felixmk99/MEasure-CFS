@@ -22,7 +22,7 @@ export default async function DataPage() {
 
     // 2. Fetch Recent Logs (for the table)
     // Only if hasData to save resources
-    let recentLogs: ScorableEntry[] = []
+    let recentLogs: any[] = []
     if (hasData) {
         const { data } = await supabase
             .from('health_metrics')

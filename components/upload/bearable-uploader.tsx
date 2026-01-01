@@ -3,8 +3,7 @@
 import { useCallback, useState, useEffect, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Papa from 'papaparse'
-import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Upload, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { normalizeBearableData } from '@/lib/data/bearable-normalizer'
@@ -17,8 +16,6 @@ import { revalidateApp } from '@/app/actions/revalidate'
 export function BearableUploader() {
     const { t } = useLanguage()
     const { pendingUpload, clearPendingUpload } = useUpload()
-    const [uploading, setUploading] = useState(false)
-    const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -49,7 +46,7 @@ export function BearableUploader() {
 
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
-                    const records = normalizeBearableData(validRows)
+                    const records = normalizeBearableData(validRows as any)
 
                     if (records.length === 0) {
                         const headers = results.meta.fields || []
@@ -123,8 +120,6 @@ export function BearableUploader() {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload Bearable data.'
                     setMessage(msg)
-                } finally {
-                    setUploading(false)
                 }
             },
             error: (err) => {

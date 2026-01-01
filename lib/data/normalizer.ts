@@ -7,7 +7,7 @@ export function normalizeVisibleData(row: Record<string, unknown>) {
     const parseFloatSafe = (val: unknown) => {
         if (typeof val === 'number') return val
         if (!val && val !== 0) return null
-        const parsed = parseFloat(val)
+        const parsed = parseFloat(val as string)
         return isNaN(parsed) ? null : parsed
     }
 
@@ -15,7 +15,7 @@ export function normalizeVisibleData(row: Record<string, unknown>) {
     const parseIntSafe = (val: unknown) => {
         if (typeof val === 'number') return Math.round(val)
         if (!val && val !== 0) return null
-        const parsed = parseInt(val, 10)
+        const parsed = parseInt(val as string, 10)
         return isNaN(parsed) ? null : parsed
     }
 

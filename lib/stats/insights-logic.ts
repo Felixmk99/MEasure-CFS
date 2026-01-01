@@ -55,7 +55,7 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                             description: getDescription(metricA, metricB, coefficient, lag)
                         });
                     }
-                } catch (e) {
+                } catch {
                     // Skip if variance is 0
                 }
             });
@@ -117,7 +117,7 @@ export function detectThresholds(
  * Calculates typical recovery velocity from exertion spikes.
  * @experimental Currently returning empty array until logic is finalized.
  */
-export function calculateRecoveryVelocity(data: InsightMetric[]): { metric: string, recoveryDays: number }[] {
+export function calculateRecoveryVelocity(): { metric: string, recoveryDays: number }[] {
     // TODO: Implement recovery velocity calculation
     // Planned approach: Look for spikes in exertion (exertion_score, Physical Exertion, Cognitive Exertion),
     // then measure days until HRV/Symptom returns to baseline (7d mean)
@@ -133,7 +133,7 @@ function extractAvailableMetrics(data: InsightMetric[]): string[] {
         });
         if (d.custom_metrics) {
             Object.keys(d.custom_metrics).forEach(k => {
-                if (typeof d.custom_metrics[k] === 'number') keys.add(k);
+                if (typeof d.custom_metrics?.[k] === 'number') keys.add(k);
             });
         }
     });

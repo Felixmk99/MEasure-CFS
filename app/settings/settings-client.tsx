@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Lock, User, Settings, FileText, Trash2, AlertTriangle, Activity, Smartphone, ClipboardList } from 'lucide-react'
+import { Lock, User as UserIcon, Settings, FileText, AlertTriangle, Activity, Smartphone, ClipboardList } from 'lucide-react'
 import { useUser } from '@/components/providers/user-provider'
 import {
     Select,
@@ -18,15 +18,12 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
-import { User } from '@supabase/supabase-js'
+import type { User } from '@supabase/supabase-js'
 
 export default function SettingsClient({ user }: { user: User }) {
     const supabase = createClient()
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const [success, setSuccess] = useState<string | null>(null) // Added success state
-
     // Form State
     const [firstName, setFirstName] = useState(user.user_metadata?.first_name || '')
     const [lastName, setLastName] = useState(user.user_metadata?.last_name || '')
@@ -38,8 +35,7 @@ export default function SettingsClient({ user }: { user: User }) {
     // Update Profile Handler
     const handleUpdateProfile = async () => {
         setIsLoading(true)
-        setError(null) // Clear previous errors
-        setSuccess(null) // Clear previous success messages
+
 
         try {
             const { error: updateAuthError } = await supabase.auth.updateUser({
@@ -61,12 +57,11 @@ export default function SettingsClient({ user }: { user: User }) {
             //     .eq('id', user.id);
             // if (updateProfileError) throw updateProfileError;
 
-            setSuccess('Profile updated successfully.')
+
             router.refresh()
         } catch (err: unknown) {
             console.error(err)
-            setError((err as Error)?.message || 'Failed to update profile.')
-            setSuccess(null)
+
         } finally {
             setIsLoading(false)
         }
@@ -111,7 +106,7 @@ export default function SettingsClient({ user }: { user: User }) {
 
                 <nav className="flex flex-col space-y-1">
                     <Button variant="secondary" className="justify-start">
-                        <User className="mr-2 h-4 w-4" />
+                        <UserIcon className="mr-2 h-4 w-4" />
                         Profile
                     </Button>
                     <Button variant="ghost" className="justify-start" disabled>
@@ -163,7 +158,6 @@ export default function SettingsClient({ user }: { user: User }) {
 
                     </CardContent>
                     <CardFooter className="flex justify-between border-t px-6 py-4">
-                        <p className="text-sm text-muted-foreground">{message}</p>
                         <Button onClick={handleUpdateProfile} disabled={isLoading}>
                             {isLoading ? 'Saving...' : 'Save Changes'}
                         </Button>
@@ -308,7 +302,7 @@ function StepProviderCard() {
     const handleProviderChange = async (val: string) => {
         setUpdating(true)
         try {
-            await updateStepProvider(val as 'apple' | 'google' | 'samsung' | 'fitbit' | 'garmin')
+            await updateStepProvider(val as any)
         } catch (error) {
             console.error(error)
         } finally {

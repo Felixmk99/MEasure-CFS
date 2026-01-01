@@ -21,7 +21,6 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children, initialLocale }: LanguageProviderProps) {
     const [locale, setLocaleState] = useState<Locale>(initialLocale || 'en')
-    const [mounted, setMounted] = useState(false)
 
     // Load persisted preference or detect domain
     useEffect(() => {
@@ -36,7 +35,6 @@ export function LanguageProvider({ children, initialLocale }: LanguageProviderPr
         } else {
             setTimeout(() => setLocaleState(domainDefault), 0)
         }
-        setTimeout(() => setMounted(true), 0)
     }, [])
 
     const setLocale = (newLocale: Locale) => {

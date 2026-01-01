@@ -1,9 +1,8 @@
 import { mean, standardDeviation } from 'simple-statistics'
-import { startOfDay, endOfDay, parseISO } from 'date-fns'
 
 export interface HealthEntry {
     date: string;
-    custom_metrics?: Record<string, number>;
+    custom_metrics?: Record<string, unknown>;
     [key: string]: unknown;
 }
 

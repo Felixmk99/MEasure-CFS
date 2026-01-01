@@ -1,4 +1,3 @@
-import { Database } from "@/types/database.types";
 import { calculateSymptomScore, calculateExertionScore } from "@/lib/scoring/logic";
 
 interface RawRecord {
@@ -13,6 +12,7 @@ interface DailyRecord {
     step_count?: number;
     symptom_score?: number;
     exertion_score?: number;
+    composite_score?: number;
     _has_trackers?: boolean;
 }
 

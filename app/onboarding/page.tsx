@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/user-provider'
 import { useUpload } from '@/components/providers/upload-provider'
 import { Button } from '@/components/ui/button'
-import { Smartphone, Activity, Laptop, Watch, Heart, FileText, ClipboardList } from 'lucide-react'
+import { Smartphone, Activity, Laptop, Watch, Heart, ClipboardList } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const SYMPTOM_PROVIDERS = [
@@ -84,18 +84,16 @@ export default function OnboardingPage() {
         if (!pendingUpload || (profile?.step_provider && profile?.symptom_provider)) return;
 
         if (pendingUpload.type === 'bearable') {
-            // Bearable data includes steps, so we can auto-complete setup 
-            // and get the user straight to their dashboard after processing.
             const autoConfigure = async () => {
                 setLoading(true)
                 try {
                     await updateSymptomProvider('bearable')
-                    await updateStepProvider('apple') // Default for future tracking
+                    await updateStepProvider('apple')
                     router.refresh()
                     router.replace('/upload')
                 } catch (err) {
                     console.error("Auto onboarding failed:", err)
-                    setStep(2) // Fallback to manual step 2
+                    setStep(2)
                 } finally {
                     setLoading(false)
                 }
@@ -118,115 +116,77 @@ export default function OnboardingPage() {
         try {
             await updateSymptomProvider(selectedSymptom)
             await updateStepProvider(selectedStep)
-            // Helper to safely access auth error message
-            const getAuthErrorMessage = (err: unknown): string => {
-                if (err instanceof Error) return err.message
-                if (typeof err === 'string') return err
-                return 'Unknown error'
-            } // Force a refresh to ensure layout/providers pick up the new selections
             router.refresh()
-            // Using replace to prevent going back to onboarding
             router.replace('/upload')
         } catch (err: unknown) {
             console.error(err)
-            setError('Failed to update selection' + ': ' + getAuthErrorMessage(err))
+            const errMsg = err instanceof Error ? err.message : String(err)
+            setError('Failed to update selection: ' + errMsg)
             setLoading(false)
         }
     }
 
     const currentProviders = step === 1 ? SYMPTOM_PROVIDERS : STEP_PROVIDERS
     const selectedId = step === 1 ? selectedSymptom : selectedStep
-    const setSelected = (id: string) => step === 1 ? setSelectedSymptom(id) : setSelectedStep(id)
+    const setSelected = (id: string) => {
+        if (step === 1) setSelectedSymptom(id as any)
+        else setSelectedStep(id as any)
+    }
 
     return (
-        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-950">
-            <div className="max-w-xl w-full space-y-8 text-center">
-                {/* Step Indicator */}
-                <div className="flex justify-center gap-2">
-                    <div className={cn("h-1.5 w-12 rounded-full transition-colors", step >= 1 ? "bg-[#3B82F6]" : "bg-zinc-200 dark:bg-zinc-800")} />
-                    <div className={cn("h-1.5 w-12 rounded-full transition-colors", step >= 2 ? "bg-[#3B82F6]" : "bg-zinc-200 dark:bg-zinc-800")} />
-                </div>
-
-                <div className="space-y-2">
-                    <h1 className="text-4xl font-extrabold tracking-tight">
-                        {step === 1 ? 'Which app do you use for' : 'Choose your'} <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-[#3B82F6]">
-                            {step === 1 ? 'Symptom Tracking?' : 'Step Provider'}
-                        </span>
-                    </h1>
-                    <p className="text-muted-foreground">
+        <div className="min-h-screen bg-[#F8FAFB] flex flex-col items-center justify-center p-4">
+            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold text-slate-900">
+                        {step === 1 ? 'Symptom Tracking?' : 'Step Provider?'}
+                    </h2>
+                    <p className="mt-2 text-slate-600">
                         {step === 1
-                            ? "Select the primary source of your health measurements and symptom scores."
-                            : "Select which app you use to track your daily steps."}
-                        <br />You can always change this in your settings later.
+                            ? 'Which app do you use for symptoms?'
+                            : 'Which device tracks your movement?'}
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                    {currentProviders.map((provider) => {
-                        const Icon = provider.icon
-                        const isSelected = selectedId === provider.id
-                        const isComingSoon = provider.description.includes('Coming Soon')
-
-                        return (
-                            <button
-                                key={provider.id}
-                                disabled={isComingSoon}
-                                onClick={() => setSelected(provider.id)}
-                                className={cn(
-                                    "relative flex items-center p-4 rounded-2xl border transition-all text-left group",
-                                    isSelected
-                                        ? "border-[#3B82F6] bg-white dark:bg-zinc-900 shadow-lg ring-1 ring-[#3B82F6]"
-                                        : "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700",
-                                    isComingSoon && "opacity-60 grayscale cursor-not-allowed"
-                                )}
-                            >
-                                <div className={cn("p-3 rounded-xl mr-4 transition-colors", provider.color, provider.textColor)}>
-                                    <Icon className="w-6 h-6" />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="font-bold text-sm flex items-center justify-between">
-                                        {provider.name}
-                                        {isComingSoon && (
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Soon</span>
-                                        )}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground mt-0.5">
-                                        {provider.description}
-                                    </div>
-                                </div>
-                                {isSelected && (
-                                    <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
-                                )}
-                            </button>
-                        )
-                    })}
+                <div className="grid gap-4 mt-8">
+                    {currentProviders.map((p) => (
+                        <button
+                            key={p.id}
+                            onClick={() => setSelected(p.id)}
+                            className={cn(
+                                "flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left group",
+                                selectedId === p.id
+                                    ? "border-primary bg-primary/5 shadow-md"
+                                    : "border-slate-100 hover:border-slate-300 bg-slate-50/50"
+                            )}
+                        >
+                            <div className={cn("p-3 rounded-xl", p.color, p.textColor)}>
+                                <p.icon className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors">
+                                    {p.name}
+                                </h3>
+                                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                                    {p.description}
+                                </p>
+                            </div>
+                        </button>
+                    ))}
                 </div>
 
                 {error && (
-                    <div className="p-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-200 dark:border-red-900/20">
+                    <p className="text-sm text-red-500 text-center font-medium animate-in fade-in slide-in-from-top-1">
                         {error}
-                    </div>
+                    </p>
                 )}
 
-                <div className="pt-8 flex gap-4">
-                    {step === 2 && (
-                        <Button
-                            variant="outline"
-                            onClick={() => setStep(1)}
-                            className="h-12 rounded-full px-8 font-bold border-zinc-200 dark:border-zinc-800"
-                        >
-                            Back
-                        </Button>
-                    )}
-                    <Button
-                        onClick={handleContinue}
-                        disabled={loading}
-                        className="flex-1 h-12 rounded-full text-base font-bold bg-[#3B82F6] hover:bg-blue-600 shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
-                    >
-                        {loading ? 'Setting up...' : step === 1 ? 'Continue' : 'Complete Setup'}
-                    </Button>
-                </div>
+                <Button
+                    className="w-full h-12 text-lg font-bold rounded-xl"
+                    onClick={handleContinue}
+                    disabled={loading}
+                >
+                    {loading ? 'Saving...' : 'Continue'}
+                </Button>
             </div>
         </div>
     )

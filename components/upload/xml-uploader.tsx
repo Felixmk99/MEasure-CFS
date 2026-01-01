@@ -4,15 +4,11 @@ import { useCallback, useState, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, FileCode, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { parseISO, format } from 'date-fns'
 import { revalidateApp } from '@/app/actions/revalidate'
 
 export function XmlUploader() {
-    const [uploading, setUploading] = useState(false)
-    const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -38,7 +34,6 @@ export function XmlUploader() {
 
                 const stepData: Record<string, number> = {}
                 let match
-                let count = 0
 
                 // Loop through all matches
                 while ((match = stepPattern.exec(text)) !== null) {
@@ -51,7 +46,6 @@ export function XmlUploader() {
                     if (date && !isNaN(value)) {
                         stepData[date] = (stepData[date] || 0) + value
                     }
-                    count++
                 }
 
                 if (Object.keys(stepData).length === 0) {
@@ -121,7 +115,7 @@ export function XmlUploader() {
                     // Upsert records (preserving symptoms/HRV)
                     const { error } = await supabase
                         .from('health_metrics')
-                        .upsert(upsertBatch, {
+                        .upsert(upsertBatch as any, {
                             onConflict: 'user_id, date'
                         })
 

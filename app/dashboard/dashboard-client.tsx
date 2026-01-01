@@ -232,14 +232,14 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         const trendsByIndex = new Map<number, Record<string, number>>()
 
-        // Helper to retrieve value safely (including computed fields like adjusted_score)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        // Helper to retrieve value safely (including computed fields like adjusted_score)
-        const getValue = (d: Record<string, unknown>, key: string) => {
+        const getValue = (d: any, key: string) => {
             // Check top-level (like adjusted_score, step_count)
             if (d[key] !== undefined) return d[key]
             // Check custom_metrics (like composite_score)
-            if (d.custom_metrics?.[key] !== undefined) return d.custom_metrics[key]
+            if (d.custom_metrics && (d.custom_metrics as Record<string, any>)[key] !== undefined) {
+                return (d.custom_metrics as Record<string, any>)[key]
+            }
             return null
         }
 
@@ -355,7 +355,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             // 1. Current Period Data
             const currentValues = processedData
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                .map(d => (d as Record<string, number>)[metric])
+                .map(d => (d as Record<string, any>)[metric])
                 .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
             const currentAvg = currentValues.length > 0 ? currentValues.reduce((a, b) => a + b, 0) / currentValues.length : 0
@@ -385,7 +385,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
             const prevValues = prevData
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                .map(d => (d as Record<string, number>)[metric])
+                .map(d => (d as Record<string, any>)[metric])
                 .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
             // 3. Calculate "Period Change" (Linear Regression on Current Data)
@@ -441,7 +441,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 prevCrashCount
             }
         })
-    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, dateRange, visibleRange, getMetricConfig])
+    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig])
 
 
     // ... UI Render ...
@@ -449,23 +449,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     // Chart: Map selectedMetrics to Area/Line
 
     // -- 4. Mock Data Generator (Visualization Only) --
-    function generateMockData() {
-        const data = []
-        const now = new Date()
-        for (let i = 30; i >= 0; i--) {
-            const date = subDays(now, i)
-            // Create a gentle curve
-            const base = 50 + Math.sin(i / 5) * 20
-            data.push({
-                date: date.toISOString().split('T')[0],
-                hrv: Math.round(base + Math.random() * 10 - 5),
-                symptom_score: Math.max(0, Math.min(3, 1.5 + Math.cos(i / 4))),
-                resting_heart_rate: 60 + Math.random() * 5,
-                custom_metrics: undefined
-            })
-        }
-        return data as unknown as DashboardReviewProps['data']
-    }
+
 
     return (
         <div className="space-y-6">
@@ -956,4 +940,22 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         </div>
     )
+}
+
+function generateMockData() {
+    const data = []
+    const now = new Date()
+    for (let i = 30; i >= 0; i--) {
+        const date = subDays(now, i)
+        // Create a gentle curve
+        const base = 50 + Math.sin(i / 5) * 20
+        data.push({
+            date: date.toISOString().split('T')[0],
+            hrv: Math.round(base + Math.random() * 10 - 5),
+            symptom_score: Math.max(0, Math.min(3, 1.5 + Math.cos(i / 4))),
+            resting_heart_rate: 60 + Math.random() * 5,
+            custom_metrics: undefined
+        })
+    }
+    return data as unknown as DashboardReviewProps['data']
 }

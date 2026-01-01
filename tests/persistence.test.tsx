@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /** @jest-environment jsdom */
 import React from 'react';
 import { render, renderHook, act, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { UploadProvider, useUpload } from '../components/providers/upload-provider';
+import { useUpload } from '../components/providers/upload-provider';
 import OnboardingPage from '../app/onboarding/page';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUser } from '../components/providers/user-provider';
@@ -48,7 +47,7 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 class MockFileReader {
     onload: ((event: { target: { result: string | null } }) => void) | null = null;
     result: string = '';
-    readAsText(_file: File) {
+    readAsText() {
         this.result = 'test content';
         setTimeout(() => {
             if (this.onload) this.onload({ target: { result: this.result } });

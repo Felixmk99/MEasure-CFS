@@ -10,6 +10,7 @@ export interface ScoreComponents {
 }
 
 export type ScorableEntry = {
+    id?: string
     date: string
     hrv?: number | null
     resting_heart_rate?: number | null

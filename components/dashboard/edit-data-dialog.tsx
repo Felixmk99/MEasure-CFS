@@ -81,7 +81,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
         e.preventDefault()
         setSubmitting(true)
         try {
-            await onSave(entry.id, formData)
+            await onSave(entry.id!, formData)
             onOpenChange(false)
         } catch (error) {
             console.error("Failed to update entry:", error)

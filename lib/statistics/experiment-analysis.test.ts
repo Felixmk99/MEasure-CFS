@@ -1,5 +1,4 @@
 import { analyzeExperiments, Experiment, MetricDay } from './experiment-analysis'
-import { parseISO } from 'date-fns'
 
 describe('analyzeExperiments (Multivariate OLS)', () => {
     const generateHistory = (count: number, startDay: string, config: (i: number) => Record<string, unknown>): MetricDay[] => {

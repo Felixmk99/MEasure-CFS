@@ -60,8 +60,6 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
         )
     }
 
-    const priority = ['composite_score', 'hrv', 'resting_heart_rate', 'symptom_score'];
-
     // 1. Filter: Only show significant (p < 0.05)
     const relevantImpacts = impacts.filter(i => i.pValue < 0.05);
 
