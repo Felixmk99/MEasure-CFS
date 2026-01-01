@@ -7,10 +7,17 @@ import { calculateSymptomScore, calculateExertionScore } from "@/lib/scoring/log
 export function normalizeBearableData(rows: any[]) {
     const dailyRecords: Record<string, any> = {};
 
+    const levelMap: Record<string, number> = {
+        'none': 0,
+        'little': 1,
+        'moderate': 2,
+        'a lot': 3
+    };
+
     rows.forEach(row => {
         const date = row['date formatted'];
         const category = row['category'];
-        const ratingStr = row['rating/amount'];
+        const ratingStr = row['rating/amount'] || '';
         const detail = row['detail'] || '';
 
         if (!date) return;
@@ -25,7 +32,52 @@ export function normalizeBearableData(rows: any[]) {
 
         const record = dailyRecords[date];
 
-        // 1. Health measurements -> Step count (steps)
+        // 1. Mood & Energy (1-10 and 1-5 scales)
+        if (category === 'Mood' || category === 'Energy') {
+            const val = parseFloat(ratingStr);
+            if (!isNaN(val)) {
+                record.custom_metrics[category] = val;
+                record._has_trackers = true;
+            }
+        }
+
+        // 2. Symptoms (0-4 scale, take MAX daily)
+        if (category === 'Symptom') {
+            const rating = parseFloat(ratingStr);
+            if (!isNaN(rating)) {
+                // Extract clean symptom name
+                const symptomName = detail.includes('(')
+                    ? detail.split('(')[0].trim()
+                    : detail.trim();
+
+                if (symptomName) {
+                    record.custom_metrics[symptomName] = Math.max(record.custom_metrics[symptomName] || 0, rating);
+                    record._has_trackers = true;
+                }
+            }
+        }
+
+        // 3. Sleep (Duration conversion H:MM -> decimal hours)
+        if (category === 'Sleep') {
+            if (ratingStr.includes(':')) {
+                const [hours, minutes] = ratingStr.split(':').map(Number);
+                if (!isNaN(hours) && !isNaN(minutes)) {
+                    record.custom_metrics['Sleep Duration'] = hours + (minutes / 60);
+                    record._has_trackers = true;
+                }
+            }
+        }
+
+        // 4. Sleep Quality (1-5 scale)
+        if (category === 'Sleep quality') {
+            const val = parseFloat(ratingStr);
+            if (!isNaN(val)) {
+                record.custom_metrics['Sleep Quality'] = val;
+                record._has_trackers = true;
+            }
+        }
+
+        // 5. Steps (Heath measurements)
         if (category === 'Health measurements' && detail.toLowerCase().includes('step count')) {
             const steps = parseInt(ratingStr);
             if (!isNaN(steps)) {
@@ -34,61 +86,44 @@ export function normalizeBearableData(rows: any[]) {
             }
         }
 
-        // 2. Symptom -> Extract score
-        if (category === 'Symptom') {
-            const rating = parseFloat(ratingStr);
-            if (!isNaN(rating)) {
-                // Extract symptom name (e.g., "Brain fog" from "Brain fog (Mild)")
-                const symptomName = detail.includes('(')
-                    ? detail.split('(')[0].trim()
-                    : detail.trim();
+        // 6. Multi-Value Categories (Lifestyle, Work, Social, etc.)
+        const multiCategories = ['Lifestyle', 'Work', 'Social', 'Weather', 'Active', 'Behavioural patterns'];
+        if (multiCategories.includes(category)) {
+            // Split by | for multiple entries in one line
+            const segments = detail.split('|').map(s => s.trim()).filter(Boolean);
 
-                if (symptomName) {
-                    // Bearable might have multiple entries per symptom per day (e.g. am, mid, pm)
-                    // We take the MAX for that day to represent the worst point, or should we average?
-                    // User said: "ignoring time of day". 
-                    // Usually for symptoms, "Worst in day" is a good proxy.
-                    record.custom_metrics[symptomName] = Math.max(record.custom_metrics[symptomName] || 0, rating);
+            segments.forEach(segment => {
+                // Format usually looks like: "Emoji Name - Level" (e.g. "☕ Caffeine - A lot")
+                // Or sometimes just "Emoji Name"
+                let name = segment;
+                let levelVal = 0;
+
+                if (segment.includes('-')) {
+                    const [rawName, levelText] = segment.split('-').map(s => s.trim());
+                    name = rawName;
+                    levelVal = levelMap[levelText.toLowerCase()] ?? 0;
+                } else {
+                    // Check if the name itself ends with a level word (failsafe)
+                    for (const [key, val] of Object.entries(levelMap)) {
+                        if (segment.toLowerCase().endsWith(key)) {
+                            name = segment.slice(0, -(key.length)).trim();
+                            levelVal = val;
+                            break;
+                        }
+                    }
+                }
+
+                // Clean name: remove emoji and leading non-word characters
+                // This targets surrogate pairs, BMP emojis, and variation selectors
+                const cleanName = name
+                    .replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F000}-\u{1F02F}\u{1F0A0}-\u{1F0FF}\u{1F100}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F910}-\u{1F96B}\u{1F980}-\u{1F9E0}\u{200D}\u{FE0F}]+\s*/u, '')
+                    .trim();
+
+                if (cleanName) {
+                    record.custom_metrics[cleanName] = levelVal;
                     record._has_trackers = true;
                 }
-            }
-        }
-
-        // 3. Mood / Energy -> Custom Metrics
-        if (category === 'Mood' || category === 'Energy') {
-            const rating = parseFloat(ratingStr);
-            if (!isNaN(rating)) {
-                record.custom_metrics[category] = rating;
-                record._has_trackers = true;
-            }
-        }
-
-        // 4. Work -> Map to Exertion Scale
-        // detail example: "💼 Work - Moderate"
-        if (category === 'Work') {
-            const scaleMap: Record<string, number> = {
-                'none': 0,
-                'little': 1,
-                'moderate': 3,
-                'a lot': 5
-            };
-
-            const lowercaseDetail = detail.toLowerCase();
-            let score = 0;
-
-            for (const [key, val] of Object.entries(scaleMap)) {
-                if (lowercaseDetail.includes(key)) {
-                    score = val;
-                    break;
-                }
-            }
-
-            if (score > 0) {
-                // We add "Work Exertion" to custom_metrics so calculateExertionScore can find it
-                // Note: I'll need to add "Work Exertion" to EXERTION_METRICS in logic.ts
-                record.custom_metrics['Work Exertion'] = score;
-                record._has_trackers = true;
-            }
+            });
         }
     });
 

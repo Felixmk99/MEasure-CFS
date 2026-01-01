@@ -10,7 +10,9 @@ export const EXERTION_METRICS = [
     "Emotionally stressful",
     "Physically active",
     "Socially demanding",
-    "Work Exertion"
+    "Work Exertion",
+    // Bearable common categories:
+    "Work", "Stress", "Video Calls", "Sociability level", "Activity level", "Social interaction"
 ]
 
 // Metrics that should NEVER be summed into the Symptom Score
@@ -19,15 +21,17 @@ export const SYMPTOM_EXCLUSIONS = [
     'Menstrual Flow', 'Note', 'Tag',
 
     // Independent Scores/Metrics
-    'Sleep',
+    'Sleep', 'Sleep Duration', 'Sleep Quality',
     'Stability Score',
     'composite_score',
     'exertion_score',
     'symptom_score',
     'HRV', 'Resting HR', 'Steps', 'Step Count', 'Infection', // Standard metrics
+    'Mood', 'Energy', 'Caffeine', 'Weather',
 
     // Lowercase variants safe-guard
-    'hrv', 'resting_heart_rate', 'step_count', 'sleep', 'note', 'tag', 'infection'
+    'hrv', 'resting_heart_rate', 'step_count', 'sleep', 'note', 'tag', 'infection',
+    'mood', 'energy', 'caffeine', 'weather'
 ]
 
 /**
