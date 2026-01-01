@@ -25,6 +25,12 @@ export function CsvUploader() {
     const router = useRouter()
 
     const processFile = useCallback(async (file: File) => {
+        if (!file.name.toLowerCase().includes('visible')) {
+            setStatus('error')
+            setMessage("Invalid file. Please upload a 'Visible' export file (filename must contain 'visible').")
+            return
+        }
+
         setStatus('parsing')
         setMessage('Parsing CSV file...')
 
@@ -191,7 +197,7 @@ export function CsvUploader() {
                                     t('upload.dropzone.idle')}
                     </p>
                     {status === 'idle' && (
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Supports .csv files</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your "Visible" .csv file</p>
                     )}
                 </div>
 

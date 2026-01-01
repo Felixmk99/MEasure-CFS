@@ -25,6 +25,12 @@ export function BearableUploader() {
     const router = useRouter()
 
     const processFile = useCallback(async (file: File) => {
+        if (!file.name.toLowerCase().includes('bearable')) {
+            setStatus('error')
+            setMessage("Invalid file. Please upload a 'Bearable' export file (filename must contain 'bearable').")
+            return
+        }
+
         setStatus('parsing')
         setMessage('Parsing Bearable CSV file...')
 
@@ -190,7 +196,7 @@ export function BearableUploader() {
                                     "Drop your Bearable CSV file here to import your health data."}
                     </p>
                     {status === 'idle' && (
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Supports Bearable .csv exports</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your "Bearable" .csv file</p>
                     )}
                 </div>
 
