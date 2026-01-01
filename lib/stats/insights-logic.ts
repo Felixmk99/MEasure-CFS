@@ -44,7 +44,8 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
 
                 try {
                     const coefficient = ss.sampleCorrelation(pair.a, pair.b);
-                    if (Math.abs(coefficient) > 0.4) {
+                    // Always include lag 0 for the matrix, filter others for "Insights"
+                    if (lag === 0 || Math.abs(coefficient) > 0.4) {
                         results.push({
                             metricA,
                             metricB,

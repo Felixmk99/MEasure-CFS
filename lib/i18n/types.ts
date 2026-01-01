@@ -13,6 +13,7 @@ export interface Dictionary {
     }
     navbar: {
         dashboard: string
+        insights: string
         experiments: string
         data: string
         upload_data: string
