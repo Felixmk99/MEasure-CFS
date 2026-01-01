@@ -1,0 +1,31 @@
+# CodeRabbit Configuration for Visible Analytics (track-ME)
+# Updated to resolve "unrecognized properties" warnings.
+
+# Core settings
+system_language: "en-US"
+
+# Review settings
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+  high_level_summary: true
+
+# Domain-specific instructions for the AI
+# These are used to ensure the AI understands the ME/CFS health context.
+instructions: >
+  You are reviewing "Visible Analytics", a health dashboard for Long Covid and ME/CFS data.
+  
+  CRITICAL RULES:
+  1. Symptom scales use INVERTED logic: High Score = Bad (Worsening).
+  2. HRV logic: High HRV = Good (Recovery).
+  3. Metric System must be used for all measurements.
+  4. Ensure all statistical calculations handle empty datasets without crashing.
+  5. Favor Server Components and strict TypeScript types (no 'any').
+
+# Path-specific instructions
+path_instructions:
+  - path: "lib/scoring/**/*"
+    instructions: "Verify arithmetic correctness and polarity of health scores (Symptom vs HRV)."
+  - path: "tests/**/*"
+    instructions: "Ensure tests cover edge cases like division-by-zero and malformed data."
