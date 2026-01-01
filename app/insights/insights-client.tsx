@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 import { InsightMetric, calculateAdvancedCorrelations, detectThresholds } from '@/lib/stats/insights-logic'
+import { enhanceDataWithScore } from '@/lib/scoring/composite-score'
 import { CorrelationMatrix } from './_components/correlation-matrix'
 import { InsightsCards } from './_components/insights-cards'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { BrainCircuit, Loader2, Database } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -18,14 +18,20 @@ export default function InsightsClient({ data }: InsightsClientProps) {
     const hasData = data && data.length > 0
     const hasInsufficientData = hasData && data.length < 7
 
-    // Process all-time analysis
-    const { correlations, thresholds } = useMemo(() => {
-        if (!data || data.length < 5) return { correlations: [], thresholds: [] }
-        return {
-            correlations: calculateAdvancedCorrelations(data),
-            thresholds: detectThresholds(data)
-        }
+    // 1. Enhance Data with Composite Score (Client-Side Calc)
+    const enhancedData = useMemo(() => {
+        if (!data || data.length === 0) return []
+        return enhanceDataWithScore(data)
     }, [data])
+
+    // 2. Process all-time analysis
+    const { correlations, thresholds } = useMemo(() => {
+        if (!enhancedData || enhancedData.length < 5) return { correlations: [], thresholds: [] }
+        return {
+            correlations: calculateAdvancedCorrelations(enhancedData),
+            thresholds: detectThresholds(enhancedData)
+        }
+    }, [enhancedData])
 
     if (!hasData) {
         return (

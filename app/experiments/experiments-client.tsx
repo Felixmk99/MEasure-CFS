@@ -30,13 +30,28 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
     const router = useRouter()
 
     // Form State
-    const [formData, setFormData] = useState({
+    type ExperimentCategory = 'lifestyle' | 'medication' | 'supplement' | 'other'
+
+    interface ExperimentFormData {
+        name: string
+        dosage: string
+        category: ExperimentCategory
+        start_date: string
+        end_date: string
+    }
+
+    const initialFormState: ExperimentFormData = {
         name: '',
         dosage: '',
         category: 'lifestyle',
         start_date: format(new Date(), 'yyyy-MM-dd'),
         end_date: ''
-    })
+    }
+
+    const [formData, setFormData] = useState<ExperimentFormData>(initialFormState)
+
+    const isValidCategory = (cat: string): cat is ExperimentCategory =>
+        ['lifestyle', 'medication', 'supplement', 'other'].includes(cat)
 
     // Enhance history with Centralized Composite Score
     const enhancedHistory = useMemo(() => {
@@ -101,25 +116,29 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             if (!user) throw new Error("No user")
 
             if (editingExp) {
-                const { data, error } = await supabase.from('experiments').update({
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { data, error } = await (supabase.from('experiments') as any).update({
                     name: formData.name,
                     dosage: formData.dosage,
                     category: formData.category,
                     start_date: formData.start_date,
                     end_date: formData.end_date || null
-                }).eq('id', editingExp.id).select().single()
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } as any).eq('id', editingExp.id).select().single()
 
                 if (error) throw error
                 if (data) setExperiments(experiments.map(e => e.id === data.id ? (data as Experiment) : e))
             } else {
-                const { data, error } = await supabase.from('experiments').insert({
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { data, error } = await (supabase.from('experiments') as any).insert({
                     user_id: user.id,
                     name: formData.name,
                     dosage: formData.dosage,
                     category: formData.category,
                     start_date: formData.start_date,
                     end_date: formData.end_date || null
-                }).select().single()
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } as any).select().single()
 
                 if (error) throw error
                 if (data) setExperiments([data as Experiment, ...experiments])
@@ -127,7 +146,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
 
             setIsDialogOpen(false)
             setEditingExp(null)
-            setFormData({ name: '', dosage: '', category: 'lifestyle', start_date: format(new Date(), 'yyyy-MM-dd'), end_date: '' })
+            setEditingExp(null)
+            setFormData(initialFormState)
             router.refresh()
         } catch (e) {
             console.error(e)
@@ -141,7 +161,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         setFormData({
             name: exp.name,
             dosage: exp.dosage || '',
-            category: (exp.category as 'lifestyle' | 'medication' | 'supplement' | 'other') || 'lifestyle',
+            category: (exp.category && isValidCategory(exp.category) ? exp.category : 'lifestyle'),
             start_date: exp.start_date,
             end_date: exp.end_date || ''
         })
@@ -206,7 +226,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                     setIsDialogOpen(open)
                     if (!open) {
                         setEditingExp(null)
-                        setFormData({ name: '', dosage: '', category: 'lifestyle', start_date: format(new Date(), 'yyyy-MM-dd'), end_date: '' })
+                        setFormData(initialFormState)
                     }
                 }}>
                     <DialogTrigger asChild>
@@ -242,7 +262,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                 <Label>{t('experiments.form.category')}</Label>
                                 <Select
                                     value={formData.category}
-                                    onValueChange={v => setFormData({ ...formData, category: v as 'lifestyle' | 'medication' | 'supplement' | 'other' })}
+                                    onValueChange={(v) => setFormData({ ...formData, category: v as ExperimentCategory })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />

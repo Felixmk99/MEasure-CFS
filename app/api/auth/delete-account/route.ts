@@ -21,9 +21,17 @@ export async function DELETE(_request: Request) {
             }, { status: 500 })
         }
 
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        if (!supabaseUrl) {
+            console.error('NEXT_PUBLIC_SUPABASE_URL is not defined')
+            return NextResponse.json({
+                error: 'Server misconfiguration: Missing Supabase URL.'
+            }, { status: 500 })
+        }
+
         // Create Admin Client
         const supabaseAdmin = createAdminClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            supabaseUrl,
             serviceRoleKey,
             {
                 auth: {

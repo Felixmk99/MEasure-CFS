@@ -34,8 +34,18 @@ import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger
 
 type TimeRange = '7d' | '30d' | '3m' | '1y' | 'all' | 'custom'
 
+interface MetricConfig {
+    label: string
+    color: string
+    domain: [number | 'auto' | 'dataMin' | 'dataMax', number | 'auto' | 'dataMin' | 'dataMax']
+    unit: string
+    invert: boolean
+    description: string
+    better: string
+}
+
 interface DashboardReviewProps {
-    data: Record<string, unknown>[]
+    data: ({ date: string, custom_metrics?: Record<string, any> } & Record<string, unknown>)[]
 }
 
 
@@ -149,12 +159,12 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     }, [processedData, hasVisibleData])
 
     // -- 2b. Helper to get Config for ANY metric --
-    const getMetricConfig = (key: string) => {
+    const getMetricConfig = (key: string): MetricConfig => {
         const registry = getMetricRegistryConfig(key);
         const invert = registry.direction === 'lower';
 
         // Base config from registry
-        const config = {
+        const config: MetricConfig = {
             label: registry.label || registry.key,
             color: registry.color || '#8b5cf6',
             domain: (key.includes('score') || key.includes('hrv') || key.includes('heart')) ? ['auto', 'dataMax'] : [0, 'dataMax'],
@@ -211,19 +221,19 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
     // -- 1b. Enhanced Chart Data (Trend Line) --
     // Only calculate trend for the PRIMARY metric to avoid clutter
-    // -- 1b. Enhanced Chart Data (Trend Line) --
-    // -- 1b. Enhanced Chart Data (Trend Line) --
-    // Only calculate trend for the PRIMARY metric to avoid clutter
     const chartData = useMemo(() => {
         const data = [...processedData]
         // DEBUG: Check what the first item has for adjusted_score
-        console.log("Chart Data Sample:", data[0]?.adjusted_score, "Keys:", data[0] ? Object.keys(data[0]) : "No data")
+
 
         if (!showTrend || data.length < 2 || selectedMetrics.length === 0) return data
 
-        const trendsByIndex = new Map<number, any>()
+        if (!showTrend || data.length < 2 || selectedMetrics.length === 0) return data
+
+        const trendsByIndex = new Map<number, Record<string, number>>()
 
         // Helper to retrieve value safely (including computed fields like adjusted_score)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const getValue = (d: any, key: string) => {
             // Check top-level (like adjusted_score, step_count)
             if (d[key] !== undefined) return d[key]
@@ -351,7 +361,6 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             // 2. Previous Period Data Setup
             let prevStart: Date
             let prevEnd: Date
-            // const now = new Date()
 
             const { start: cStart, end: cEnd } = visibleRange
 
@@ -449,9 +458,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 hrv: Math.round(base + Math.random() * 10 - 5),
                 symptom_score: Math.max(0, Math.min(3, 1.5 + Math.cos(i / 4))),
                 resting_heart_rate: 60 + Math.random() * 5,
+                custom_metrics: undefined
             })
         }
-        return data
+        return data as unknown as DashboardReviewProps['data']
     }
 
     return (
@@ -543,7 +553,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 <div key={stat.key} className="space-y-1">
                                     <div className="text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: getMetricConfig(stat.key).color }}>
                                         {stat.label}
-                                        {(getMetricConfig(stat.key) as any).description && (
+                                        {getMetricConfig(stat.key).description && (
                                             <TooltipProvider>
                                                 <InfoTooltip>
                                                     <TooltipTrigger asChild>
@@ -551,8 +561,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                                     </TooltipTrigger>
                                                     <TooltipContent className="max-w-[200px] text-xs">
                                                         <p className="font-semibold mb-1">{t('dashboard.metrics.about')} {stat.label}</p>
-                                                        <p className="mb-2">{(getMetricConfig(stat.key) as any).description}</p>
-                                                        <p className="font-medium text-muted-foreground">{(getMetricConfig(stat.key) as any).better}</p>
+                                                        <p className="mb-2">{getMetricConfig(stat.key).description}</p>
+                                                        <p className="font-medium text-muted-foreground">{getMetricConfig(stat.key).better}</p>
                                                     </TooltipContent>
                                                 </InfoTooltip>
                                             </TooltipProvider>
@@ -800,7 +810,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                             <div className="bg-zinc-900 text-white text-xs p-3 rounded-lg shadow-xl border border-zinc-800">
                                                 <p className="font-semibold mb-2">{label ? format(parseISO(label as string), 'EEE, MMM d') : ''}</p>
                                                 <div className="flex flex-col gap-1">
-                                                    {payload.map((p: any) => {
+                                                    {payload.map((p) => {
                                                         // Filter out Trend line from tooltip if needed or keep it
                                                         if (String(p.dataKey).startsWith('trend_')) {
                                                             const metricKey = String(p.dataKey).replace('trend_', '')

@@ -14,7 +14,7 @@ export default async function InsightsPage() {
     // Fetch All Health Data for Deep Analysis
     const { data: healthMetrics, error } = await supabase
         .from('health_metrics')
-        .select('date, hrv, resting_heart_rate, step_count, composite_score, custom_metrics')
+        .select('date, hrv, resting_heart_rate, step_count, symptom_score, exertion_score, custom_metrics')
         .eq('user_id', user.id)
         .order('date', { ascending: true })
 

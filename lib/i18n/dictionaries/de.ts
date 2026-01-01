@@ -315,5 +315,13 @@ export const de: Dictionary = {
         medical_disclaimer_text: "Diese App dient ausschließlich Informationszwecken und bietet keine medizinische Beratung, Diagnose oder Behandlung. Lassen Sie sich immer von Ihrem Arzt beraten.",
         not_medical_product: "Kein Medizinprodukt",
         copyright: "© 2025 Visible Analytics. Alle Rechte vorbehalten."
+    },
+    authCodeError: {
+        title: "Link abgelaufen",
+        description: "Es sieht so aus, als ob dieser Bestätigungslink bereits verwendet wurde oder abgelaufen ist. Aus Sicherheitsgründen kann jeder Link nur einmal verwendet werden.",
+        button_login: "Anmeldung versuchen",
+        button_home: "Zurück zur Startseite",
+        help_title: "Hilfe benötigt?",
+        help_text: "Wenn du dich noch nicht eingeloggt hast, versuche einen neuen Link anzufordern, indem du deine E-Mail erneut auf der Login- oder Registrierungsseite eingibst. Wenn das Problem weiterhin besteht, kontaktiere uns gerne."
     }
 }

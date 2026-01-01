@@ -298,4 +298,12 @@ export interface Dictionary {
         not_medical_product: string
         copyright: string
     }
+    authCodeError: {
+        title: string
+        description: string
+        button_login: string
+        button_home: string
+        help_title: string
+        help_text: string
+    }
 }

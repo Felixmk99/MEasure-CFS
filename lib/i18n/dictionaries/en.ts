@@ -315,5 +315,13 @@ export const en: Dictionary = {
         medical_disclaimer_text: "This app is for informational purposes only and does not provide medical advice, diagnosis, or treatment. Always seek the advice of your physician.",
         not_medical_product: "Not for medical use",
         copyright: "© 2025 Visible Analytics. All rights reserved."
+    },
+    authCodeError: {
+        title: "Login Link Expired",
+        description: "It looks like this confirmation link has already been used or has expired. For security, each link can only be used once.",
+        button_login: "Try Logging In",
+        button_home: "Back to Home",
+        help_title: "Need help?",
+        help_text: "If you haven't logged in yet, try requesting a new link by entering your email at the login or signup page again. If the issue persists, feel free to contact us."
     }
 }
