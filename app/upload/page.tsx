@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import DataManagementClient from "./data-client";
-import { ScorableEntry } from '@/lib/scoring/composite-score';
 
 export default async function DataPage() {
     const supabase = await createClient()

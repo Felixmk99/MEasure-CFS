@@ -55,16 +55,11 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         setTimeout(() => setMounted(true), 0)
     }, [])
 
-    // Sync state with server/prop updates (e.g. after router.refresh())
     // Sync state with server/prop updates
     useEffect(() => {
-        if (initialData !== dataLog) {
-            setTimeout(() => setDataLog(initialData), 0)
-        }
-        if (initialHasData !== hasData) {
-            setTimeout(() => setHasData(initialHasData), 0)
-        }
-    }, [initialData, initialHasData, dataLog, hasData])
+        setDataLog(initialData)
+        setHasData(initialHasData)
+    }, [initialData, initialHasData])
 
     const filteredData = useMemo(() => {
         if (timeRange === 'all') return dataLog
@@ -143,15 +138,17 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     }
 
     const handleUpdate = async (id: string, updatedData: Partial<ScorableEntry>) => {
+        const updatePayload = {
+            hrv: updatedData.hrv,
+            resting_heart_rate: updatedData.resting_heart_rate,
+            step_count: updatedData.step_count,
+            exertion_score: updatedData.exertion_score,
+            symptom_score: updatedData.symptom_score,
+            custom_metrics: updatedData.custom_metrics
+        }
+
         const { error } = await (supabase.from('health_metrics') as any)
-            .update({
-                hrv: updatedData.hrv,
-                resting_heart_rate: updatedData.resting_heart_rate,
-                step_count: updatedData.step_count,
-                exertion_score: updatedData.exertion_score,
-                symptom_score: updatedData.symptom_score,
-                custom_metrics: updatedData.custom_metrics
-            })
+            .update(updatePayload)
             .eq('id', id)
 
         if (!error) {
@@ -379,7 +376,10 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 <EditDataDialog
                     open={!!editingEntry}
                     onOpenChange={(open) => !open && setEditingEntry(null)}
-                    entry={editingEntry as any}
+                    entry={editingEntry ? {
+                        ...editingEntry,
+                        custom_metrics: editingEntry.custom_metrics || {}
+                    } : null}
                     onSave={handleUpdate}
                 />
             </div>

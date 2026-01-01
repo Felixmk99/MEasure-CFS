@@ -70,6 +70,9 @@ const STEP_PROVIDERS = [
     }
 ] as const
 
+type SymptomProviderId = typeof SYMPTOM_PROVIDERS[number]['id']
+type StepProviderId = typeof STEP_PROVIDERS[number]['id']
+
 export default function OnboardingPage() {
     const [step, setStep] = useState<1 | 2>(1)
     const [selectedSymptom, setSelectedSymptom] = useState<typeof SYMPTOM_PROVIDERS[number]['id']>('visible')
@@ -128,9 +131,9 @@ export default function OnboardingPage() {
 
     const currentProviders = step === 1 ? SYMPTOM_PROVIDERS : STEP_PROVIDERS
     const selectedId = step === 1 ? selectedSymptom : selectedStep
-    const setSelected = (id: string) => {
-        if (step === 1) setSelectedSymptom(id as any)
-        else setSelectedStep(id as any)
+    const setSelected = (id: SymptomProviderId | StepProviderId) => {
+        if (step === 1) setSelectedSymptom(id as SymptomProviderId)
+        else setSelectedStep(id as StepProviderId)
     }
 
     return (

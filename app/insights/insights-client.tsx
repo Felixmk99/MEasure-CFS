@@ -95,7 +95,9 @@ export default function InsightsClient({ data }: InsightsClientProps) {
                                 All-Time Analysis
                             </Badge>
                             <span className="text-[10px] text-zinc-400 mt-2">
-                                Last updated: {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                Last updated: {data.length > 0
+                                    ? new Date(data[data.length - 1].date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                                    : 'N/A'}
                             </span>
                         </div>
                     </div>

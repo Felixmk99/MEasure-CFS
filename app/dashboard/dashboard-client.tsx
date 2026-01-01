@@ -228,17 +228,17 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         if (!showTrend || data.length < 2 || selectedMetrics.length === 0) return data
 
-        if (!showTrend || data.length < 2 || selectedMetrics.length === 0) return data
 
         const trendsByIndex = new Map<number, Record<string, number>>()
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const getValue = (d: any, key: string) => {
+        const getValue = (d: Record<string, unknown>, key: string): number | null => {
             // Check top-level (like adjusted_score, step_count)
-            if (d[key] !== undefined) return d[key]
+            if (d[key] !== undefined && typeof d[key] === 'number') return d[key] as number
             // Check custom_metrics (like composite_score)
-            if (d.custom_metrics && (d.custom_metrics as Record<string, any>)[key] !== undefined) {
-                return (d.custom_metrics as Record<string, any>)[key]
+            const customMetrics = d.custom_metrics as Record<string, unknown> | undefined
+            if (customMetrics && customMetrics[key] !== undefined) {
+                const val = customMetrics[key]
+                return typeof val === 'number' ? val : null
             }
             return null
         }

@@ -133,8 +133,7 @@ export function BearableUploader() {
         // We reuse the 'visible' type for the hook if needed, or we could add 'bearable'
         // For now, if the user starts an upload from the generic dropzone on landing, 
         // they might have 'visible' type. 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (pendingUpload && (pendingUpload.type === 'visible' || pendingUpload.type === 'bearable' as any)) {
+        if (pendingUpload && (pendingUpload.type === 'visible' || pendingUpload.type === 'bearable')) {
             const file = pendingUpload.file
             clearPendingUpload()
             processFile(file)

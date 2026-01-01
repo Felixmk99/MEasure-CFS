@@ -20,7 +20,7 @@ import { ScorableEntry } from '@/lib/scoring/composite-score'
 interface EditDataDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    entry: ScorableEntry
+    entry: ScorableEntry | null
     onSave: (id: string, updatedData: Partial<ScorableEntry>) => Promise<void>
 }
 

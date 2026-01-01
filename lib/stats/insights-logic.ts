@@ -78,8 +78,21 @@ export function detectThresholds(
     const insights: ThresholdInsight[] = [];
 
     metrics.forEach(m => {
+        // Helper to get value from top-level or custom_metrics
+        const getValue = (d: InsightMetric, key: string): number | undefined => {
+            const topLevel = d[key]
+            if (typeof topLevel === 'number') return topLevel
+            if (d.custom_metrics && typeof d.custom_metrics[key] === 'number') {
+                return d.custom_metrics[key] as number
+            }
+            return undefined
+        }
+
         const pairs = data
-            .map(d => ({ x: Number(d[m] as number), y: Number(d[impactMetric] as number) }))
+            .map(d => ({
+                x: getValue(d, m) ?? NaN,
+                y: getValue(d, impactMetric) ?? NaN
+            }))
             .filter(p => !isNaN(p.x) && !isNaN(p.y));
 
         if (pairs.length < 10) return;

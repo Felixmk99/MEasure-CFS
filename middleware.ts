@@ -53,7 +53,8 @@ export async function middleware(request: NextRequest) {
     // Protected routes
     if (request.nextUrl.pathname.startsWith('/dashboard') ||
         request.nextUrl.pathname.startsWith('/upload') ||
-        request.nextUrl.pathname.startsWith('/experiments')) {
+        request.nextUrl.pathname.startsWith('/experiments') ||
+        request.nextUrl.pathname.startsWith('/insights')) {
         if (!user) {
             return NextResponse.redirect(new URL('/login', request.url))
         }

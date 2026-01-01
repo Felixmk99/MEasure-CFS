@@ -207,8 +207,6 @@ export function XmlUploader() {
                         variant={status === 'success' ? "outline" : "default"}
                         className={`rounded-full px-8 h-12 text-sm font-semibold shadow-lg transition-transform hover:scale-105 ${status === 'success' ? 'border-green-200 text-green-700 hover:text-green-800 hover:bg-green-50' : 'bg-zinc-900 text-white hover:bg-zinc-800'}`}
                         onClick={(e) => {
-                            // For now, assume generic type if needed or 'visible'
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             if (status === 'success' || status === 'error') {
                                 e.stopPropagation();
                                 setStatus('idle');

@@ -88,10 +88,25 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         });
 
         allKeys.forEach(m => {
+            // Helper to safely extract metric value
+            const getMetricValue = (d: MetricDay): number | undefined => {
+                // Check top-level property
+                if (m in d) {
+                    const val = d[m as keyof MetricDay]
+                    return typeof val === 'number' ? val : undefined
+                }
+                // Check custom_metrics
+                if (d.custom_metrics && typeof d.custom_metrics === 'object' && m in d.custom_metrics) {
+                    const val = d.custom_metrics[m]
+                    return typeof val === 'number' ? val : undefined
+                }
+                return undefined
+            }
+
             // Retrieve value from top-level OR custom_metrics
             const values = dataToAnalyze
-                .map(d => (d as any)[m] ?? (d.custom_metrics as any)?.[m])
-                .filter(v => typeof v === 'number') as number[]
+                .map(d => getMetricValue(d))
+                .filter((v): v is number => typeof v === 'number')
 
             if (values.length > 0) {
                 const mean = values.reduce((a, b) => a + b, 0) / values.length
