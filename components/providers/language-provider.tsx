@@ -7,6 +7,7 @@ import { de } from '@/lib/i18n/dictionaries/de'
 
 type LanguageProviderProps = {
     children: React.ReactNode
+    initialLocale?: Locale
 }
 
 type LanguageContextType = {
@@ -18,8 +19,8 @@ type LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
-export function LanguageProvider({ children }: LanguageProviderProps) {
-    const [locale, setLocaleState] = useState<Locale>('en')
+export function LanguageProvider({ children, initialLocale }: LanguageProviderProps) {
+    const [locale, setLocaleState] = useState<Locale>(initialLocale || 'en')
     const [mounted, setMounted] = useState(false)
 
     // Load persisted preference or detect domain
