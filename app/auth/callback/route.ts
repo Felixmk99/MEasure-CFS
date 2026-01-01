@@ -44,6 +44,10 @@ export async function GET(request: Request) {
                 return NextResponse.redirect(`${origin}/onboarding`)
             }
             return NextResponse.redirect(`${origin}${next}`)
+        } else if (error) {
+            console.error("Auth callback error:", error.message, error.code)
+            // Redirect to error page with the original error params if any
+            return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${error.code || 'unknown'}`)
         }
     }
 

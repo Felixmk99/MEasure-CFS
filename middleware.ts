@@ -42,9 +42,13 @@ export async function middleware(request: NextRequest) {
 
     // Refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
+    // IMPORTANT: We skip this for /auth/callback to avoid consuming the auth code
+    // before the route handler can exchange it.
+    let user = null;
+    if (!request.nextUrl.pathname.startsWith('/auth/callback')) {
+        const { data } = await supabase.auth.getUser()
+        user = data.user
+    }
 
     // Protected routes
     if (request.nextUrl.pathname.startsWith('/dashboard') ||
