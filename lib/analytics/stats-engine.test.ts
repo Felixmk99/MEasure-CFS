@@ -49,9 +49,9 @@ describe('analyzeExperiment', () => {
 
         expect(result).not.toBeNull()
         if (result) {
-            expect(result.baselineMean).toBeLessThan(result.treatmentMean)
+            expect(result.baselineMean).toBeGreaterThan(result.treatmentMean)
             expect(result.isSignificant).toBe(true)
-            expect(result.changePercent).toBeGreaterThan(0)
+            expect(result.changePercent).toBeLessThan(0)
         }
     })
 

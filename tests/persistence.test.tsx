@@ -129,9 +129,11 @@ describe('Persistence & Onboarding Logic', () => {
             );
             const { result } = renderHook(() => RealUseUpload(), { wrapper });
 
-            expect(result.current.pendingUpload).not.toBeNull();
-            expect(result.current.pendingUpload?.file.name).toBe('restored.csv');
-            expect(result.current.pendingUpload?.type).toBe('bearable');
+            await waitFor(() => {
+                expect(result.current.pendingUpload).not.toBeNull();
+                expect(result.current.pendingUpload?.file.name).toBe('restored.csv');
+                expect(result.current.pendingUpload?.type).toBe('bearable');
+            });
         });
     });
 
