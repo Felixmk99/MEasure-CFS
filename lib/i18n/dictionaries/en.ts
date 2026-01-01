@@ -49,7 +49,7 @@ export const en: Dictionary = {
             predictive_insights: "with data-driven insights",
             drop_title: "Drop Visible App export to begin",
             drop_title_generic: "Drop App export to begin",
-            drop_desc: "Upload CSV files from Visible, Bearable, Daylio, Symptom Shark, Guava or MyDataHelps. Your journey to clarity starts here.",
+            drop_desc: "Upload CSV files from your Visible or Bearable app (More apps coming soon). Your journey to clarity starts here.",
             create_account_hint: "New here? Create account first →"
         },
         pillars: {

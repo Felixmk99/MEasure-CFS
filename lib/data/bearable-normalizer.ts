@@ -92,7 +92,7 @@ export function normalizeBearableData(rows: any[]) {
             // Split by | for multiple entries in one line
             const segments = detail.split('|').map((s: string) => s.trim()).filter(Boolean);
 
-            segments.forEach(segment => {
+            segments.forEach((segment: string) => {
                 // Format usually looks like: "Emoji Name - Level" (e.g. "☕ Caffeine - A lot")
                 // Or sometimes just "Emoji Name"
                 let name = segment;
