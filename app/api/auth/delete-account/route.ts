@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-export async function DELETE(request: Request) {
+export async function DELETE(_request: Request) {
     try {
         const supabase = await createClient()
         const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -70,7 +70,7 @@ export async function DELETE(request: Request) {
         }
 
         return NextResponse.json({ success: true })
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Unexpected error in delete-account:', error)
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }

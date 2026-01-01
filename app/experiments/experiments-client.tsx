@@ -3,9 +3,9 @@
 import { useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { format, differenceInDays, parseISO, isAfter, isBefore } from "date-fns"
-import { Plus, Trash, Pill, Activity, Moon, Utensils, ArrowUpRight, ArrowDownRight, Minus, Pencil, Beaker, Target } from "lucide-react"
+import { Plus, Trash, Pill, Activity, Moon, ArrowUpRight, ArrowDownRight, Minus, Pencil, Beaker, Target } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Database } from "@/types/database.types"
+// import { Database } from "@/types/database.types"
 import { enhanceDataWithScore } from "@/lib/scoring/composite-score"
 import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
 import { ExperimentImpactResults, getFriendlyName } from "@/components/experiments/experiment-impact"
@@ -101,7 +101,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             if (!user) throw new Error("No user")
 
             if (editingExp) {
-                const { data, error } = await (supabase as any).from('experiments').update({
+                const { data, error } = await supabase.from('experiments').update({
                     name: formData.name,
                     dosage: formData.dosage,
                     category: formData.category,
@@ -112,7 +112,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                 if (error) throw error
                 if (data) setExperiments(experiments.map(e => e.id === data.id ? (data as Experiment) : e))
             } else {
-                const { data, error } = await (supabase as any).from('experiments').insert({
+                const { data, error } = await supabase.from('experiments').insert({
                     user_id: user.id,
                     name: formData.name,
                     dosage: formData.dosage,
@@ -141,7 +141,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         setFormData({
             name: exp.name,
             dosage: exp.dosage || '',
-            category: (exp.category as any) || 'lifestyle',
+            category: (exp.category as 'lifestyle' | 'medication' | 'supplement' | 'other') || 'lifestyle',
             start_date: exp.start_date,
             end_date: exp.end_date || ''
         })
@@ -242,7 +242,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                 <Label>{t('experiments.form.category')}</Label>
                                 <Select
                                     value={formData.category}
-                                    onValueChange={v => setFormData({ ...formData, category: v as any })}
+                                    onValueChange={v => setFormData({ ...formData, category: v as 'lifestyle' | 'medication' | 'supplement' | 'other' })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />

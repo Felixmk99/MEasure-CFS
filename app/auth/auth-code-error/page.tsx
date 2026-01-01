@@ -6,7 +6,7 @@ import { AlertCircle, ArrowLeft, Mail } from 'lucide-react'
 import { useLanguage } from '@/components/providers/language-provider'
 
 export default function AuthCodeError() {
-    const { t } = useLanguage()
+    // const { t } = useLanguage()
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-6 text-center">
@@ -43,7 +43,7 @@ export default function AuthCodeError() {
                     Need help?
                 </div>
                 <p className="text-sm text-left text-muted-foreground leading-relaxed">
-                    If you haven't logged in yet, try requesting a new link by entering your email at the login or signup page again. If the issue persists, feel free to contact us.
+                    If you haven&apos;t logged in yet, try requesting a new link by entering your email at the login or signup page again. If the issue persists, feel free to contact us.
                 </p>
             </div>
         </div>

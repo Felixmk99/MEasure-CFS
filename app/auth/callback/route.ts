@@ -34,8 +34,8 @@ export async function GET(request: Request) {
         const { error, data } = await supabase.auth.exchangeCodeForSession(code)
         if (!error && data.user) {
             // Check if user has a profile with providers
-            const { data: profile } = await (supabase
-                .from('profiles') as any)
+            const { data: profile } = await supabase
+                .from('profiles')
                 .select('step_provider, symptom_provider')
                 .eq('id', data.user.id)
                 .single()

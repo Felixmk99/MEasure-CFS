@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
     ResponsiveContainer,
     ComposedChart,
@@ -14,8 +14,8 @@ import {
     ReferenceArea,
     ReferenceLine
 } from 'recharts'
-import { Activity, Moon, TrendingUp, TrendingDown, Minus, Info } from "lucide-react"
-import { format, subDays, isAfter, parseISO } from "date-fns"
+import { Activity, TrendingUp, TrendingDown, Minus, Info } from "lucide-react"
+import { format, subDays, parseISO } from "date-fns"
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from "@/components/ui/switch"
@@ -35,7 +35,7 @@ import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger
 type TimeRange = '7d' | '30d' | '3m' | '1y' | 'all' | 'custom'
 
 interface DashboardReviewProps {
-    data: any[]
+    data: Record<string, unknown>[]
 }
 
 
@@ -48,7 +48,7 @@ import { PEMAnalysis } from "@/components/dashboard/pem-analysis"
 import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 
 export default function DashboardClient({ data: initialData }: DashboardReviewProps) {
-    const { t, locale } = useLanguage()
+    const { t } = useLanguage()
 
     // -- 0a. Source Detection (Check if Visible data exists: HRV or RHR) --
     const hasVisibleData = useMemo(() => {
@@ -146,7 +146,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             }
         })
         return allOptions
-    }, [processedData])
+    }, [processedData, hasVisibleData])
 
     // -- 2b. Helper to get Config for ANY metric --
     const getMetricConfig = (key: string) => {
@@ -351,7 +351,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             // 2. Previous Period Data Setup
             let prevStart: Date
             let prevEnd: Date
-            const now = new Date()
+            // const now = new Date()
 
             const { start: cStart, end: cEnd } = visibleRange
 
@@ -429,7 +429,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 prevCrashCount
             }
         })
-    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, dateRange, visibleRange])
+    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, dateRange, visibleRange, getMetricConfig])
 
 
     // ... UI Render ...
@@ -474,7 +474,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                         : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
-                                {t(labelKey as any)}
+                                {t(labelKey)}
                             </button>
                         )
                     })}
@@ -739,7 +739,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                     {processedData.length === 0 && (
                         <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
                             <div className="text-center space-y-2">
-                                <p className="text-muted-foreground font-medium">{t('dashboard.status.insufficient_data' as any)}</p>
+                                <p className="text-muted-foreground font-medium">{t('dashboard.status.insufficient_data')}</p>
                                 <Button asChild variant="outline" size="sm">
                                     <Link href="/upload">{t('navbar.upload_data')}</Link>
                                 </Button>
@@ -750,7 +750,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                     <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                             <defs>
-                                {selectedMetrics.map((metric, i) => {
+                                {selectedMetrics.map((metric) => {
                                     const config = getMetricConfig(metric)
                                     // Sanitize ID for SVG (no spaces allowed)
                                     const safeId = metric.replace(/\s+/g, '-')
@@ -785,7 +785,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                         axisLine={false}
                                         tickLine={false}
                                         tick={{ fontSize: 12, fill: '#888' }}
-                                        domain={config.domain as any}
+                                        domain={config.domain as [number | 'auto' | 'dataMin' | 'dataMax', number | 'auto' | 'dataMin' | 'dataMax']}
                                         reversed={false}
                                         width={40}
                                         hide={index > 1}
