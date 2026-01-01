@@ -159,7 +159,6 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         }
     }
 
-    const { profile } = useUser()
     const stepProvider = profile?.step_provider || 'apple'
 
     const renderStepUploader = () => {
