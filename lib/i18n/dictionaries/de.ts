@@ -129,6 +129,7 @@ export const de: Dictionary = {
             transform_title: "Verstehe deine Gesundheit",
             predictive_insights: "mit datengestützten Analysen",
             drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
+            drop_title_generic: "Zieh deine App Daten hierher, um zu beginnen",
             drop_desc: "Lade CSV-Dateien von Visible, Bearable, Daylio, Symptom Shark, Guava oder MyDataHelps hoch. Deine Reise zur Klarheit beginnt hier.",
             create_account_hint: "Neu hier? Erstelle zuerst ein Konto →"
         },
