@@ -74,8 +74,9 @@ export function BearableUploader() {
                         .select('date')
                         .eq('user_id', user.id)
 
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const existingDateSet = new Set((existingDatesData as any[] || []).map(r => r.date))
+                    const existingDateSet = new Set(
+                        (existingDatesData as { date: string }[] || []).map(r => r.date)
+                    )
 
                     // 2. Filter for brand-new days only
                     const recordsToUpload = dbRecords.filter(r => !existingDateSet.has(r.date))
@@ -92,6 +93,7 @@ export function BearableUploader() {
                     for (let i = 0; i < recordsToUpload.length; i += BATCH_SIZE) {
                         const batch = recordsToUpload.slice(i, i + BATCH_SIZE)
 
+                        // Supabase strict typing requires cast for batch insert
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const { error } = await supabase
                             .from('health_metrics')

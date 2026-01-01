@@ -34,10 +34,11 @@ interface DataEntry {
     hrv: number | null
     resting_heart_rate: number | null
     symptom_score: number | null
-    custom_metrics: Record<string, number> | null
+    custom_metrics?: Record<string, unknown>
     exertion_score: number | null
     step_count: number | null
     created_at: string
+    [key: string]: unknown
 }
 
 export default function DataManagementClient({ initialData, hasData: initialHasData, hasSteps }: { initialData: DataEntry[], hasData: boolean, hasSteps: boolean }) {
@@ -56,6 +57,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     }, [])
 
     // Sync state with server/prop updates
+    // Safe prop-to-state sync pattern - only depends on props, not state
     useEffect(() => {
         setDataLog(initialData)
         setHasData(initialHasData)
@@ -144,7 +146,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             step_count?: number | null
             exertion_score?: number | null
             symptom_score?: number | null
-            custom_metrics?: Record<string, number> | null
+            custom_metrics?: Record<string, unknown>
         }
 
         const updatePayload = {
@@ -153,7 +155,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             step_count: updatedData.step_count,
             exertion_score: updatedData.exertion_score,
             symptom_score: updatedData.symptom_score,
-            custom_metrics: updatedData.custom_metrics as Record<string, number> | null | undefined
+            custom_metrics: updatedData.custom_metrics
         } satisfies HealthMetricUpdate
 
         // Supabase strict typing requires cast for update payload
@@ -389,10 +391,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 <EditDataDialog
                     open={!!editingEntry}
                     onOpenChange={(open) => !open && setEditingEntry(null)}
-                    entry={editingEntry ? {
-                        ...editingEntry,
-                        custom_metrics: editingEntry.custom_metrics || {}
-                    } : null}
+                    entry={editingEntry}
                     onSave={handleUpdate}
                 />
             </div>
