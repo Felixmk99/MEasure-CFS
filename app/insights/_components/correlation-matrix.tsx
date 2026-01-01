@@ -17,6 +17,18 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
     const labels = allUniqueLabels.slice(0, 10) // Limit to 10 for readability
     const isTruncated = allUniqueLabels.length > 10
 
+    // Build lookup map for O(1) access
+    const corrMap = React.useMemo(() => {
+        const map = new Map<string, number>()
+        correlations.forEach(c => {
+            if (c.lag === 0) {
+                map.set(`${c.metricA}:${c.metricB}`, c.coefficient)
+                map.set(`${c.metricB}:${c.metricA}`, c.coefficient)
+            }
+        })
+        return map
+    }, [correlations])
+
     if (labels.length === 0) return null
 
     return (
@@ -45,69 +57,54 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             gridTemplateColumns: `auto repeat(${labels.length}, 1fr)`,
                             minWidth: '500px'
                         }}>
-                            {/* Build lookup map for O(1) access */}
-                            {(() => {
-                                const corrMap = new Map<string, number>()
-                                correlations.forEach(c => {
-                                    if (c.lag === 0) {
-                                        corrMap.set(`${c.metricA}:${c.metricB}`, c.coefficient)
-                                        corrMap.set(`${c.metricB}:${c.metricA}`, c.coefficient)
-                                    }
-                                })
+                            {/* Header Row */}
+                            <div />
+                            {labels.map(l => (
+                                <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-20 flex items-end pb-2 px-1 truncate max-w-20">
+                                    {l.replaceAll('_', ' ')}
+                                </div>
+                            ))}
 
-                                return (
-                                    <>
-                                        {/* Header Row */}
-                                        <div />
-                                        {labels.map(l => (
-                                            <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-20 flex items-end pb-2 px-1 truncate max-w-20">
-                                                {l.replaceAll('_', ' ')}
-                                            </div>
-                                        ))}
+                            {/* Rows */}
+                            {labels.map(rowLabel => (
+                                <React.Fragment key={rowLabel}>
+                                    <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center pr-2 truncate max-w-24">
+                                        {rowLabel.replaceAll('_', ' ')}
+                                    </div>
+                                    {labels.map(colLabel => {
+                                        const coefficient = corrMap.get(`${rowLabel}:${colLabel}`)
+                                        const isMissing = coefficient === undefined || (rowLabel === colLabel && coefficient === 0)
+                                        const r = coefficient ?? (rowLabel === colLabel ? 1 : 0)
+                                        const intensity = Math.abs(r)
 
-                                        {/* Rows */}
-                                        {labels.map(rowLabel => (
-                                            <React.Fragment key={rowLabel}>
-                                                <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center pr-2 truncate max-w-24">
-                                                    {rowLabel.replaceAll('_', ' ')}
-                                                </div>
-                                                {labels.map(colLabel => {
-                                                    const coefficient = corrMap.get(`${rowLabel}:${colLabel}`)
-                                                    const isMissing = coefficient === undefined || (rowLabel === colLabel && coefficient === 0) // Treat self-correlation as identity or missing if not computed
-                                                    const r = coefficient ?? (rowLabel === colLabel ? 1 : 0)
-                                                    const intensity = Math.abs(r)
-
-                                                    return (
-                                                        <Tooltip key={`${rowLabel}-${colLabel}`}>
-                                                            <TooltipTrigger asChild>
-                                                                <div
-                                                                    className={cn(
-                                                                        "aspect-square rounded-sm transition-all hover:scale-110 cursor-help",
-                                                                        isMissing
-                                                                            ? "bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/20 dark:border-zinc-700/20 opacity-30"
-                                                                            : intensity < 0.2
-                                                                                ? "bg-zinc-100 dark:bg-zinc-800"
-                                                                                : r > 0 ? "bg-primary" : "bg-destructive"
-                                                                    )}
-                                                                    style={{
-                                                                        opacity: isMissing ? 0.3 : (intensity < 0.2 ? 1 : intensity)
-                                                                    }}
-                                                                />
-                                                            </TooltipTrigger>
-                                                            <TooltipContent className="backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 border-zinc-200 dark:border-zinc-800">
-                                                                <p className="text-xs font-medium">{rowLabel.replaceAll('_', ' ')} vs {colLabel.replaceAll('_', ' ')}</p>
-                                                                <p className="text-[10px] text-muted-foreground">
-                                                                    {isMissing ? "Insufficient Data" : `Correlation: ${r.toFixed(2)}`}
-                                                                </p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    )
-                                                })}
-                                            </React.Fragment>
-                                        ))}
-                                    </>
-                                )
-                            })()}
+                                        return (
+                                            <Tooltip key={`${rowLabel}-${colLabel}`}>
+                                                <TooltipTrigger asChild>
+                                                    <div
+                                                        className={cn(
+                                                            "aspect-square rounded-sm transition-all hover:scale-110 cursor-help",
+                                                            isMissing
+                                                                ? "bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/20 dark:border-zinc-700/20"
+                                                                : intensity < 0.2
+                                                                    ? "bg-zinc-100 dark:bg-zinc-800"
+                                                                    : r > 0 ? "bg-primary" : "bg-destructive"
+                                                        )}
+                                                        style={{
+                                                            opacity: isMissing ? 0.3 : (intensity < 0.2 ? 1 : intensity)
+                                                        }}
+                                                    />
+                                                </TooltipTrigger>
+                                                <TooltipContent className="backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 border-zinc-200 dark:border-zinc-800">
+                                                    <p className="text-xs font-medium">{rowLabel.replaceAll('_', ' ')} vs {colLabel.replaceAll('_', ' ')}</p>
+                                                    <p className="text-[10px] text-muted-foreground">
+                                                        {isMissing ? "Insufficient Data" : `Correlation: ${r.toFixed(2)}`}
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )
+                                    })}
+                                </React.Fragment>
+                            ))}
                         </div>
                     </div>
                 </TooltipProvider>

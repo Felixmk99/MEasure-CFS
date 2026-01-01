@@ -68,8 +68,12 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
 /**
  * Detects 'Safe Zones' where a metric (like steps) significantly increases symptom load.
  */
-export function detectThresholds(data: InsightMetric[], impactMetric: string = 'symptom_score'): ThresholdInsight[] {
-    const metrics = ['step_count', 'Physical Exertion', 'Cognitive Exertion', 'Work'];
+export function detectThresholds(
+    data: InsightMetric[],
+    impactMetric: string = 'symptom_score',
+    triggerMetrics: string[] = ['step_count', 'Physical Exertion', 'Cognitive Exertion', 'Work']
+): ThresholdInsight[] {
+    const metrics = triggerMetrics;
     const insights: ThresholdInsight[] = [];
 
     metrics.forEach(m => {
@@ -113,13 +117,10 @@ export function detectThresholds(data: InsightMetric[], impactMetric: string = '
  * @experimental Currently returning empty array until logic is finalized.
  */
 export function calculateRecoveryVelocity(data: InsightMetric[]): { metric: string, recoveryDays: number }[] {
-    const exertionKeys = ['exertion_score', 'Physical Exertion', 'Cognitive Exertion'];
-    const impactKeys = ['hrv', 'resting_heart_rate', 'symptom_score'];
-    const results: { metric: string, recoveryDays: number }[] = [];
-
-    // This is a complex heuristic: Look for spikes in exertion, then measure days until HRV/Symptom returns to baseline (7d mean)
-    // Simplified for now: We return the average lag of strongest correlations
-    return results;
+    // TODO: Implement recovery velocity calculation
+    // Planned approach: Look for spikes in exertion (exertion_score, Physical Exertion, Cognitive Exertion),
+    // then measure days until HRV/Symptom returns to baseline (7d mean)
+    return [];
 }
 
 // Helpers
