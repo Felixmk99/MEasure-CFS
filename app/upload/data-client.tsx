@@ -44,7 +44,9 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     const [hasData, setHasData] = useState(initialHasData)
     const [timeRange, setTimeRange] = useState<string>('all')
     const [mounted, setMounted] = useState(false)
-    const [showUpload, setShowUpload] = useState(!(initialHasData && hasSteps))
+    const { profile } = useUser()
+    const isBearable = profile?.symptom_provider === 'bearable'
+    const [showUpload, setShowUpload] = useState(!(initialHasData && (hasSteps || isBearable)))
     const [editingEntry, setEditingEntry] = useState<DataEntry | null>(null)
 
     useEffect(() => {

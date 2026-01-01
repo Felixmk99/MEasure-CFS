@@ -36,11 +36,7 @@ export async function GET(request: Request) {
             // Check if user has a profile with a step provider
             const { data: profile } = await (supabase
                 .from('profiles') as any)
-                .select('step_provider')
-                .eq('id', data.user.id)
-                .single()
-
-            if (!profile?.step_provider) {
+            if (!profile?.step_provider || !profile?.symptom_provider) {
                 return NextResponse.redirect(`${origin}/onboarding`)
             }
             return NextResponse.redirect(`${origin}${next}`)
