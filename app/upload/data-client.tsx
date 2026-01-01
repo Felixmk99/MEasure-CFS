@@ -147,12 +147,14 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             custom_metrics: updatedData.custom_metrics
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await (supabase.from('health_metrics') as any)
             .update(updatePayload)
             .eq('id', id)
 
         if (!error) {
             const newData = dataLog.map(item => item.id === id ? { ...item, ...updatedData } : item)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setDataLog(newData as any)
             await revalidateApp()
             window.dispatchEvent(new CustomEvent('health-data-updated'))

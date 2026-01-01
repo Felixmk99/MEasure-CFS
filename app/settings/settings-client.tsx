@@ -302,6 +302,7 @@ function StepProviderCard() {
     const handleProviderChange = async (val: string) => {
         setUpdating(true)
         try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await updateStepProvider(val as any)
         } catch (error) {
             console.error(error)

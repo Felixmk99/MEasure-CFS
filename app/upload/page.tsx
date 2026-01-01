@@ -21,6 +21,7 @@ export default async function DataPage() {
 
     // 2. Fetch Recent Logs (for the table)
     // Only if hasData to save resources
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let recentLogs: any[] = []
     if (hasData) {
         const { data } = await supabase

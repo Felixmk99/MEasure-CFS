@@ -115,6 +115,7 @@ export function XmlUploader() {
                     // Upsert records (preserving symptoms/HRV)
                     const { error } = await supabase
                         .from('health_metrics')
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         .upsert(upsertBatch as any, {
                             onConflict: 'user_id, date'
                         })

@@ -27,6 +27,7 @@ export function AddExperimentDialog() {
         const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await (supabase.from('experiments') as any).insert({
                 user_id: user.id,
                 name,

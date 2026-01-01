@@ -20,6 +20,7 @@ export async function parseGoogleFitCsv(csvContent: string): Promise<ParsedStepD
             complete: (results) => {
                 const dailyAggregation: Record<string, number> = {}
 
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 results.data.forEach((row: any) => {
                     // Normalize headers (Google Fit headers can have many variations)
                     const normalizedRow: Record<string, unknown> = {}
@@ -40,10 +41,12 @@ export async function parseGoogleFitCsv(csvContent: string): Promise<ParsedStepD
                     if (dateVal && stepsVal !== undefined && stepsVal !== null) {
                         try {
                             // Try parsing date (ISO or natural)
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             let parsedDate = typeof dateVal === 'string' ? parseISO(dateVal) : new Date(dateVal as any)
 
                             // If invalid, fallback to plain JS Date
                             if (!isValid(parsedDate)) {
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 parsedDate = new Date(dateVal as any)
                             }
 

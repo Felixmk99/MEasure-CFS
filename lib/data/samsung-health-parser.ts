@@ -26,6 +26,7 @@ export async function parseSamsungHealthCsv(csvContent: string): Promise<ParsedS
                 // If there's garbage rows before the actual data, we might need to skip them.
                 // Usually Samsung CSVs start with a row of metadata (device info) or just headers.
 
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 results.data.forEach((row: any) => {
                     // Extract fields
                     const startTime = row['start_time']

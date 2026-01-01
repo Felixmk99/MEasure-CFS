@@ -151,6 +151,7 @@ export function normalizeBearableData(rows: BearableRow[]) {
             record.symptom_score = calculateSymptomScore(record.custom_metrics);
             record.exertion_score = calculateExertionScore(record.custom_metrics);
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete (record as any)._has_trackers;
         return record;
     });

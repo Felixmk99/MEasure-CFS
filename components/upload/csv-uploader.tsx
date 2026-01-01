@@ -46,6 +46,7 @@ export function CsvUploader() {
 
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const records = normalizeLongFormatData(validRows as any)
 
                     if (records.length === 0) {
@@ -97,6 +98,7 @@ export function CsvUploader() {
 
                         const { error } = await supabase
                             .from('health_metrics')
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             .insert(batch as any)
 
                         if (error) {
