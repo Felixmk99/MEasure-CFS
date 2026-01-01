@@ -6,7 +6,7 @@ import Papa from 'papaparse'
 import { Upload, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { normalizeBearableData } from '@/lib/data/bearable-normalizer'
+import { normalizeBearableData, type BearableRow } from '@/lib/data/bearable-normalizer'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from "@/components/providers/language-provider"
@@ -44,10 +44,10 @@ export function BearableUploader() {
                         throw new Error('You must be logged in to upload data.')
                     }
 
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const records = normalizeBearableData(validRows as any)
+                    const validRows = results.data.filter((r): r is BearableRow =>
+                        typeof r === 'object' && r !== null && Object.values(r).some(v => !!v)
+                    )
+                    const records = normalizeBearableData(validRows)
 
                     if (records.length === 0) {
                         const headers = results.meta.fields || []

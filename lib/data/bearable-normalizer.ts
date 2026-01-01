@@ -1,6 +1,6 @@
 import { calculateSymptomScore, calculateExertionScore } from "@/lib/scoring/logic";
 
-interface BearableRow {
+export interface BearableRow {
     'date formatted': string;
     category: string;
     'rating/amount'?: string;

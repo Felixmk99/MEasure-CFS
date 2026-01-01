@@ -138,24 +138,35 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     }
 
     const handleUpdate = async (id: string, updatedData: Partial<ScorableEntry>) => {
+        type HealthMetricUpdate = {
+            hrv?: number | null
+            resting_heart_rate?: number | null
+            step_count?: number | null
+            exertion_score?: number | null
+            symptom_score?: number | null
+            custom_metrics?: Record<string, number> | null
+        }
+
         const updatePayload = {
             hrv: updatedData.hrv,
             resting_heart_rate: updatedData.resting_heart_rate,
             step_count: updatedData.step_count,
             exertion_score: updatedData.exertion_score,
             symptom_score: updatedData.symptom_score,
-            custom_metrics: updatedData.custom_metrics
-        }
+            custom_metrics: updatedData.custom_metrics as Record<string, number> | null | undefined
+        } satisfies HealthMetricUpdate
 
+        // Supabase strict typing requires cast for update payload
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await (supabase.from('health_metrics') as any)
             .update(updatePayload)
             .eq('id', id)
 
         if (!error) {
-            const newData = dataLog.map(item => item.id === id ? { ...item, ...updatedData } : item)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            setDataLog(newData as any)
+            const newData = dataLog.map(item =>
+                item.id === id ? { ...item, ...updatedData } as DataEntry : item
+            )
+            setDataLog(newData)
             await revalidateApp()
             window.dispatchEvent(new CustomEvent('health-data-updated'))
             router.refresh()

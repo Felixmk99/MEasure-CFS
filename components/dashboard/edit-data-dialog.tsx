@@ -17,10 +17,14 @@ import { calculateExertionScore, calculateSymptomScore } from "@/lib/scoring/log
 
 import { ScorableEntry } from '@/lib/scoring/composite-score'
 
+interface EditableEntry extends ScorableEntry {
+    id: string
+}
+
 interface EditDataDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    entry: ScorableEntry | null
+    entry: EditableEntry | null
     onSave: (id: string, updatedData: Partial<ScorableEntry>) => Promise<void>
 }
 
@@ -58,9 +62,15 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
 
         setFormData((prev) => {
             if (!prev) return null
-            const newCustom = {
-                ...(prev.custom_metrics as Record<string, number> || {}),
-                [key]: numVal as number
+
+            const existingMetrics = (prev.custom_metrics as Record<string, number> || {})
+            const newCustom = { ...existingMetrics }
+
+            // Only add the key if numVal is a valid number
+            if (numVal !== null && !isNaN(numVal)) {
+                newCustom[key] = numVal
+            } else {
+                delete newCustom[key]
             }
 
             // Recalculate Scores using Single Source of Truth
@@ -81,7 +91,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
         e.preventDefault()
         setSubmitting(true)
         try {
-            await onSave(entry.id!, formData)
+            await onSave(entry.id, formData)
             onOpenChange(false)
         } catch (error) {
             console.error("Failed to update entry:", error)

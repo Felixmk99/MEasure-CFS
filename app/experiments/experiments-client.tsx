@@ -133,6 +133,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             if (!user) throw new Error("No user")
 
             if (editingExp) {
+                // Supabase strict typing requires cast for update payload
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { data, error } = await (supabase.from('experiments') as any).update({
                     name: formData.name,
@@ -145,6 +146,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                 if (error) throw error
                 if (data) setExperiments(experiments.map(e => e.id === data.id ? (data as Experiment) : e))
             } else {
+                // Supabase strict typing requires cast for insert payload
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { data, error } = await (supabase.from('experiments') as any).insert({
                     user_id: user.id,
