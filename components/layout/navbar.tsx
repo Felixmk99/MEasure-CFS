@@ -122,6 +122,9 @@ export default function Navbar() {
                                     <Link href="/dashboard" className={getLinkClass('/dashboard')}>
                                         {t('navbar.dashboard')}
                                     </Link>
+                                    <Link href="/insights" className={getLinkClass('/insights')}>
+                                        {t('navbar.insights')}
+                                    </Link>
                                     <Link href="/experiments" className={getLinkClass('/experiments')}>
                                         {t('navbar.experiments')}
                                     </Link>
@@ -170,6 +173,9 @@ export default function Navbar() {
                                     <>
                                         <DropdownMenuItem asChild>
                                             <Link href="/dashboard" className="w-full">{t('navbar.dashboard')}</Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/insights" className="w-full">{t('navbar.insights')}</Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild>
                                             <Link href="/experiments" className="w-full">{t('navbar.experiments')}</Link>
