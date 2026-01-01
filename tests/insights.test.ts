@@ -21,6 +21,22 @@ describe('Insights Logic', () => {
         expect(headacheCorr?.coefficient).toBeGreaterThan(0.9);
     });
 
+    test('should detect negative correlation (Inversely related)', () => {
+        const negativeMockData = [
+            { date: '1', hrv: 80, exertion_score: 1 },
+            { date: '2', hrv: 75, exertion_score: 2 },
+            { date: '3', hrv: 60, exertion_score: 5 },
+            { date: '4', hrv: 55, exertion_score: 6 },
+            { date: '5', hrv: 50, exertion_score: 7 },
+            { date: '6', hrv: 45, exertion_score: 8 },
+            { date: '7', hrv: 40, exertion_score: 9 },
+        ];
+        const results = calculateAdvancedCorrelations(negativeMockData);
+        const hrvExertion = results.find(r => r.metricA === 'hrv' && r.metricB === 'exertion_score' && r.lag === 0);
+        expect(hrvExertion?.coefficient).toBeLessThan(-0.8);
+        expect(hrvExertion?.description).toContain('inversely related');
+    });
+
     test('should detect lagged correlation (Lag 1)', () => {
         const results = calculateAdvancedCorrelations(mockData);
         // Step count at T (day 2/8) leads to symptom score at T+1 (day 3/9)
@@ -34,7 +50,7 @@ describe('Insights Logic', () => {
     });
 
     test('should detect thresholds (Safe Zones)', () => {
-        // Create data with a clear threshold at 3000 steps
+        // Create data with a clear threshold at 4000 steps
         const thresholdData = [
             { date: '1', step_count: 1000, symptom_score: 1 },
             { date: '2', step_count: 1500, symptom_score: 1 },
@@ -49,7 +65,7 @@ describe('Insights Logic', () => {
         ];
         const thresholds = detectThresholds(thresholdData);
         expect(thresholds.length).toBeGreaterThan(0);
-        expect(thresholds[0].safeZoneLimit).toBeGreaterThan(2500);
-        expect(thresholds[0].safeZoneLimit).toBeLessThan(5000);
+        // With 10 items, bucketSize=2, threshold detected at index 4 (means[2]) -> step_count=4000
+        expect(thresholds[0].safeZoneLimit).toBe(4000);
     });
 });

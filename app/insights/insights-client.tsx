@@ -16,16 +16,16 @@ interface InsightsClientProps {
 
 export default function InsightsClient({ data }: InsightsClientProps) {
     const hasData = data && data.length > 0
-    const hasInsufficientData = data && data.length < 7
+    const hasInsufficientData = hasData && data.length < 7
 
     // Process all-time analysis
     const { correlations, thresholds } = useMemo(() => {
-        if (!hasData || hasInsufficientData) return { correlations: [], thresholds: [] }
+        if (!data || data.length < 5) return { correlations: [], thresholds: [] }
         return {
             correlations: calculateAdvancedCorrelations(data),
             thresholds: detectThresholds(data)
         }
-    }, [data, hasData, hasInsufficientData])
+    }, [data])
 
     if (!hasData) {
         return (

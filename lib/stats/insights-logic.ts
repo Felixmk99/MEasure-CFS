@@ -1,5 +1,4 @@
 import * as ss from 'simple-statistics';
-import { addDays, parseISO, differenceInDays } from 'date-fns';
 
 export interface InsightMetric {
     date: string;
@@ -86,7 +85,8 @@ export function detectThresholds(data: InsightMetric[], impactMetric: string = '
         const bucketSize = Math.floor(pairs.length / 4);
         const means = [];
         for (let i = 0; i < 4; i++) {
-            const slice = pairs.slice(i * bucketSize, (i + 1) * bucketSize);
+            const end = i === 3 ? pairs.length : (i + 1) * bucketSize;
+            const slice = pairs.slice(i * bucketSize, end);
             means.push(ss.mean(slice.map(s => s.y)));
         }
 
@@ -99,7 +99,7 @@ export function detectThresholds(data: InsightMetric[], impactMetric: string = '
                 metric: m,
                 impactMetric,
                 safeZoneLimit: limit,
-                description: `Staying below ${limit.toLocaleString()} ${m} keeps your ${impactMetric.replace('_', ' ')} significantly lower.`
+                description: `Staying below ${limit.toLocaleString()} ${m.replaceAll('_', ' ')} keeps your ${impactMetric.replaceAll('_', ' ')} significantly lower.`
             });
         }
     });
@@ -109,6 +109,7 @@ export function detectThresholds(data: InsightMetric[], impactMetric: string = '
 
 /**
  * Calculates typical recovery velocity from exertion spikes.
+ * @experimental Currently returning empty array until logic is finalized.
  */
 export function calculateRecoveryVelocity(data: InsightMetric[]): { metric: string, recoveryDays: number }[] {
     const exertionKeys = ['exertion_score', 'Physical Exertion', 'Cognitive Exertion'];
@@ -163,5 +164,5 @@ function getDescription(a: string, b: string, r: number, lag: number): string {
     const direction = r > 0 ? 'move together' : 'inversely related';
     const lagText = lag === 0 ? 'simultaneously' : `with a ${lag}-day lag`;
 
-    return `${strength} connection: ${a.replace('_', ' ')} and ${b.replace('_', ' ')} ${direction} ${lagText}.`;
+    return `${strength} connection: ${a.replaceAll('_', ' ')} and ${b.replaceAll('_', ' ')} ${direction} ${lagText}.`;
 }

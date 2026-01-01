@@ -32,48 +32,64 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                         gridTemplateColumns: `auto repeat(${labels.length}, 1fr)`,
                         minWidth: '500px'
                     }}>
-                        {/* Header Row */}
-                        <div />
-                        {labels.map(l => (
-                            <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-20 flex items-end pb-2 px-1 truncate max-w-20">
-                                {l.replace('_', ' ')}
-                            </div>
-                        ))}
+                        {/* Build lookup map for O(1) access */}
+                        {(() => {
+                            const corrMap = new Map<string, number>()
+                            correlations.forEach(c => {
+                                if (c.lag === 0) {
+                                    corrMap.set(`${c.metricA}:${c.metricB}`, c.coefficient)
+                                    // Handle symmetry just in case, though usually both are generated
+                                    corrMap.set(`${c.metricB}:${c.metricA}`, c.coefficient)
+                                }
+                            })
 
-                        {/* Rows */}
-                        {labels.map(rowLabel => (
-                            <React.Fragment key={rowLabel}>
-                                <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center pr-2 truncate max-w-24">
-                                    {rowLabel.replace('_', ' ')}
-                                </div>
-                                {labels.map(colLabel => {
-                                    const corr = correlations.find(c => c.metricA === rowLabel && c.metricB === colLabel && c.lag === 0)
-                                    const r = corr ? corr.coefficient : 0
-                                    const intensity = Math.abs(r)
+                            return (
+                                <>
+                                    {/* Header Row */}
+                                    <div />
+                                    {labels.map(l => (
+                                        <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-20 flex items-end pb-2 px-1 truncate max-w-20">
+                                            {l.replaceAll('_', ' ')}
+                                        </div>
+                                    ))}
 
-                                    return (
-                                        <TooltipProvider key={`${rowLabel}-${colLabel}`}>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <div
-                                                        className={cn(
-                                                            "aspect-square rounded-sm transition-all hover:scale-110 cursor-help",
-                                                            r > 0 ? "bg-primary" : "bg-destructive",
-                                                            intensity < 0.2 && "bg-zinc-100 dark:bg-zinc-800"
-                                                        )}
-                                                        style={{ opacity: intensity > 0.2 ? intensity : 1 }}
-                                                    />
-                                                </TooltipTrigger>
-                                                <TooltipContent className="backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 border-zinc-200 dark:border-zinc-800">
-                                                    <p className="text-xs font-medium">{rowLabel.replace('_', ' ')} vs {colLabel.replace('_', ' ')}</p>
-                                                    <p className="text-[10px] text-muted-foreground">Correlation: {r.toFixed(2)}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    )
-                                })}
-                            </React.Fragment>
-                        ))}
+                                    {/* Rows */}
+                                    {labels.map(rowLabel => (
+                                        <React.Fragment key={rowLabel}>
+                                            <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center pr-2 truncate max-w-24">
+                                                {rowLabel.replaceAll('_', ' ')}
+                                            </div>
+                                            {labels.map(colLabel => {
+                                                const r = corrMap.get(`${rowLabel}:${colLabel}`) ?? 0
+                                                const intensity = Math.abs(r)
+
+                                                return (
+                                                    <TooltipProvider key={`${rowLabel}-${colLabel}`}>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <div
+                                                                    className={cn(
+                                                                        "aspect-square rounded-sm transition-all hover:scale-110 cursor-help",
+                                                                        intensity < 0.2
+                                                                            ? "bg-zinc-100 dark:bg-zinc-800"
+                                                                            : r > 0 ? "bg-primary" : "bg-destructive"
+                                                                    )}
+                                                                    style={{ opacity: intensity < 0.2 ? 1 : intensity }}
+                                                                />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent className="backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 border-zinc-200 dark:border-zinc-800">
+                                                                <p className="text-xs font-medium">{rowLabel.replaceAll('_', ' ')} vs {colLabel.replaceAll('_', ' ')}</p>
+                                                                <p className="text-[10px] text-muted-foreground">Correlation: {r.toFixed(2)}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                )
+                                            })}
+                                        </React.Fragment>
+                                    ))}
+                                </>
+                            )
+                        })()}
                     </div>
                 </div>
             </CardContent>

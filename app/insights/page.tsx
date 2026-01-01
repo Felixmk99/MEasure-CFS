@@ -12,11 +12,16 @@ export default async function InsightsPage() {
     }
 
     // Fetch All Health Data for Deep Analysis
-    const { data: healthMetrics } = await supabase
+    const { data: healthMetrics, error } = await supabase
         .from('health_metrics')
-        .select('*')
+        .select('date, hrv, resting_heart_rate, step_count, composite_score, custom_metrics')
         .eq('user_id', user.id)
         .order('date', { ascending: true })
+
+    if (error) {
+        console.error('Failed to fetch health metrics for insights:', error)
+        // Fallback to empty array to prevent crash
+    }
 
     return (
         <div className="container mx-auto py-8">

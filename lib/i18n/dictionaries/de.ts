@@ -13,7 +13,7 @@ export const de: Dictionary = {
     },
     navbar: {
         dashboard: "Dashboard",
-        insights: "Insights",
+        insights: "Einblicke",
         experiments: "Experimente",
         data: "Daten",
         upload_data: "Daten hochladen",

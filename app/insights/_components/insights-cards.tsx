@@ -61,8 +61,8 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                                 <div>
                                     <h3 className="font-bold text-zinc-900 dark:text-zinc-100">Hidden Lag Warning</h3>
                                     <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
-                                        Your <span className="font-semibold text-blue-600">{c.metricA.replace('_', ' ')}</span> impacts
-                                        your <span className="font-semibold text-blue-600">{c.metricB.replace('_', ' ')}</span> with a
+                                        Your <span className="font-semibold text-blue-600">{c.metricA.replaceAll('_', ' ')}</span> impacts
+                                        your <span className="font-semibold text-blue-600">{c.metricB.replaceAll('_', ' ')}</span> with a
                                         <span className="font-bold"> {c.lag}-day delay</span>.
                                     </p>
                                 </div>
