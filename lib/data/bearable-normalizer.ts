@@ -90,7 +90,7 @@ export function normalizeBearableData(rows: any[]) {
         const multiCategories = ['Lifestyle', 'Work', 'Social', 'Weather', 'Active', 'Behavioural patterns'];
         if (multiCategories.includes(category)) {
             // Split by | for multiple entries in one line
-            const segments = detail.split('|').map(s => s.trim()).filter(Boolean);
+            const segments = detail.split('|').map((s: string) => s.trim()).filter(Boolean);
 
             segments.forEach(segment => {
                 // Format usually looks like: "Emoji Name - Level" (e.g. "☕ Caffeine - A lot")
@@ -99,7 +99,7 @@ export function normalizeBearableData(rows: any[]) {
                 let levelVal = 0;
 
                 if (segment.includes('-')) {
-                    const [rawName, levelText] = segment.split('-').map(s => s.trim());
+                    const [rawName, levelText] = segment.split('-').map((s: string) => s.trim());
                     name = rawName;
                     levelVal = levelMap[levelText.toLowerCase()] ?? 0;
                 } else {
