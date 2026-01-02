@@ -28,6 +28,8 @@ export function PemStatusIndicator() {
         try {
             const { data: metrics, error: selectError } = await supabase
                 .from('health_metrics')
+                // Note: 'crash' is intentionally NOT selected as a top-level column. 
+                // It is stored inside 'custom_metrics'. Adding it here causes a query error.
                 .select('date, hrv, resting_heart_rate, step_count, symptom_score, exertion_score, custom_metrics')
                 .eq('user_id', user.id)
                 .order('date', { ascending: true })
