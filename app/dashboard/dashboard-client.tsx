@@ -171,6 +171,14 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         return null
     }, [])
 
+    const getTrendStrategy = useCallback((range: TimeRange) => {
+        if (['30d'].includes(range)) return { strategy: 'moving_average' as const, maWindow: 5 }
+        if (['3m'].includes(range)) return { strategy: 'moving_average' as const, maWindow: 7 }
+        if (range === '1y') return { strategy: 'moving_average' as const, maWindow: 14 }
+        if (range === 'all') return { strategy: 'moving_average' as const, maWindow: 30 }
+        return { strategy: 'regression' as const, maWindow: 3 }
+    }, [])
+
     const getMetricConfig = useCallback((key: string): MetricConfig => {
         const registry = getMetricRegistryConfig(key);
         const invert = registry.direction === 'lower';
@@ -244,26 +252,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         const trendsByIndex = new Map<number, Record<string, number>>()
 
         selectedMetrics.forEach(metric => {
-            // Determine Trend Type Strategy
-            let strategy: 'regression' | 'moving_average' = 'regression'
-            let maWindow = 3
-
-            if (['30d'].includes(timeRange)) {
-                strategy = 'moving_average'
-                maWindow = 5
-            } else if (['3m'].includes(timeRange)) {
-                strategy = 'moving_average'
-                maWindow = 7
-            } else if (timeRange === '1y') {
-                strategy = 'moving_average'
-                maWindow = 14
-            } else if (timeRange === 'all') {
-                strategy = 'moving_average'
-                maWindow = 30
-            } else {
-                // 7d -> Linear Regression
-                strategy = 'regression'
-            }
+            // Determine Trend Type Strategy (Sync with Shared Logic)
+            const { strategy, maWindow } = getTrendStrategy(timeRange)
 
             if (strategy === 'regression') {
                 // LINEAR REGRESSION (Viewport only)
@@ -343,7 +333,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             ...d,
             ...trendsByIndex.get(i)
         }))
-    }, [processedData, showTrend, selectedMetrics, timeRange])
+    }, [processedData, showTrend, selectedMetrics, timeRange, getValue, getTrendStrategy])
 
     // -- 3. Calculate Stats for ALL selected metrics --
     const multiStats = useMemo(() => {
@@ -387,22 +377,16 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             })
 
             const prevValues = prevData
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                .map(d => (d as Record<string, any>)[metric])
-                .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
+                .map(d => getValue(d, metric))
+                .filter((v): v is number => typeof v === 'number' && !isNaN(v))
 
             // 3. Calculate "Period Change" (Alignment: Use same strategy as visual chart)
             let periodTrendPct = 0
             let periodTrendStatus = 'stable'
 
             if (currentPoints.length >= 2) {
-                // Determine strategy (Sync with Chart logic lines 248+)
-                let strategy: 'regression' | 'moving_average' = 'regression'
-                let maWindow = 3
-                if (['30d'].includes(timeRange)) { strategy = 'moving_average'; maWindow = 5; }
-                else if (['3m'].includes(timeRange)) { strategy = 'moving_average'; maWindow = 7; }
-                else if (timeRange === '1y') { strategy = 'moving_average'; maWindow = 14; }
-                else if (timeRange === 'all') { strategy = 'moving_average'; maWindow = 30; }
+                // Determine strategy (Sync with Shared Logic)
+                const { strategy, maWindow } = getTrendStrategy(timeRange)
 
                 if (strategy === 'regression') {
                     // Time-Aware Linear Regression
