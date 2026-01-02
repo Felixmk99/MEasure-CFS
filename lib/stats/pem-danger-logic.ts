@@ -76,20 +76,16 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
     // Filter to only 'start' of crash episodes (first day of a streak)
     const crashStarts = crashIndices.filter((idx, i) => i === 0 || idx > crashIndices[i - 1] + 1)
 
-    // If no crashes are found, we can't identify personal triggers, 
-    // but we can still show a 'Stable' status if data is sufficient.
-    if (crashStarts.length === 0) {
-        // Fallback to cumulative check below
-    }
-
     // 6. Extract Triggers (Phase 1 Logic)
+    // Note: If no crashes are found, we can't identify personal triggers,
+    // but we can still detect general risk levels via cumulative load below.
     const epochs = extractEpochs(sortedData, crashStarts, metricsToAnalyze)
     const zEpochs = calculateZScores(epochs, baselineStats)
     const aggregated = aggregateEpochs(zEpochs, metricsToAnalyze)
     const { discoveries } = analyzePreCrashPhase(aggregated, baselineStats)
 
-    // 7. Calculate Current Z-Scores for the last 7 days
     const matchedTriggers: PEMDangerStatus['matchedTriggers'] = []
+    const seenTriggers = new Set<string>()
     let maxLevel = 0
 
     recentData.forEach(day => {
@@ -115,6 +111,10 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
                 // Check if the "impact day" (day + leadDays) is in the future or today
                 const impactDay = addDays(dayDate, Math.abs(tr.leadDaysStart))
                 if (!isAfter(today, impactDay)) {
+                    const triggerKey = `${tr.metric}-${tr.type}`
+                    if (seenTriggers.has(triggerKey)) return
+                    seenTriggers.add(triggerKey)
+
                     matchedTriggers.push({
                         metric: tr.metric,
                         type: tr.classification || 'Trigger',
@@ -136,6 +136,12 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
     const avgExertion = recentData.reduce((acc, d) => acc + getZScore(d, 'exertion_score', baselineStats), 0) / recentData.length
     const avgSteps = recentData.reduce((acc, d) => acc + getZScore(d, 'step_count', baselineStats), 0) / recentData.length
 
+    /**
+     * Generic "Cumulative Load" check.
+     * Threshold: 0.8 Z-score (~25% increase over mean if std=1).
+     * We use a sensitive threshold (0.8 instead of 1.0 or 2.0) because cumulative
+     * burden often builds up subtly before a major PEM crash.
+     */
     const checkCumulative = (val: number, key: string, label: string) => {
         if (val > 0.8) {
             const loadScore = 40 + (val - 0.8) * 20

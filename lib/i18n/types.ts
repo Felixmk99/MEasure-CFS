@@ -39,6 +39,7 @@ export interface Dictionary {
             matches_general: string
             explanation: string
             cumulative_load: string
+            danger_fallback: string
             stable_message: string
             error_fetch: string
             biometrics_title: string
