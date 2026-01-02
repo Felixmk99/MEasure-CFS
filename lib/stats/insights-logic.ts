@@ -12,6 +12,8 @@ export interface CorrelationResult {
     coefficient: number; // -1 to 1
     description: string;
     lag: number; // Days shift
+    impactDirection: 'positive' | 'negative' | 'neutral';
+    impactStrength: 'strong' | 'moderate' | 'weak';
 }
 
 export interface ThresholdInsight {
@@ -52,7 +54,9 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                             metricB,
                             coefficient,
                             lag,
-                            description: getDescription(metricA, metricB, coefficient, lag)
+                            description: getDescription(metricA, metricB, coefficient, lag),
+                            impactDirection: coefficient > 0.1 ? 'positive' : coefficient < -0.1 ? 'negative' : 'neutral',
+                            impactStrength: Math.abs(coefficient) > 0.7 ? 'strong' : Math.abs(coefficient) > 0.5 ? 'moderate' : 'weak'
                         });
                     }
                 } catch {
@@ -132,11 +136,21 @@ function extractAvailableMetrics(data: InsightMetric[]): string[] {
     const keys = new Set<string>();
     data.forEach(d => {
         Object.keys(d).forEach(k => {
-            if (k !== 'date' && k !== 'custom_metrics' && typeof d[k] === 'number') keys.add(k);
+            // Exclude normalized metrics, date, and custom_metrics container
+            if (k !== 'date' &&
+                k !== 'custom_metrics' &&
+                !k.toLowerCase().includes('normalized') &&
+                typeof d[k] === 'number') {
+                keys.add(k);
+            }
         });
         if (d.custom_metrics) {
             Object.keys(d.custom_metrics).forEach(k => {
-                if (typeof d.custom_metrics?.[k] === 'number') keys.add(k);
+                // Exclude normalized custom metrics
+                if (!k.toLowerCase().includes('normalized') &&
+                    typeof d.custom_metrics?.[k] === 'number') {
+                    keys.add(k);
+                }
             });
         }
     });
@@ -166,9 +180,24 @@ function getValue(record: InsightMetric, key: string): number | null {
 }
 
 function getDescription(a: string, b: string, r: number, lag: number): string {
-    const strength = Math.abs(r) > 0.7 ? 'Strong' : 'Moderate';
-    const direction = r > 0 ? 'move together' : 'inversely related';
-    const lagText = lag === 0 ? 'simultaneously' : `with a ${lag}-day lag`;
+    const absCoef = Math.abs(r);
+    const percentage = Math.round(absCoef * 100);
 
-    return `${strength} connection: ${a.replaceAll('_', ' ')} and ${b.replaceAll('_', ' ')} ${direction} ${lagText}.`;
+    // Determine impact direction with actionable language
+    let impactPhrase = '';
+    if (r > 0) {
+        impactPhrase = `increases your ${b.replaceAll('_', ' ')}`;
+    } else {
+        impactPhrase = `decreases your ${b.replaceAll('_', ' ')}`;
+    }
+
+    // Make lag more readable
+    const lagText = lag === 0
+        ? 'on the same day'
+        : lag === 1
+            ? 'the next day'
+            : `${lag} days later`;
+
+    // Make it actionable with percentage impact
+    return `Your ${a.replaceAll('_', ' ')} ${impactPhrase} by ~${percentage}% ${lagText}.`;
 }
