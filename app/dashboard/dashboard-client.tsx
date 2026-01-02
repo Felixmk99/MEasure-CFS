@@ -171,7 +171,13 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         return null
     }, [])
 
-    const getTrendStrategy = useCallback((range: TimeRange) => {
+    const getTrendStrategy = useCallback((range: TimeRange, start?: Date, end?: Date) => {
+        if (range === 'custom' && start && end) {
+            const days = Math.abs(differenceInDays(end, start))
+            if (days >= 90) return { strategy: 'moving_average' as const, maWindow: 7 }
+            if (days >= 28) return { strategy: 'moving_average' as const, maWindow: 5 }
+            return { strategy: 'regression' as const, maWindow: 3 }
+        }
         if (['30d'].includes(range)) return { strategy: 'moving_average' as const, maWindow: 5 }
         if (['3m'].includes(range)) return { strategy: 'moving_average' as const, maWindow: 7 }
         if (range === '1y') return { strategy: 'moving_average' as const, maWindow: 14 }
@@ -253,7 +259,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         selectedMetrics.forEach(metric => {
             // Determine Trend Type Strategy (Sync with Shared Logic)
-            const { strategy, maWindow } = getTrendStrategy(timeRange)
+            const { strategy, maWindow } = getTrendStrategy(timeRange, visibleRange.start, visibleRange.end)
 
             if (strategy === 'regression') {
                 // LINEAR REGRESSION (Viewport only)
@@ -333,7 +339,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             ...d,
             ...trendsByIndex.get(i)
         }))
-    }, [processedData, showTrend, selectedMetrics, timeRange, getValue, getTrendStrategy])
+    }, [processedData, showTrend, selectedMetrics, timeRange, getValue, getTrendStrategy, visibleRange])
 
     // -- 3. Calculate Stats for ALL selected metrics --
     const multiStats = useMemo(() => {
@@ -386,7 +392,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
             if (currentPoints.length >= 2) {
                 // Determine strategy (Sync with Shared Logic)
-                const { strategy, maWindow } = getTrendStrategy(timeRange)
+                const { strategy, maWindow } = getTrendStrategy(timeRange, visibleRange.start, visibleRange.end)
 
                 if (strategy === 'regression') {
                     // Time-Aware Linear Regression
@@ -400,13 +406,20 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                     periodTrendPct = ((endVal - startVal) / denominator) * 100
                 } else {
                     // Moving Average Trend: Compare Last Window Avg to First Window Avg
-                    const firstWindow = currentPoints.slice(0, maWindow).map(p => p.val)
-                    const lastWindow = currentPoints.slice(-maWindow).map(p => p.val)
-                    const firstAvg = firstWindow.reduce((a, b) => a + b, 0) / firstWindow.length
-                    const lastAvg = lastWindow.reduce((a, b) => a + b, 0) / lastWindow.length
-                    const midpoint = (Math.abs(firstAvg) + Math.abs(lastAvg)) / 2
-                    const denominator = Math.max(midpoint, 0.5)
-                    periodTrendPct = ((lastAvg - firstAvg) / denominator) * 100
+                    // Use smaller window if insufficient data to avoid overlap (CodeRabbit fix)
+                    const effectiveWindow = Math.min(maWindow, Math.floor(currentPoints.length / 2))
+
+                    if (effectiveWindow > 0) {
+                        const firstWindow = currentPoints.slice(0, effectiveWindow).map(p => p.val)
+                        const lastWindow = currentPoints.slice(-effectiveWindow).map(p => p.val)
+                        const firstAvg = firstWindow.reduce((a, b) => a + b, 0) / firstWindow.length
+                        const lastAvg = lastWindow.reduce((a, b) => a + b, 0) / lastWindow.length
+                        const midpoint = (Math.abs(firstAvg) + Math.abs(lastAvg)) / 2
+                        const denominator = Math.max(midpoint, 0.5)
+                        periodTrendPct = ((lastAvg - firstAvg) / denominator) * 100
+                    } else {
+                        periodTrendPct = 0
+                    }
                 }
 
                 if (Math.abs(periodTrendPct) < 1) periodTrendStatus = 'stable'
