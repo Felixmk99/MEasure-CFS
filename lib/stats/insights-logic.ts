@@ -221,14 +221,14 @@ function getDescription(a: string, b: string, r: number, lag: number, medianA: n
     // Use qualitative descriptors for correlation strength
     const strengthLabel = absCoef > 0.7 ? 'strongly' : absCoef > 0.5 ? 'moderately' : 'weakly';
 
-    // Clearly state the relationship direction
-    let relationship = '';
+    // Build description with concrete thresholds
+    let description = '';
     if (r > 0) {
-        // Positive correlation: both move in same direction
-        relationship = `Higher ${a.replaceAll('_', ' ')} is ${strengthLabel} associated with higher ${b.replaceAll('_', ' ')}`;
+        // Positive correlation: high A → high B
+        description = `${formatMetric(a)} above ${formatNumber(medianA)} is ${strengthLabel} associated with ${formatMetric(b)} above ${formatNumber(medianB)}`;
     } else {
-        // Negative correlation: move in opposite directions
-        relationship = `Higher ${a.replaceAll('_', ' ')} is ${strengthLabel} associated with lower ${b.replaceAll('_', ' ')}`;
+        // Negative correlation: high A → low B
+        description = `${formatMetric(a)} above ${formatNumber(medianA)} is ${strengthLabel} associated with ${formatMetric(b)} below ${formatNumber(medianB)}`;
     }
 
     // Add lag information
@@ -238,5 +238,5 @@ function getDescription(a: string, b: string, r: number, lag: number, medianA: n
             ? ' the next day'
             : ` ${lag} days later`;
 
-    return `${relationship}${lagText}.`;
+    return `${description}${lagText}.`;
 }
