@@ -41,12 +41,7 @@ export default function LandingPage() {
     }
   }
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files && files.length > 0) {
-      // Handle file upload
-    }
-  }
+
 
   // New handler for drag enter to ensure isDragging is true when dragging over
   const handleDragEnter = (e: React.DragEvent) => {
