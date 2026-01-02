@@ -177,7 +177,9 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
             if (z > 0.5) status = 'optimal'
             else if (z < -1.0) status = 'strained'
         } else {
-            // RHR, Steps: Lower is better/safer
+            // For PEM patients: 
+            // - RHR: Lower heart rate indicates better cardiovascular recovery.
+            // - Steps: Lower activity (within baseline) reduces crash risk via pacing.
             if (z < -0.5) status = 'optimal'
             else if (z > 1.0) status = 'strained'
         }
