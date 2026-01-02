@@ -65,6 +65,15 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                         // Calculate percentage change and typical/improved values
                         const stats = calculatePercentageChange(sortedData, metricA, metricB, medianA, lag);
 
+                        // Filter out exertion metrics as effects (they are inputs, not outcomes)
+                        const exertionMetrics = ['exertion_score', 'physical_exertion', 'mental_exertion', 'emotional_exertion', 'socially_demanding'];
+                        const isExertionEffect = exertionMetrics.some(e => metricB.toLowerCase().includes(e.toLowerCase()));
+
+                        // Skip if metricB is an exertion metric (exertion is a choice, not an effect)
+                        if (isExertionEffect && lag > 0) {
+                            return; // Don't show "X causes more exertion" - exertion is an input
+                        }
+
                         results.push({
                             metricA,
                             metricB,

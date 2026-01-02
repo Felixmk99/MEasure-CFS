@@ -12,10 +12,20 @@ interface CorrelationMatrixProps {
 }
 
 export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
-    // Extract unique labels for axes - checking both dimensions for completeness
+    // Extract unique labels and filter to only show metrics with significant correlations
     const allUniqueLabels = Array.from(new Set(correlations.flatMap(c => [c.metricA, c.metricB]))).sort()
-    const labels = allUniqueLabels.slice(0, 10) // Limit to 10 for readability
-    const isTruncated = allUniqueLabels.length > 10
+
+    // Filter to only show metrics that have at least one correlation > 0.3
+    const significantLabels = allUniqueLabels.filter(metric => {
+        return correlations.some(c =>
+            (c.metricA === metric || c.metricB === metric) &&
+            c.lag === 0 &&
+            Math.abs(c.coefficient) > 0.3
+        )
+    })
+
+    const labels = significantLabels.slice(0, 10) // Limit to 10 for readability
+    const isTruncated = significantLabels.length > 10
 
     // Build lookup map for O(1) access
     const corrMap = React.useMemo(() => {
@@ -29,6 +39,31 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
         return map
     }, [correlations])
 
+    // Helper function to get color for correlation
+    const getCorrelationColor = (coefficient: number, intensity: number) => {
+        if (coefficient > 0) {
+            // Positive correlation - GREEN
+            if (intensity > 0.7) return 'bg-green-600'
+            if (intensity > 0.5) return 'bg-green-500'
+            if (intensity > 0.3) return 'bg-green-400'
+            return 'bg-green-200'
+        } else if (coefficient < 0) {
+            // Negative correlation - RED
+            if (intensity > 0.7) return 'bg-red-600'
+            if (intensity > 0.5) return 'bg-red-500'
+            if (intensity > 0.3) return 'bg-red-400'
+            return 'bg-red-200'
+        }
+        return 'bg-gray-100 dark:bg-gray-800'
+    }
+
+    const getStrengthLabel = (intensity: number) => {
+        if (intensity > 0.7) return 'Strong'
+        if (intensity > 0.5) return 'Moderate'
+        if (intensity > 0.3) return 'Weak'
+        return 'Very Weak'
+    }
+
     if (labels.length === 0) return null
 
     return (
@@ -40,14 +75,30 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             Symptom Correlation Heatmap <span className="text-xs font-normal text-muted-foreground ml-2">(Lag = 0)</span>
                         </CardTitle>
                         <CardDescription>
-                            Identifies same-day relationships between symptoms. Darker colors indicate stronger connections.
+                            Identifies same-day relationships between symptoms. Green = positive correlation, Red = negative correlation.
                         </CardDescription>
                     </div>
                     {isTruncated && (
                         <Badge variant="outline" className="text-[10px] bg-zinc-100/50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-800">
-                            Showing {labels.length} of {allUniqueLabels.length} metrics
+                            Showing {labels.length} of {significantLabels.length} metrics
                         </Badge>
                     )}
+                </div>
+
+                {/* Color Legend */}
+                <div className="mt-4 flex items-center gap-4 text-xs">
+                    <span className="text-muted-foreground font-medium">Legend:</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Strong Negative</span>
+                        <div className="flex gap-0.5">
+                            <div className="w-4 h-4 bg-red-600 rounded-sm" />
+                            <div className="w-4 h-4 bg-red-400 rounded-sm" />
+                            <div className="w-4 h-4 bg-gray-100 dark:bg-gray-800 rounded-sm" />
+                            <div className="w-4 h-4 bg-green-400 rounded-sm" />
+                            <div className="w-4 h-4 bg-green-600 rounded-sm" />
+                        </div>
+                        <span className="text-muted-foreground">Strong Positive</span>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent>
@@ -73,8 +124,9 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                                     </div>
                                     {labels.map(colLabel => {
                                         const coefficient = corrMap.get(`${rowLabel}:${colLabel}`)
-                                        const isMissing = coefficient === undefined || (rowLabel === colLabel && coefficient === 0)
-                                        const r = coefficient ?? (rowLabel === colLabel ? 1 : 0)
+                                        const isDiagonal = rowLabel === colLabel
+                                        const isMissing = coefficient === undefined && !isDiagonal
+                                        const r = coefficient ?? (isDiagonal ? 1 : 0)
                                         const intensity = Math.abs(r)
 
                                         return (
@@ -85,20 +137,27 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                                                             "aspect-square rounded-sm transition-all hover:scale-110 cursor-help",
                                                             isMissing
                                                                 ? "bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/20 dark:border-zinc-700/20"
-                                                                : intensity < 0.2
-                                                                    ? "bg-zinc-100 dark:bg-zinc-800"
-                                                                    : r > 0 ? "bg-primary" : "bg-destructive"
+                                                                : getCorrelationColor(r, intensity)
                                                         )}
                                                         style={{
-                                                            opacity: isMissing ? 0.3 : (intensity < 0.2 ? 1 : intensity)
+                                                            opacity: isMissing ? 0.3 : (intensity < 0.2 ? 0.5 : 1)
                                                         }}
                                                     />
                                                 </TooltipTrigger>
                                                 <TooltipContent className="backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 border-zinc-200 dark:border-zinc-800">
                                                     <p className="text-xs font-medium">{rowLabel.replaceAll('_', ' ')} vs {colLabel.replaceAll('_', ' ')}</p>
-                                                    <p className="text-[10px] text-muted-foreground">
-                                                        {isMissing ? "Insufficient Data" : `Correlation: ${r.toFixed(2)}`}
-                                                    </p>
+                                                    {isMissing ? (
+                                                        <p className="text-[10px] text-muted-foreground">Insufficient Data</p>
+                                                    ) : (
+                                                        <>
+                                                            <p className="text-[10px] text-muted-foreground">
+                                                                Correlation: {r.toFixed(2)} ({getStrengthLabel(intensity)})
+                                                            </p>
+                                                            <p className="text-[10px] text-muted-foreground">
+                                                                {r > 0 ? 'Positive' : r < 0 ? 'Negative' : 'Neutral'} relationship
+                                                            </p>
+                                                        </>
+                                                    )}
                                                 </TooltipContent>
                                             </Tooltip>
                                         )
