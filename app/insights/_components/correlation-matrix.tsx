@@ -11,6 +11,31 @@ interface CorrelationMatrixProps {
     correlations: CorrelationResult[]
 }
 
+// Helper function to get color for correlation
+function getCorrelationColor(coefficient: number, intensity: number) {
+    if (coefficient > 0) {
+        // Positive correlation - GREEN
+        if (intensity > 0.7) return 'bg-green-600'
+        if (intensity > 0.5) return 'bg-green-500'
+        if (intensity > 0.3) return 'bg-green-400'
+        return 'bg-green-200'
+    } else if (coefficient < 0) {
+        // Negative correlation - RED
+        if (intensity > 0.7) return 'bg-red-600'
+        if (intensity > 0.5) return 'bg-red-500'
+        if (intensity > 0.3) return 'bg-red-400'
+        return 'bg-red-200'
+    }
+    return 'bg-gray-100 dark:bg-gray-800'
+}
+
+function getStrengthLabel(intensity: number) {
+    if (intensity > 0.7) return 'Strong'
+    if (intensity > 0.5) return 'Moderate'
+    if (intensity > 0.3) return 'Weak'
+    return 'Very Weak'
+}
+
 export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
     // Extract unique labels and filter to only show metrics with significant correlations
     const allUniqueLabels = Array.from(new Set(correlations.flatMap(c => [c.metricA, c.metricB]))).sort()
@@ -38,31 +63,6 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
         })
         return map
     }, [correlations])
-
-    // Helper function to get color for correlation
-    const getCorrelationColor = (coefficient: number, intensity: number) => {
-        if (coefficient > 0) {
-            // Positive correlation - GREEN
-            if (intensity > 0.7) return 'bg-green-600'
-            if (intensity > 0.5) return 'bg-green-500'
-            if (intensity > 0.3) return 'bg-green-400'
-            return 'bg-green-200'
-        } else if (coefficient < 0) {
-            // Negative correlation - RED
-            if (intensity > 0.7) return 'bg-red-600'
-            if (intensity > 0.5) return 'bg-red-500'
-            if (intensity > 0.3) return 'bg-red-400'
-            return 'bg-red-200'
-        }
-        return 'bg-gray-100 dark:bg-gray-800'
-    }
-
-    const getStrengthLabel = (intensity: number) => {
-        if (intensity > 0.7) return 'Strong'
-        if (intensity > 0.5) return 'Moderate'
-        if (intensity > 0.3) return 'Weak'
-        return 'Very Weak'
-    }
 
     if (labels.length === 0) return null
 
