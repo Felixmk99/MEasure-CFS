@@ -147,6 +147,7 @@ export const en: Dictionary = {
             d7: "7D",
             d30: "30D",
             m3: "3M",
+            m6: "Last 6 Months",
             y1: "1Y",
             all: "All Time"
         },
@@ -273,6 +274,7 @@ export const en: Dictionary = {
         description_empty: "Visualize your energy envelope and symptom patterns securely.",
         description_data: "Upload new files to append data or manage existing entries.",
         private_badge: "Private & Local Processing",
+        trust_badge: "Your health data is processed 100% locally in your browser.",
         tabs: {
             visible: "Visible App (CSV)",
             bearable: "Bearable App (CSV)",
@@ -294,6 +296,10 @@ export const en: Dictionary = {
             title: "Data Log",
             delete_all: "Delete All Data",
             delete_confirm: "WARNING: This will delete ALL your uploaded health data. This action cannot be undone. Are you sure?",
+            delete_entry_confirm: "Are you sure you want to delete this entry?",
+            provider_coming_soon: "Provider Coming Soon",
+            provider_built_hint: "Integrations for {provider} are being built. Change your provider in Settings if you want to use another one.",
+            hide_import: "Hide Import Tools",
             table: {
                 date: "Date",
                 rhr: "RHR",
@@ -301,7 +307,8 @@ export const en: Dictionary = {
                 steps: "Steps",
                 symptoms: "Symptoms",
                 action: "Action",
-                empty: "No recent entries found."
+                empty: "No recent entries found.",
+                recent_hint: "Showing recent 500 entries."
             }
         }
     },

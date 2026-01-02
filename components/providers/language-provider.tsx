@@ -13,7 +13,7 @@ type LanguageProviderProps = {
 type LanguageContextType = {
     locale: Locale
     setLocale: (locale: Locale) => void
-    t: (key: string) => string
+    t: (key: string, values?: Record<string, string | number>) => string
     dictionary: Dictionary
 }
 
@@ -44,7 +44,7 @@ export function LanguageProvider({ children, initialLocale }: LanguageProviderPr
 
     const dictionary = locale === 'de' ? de : en
 
-    const t = (path: string): string => {
+    const t = (path: string, values?: Record<string, string | number>): string => {
         const keys = path.split('.')
         let current: unknown = dictionary
         for (const key of keys) {
@@ -54,7 +54,14 @@ export function LanguageProvider({ children, initialLocale }: LanguageProviderPr
             }
             current = (current as Record<string, unknown>)[key]
         }
-        return current as string
+
+        let result = current as string
+        if (values) {
+            Object.entries(values).forEach(([key, value]) => {
+                result = result.replace(`{${key}}`, String(value))
+            })
+        }
+        return result
     }
 
     // Prevent hydration mismatch by rendering children only after mount, 

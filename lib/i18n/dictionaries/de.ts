@@ -52,8 +52,9 @@ export const de: Dictionary = {
             d7: "7T",
             d30: "30T",
             m3: "3M",
+            m6: "Letzte 6 Monate",
             y1: "1J",
-            all: "Gesamt"
+            all: "Gesamtzeitraum"
         },
         cards: {
             average: "Metrik Durchschnitt",
@@ -269,23 +270,24 @@ export const de: Dictionary = {
         title: "Daten verwalten",
         subtitle_prefix: "Importiere deine",
         subtitle_highlight: "Visible",
-        subtitle_manage: "Überprüfe und verwalte deine Trends chronischer Krankheiten.",
-        description_empty: "Visualisiere dein Energiebudget und Symptommuster sicher.",
-        description_data: "Lade neue Dateien hoch, um Daten anzuhängen oder bestehende Einträge zu verwalten.",
-        private_badge: "Privat & Lokal verarbeitet",
+        subtitle_manage: "Überprüfe und verwalte deine Trends.",
+        description_empty: "Visualisiere dein Energie-Envelope und deine Symptommuster sicher.",
+        description_data: "Lade neue Dateien hoch, um Daten hinzuzufügen oder bestehende Einträge zu verwalten.",
+        private_badge: "Private & lokale Verarbeitung",
+        trust_badge: "Deine Gesundheitsdaten werden zu 100 % lokal in deinem Browser verarbeitet.",
         tabs: {
             visible: "Visible App (CSV)",
             bearable: "Bearable App (CSV)",
-            apple: "Schritte (Health App)",
-            google: "Google Fit (CSV)",
-            samsung: "Samsung Health (CSV)"
+            apple: "Apple Health Schritte (XML)",
+            google: "Google Fit Schritte (CSV)",
+            samsung: "Samsung Health Schritte (CSV)"
         },
         dropzone: {
-            idle: "Zieh dein Visible-Export hierher oder klicke, um zu durchsuchen.",
+            idle: "Ziehe deine Visible-Exportdatei hierher oder klicke unten, um sie auszuwählen.",
             active: "Datei hier ablegen...",
-            success: "Upload vollständig!",
+            success: "Upload abgeschlossen!",
             error: "Upload fehlgeschlagen",
-            uploading: "Lädt hoch...",
+            uploading: "Wird hochgeladen...",
             button_upload: "Neue Datei hochladen",
             button_select: "Datei auswählen",
             button_retry: "Erneut versuchen"
@@ -294,14 +296,19 @@ export const de: Dictionary = {
             title: "Datenprotokoll",
             delete_all: "Alle Daten löschen",
             delete_confirm: "WARNUNG: Dies löscht ALLE deine hochgeladenen Gesundheitsdaten. Diese Aktion kann nicht rückgängig gemacht werden. Bist du sicher?",
+            delete_entry_confirm: "Bist du sicher, dass du diesen Eintrag löschen möchtest?",
+            provider_coming_soon: "Anbieter demnächst verfügbar",
+            provider_built_hint: "Integrationen für {provider} werden gerade entwickelt. Ändere deinen Anbieter in den Einstellungen, wenn du einen anderen nutzen möchtest.",
+            hide_import: "Import-Tools ausblenden",
             table: {
                 date: "Datum",
-                rhr: "RHR",
+                rhr: "Ruhepuls",
                 hrv: "HRV",
                 steps: "Schritte",
                 symptoms: "Symptome",
                 action: "Aktion",
-                empty: "Keine aktuellen Einträge gefunden."
+                empty: "Keine aktuellen Einträge gefunden.",
+                recent_hint: "Zeigt die letzten 500 Einträge an."
             }
         }
     },
