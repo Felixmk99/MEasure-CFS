@@ -1,77 +1,67 @@
-# MEasure-CFS
+# MEasure-CFS: Advanced Health Analytics for ME/CFS & Long Covid
 
-**MEasure-CFS** is a privacy-focused health dashboard designed for patients with Long Covid and ME/CFS. It empowers users to take control of their data by analyzing health trends from the **Visible** app.
+**Live at: [MEasure-CFS.com](https://measure-cfs.com) | [MEasure-CFS.de](https://measure-cfs.de)**
+
+**MEasure-CFS** is a professional-grade, privacy-first health dashboard designed to empower patients living with ME/CFS and Long Covid. By transforming raw health data into actionable biological insights, we help users find their baseline, identify triggers, and master the art of pacing.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black)
 ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20DB-green)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)
 
-## Features
-- **Privacy First**: All data is stored locally in your browser/device (or private Supabase instance).
-- **Visible Integration**: Drag & drop CSV export parsing.
-- **Advanced Analytics**: Compare symptoms against steps, HRV, and exertion.
-- **MEasure-CFS Score**: Custom metric combining Symptoms, Exertion, Steps, Heart Rate, HRV, and Sleep.
-- **Experiment Tracking**: Track the impact of supplements/interventions with significance testing.
--   **Smart Normalization**: Automatically processes symptoms, HRV, and Resting Heart Rate. Captures all custom trackers (e.g., "Brain Fog", "Crash") into a flexible storage system.
--   **Composite Health Score**: Calculates a daily wellness score (0-100) combining inverted symptom severity and HRV.
--   **Experiment Engine**: Track medications or lifestyle changes (e.g., "Low Dose Naltroxene", "Pacing").
-    -   **Statistical Analysis**: Automatically compares health metrics "Before" vs "During" an experiment.
-    -   **Significance Testing**: Flags whether changes are statistically significant.
+## 🚀 Key Features
+
+### 🔴 PEM Danger Zone (Flagship)
+Our predictive engine scans your last 7 days of activity against your **unique historical buildup patterns**. It alerts you *before* a crash happens, identifying synergistic triggers (e.g., a specific combination of steps and exertion) that preceded past episodes of Post-Exertional Malaise.
+
+### 📊 Statistical Experiment Engine
+Stop guessing which supplements or medications work. Our engine uses **Ordinary Least Squares (OLS) regression** to isolate the independent impact of interventions on your HRV, Resting Heart Rate, and Symptom scores, even when multiple experiments overlap in time.
+
+### 🛡️ Privacy by Design
+Your health data is sensitive. MEasure-CFS is built with a **security-first architecture**, utilizing Supabase Row Level Security (RLS) to ensure your data stays yours. 
+
+### 🧬 Biological Baseline Analysis
+Move beyond simple averages. We calculate personal **Z-scores** for your biometrics, allowing you to see how your body is truly recovering relative to your historical normal.
+
+### 📥 Visible App Integration
+Seamlessly ingest CSV exports from the **Visible** app. We handle the heavy lifting of parsing, normalization, and long-term trend analysis.
 
 ## 🛠 Tech Stack
 
--   **Framework**: Next.js 15 (App Router)
--   **Language**: TypeScript
--   **Styling**: Tailwind CSS + shadcn/ui
--   **Database**: Supabase (PostgreSQL)
--   **Auth**: Supabase Auth (SSR)
--   **Visualization**: Recharts
--   **Analytics**: simple-statistics
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router, Server Components)
+- **Language**: TypeScript (Strict Mode)
+- **Database & Auth**: [Supabase](https://supabase.com/)
+- **Styling**: Tailwind CSS + [shadcn/ui](https://ui.shadcn.com/)
+- **Charts**: Recharts
+- **Mathematics**: simple-statistics & date-fns
 
 ## ⚡️ Getting Started
 
 ### Prerequisites
+- Node.js 18+
+- A Supabase project with the schema initialized.
 
--   Node.js 18+
--   A Supabase project
-
-### Installation
-
-1.  **Clone the repo**
-    ```bash
-    git clone https://github.com/yourusername/track-me.git
-    cd track-me
-    ```
-
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
-
-3.  **Setup Environment Variables**
-    cp `.env.local.example` to `.env.local` and fill in your Supabase credentials:
-    ```bash
-    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-    ```
-
-4.  **Initialize Database**
-    Run the SQL script found in `supabase/schema.sql` in your Supabase SQL Editor to set up tables and RLS policies.
-
-5.  **Run Development Server**
-    ```bash
-    npm run dev
-    ```
-    Open [http://localhost:3000](http://localhost:3000).
-
-## 🧪 Running Tests
-
-We use Jest for unit testing our analytics logic:
-
-```bash
-npm test
-```
+### Local Installation
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Felixmk99/track-ME.git
+   cd track-ME
+   ```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+3. **Configure Environment**
+   Create a `.env.local` file with your credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+   ```
+4. **Launch Dev Server**
+   ```bash
+   npm run dev
+   ```
+   Visit `http://localhost:3000` to start tracking.
 
 ## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
