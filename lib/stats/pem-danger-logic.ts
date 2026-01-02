@@ -1,5 +1,5 @@
 import { HealthEntry, calculateBaselineStats, extractEpochs, calculateZScores, aggregateEpochs, analyzePreCrashPhase } from '@/lib/statistics/pem-cycle'
-import { subDays, isAfter, startOfDay, parseISO } from 'date-fns'
+import { subDays, addDays, isAfter, startOfDay, parseISO, isWithinInterval } from 'date-fns'
 
 export interface PEMDangerStatus {
     status: 'danger' | 'stable' | 'needs_data'
@@ -28,7 +28,10 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
     // 2. Check for recent data (last 7 days from today)
     const today = startOfDay(new Date())
     const sevenDaysAgo = subDays(today, 7)
-    const recentData = sortedData.filter(d => isAfter(parseISO(d.date), sevenDaysAgo))
+    const recentData = sortedData.filter(d => {
+        const date = parseISO(d.date)
+        return isWithinInterval(date, { start: sevenDaysAgo, end: today })
+    })
 
     if (recentData.length === 0) {
         return { status: 'needs_data', level: 0, matchedTriggers: [], insufficientDataReason: 'no_recent_data' }
@@ -64,9 +67,9 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
     }
 
     // 6. Extract Triggers (Phase 1 Logic)
-    const epochs = extractEpochs(sortedData, crashStarts, Array.from(allMetrics))
+    const epochs = extractEpochs(sortedData, crashStarts, metricsToAnalyze)
     const zEpochs = calculateZScores(epochs, baselineStats)
-    const aggregated = aggregateEpochs(zEpochs, Array.from(allMetrics))
+    const aggregated = aggregateEpochs(zEpochs, metricsToAnalyze)
     const { discoveries } = analyzePreCrashPhase(aggregated, baselineStats)
 
     // 7. Calculate Current Z-Scores for the last 7 days
@@ -94,7 +97,7 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
             const threshold = tr.magnitude * 0.75 // 75% of historical peak magnitude
             if (Math.abs(currentZ) >= threshold && ((tr.type === 'spike' && currentZ > 0) || (tr.type === 'drop' && currentZ < 0))) {
                 // Check if the "impact day" (day + leadDays) is in the future or today
-                const impactDay = subDays(dayDate, -Math.abs(tr.leadDaysStart))
+                const impactDay = addDays(dayDate, Math.abs(tr.leadDaysStart))
                 if (!isAfter(today, impactDay)) {
                     matchedTriggers.push({
                         metric: tr.metric,
@@ -119,7 +122,7 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
         maxLevel = Math.max(maxLevel, 40)
         if (maxLevel === 40) {
             matchedTriggers.push({
-                metric: avgExertion > 0.8 ? 'Exertion' : 'Steps',
+                metric: avgExertion > 0.8 ? 'exertion_score' : 'step_count',
                 type: 'Cumulative Load',
                 leadDaysStart: 0,
                 magnitude: 1.0,
@@ -141,5 +144,5 @@ function getZScore(entry: HealthEntry, key: string, baselineStats: Record<string
     if (num === null || isNaN(num) || !baselineStats[key]) return 0
 
     const { mean, std } = baselineStats[key]
-    return std > 0 ? (num - mean) / std : (num > mean ? 1 : 0)
+    return std > 0 ? (num - mean) / std : (num > mean ? 2 : 0)
 }

@@ -12,14 +12,16 @@ import { format, addDays } from 'date-fns'
 export function PemStatusIndicator() {
     const [status, setStatus] = useState<PEMDangerStatus | null>(null)
     const [loading, setLoading] = useState(true)
-    const { t, locale } = useLanguage()
+    const [error, setError] = useState(false)
+    const { t } = useLanguage()
     const supabase = useMemo(() => createClient(), [])
 
-    const fetchAndCalculate = async () => {
+    const fetchAndCalculate = useCallback(async () => {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
         setLoading(true)
+        setError(false)
         try {
             const { data: metrics } = await supabase
                 .from('health_metrics')
@@ -31,12 +33,13 @@ export function PemStatusIndicator() {
                 const result = calculateCurrentPEMDanger(metrics)
                 setStatus(result)
             }
-        } catch (error) {
-            console.error('Failed to calculate PEM status:', error)
+        } catch (err) {
+            console.error('Failed to calculate PEM status:', err)
+            setError(true)
         } finally {
             setLoading(false)
         }
-    }
+    }, [supabase])
 
     useEffect(() => {
         fetchAndCalculate()
@@ -44,9 +47,17 @@ export function PemStatusIndicator() {
         // Refresh on data updates
         window.addEventListener('health-data-updated', fetchAndCalculate)
         return () => window.removeEventListener('health-data-updated', fetchAndCalculate)
-    }, [supabase])
+    }, [fetchAndCalculate])
 
     if (loading) return <div className="w-24 h-6 bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-full" />
+    if (error) {
+        return (
+            <Badge variant="outline" className="gap-1.5 px-3 py-1 bg-zinc-100 text-zinc-500 border-zinc-200">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-xs">{t('navbar.pem_status.needs_data')}</span>
+            </Badge>
+        )
+    }
 
     const config = {
         danger: {
@@ -130,7 +141,7 @@ export function PemStatusIndicator() {
                                 </div>
                             ) : (
                                 <p className="text-sm text-zinc-500">
-                                    Current activity levels are within your historical safe zone.
+                                    {t('navbar.pem_status.stable_message')}
                                 </p>
                             )}
                         </>
