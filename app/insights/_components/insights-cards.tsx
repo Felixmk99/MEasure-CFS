@@ -12,9 +12,9 @@ interface InsightsCardsProps {
 }
 
 export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) {
-    // Filter for particularly interesting correlations (strong or lagged)
-    const significantLags = correlations.filter(c => c.lag > 0 && Math.abs(c.coefficient) > 0.5).slice(0, 3)
-    const strongSimultaneous = correlations.filter(c => c.lag === 0 && Math.abs(c.coefficient) > 0.7).slice(0, 2)
+    // Filter for particularly interesting correlations - relaxed thresholds to show more insights
+    const significantLags = correlations.filter(c => c.lag > 0 && Math.abs(c.coefficient) > 0.4).slice(0, 6)
+    const strongSimultaneous = correlations.filter(c => c.lag === 0 && Math.abs(c.coefficient) > 0.5).slice(0, 4)
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -77,10 +77,14 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                                             <h3 className="font-bold text-zinc-900 dark:text-zinc-100">
                                                 {isNegativeImpact ? 'High Impact Warning' : isPositiveImpact ? 'Helpful Pattern' : 'Hidden Lag Warning'}
                                             </h3>
-                                            {c.impactDirection === 'positive' ? (
-                                                <TrendingUp className="w-4 h-4 text-red-500" />
+                                            {c.coefficient > 0 ? (
+
+                                                <TrendingUp className={`w-4 h-4 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
+
                                             ) : (
-                                                <TrendingDown className="w-4 h-4 text-green-500" />
+
+                                                <TrendingDown className={`w-4 h-4 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
+
                                             )}
                                         </div>
                                         <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
@@ -127,10 +131,14 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                                             <h3 className="font-bold text-zinc-900 dark:text-zinc-100">
                                                 {isNegativeImpact ? 'Direct Impact' : isPositiveImpact ? 'Helpful Connection' : 'Direct Connection'}
                                             </h3>
-                                            {c.impactDirection === 'positive' ? (
-                                                <TrendingUp className="w-4 h-4 text-red-500" />
+                                            {c.coefficient > 0 ? (
+
+                                                <TrendingUp className={`w-4 h-4 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
+
                                             ) : (
-                                                <TrendingDown className="w-4 h-4 text-green-500" />
+
+                                                <TrendingDown className={`w-4 h-4 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
+
                                             )}
                                         </div>
                                         <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">

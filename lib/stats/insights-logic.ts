@@ -181,23 +181,26 @@ function getValue(record: InsightMetric, key: string): number | null {
 
 function getDescription(a: string, b: string, r: number, lag: number): string {
     const absCoef = Math.abs(r);
-    const percentage = Math.round(absCoef * 100);
-
-    // Determine impact direction with actionable language
-    let impactPhrase = '';
+    
+    // Use qualitative descriptors for correlation strength
+    const strengthLabel = absCoef > 0.7 ? 'strongly' : absCoef > 0.5 ? 'moderately' : 'weakly';
+    
+    // Clearly state the relationship direction
+    let relationship = '';
     if (r > 0) {
-        impactPhrase = `increases your ${b.replaceAll('_', ' ')}`;
+        // Positive correlation: both move in same direction
+        relationship = `Higher ${a.replaceAll('_', ' ')} is ${strengthLabel} associated with higher ${b.replaceAll('_', ' ')}`;
     } else {
-        impactPhrase = `decreases your ${b.replaceAll('_', ' ')}`;
+        // Negative correlation: move in opposite directions
+        relationship = `Higher ${a.replaceAll('_', ' ')} is ${strengthLabel} associated with lower ${b.replaceAll('_', ' ')}`;
     }
-
-    // Make lag more readable
-    const lagText = lag === 0
-        ? 'on the same day'
-        : lag === 1
-            ? 'the next day'
-            : `${lag} days later`;
-
-    // Make it actionable with percentage impact
-    return `Your ${a.replaceAll('_', ' ')} ${impactPhrase} by ~${percentage}% ${lagText}.`;
+    
+    // Add lag information
+    const lagText = lag === 0 
+        ? '' 
+        : lag === 1 
+            ? ' the next day' 
+            : ` ${lag} days later`;
+    
+    return `${relationship}${lagText}.`;
 }
