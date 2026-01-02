@@ -88,7 +88,10 @@ export function PemStatusIndicator() {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <button className="focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full transition-transform hover:scale-105 active:scale-95">
+                <button
+                    className="focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full transition-transform hover:scale-105 active:scale-95"
+                    aria-label={`${t('navbar.pem_status.label')}: ${current.label}`}
+                >
                     <Badge variant="outline" className={`gap-1.5 px-3 py-1 cursor-pointer transition-colors ${current.color}`}>
                         <StatusIcon className="w-3.5 h-3.5" />
                         <span className="text-[11px] font-bold uppercase tracking-wider">{current.label}</span>
@@ -136,7 +139,7 @@ export function PemStatusIndicator() {
                                                 {bio.key === 'resting_heart_rate' && <Zap className="w-4 h-4 text-amber-500" />}
                                                 {bio.key === 'step_count' && <Footprints className="w-4 h-4 text-emerald-500" />}
                                                 <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
-                                                    {bio.key === 'hrv' ? t('dashboard.metrics.hrv.label').split(' (')[0] :
+                                                    {bio.key === 'hrv' ? t('dashboard.metrics.hrv.short_label') :
                                                         bio.key === 'resting_heart_rate' ? t('dashboard.metrics.resting_heart_rate.label') :
                                                             bio.key === 'step_count' ? t('dashboard.metrics.step_count.label') :
                                                                 bio.label}
