@@ -38,7 +38,6 @@ interface DataEntry {
     exertion_score: number | null
     step_count: number | null
     created_at: string
-    [key: string]: unknown
 }
 
 export default function DataManagementClient({ initialData, hasData: initialHasData, hasSteps }: { initialData: DataEntry[], hasData: boolean, hasSteps: boolean }) {
@@ -53,12 +52,11 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     const [editingEntry, setEditingEntry] = useState<DataEntry | null>(null)
 
     useEffect(() => {
-        setTimeout(() => setMounted(true), 0)
+        setMounted(true)
     }, [])
 
     // Sync state with server/prop updates
     // Safe prop-to-state sync pattern - only depends on props, not state
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
         setDataLog(initialData)
         setHasData(initialHasData)

@@ -18,7 +18,6 @@ export type ScorableEntry = {
     symptom_score?: number | null
     exertion_score?: number | null
     custom_metrics?: Record<string, unknown>
-    [key: string]: unknown
 }
 
 export type NormalizationStats = {

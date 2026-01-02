@@ -12,6 +12,9 @@ import { useRouter } from 'next/navigation'
 import { useLanguage } from "@/components/providers/language-provider"
 import { useUpload } from "@/components/providers/upload-provider"
 import { revalidateApp } from '@/app/actions/revalidate'
+import type { Database } from '@/types/database.types'
+
+type HealthMetricInsert = Database['public']['Tables']['health_metrics']['Insert']
 
 export function BearableUploader() {
     const { t } = useLanguage()
@@ -95,9 +98,7 @@ export function BearableUploader() {
 
                         const { error } = await supabase
                             .from('health_metrics')
-                            // Supabase strict typing requires cast for batch insert
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            .insert(batch as any)
+                            .insert(batch satisfies HealthMetricInsert[])
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
