@@ -127,91 +127,104 @@ export function PemStatusIndicator() {
                                 <p>{t('navbar.pem_status.biometrics_stable')}</p>
                             </div>
 
-                            <div className="space-y-2 pt-2">
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-1">
-                                    {t('navbar.pem_status.biometrics_title')}
-                                </span>
-                                <div className="grid grid-cols-1 gap-2">
-                                    {status.biometrics?.map(bio => (
-                                        <div key={bio.key} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-                                            <div className="flex items-center gap-2">
-                                                {bio.key === 'hrv' && <HeartPulse className="w-4 h-4 text-rose-500" />}
-                                                {bio.key === 'resting_heart_rate' && <Zap className="w-4 h-4 text-amber-500" />}
-                                                {bio.key === 'step_count' && <Footprints className="w-4 h-4 text-emerald-500" />}
-                                                <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
-                                                    {bio.key === 'hrv' ? t('dashboard.metrics.hrv.short_label') :
-                                                        bio.key === 'resting_heart_rate' ? t('dashboard.metrics.resting_heart_rate.label') :
-                                                            bio.key === 'step_count' ? t('dashboard.metrics.step_count.label') :
-                                                                bio.label}
-                                                </span>
-                                            </div>
-                                            <Badge
-                                                variant="outline"
-                                                className={`
-                                                    text-[10px] font-bold px-2 py-0 h-5 border-transparent
-                                                    ${bio.status === 'optimal' ? 'bg-emerald-500/10 text-emerald-600' :
-                                                        bio.status === 'strained' ? 'bg-amber-500/10 text-amber-600' :
-                                                            'bg-zinc-500/10 text-zinc-600'}
-                                                `}
-                                            >
-                                                {bio.status === 'optimal' ? t('navbar.pem_status.status_optimal') :
-                                                    bio.status === 'strained' ? t('navbar.pem_status.status_strained') :
-                                                        t('navbar.pem_status.status_normal')}
-                                            </Badge>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {/* Group 1: Personal Patterns */}
-                            {status?.matchedTriggers?.some(t => t.isPersonal) && (
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
-                                        {t('navbar.pem_status.matches_personal')}
-                                    </p>
-                                    <div className="space-y-1.5">
-                                        {status.matchedTriggers.filter(t => t.isPersonal).map((tr) => (
-                                            <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-lg bg-red-50/50 dark:bg-red-900/10 border border-red-100/50 dark:border-red-900/20">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-sm font-bold text-red-700 dark:text-red-400 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
-                                                    <div className="text-[10px] font-bold text-red-600/70 dark:text-red-400/70 bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded uppercase">
-                                                        {tr.leadDaysStart > 0
-                                                            ? t('navbar.pem_status.prediction').replace('{day}', format(addDays(new Date(), tr.leadDaysStart), 'eee'))
-                                                            : t('navbar.pem_status.cumulative_load')}
-                                                    </div>
+                            {status.biometrics && status.biometrics.length > 0 && (
+                                <div className="space-y-2 pt-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-1">
+                                        {t('navbar.pem_status.biometrics_title')}
+                                    </span>
+                                    <div className="grid grid-cols-1 gap-2">
+                                        {status.biometrics.map(bio => (
+                                            <div key={bio.key} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                                                <div className="flex items-center gap-2">
+                                                    {bio.key === 'hrv' && <HeartPulse className="w-4 h-4 text-rose-500" />}
+                                                    {bio.key === 'resting_heart_rate' && <Zap className="w-4 h-4 text-amber-500" />}
+                                                    {bio.key === 'step_count' && <Footprints className="w-4 h-4 text-emerald-500" />}
+                                                    <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                                                        {bio.key === 'hrv' ? t('dashboard.metrics.hrv.short_label') :
+                                                            bio.key === 'resting_heart_rate' ? t('dashboard.metrics.resting_heart_rate.label') :
+                                                                bio.key === 'step_count' ? t('dashboard.metrics.step_count.label') :
+                                                                    bio.label}
+                                                    </span>
                                                 </div>
-                                                <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
-                                                    {tr.description || t('navbar.pem_status.matches')}
-                                                </p>
+                                                <Badge
+                                                    variant="outline"
+                                                    className={`
+                                                        text-[10px] font-bold px-2 py-0 h-5 border-transparent
+                                                        ${bio.status === 'optimal' ? 'bg-emerald-500/10 text-emerald-600' :
+                                                            bio.status === 'strained' ? 'bg-amber-500/10 text-amber-600' :
+                                                                'bg-zinc-500/10 text-zinc-600'}
+                                                    `}
+                                                >
+                                                    {bio.status === 'optimal' ? t('navbar.pem_status.status_optimal') :
+                                                        bio.status === 'strained' ? t('navbar.pem_status.status_strained') :
+                                                            t('navbar.pem_status.status_normal')}
+                                                </Badge>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             )}
-
-                            {/* Group 2: General Trends */}
-                            {status?.matchedTriggers?.some(t => !t.isPersonal) && (
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
-                                        {t('navbar.pem_status.matches_general')}
-                                    </p>
-                                    <div className="space-y-1.5">
-                                        {status.matchedTriggers.filter(t => !t.isPersonal).map((tr) => (
-                                            <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
-                                                    <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded uppercase">
-                                                        {t('navbar.pem_status.cumulative_load')}
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {status?.matchedTriggers && status.matchedTriggers.length > 0 ? (
+                                <>
+                                    {/* Group 1: Personal Patterns */}
+                                    {status.matchedTriggers.some(t => t.isPersonal) && (
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
+                                                {t('navbar.pem_status.matches_personal')}
+                                            </p>
+                                            <div className="space-y-1.5">
+                                                {status.matchedTriggers.filter(t => t.isPersonal).map((tr) => (
+                                                    <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-lg bg-red-50/50 dark:bg-red-900/10 border border-red-100/50 dark:border-red-900/20">
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <span className="text-sm font-bold text-red-700 dark:text-red-400 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
+                                                            <div className="text-[10px] font-bold text-red-600/70 dark:text-red-400/70 bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded uppercase">
+                                                                {tr.leadDaysStart > 0
+                                                                    ? t('navbar.pem_status.prediction').replace('{day}', format(addDays(new Date(), tr.leadDaysStart), 'eee'))
+                                                                    : t('navbar.pem_status.cumulative_load')}
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
+                                                            {tr.description || t('navbar.pem_status.matches')}
+                                                        </p>
                                                     </div>
-                                                </div>
-                                                <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight italic">
-                                                    {tr.description}
-                                                </p>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    )}
+
+                                    {/* Group 2: General Trends */}
+                                    {status.matchedTriggers.some(t => !t.isPersonal) && (
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
+                                                {t('navbar.pem_status.matches_general')}
+                                            </p>
+                                            <div className="space-y-1.5">
+                                                {status.matchedTriggers.filter(t => !t.isPersonal).map((tr) => (
+                                                    <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
+                                                            <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded uppercase">
+                                                                {t('navbar.pem_status.cumulative_load')}
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight italic">
+                                                            {tr.description}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 flex items-center gap-3">
+                                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                                    <p className="text-sm text-amber-800 dark:text-amber-200 leading-snug">
+                                        High activity levels detected relative to your baseline. Please check your data log for details.
+                                    </p>
                                 </div>
                             )}
                         </div>
