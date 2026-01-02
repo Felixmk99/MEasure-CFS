@@ -450,7 +450,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 prevCrashCount
             }
         })
-    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig, getValue])
+    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig, getValue, getTrendStrategy])
 
 
     // ... UI Render ...
