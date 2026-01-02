@@ -37,7 +37,12 @@ export const de: Dictionary = {
             matches: "Muster von früher erkannt:",
             cumulative_load: "Zu hohe Gesamtbelastung erkannt",
             stable_message: "Deine aktuelle Belastung liegt innerhalb deiner historisch sicheren Zone.",
-            error_fetch: "Fehler beim Laden des PEM-Status"
+            error_fetch: "Fehler beim Laden des PEM-Status",
+            biometrics_title: "Biometrische Basiswerte",
+            biometrics_stable: "Deine biometrischen Basiswerte sind im grünen Bereich. Keine Risikomuster erkannt.",
+            status_optimal: "Optimal",
+            status_normal: "Stabil",
+            status_strained: "Belastet"
         }
     },
     footer: {

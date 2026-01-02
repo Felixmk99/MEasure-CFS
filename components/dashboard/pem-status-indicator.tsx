@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { calculateCurrentPEMDanger, PEMDangerStatus } from '@/lib/stats/pem-danger-logic'
 import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { AlertTriangle, CheckCircle2, HelpCircle, Info, Zap } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, HelpCircle, Info, Zap, ShieldCheck, HeartPulse, Footprints } from 'lucide-react'
 import { useLanguage } from '@/components/providers/language-provider'
 import { format, addDays } from 'date-fns'
 
@@ -61,8 +61,8 @@ export function PemStatusIndicator() {
             label: t('navbar.pem_status.danger')
         },
         stable: {
-            color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-900/50',
-            icon: CheckCircle2,
+            color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800/50',
+            icon: ShieldCheck,
             label: t('navbar.pem_status.stable')
         },
         needs_data: {
@@ -117,40 +117,72 @@ export function PemStatusIndicator() {
                                 {!status.insufficientDataReason && t('navbar.pem_status.needs_data')}
                             </p>
                         </div>
-                    ) : (
-                        <>
-                            {status?.matchedTriggers && status.matchedTriggers.length > 0 ? (
-                                <div className="space-y-3">
-                                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-tight">
-                                        {t('navbar.pem_status.matches')}
-                                    </p>
-                                    <div className="space-y-2">
-                                        {status.matchedTriggers.map((tr) => (
-                                            <div key={`${tr.metric}-${tr.type}`} className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
-                                                    <span className="text-[10px] text-zinc-500 flex items-center gap-1">
-                                                        <Zap className="w-2.5 h-2.5" />
-                                                        {tr.type}
-                                                    </span>
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className="text-[10px] font-medium text-zinc-400 uppercase">
-                                                        {tr.leadDaysStart > 0
-                                                            ? t('navbar.pem_status.prediction').replace('{day}', format(addDays(new Date(), tr.leadDaysStart), 'eee'))
-                                                            : t('navbar.pem_status.cumulative_load')}
-                                                    </div>
-                                                </div>
+                    ) : status?.status === 'stable' ? (
+                        <div className="space-y-4">
+                            <div className="flex gap-3 text-sm text-emerald-700 dark:text-emerald-400 font-medium leading-relaxed">
+                                <ShieldCheck className="w-5 h-5 shrink-0 text-emerald-500" />
+                                <p>{t('navbar.pem_status.biometrics_stable')}</p>
+                            </div>
+
+                            <div className="space-y-2 pt-2">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 px-1">
+                                    {t('navbar.pem_status.biometrics_title')}
+                                </span>
+                                <div className="grid grid-cols-1 gap-2">
+                                    {status.biometrics?.map(bio => (
+                                        <div key={bio.key} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                                            <div className="flex items-center gap-2">
+                                                {bio.key === 'hrv' && <HeartPulse className="w-4 h-4 text-rose-500" />}
+                                                {bio.key === 'resting_heart_rate' && <Zap className="w-4 h-4 text-amber-500" />}
+                                                {bio.key === 'step_count' && <Footprints className="w-4 h-4 text-emerald-500" />}
+                                                <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                                                    {bio.label}
+                                                </span>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <Badge
+                                                variant="outline"
+                                                className={`
+                                                    text-[10px] font-bold px-2 py-0 h-5 border-transparent
+                                                    ${bio.status === 'optimal' ? 'bg-emerald-500/10 text-emerald-600' :
+                                                        bio.status === 'strained' ? 'bg-amber-500/10 text-amber-600' :
+                                                            'bg-zinc-500/10 text-zinc-600'}
+                                                `}
+                                            >
+                                                {bio.status === 'optimal' ? t('navbar.pem_status.status_optimal') :
+                                                    bio.status === 'strained' ? t('navbar.pem_status.status_strained') :
+                                                        t('navbar.pem_status.status_normal')}
+                                            </Badge>
+                                        </div>
+                                    ))}
                                 </div>
-                            ) : (
-                                <p className="text-sm text-zinc-500">
-                                    {t('navbar.pem_status.stable_message')}
-                                </p>
-                            )}
-                        </>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-tight">
+                                {t('navbar.pem_status.matches')}
+                            </p>
+                            <div className="space-y-2">
+                                {status?.matchedTriggers?.map((tr) => (
+                                    <div key={`${tr.metric}-${tr.type}`} className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
+                                            <span className="text-[10px] text-zinc-500 flex items-center gap-1">
+                                                <Zap className="w-2.5 h-2.5" />
+                                                {tr.type}
+                                            </span>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-[10px] font-medium text-zinc-400 uppercase">
+                                                {tr.leadDaysStart > 0
+                                                    ? t('navbar.pem_status.prediction').replace('{day}', format(addDays(new Date(), tr.leadDaysStart), 'eee'))
+                                                    : t('navbar.pem_status.cumulative_load')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     )}
                 </div>
             </PopoverContent>

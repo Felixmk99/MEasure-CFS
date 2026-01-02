@@ -78,10 +78,13 @@ describe('PEM Danger Logic', () => {
         // It should find 2 crash episodes
     })
 
-    it('should return "stable" if no triggers matched in last 7 days', () => {
+    it('should return "stable" if no triggers matched in last 7 days and include biometrics', () => {
         const data = createMockData(10, -10) // Trigger was 10 days ago (expired)
         const result = calculateCurrentPEMDanger(data as any)
         expect(result.status).toBe('stable')
+        expect(result.matchedTriggers.length).toBe(0)
+        expect(result.biometrics).toBeDefined()
+        expect(result.biometrics?.length).toBe(3)
     })
 
     it('should return "danger" if a trigger is matched recently', () => {
