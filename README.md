@@ -44,8 +44,8 @@ Seamlessly ingest CSV exports from the **Visible** app. We handle the heavy lift
 ### Local Installation
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Felixmk99/track-ME.git
-   cd track-ME
+   git clone https://github.com/Felixmk99/MEasure-CFS.git
+   cd MEasure-CFS
    ```
 2. **Install dependencies**
    ```bash
