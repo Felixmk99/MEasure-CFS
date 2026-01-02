@@ -190,7 +190,7 @@ export function PemStatusIndicator() {
                                                         </div>
                                                         <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
                                                             {tr.descriptionKey
-                                                                ? t(tr.descriptionKey as any)
+                                                                ? t(tr.descriptionKey)
                                                                 : (tr.description || t('navbar.pem_status.matches'))}
                                                         </p>
                                                     </div>
@@ -216,10 +216,10 @@ export function PemStatusIndicator() {
                                                         </div>
                                                         <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight italic">
                                                             {tr.descriptionKey
-                                                                ? t(tr.descriptionKey as any, tr.descriptionParams ? Object.fromEntries(
+                                                                ? t(tr.descriptionKey, tr.descriptionParams ? Object.fromEntries(
                                                                     Object.entries(tr.descriptionParams).map(([k, v]) => [
                                                                         k,
-                                                                        (v === 'exertion' || v === 'activity') ? t(`navbar.pem_status.${v}` as any) : v
+                                                                        (v === 'exertion' || v === 'activity') ? t(`navbar.pem_status.${v}`) : v
                                                                     ])
                                                                 ) : undefined)
                                                                 : tr.description}
