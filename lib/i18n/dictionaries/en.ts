@@ -37,7 +37,12 @@ export const en: Dictionary = {
             matches: "Matches historical triggers:",
             cumulative_load: "High cumulative activity detected",
             stable_message: "Current activity levels are within your historical safe zone.",
-            error_fetch: "Failed to load PEM status"
+            error_fetch: "Failed to load PEM status",
+            biometrics_title: "Biometric Baseline",
+            biometrics_stable: "Your core biometrics are within your safe baseline. No risk patterns detected.",
+            status_optimal: "Optimal",
+            status_normal: "Stable",
+            status_strained: "Strained"
         }
     },
     footer: {

@@ -11,6 +11,12 @@ export interface PEMDangerStatus {
         magnitude: number
         currentZ: number
     }[]
+    biometrics?: {
+        key: string
+        label: string
+        zScore: number
+        status: 'optimal' | 'normal' | 'strained'
+    }[]
     insufficientDataReason?: 'no_history' | 'no_recent_data' | 'no_crashes'
 }
 
@@ -127,22 +133,45 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
     const avgSteps = recentData.reduce((acc, d) => acc + getZScore(d, 'step_count', baselineStats), 0) / recentData.length
 
     if (avgExertion > 0.8 || avgSteps > 0.8) {
-        maxLevel = Math.max(maxLevel, 40)
-        if (maxLevel === 40) {
-            matchedTriggers.push({
-                metric: avgExertion > 0.8 ? 'exertion_score' : 'step_count',
-                type: 'Cumulative Load',
-                leadDaysStart: 0,
-                magnitude: 1.0,
-                currentZ: Math.max(avgExertion, avgSteps)
-            })
-        }
+        const loadScore = 40 + (Math.max(avgExertion, avgSteps) - 0.8) * 20
+        maxLevel = Math.max(maxLevel, loadScore)
+        matchedTriggers.push({
+            metric: avgExertion > 0.8 ? 'exertion_score' : 'step_count',
+            type: 'Cumulative Load',
+            leadDaysStart: 0,
+            magnitude: 1.0,
+            currentZ: Math.max(avgExertion, avgSteps)
+        })
     }
 
+    // 9. Status & Cleanup
+    const isDanger = maxLevel >= 50
+
+    // Calculate Biometrics for "All Clear" reassurance
+    const latestDay = recentData[recentData.length - 1]
+    const biometrics: PEMDangerStatus['biometrics'] = [
+        { key: 'hrv', label: 'HRV', zScore: getZScore(latestDay, 'hrv', baselineStats) },
+        { key: 'resting_heart_rate', label: 'Resting HR', zScore: getZScore(latestDay, 'resting_heart_rate', baselineStats) },
+        { key: 'step_count', label: 'Steps', zScore: getZScore(latestDay, 'step_count', baselineStats) }
+    ].map(b => {
+        let status: 'optimal' | 'normal' | 'strained' = 'normal'
+        const z = b.zScore
+        if (b.key === 'hrv') {
+            if (z > 0.5) status = 'optimal'
+            else if (z < -1.0) status = 'strained'
+        } else {
+            // RHR, Steps: Lower is better/safer
+            if (z < -0.5) status = 'optimal'
+            else if (z > 1.0) status = 'strained'
+        }
+        return { ...b, status }
+    })
+
     return {
-        status: maxLevel >= 50 ? 'danger' : 'stable',
+        status: isDanger ? 'danger' : 'stable',
         level: maxLevel,
-        matchedTriggers: matchedTriggers.slice(0, 3)
+        matchedTriggers: isDanger ? matchedTriggers.slice(0, 3) : [],
+        biometrics
     }
 }
 
