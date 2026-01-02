@@ -19,7 +19,7 @@ export interface PEMDangerStatus {
         key: string
         label: string
         zScore: number
-        status: 'optimal' | 'normal' | 'strained'
+        status: 'optimal' | 'normal' | 'strained' | 'unknown'
     }[]
     insufficientDataReason?: 'no_history' | 'no_recent_data' | 'no_crashes'
 }
@@ -127,7 +127,9 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
                         descriptionKey: 'navbar.pem_status.matches_personal_desc'
                     })
                     // Scoring: 50 base if matched + extra based on how close Z is to historical peak
-                    const score = Math.min(100, 50 + (Math.abs(currentZ) / tr.magnitude) * 50)
+                    const score = tr.magnitude > 0
+                        ? Math.min(100, 50 + (Math.abs(currentZ) / tr.magnitude) * 50)
+                        : 50
                     if (score > maxLevel) maxLevel = score
                 }
             }
@@ -174,7 +176,12 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
         { key: 'resting_heart_rate', label: 'Resting HR', zScore: getZScore(latestDay, 'resting_heart_rate', baselineStats) },
         { key: 'step_count', label: 'Steps', zScore: getZScore(latestDay, 'step_count', baselineStats) }
     ].map(b => {
-        let status: 'optimal' | 'normal' | 'strained' = 'normal'
+        // If no baseline data exists for this specific biometric, we can't determine status
+        if (!baselineStats[b.key]) {
+            return { ...b, status: 'unknown' as const }
+        }
+
+        let status: 'optimal' | 'normal' | 'strained' | 'unknown' = 'normal'
         const z = b.zScore
         if (b.key === 'hrv') {
             if (z > 0.5) status = 'optimal'

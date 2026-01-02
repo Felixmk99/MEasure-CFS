@@ -9,6 +9,12 @@ import { AlertTriangle, HelpCircle, Info, Zap, ShieldCheck, HeartPulse, Footprin
 import { useLanguage } from '@/components/providers/language-provider'
 import { format, addDays } from 'date-fns'
 
+const biometricIcons = {
+    hrv: HeartPulse,
+    resting_heart_rate: Zap,
+    step_count: Footprints
+}
+
 export function PemStatusIndicator() {
     const [status, setStatus] = useState<PEMDangerStatus | null>(null)
     const [loading, setLoading] = useState(true)
@@ -91,6 +97,7 @@ export function PemStatusIndicator() {
         <Popover>
             <PopoverTrigger asChild>
                 <button
+                    type="button"
                     className="focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full transition-transform hover:scale-105 active:scale-95"
                     aria-label={`${t('navbar.pem_status.label')}: ${current.label}`}
                 >
@@ -135,34 +142,37 @@ export function PemStatusIndicator() {
                                         {t('navbar.pem_status.biometrics_title')}
                                     </span>
                                     <div className="grid grid-cols-1 gap-2">
-                                        {status.biometrics.map(bio => (
-                                            <div key={bio.key} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-                                                <div className="flex items-center gap-2">
-                                                    {bio.key === 'hrv' && <HeartPulse className="w-4 h-4 text-rose-500" />}
-                                                    {bio.key === 'resting_heart_rate' && <Zap className="w-4 h-4 text-amber-500" />}
-                                                    {bio.key === 'step_count' && <Footprints className="w-4 h-4 text-emerald-500" />}
-                                                    <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
-                                                        {bio.key === 'hrv' ? t('dashboard.metrics.hrv.short_label') :
-                                                            bio.key === 'resting_heart_rate' ? t('dashboard.metrics.resting_heart_rate.label') :
-                                                                bio.key === 'step_count' ? t('dashboard.metrics.step_count.label') :
-                                                                    bio.label}
-                                                    </span>
-                                                </div>
-                                                <Badge
-                                                    variant="outline"
-                                                    className={`
+                                        {status.biometrics.map(bio => {
+                                            const Icon = biometricIcons[bio.key as keyof typeof biometricIcons] || HelpCircle
+                                            return (
+                                                <div key={bio.key} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                                                    <div className="flex items-center gap-2">
+                                                        <Icon className="w-4 h-4 text-zinc-500" />
+                                                        <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                                                            {bio.key === 'hrv' ? t('dashboard.metrics.hrv.short_label') :
+                                                                bio.key === 'resting_heart_rate' ? t('dashboard.metrics.resting_heart_rate.label') :
+                                                                    bio.key === 'step_count' ? t('dashboard.metrics.step_count.label') :
+                                                                        bio.label}
+                                                        </span>
+                                                    </div>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className={`
                                                         text-[10px] font-bold px-2 py-0 h-5 border-transparent
                                                         ${bio.status === 'optimal' ? 'bg-emerald-500/10 text-emerald-600' :
-                                                            bio.status === 'strained' ? 'bg-amber-500/10 text-amber-600' :
-                                                                'bg-zinc-500/10 text-zinc-600'}
+                                                                bio.status === 'strained' ? 'bg-amber-500/10 text-amber-600' :
+                                                                    bio.status === 'unknown' ? 'bg-zinc-500/10 text-zinc-500 italic' :
+                                                                        'bg-zinc-500/10 text-zinc-600'}
                                                     `}
-                                                >
-                                                    {bio.status === 'optimal' ? t('navbar.pem_status.status_optimal') :
-                                                        bio.status === 'strained' ? t('navbar.pem_status.status_strained') :
-                                                            t('navbar.pem_status.status_normal')}
-                                                </Badge>
-                                            </div>
-                                        ))}
+                                                    >
+                                                        {bio.status === 'optimal' ? t('navbar.pem_status.status_optimal') :
+                                                            bio.status === 'strained' ? t('navbar.pem_status.status_strained') :
+                                                                bio.status === 'unknown' ? t('navbar.pem_status.status_unknown') :
+                                                                    t('navbar.pem_status.status_normal')}
+                                                    </Badge>
+                                                </div>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -184,7 +194,7 @@ export function PemStatusIndicator() {
                                                             <span className="text-sm font-bold text-red-700 dark:text-red-400 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
                                                             <div className="text-[10px] font-bold text-red-600/70 dark:text-red-400/70 bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded uppercase">
                                                                 {tr.leadDaysStart > 0
-                                                                    ? t('navbar.pem_status.prediction').replace('{day}', format(addDays(new Date(), tr.leadDaysStart), 'eee'))
+                                                                    ? t('navbar.pem_status.prediction', { day: format(addDays(new Date(), tr.leadDaysStart), 'eee') })
                                                                     : t('navbar.pem_status.cumulative_load')}
                                                             </div>
                                                         </div>

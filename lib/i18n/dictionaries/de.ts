@@ -50,7 +50,8 @@ export const de: Dictionary = {
             biometrics_stable: "Deine biometrischen Basiswerte sind im grünen Bereich. Keine Risikomuster erkannt.",
             status_optimal: "Optimal",
             status_normal: "Stabil",
-            status_strained: "Belastet"
+            status_strained: "Belastet",
+            status_unknown: "Keine Baseline"
         }
     },
     footer: {

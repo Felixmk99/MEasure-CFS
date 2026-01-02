@@ -50,7 +50,8 @@ export const en: Dictionary = {
             biometrics_stable: "Your core biometrics are within your safe baseline. No risk patterns detected.",
             status_optimal: "Optimal",
             status_normal: "Stable",
-            status_strained: "Strained"
+            status_strained: "Strained",
+            status_unknown: "No Baseline"
         }
     },
     footer: {
