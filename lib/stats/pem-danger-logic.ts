@@ -62,7 +62,7 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
     const metricsToAnalyze = Array.from(allMetrics).filter(m => m !== 'Crash' && m !== 'crash')
 
     // 4. Calculate Baseline from ALL history
-    const baselineStats = calculateBaselineStats(sortedData, Array.from(allMetrics))
+    const baselineStats = calculateBaselineStats(sortedData, metricsToAnalyze)
 
     // 5. Find historical crashes
     const crashIndices = sortedData
