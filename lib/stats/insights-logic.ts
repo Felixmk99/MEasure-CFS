@@ -74,7 +74,8 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                         const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase().includes(e.toLowerCase()));
 
                         // Skip if metricB is an exertion metric (exertion is a choice, not an effect)
-                        if (isExertionEffect && lag > 0) {
+                        // This applies to ALL lags including lag 0 (same day)
+                        if (isExertionEffect) {
                             return; // Don't show "X causes more exertion" - exertion is an input
                         }
 
