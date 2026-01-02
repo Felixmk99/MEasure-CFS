@@ -26,11 +26,13 @@ export function PemStatusIndicator() {
         setLoading(true)
         setError(false)
         try {
-            const { data: metrics } = await supabase
+            const { data: metrics, error: selectError } = await supabase
                 .from('health_metrics')
-                .select('date, hrv, resting_heart_rate, step_count, symptom_score, exertion_score, crash, custom_metrics')
+                .select('date, hrv, resting_heart_rate, step_count, symptom_score, exertion_score, custom_metrics')
                 .eq('user_id', user.id)
                 .order('date', { ascending: true })
+
+            if (selectError) throw selectError
 
             if (metrics) {
                 const result = calculateCurrentPEMDanger(metrics)

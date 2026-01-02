@@ -56,14 +56,22 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
 
     // 5. Find historical crashes
     const crashIndices = sortedData
-        .map((d, i) => (d.crash === 1 || d.crash === '1' || d.custom_metrics?.Crash === 1 || d.custom_metrics?.Crash === '1') ? i : -1)
+        .map((d, i) => {
+            const isCrash =
+                d.crash === 1 || d.crash === '1' || d.crash === true ||
+                d.custom_metrics?.Crash === 1 || d.custom_metrics?.Crash === '1' || d.custom_metrics?.Crash === true ||
+                d.custom_metrics?.crash === 1 || d.custom_metrics?.crash === '1' || d.custom_metrics?.crash === true
+            return isCrash ? i : -1
+        })
         .filter(i => i !== -1)
 
     // Filter to only 'start' of crash episodes (first day of a streak)
     const crashStarts = crashIndices.filter((idx, i) => i === 0 || idx > crashIndices[i - 1] + 1)
 
+    // If no crashes are found, we can't identify personal triggers, 
+    // but we can still show a 'Stable' status if data is sufficient.
     if (crashStarts.length === 0) {
-        return { status: 'needs_data', level: 0, matchedTriggers: [], insufficientDataReason: 'no_crashes' }
+        // Fallback to cumulative check below
     }
 
     // 6. Extract Triggers (Phase 1 Logic)
