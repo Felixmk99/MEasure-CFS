@@ -18,7 +18,10 @@ export function PemStatusIndicator() {
 
     const fetchAndCalculate = useCallback(async () => {
         const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        if (!user) {
+            setLoading(false)
+            return
+        }
 
         setLoading(true)
         setError(false)
@@ -49,16 +52,6 @@ export function PemStatusIndicator() {
         return () => window.removeEventListener('health-data-updated', fetchAndCalculate)
     }, [fetchAndCalculate])
 
-    if (loading) return <div className="w-24 h-6 bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-full" />
-    if (error) {
-        return (
-            <Badge variant="outline" className="gap-1.5 px-3 py-1 bg-zinc-100 text-zinc-500 border-zinc-200">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-xs">{t('navbar.pem_status.error_fetch')}</span>
-            </Badge>
-        )
-    }
-
     const config = useMemo(() => ({
         danger: {
             color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-900/50',
@@ -76,6 +69,16 @@ export function PemStatusIndicator() {
             label: t('navbar.pem_status.needs_data')
         }
     }), [t])
+
+    if (loading) return <div className="w-24 h-6 bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-full" />
+    if (error) {
+        return (
+            <Badge variant="outline" className="gap-1.5 px-3 py-1 bg-zinc-100 text-zinc-500 border-zinc-200">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-xs">{t('navbar.pem_status.error_fetch')}</span>
+            </Badge>
+        )
+    }
 
     const current = status ? config[status.status] : config.needs_data
     const StatusIcon = current.icon
@@ -109,6 +112,7 @@ export function PemStatusIndicator() {
                                 {status.insufficientDataReason === 'no_history' && t('navbar.pem_status.reason_no_history')}
                                 {status.insufficientDataReason === 'no_recent_data' && t('navbar.pem_status.reason_no_recent_data')}
                                 {status.insufficientDataReason === 'no_crashes' && t('navbar.pem_status.reason_no_crashes')}
+                                {!status.insufficientDataReason && t('navbar.pem_status.needs_data')}
                             </p>
                         </div>
                     ) : (
@@ -122,7 +126,7 @@ export function PemStatusIndicator() {
                                         {status.matchedTriggers.map((tr, i) => (
                                             <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replace('_', ' ')}</span>
+                                                    <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
                                                     <span className="text-[10px] text-zinc-500 flex items-center gap-1">
                                                         <Zap className="w-2.5 h-2.5" />
                                                         {tr.type}
