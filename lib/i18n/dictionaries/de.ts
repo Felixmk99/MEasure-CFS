@@ -35,7 +35,9 @@ export const de: Dictionary = {
             reason_no_crashes: "Keine historischen Crashes analysiert",
             prediction: "Vorhergesagter Crash: {day}",
             matches: "Muster von früher erkannt:",
-            cumulative_load: "Zu hohe Gesamtbelastung erkannt"
+            cumulative_load: "Zu hohe Gesamtbelastung erkannt",
+            stable_message: "Deine aktuelle Belastung liegt innerhalb deiner historisch sicheren Zone.",
+            error_fetch: "Fehler beim Laden des PEM-Status"
         }
     },
     footer: {

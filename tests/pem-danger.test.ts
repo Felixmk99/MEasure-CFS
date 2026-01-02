@@ -18,17 +18,23 @@ describe('PEM Danger Logic', () => {
         })
 
         // Add history: A crash and a trigger
-        if (crashIndex >= 0) {
+        if (crashIndex >= 0 && crashIndex < data.length) {
             data[crashIndex].crash = 1
             // Trigger: High exertion 2 days before the historical crash
-            data[crashIndex - 2].exertion_score = 10
+            const triggerIdx = crashIndex - 2
+            if (triggerIdx >= 0) {
+                data[triggerIdx].exertion_score = 10
+            }
         }
 
         // Add current activity
         if (isRecent) {
             // Match the trigger polarity: high exertion today (or recently)
             const todayIdx = 39
-            data[todayIdx + triggerDayOffset].exertion_score = 10
+            const targetIdx = todayIdx + triggerDayOffset
+            if (targetIdx >= 0 && targetIdx < data.length) {
+                data[targetIdx].exertion_score = 10
+            }
         }
 
         return data

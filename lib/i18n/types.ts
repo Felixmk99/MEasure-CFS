@@ -36,6 +36,8 @@ export interface Dictionary {
             prediction: string
             matches: string
             cumulative_load: string
+            stable_message: string
+            error_fetch: string
         }
     }
     footer: {

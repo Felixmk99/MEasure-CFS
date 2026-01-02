@@ -35,7 +35,9 @@ export const en: Dictionary = {
             reason_no_crashes: "No historical crashes found to analyze",
             prediction: "Predicted crash: {day}",
             matches: "Matches historical triggers:",
-            cumulative_load: "High cumulative activity detected"
+            cumulative_load: "High cumulative activity detected",
+            stable_message: "Current activity levels are within your historical safe zone.",
+            error_fetch: "Failed to load PEM status"
         }
     },
     footer: {
