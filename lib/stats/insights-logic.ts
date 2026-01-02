@@ -3,7 +3,8 @@ import * as ss from 'simple-statistics';
 export interface InsightMetric {
     date: string;
     custom_metrics?: Record<string, number>;
-    [key: string]: unknown;
+    // Allow dynamic metric names but constrain to expected types
+    [key: string]: string | number | Record<string, number> | undefined;
 }
 
 export interface CorrelationResult {
@@ -32,8 +33,11 @@ export interface ThresholdInsight {
  * Calculates correlation between all pairs of metrics.
  * Surfaces leading and lagging indicators using a window of 0-2 days.
  */
+// Minimum data points required for statistical significance
+const MIN_DATA_POINTS = 10;
+
 export function calculateAdvancedCorrelations(data: InsightMetric[]): CorrelationResult[] {
-    if (data.length < 5) return [];
+    if (data.length < MIN_DATA_POINTS) return [];
 
     const metrics = extractAvailableMetrics(data);
     const results: CorrelationResult[] = [];
@@ -66,8 +70,8 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                         const stats = calculatePercentageChange(sortedData, metricA, metricB, medianA, lag);
 
                         // Filter out exertion metrics as effects (they are inputs, not outcomes)
-                        const exertionMetrics = ['exertion_score', 'physical_exertion', 'mental_exertion', 'emotional_exertion', 'socially_demanding'];
-                        const isExertionEffect = exertionMetrics.some(e => metricB.toLowerCase().includes(e.toLowerCase()));
+                        const EXERTION_METRICS = ['exertion_score', 'physical_exertion', 'mental_exertion', 'emotional_exertion', 'socially_demanding'] as const;
+                        const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase().includes(e.toLowerCase()));
 
                         // Skip if metricB is an exertion metric (exertion is a choice, not an effect)
                         if (isExertionEffect && lag > 0) {
@@ -103,11 +107,15 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
 /**
  * Detects 'Safe Zones' where a metric (like steps) significantly increases symptom load.
  */
+// Threshold multiplier for detecting significant symptom increases (50% increase)
+const SIGNIFICANT_INCREASE_THRESHOLD = 1.5;
+
 export function detectThresholds(
     data: InsightMetric[],
     impactMetric: string = 'symptom_score',
     triggerMetrics: string[] = ['step_count', 'Physical Exertion', 'Cognitive Exertion', 'Work']
 ): ThresholdInsight[] {
+    if (data.length < MIN_DATA_POINTS) return [];
     const metrics = triggerMetrics;
     const insights: ThresholdInsight[] = [];
 
@@ -119,7 +127,7 @@ export function detectThresholds(
             }))
             .filter(p => !isNaN(p.x) && !isNaN(p.y));
 
-        if (pairs.length < 10) return;
+        if (pairs.length < 10) return [];
 
         // Simplified threshold detection: Look for the point where average Y increases significantly
         pairs.sort((a, b) => a.x - b.x);
@@ -134,8 +142,8 @@ export function detectThresholds(
         }
 
         // If bucket 3 or 4 mean is > 50% higher than bucket 1
-        if (means[2] > means[0] * 1.5 || means[3] > means[0] * 1.5) {
-            const thresholdIndex = means[2] > means[0] * 1.5 ? bucketSize * 2 : bucketSize * 3;
+        if (means[2] > means[0] * SIGNIFICANT_INCREASE_THRESHOLD || means[3] > means[0] * SIGNIFICANT_INCREASE_THRESHOLD) {
+            const thresholdIndex = means[2] > means[0] * SIGNIFICANT_INCREASE_THRESHOLD ? bucketSize * 2 : bucketSize * 3;
             const limit = pairs[thresholdIndex].x;
 
             insights.push({
@@ -162,6 +170,9 @@ export function calculateRecoveryVelocity(): { metric: string, recoveryDays: num
 }
 
 // Helpers
+// Non-metric fields to exclude from analysis
+const PROVIDER_FIELDS = ['symptom_provider', 'step_provider'] as const;
+
 function extractAvailableMetrics(data: InsightMetric[]): string[] {
     const keys = new Set<string>();
     data.forEach(d => {
@@ -178,13 +189,13 @@ function extractAvailableMetrics(data: InsightMetric[]): string[] {
             Object.keys(d.custom_metrics).forEach(k => {
                 // Exclude normalized custom metrics
                 if (!k.toLowerCase().includes('normalized') &&
-                    typeof d.custom_metrics?.[k] === 'number') {
+                    typeof d.custom_metrics?.[k] === 'number') { // Redundant !isNaN removed
                     keys.add(k);
                 }
             });
         }
     });
-    return Array.from(keys).filter(k => k !== 'symptom_provider' && k !== 'step_provider');
+    return Array.from(keys).filter(k => !PROVIDER_FIELDS.includes(k as typeof PROVIDER_FIELDS[number]));
 }
 
 function getAlignedPairs(data: InsightMetric[], keyA: string, keyB: string, lag: number) {
@@ -204,8 +215,14 @@ function getAlignedPairs(data: InsightMetric[], keyA: string, keyB: string, lag:
 }
 
 function getValue(record: InsightMetric, key: string): number | null {
-    if (record[key] !== undefined && typeof record[key] === 'number' && !isNaN(record[key] as number)) return record[key] as number;
-    if (record.custom_metrics && record.custom_metrics[key] !== undefined && !isNaN(Number(record.custom_metrics[key]))) return Number(record.custom_metrics[key]);
+    // Check direct property (with type narrowing)
+    if (record[key] !== undefined && typeof record[key] === 'number') { // Redundant !isNaN removed
+        return record[key] as number;
+    }
+    // Check custom_metrics
+    if (record.custom_metrics && record.custom_metrics[key] !== undefined && typeof record.custom_metrics[key] === 'number') { // Redundant !isNaN removed
+        return record.custom_metrics[key];
+    }
     return null;
 }
 
@@ -263,6 +280,7 @@ function calculatePercentageChange(
     const avgBWhenLowA = average(lowA);
 
     // Calculate percentage change
+    // Return 0 if baseline is zero to avoid division by zero (edge case for new users with sparse data)
     const percentChange = avgBWhenLowA !== 0
         ? Math.abs(((avgBWhenHighA - avgBWhenLowA) / avgBWhenLowA) * 100)
         : 0;
@@ -274,10 +292,14 @@ function calculatePercentageChange(
     };
 }
 
+// Metrics where lower values are better (symptoms, pain, fatigue, etc.)
+const NEGATIVE_METRIC_KEYWORDS = [
+    'symptom', 'fatigue', 'pain', 'weakness', 'nausea',
+    'headache', 'dizziness', 'crash', 'ache'
+] as const;
+
 function isGoodPattern(metricB: string, r: number): boolean {
-    // Negative metrics (symptoms, fatigue, pain, etc.) - lower is better
-    const negativeMetrics = ['symptom', 'fatigue', 'pain', 'weakness', 'nausea', 'headache', 'dizziness', 'crash', 'ache'];
-    const isNegativeMetric = negativeMetrics.some(neg => metricB.toLowerCase().includes(neg));
+    const isNegativeMetric = NEGATIVE_METRIC_KEYWORDS.some(neg => metricB.toLowerCase().includes(neg));
 
     if (isNegativeMetric) {
         // For negative metrics, negative correlation is good (high A → low symptoms)

@@ -53,14 +53,12 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
 
     // Standard hydration pattern for SSR/client mismatches
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true)
     }, [])
 
     // Sync state with server/prop updates
     // Safe prop-to-state sync pattern - only depends on props, not state
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDataLog(initialData)
         setHasData(initialHasData)
     }, [initialData, initialHasData])
@@ -386,7 +384,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                         <div className="w-3 h-3 rounded-full bg-sky-500/20 flex items-center justify-center">
                             <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />
                         </div>
-                        Your health data is processed 100&percnt; locally in your browser.
+                        Your health data is processed 100% locally in your browser.
                     </div>
                 )}
 
