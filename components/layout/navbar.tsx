@@ -27,6 +27,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { PemStatusIndicator } from "@/components/dashboard/pem-status-indicator"
 
 export default function Navbar() {
     const supabase = useMemo(() => createClient(), [])
@@ -135,6 +136,13 @@ export default function Navbar() {
                                 {hasData ? t('navbar.data') : t('navbar.upload_data')}
                             </Link>
 
+                            {/* PEM Danger Zone Indicator */}
+                            {hasData && (
+                                <div className="mr-6 flex items-center">
+                                    <PemStatusIndicator />
+                                </div>
+                            )}
+
                             {/* Missing Steps Hint */}
                             {hasData && hasMissingSteps && (
                                 <TooltipProvider>
@@ -172,6 +180,9 @@ export default function Navbar() {
                             <DropdownMenuContent align="start" className="w-[200px] mt-2">
                                 {hasData && (
                                     <>
+                                        <div className="px-2 py-1.5 border-b mb-1">
+                                            <PemStatusIndicator />
+                                        </div>
                                         <DropdownMenuItem asChild>
                                             <Link href="/dashboard" className="w-full">{t('navbar.dashboard')}</Link>
                                         </DropdownMenuItem>

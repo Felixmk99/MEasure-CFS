@@ -24,7 +24,19 @@ export const de: Dictionary = {
         profile: "Profil",
         welcome: "Willkommen",
         missing_steps_hint: "Schritte fehlen?",
-        missing_steps_tooltip: "Lade Apple Health, Google Fit oder Samsung Health Schrittdaten hoch, um die Genauigkeit deines Gesundheits-Scores zu verbessern."
+        missing_steps_tooltip: "Lade Apple Health, Google Fit oder Samsung Health Schrittdaten hoch, um die Genauigkeit deines Gesundheits-Scores zu verbessern.",
+        pem_status: {
+            label: "PEM-Status",
+            needs_data: "Daten fehlen",
+            stable: "Stabil",
+            danger: "PEM-Gefahr",
+            reason_no_history: "Mind. 10 Tage + 1 Crash nötig",
+            reason_no_recent_data: "Keine Daten in den letzten 7 Tagen",
+            reason_no_crashes: "Keine historischen Crashes analysiert",
+            prediction: "Vorhergesagter Crash: {day}",
+            matches: "Muster von früher erkannt:",
+            cumulative_load: "Zu hohe Gesamtbelastung erkannt"
+        }
     },
     footer: {
         built_by: "Entwickelt von Felix Kania",

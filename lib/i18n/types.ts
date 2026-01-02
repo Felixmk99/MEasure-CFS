@@ -25,6 +25,18 @@ export interface Dictionary {
         welcome: string
         missing_steps_hint: string
         missing_steps_tooltip: string
+        pem_status: {
+            label: string
+            needs_data: string
+            stable: string
+            danger: string
+            reason_no_history: string
+            reason_no_recent_data: string
+            reason_no_crashes: string
+            prediction: string
+            matches: string
+            cumulative_load: string
+        }
     }
     footer: {
         built_by: string
