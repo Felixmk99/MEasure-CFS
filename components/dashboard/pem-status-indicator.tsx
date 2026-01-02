@@ -123,8 +123,8 @@ export function PemStatusIndicator() {
                                         {t('navbar.pem_status.matches')}
                                     </p>
                                     <div className="space-y-2">
-                                        {status.matchedTriggers.map((tr, i) => (
-                                            <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                                        {status.matchedTriggers.map((tr) => (
+                                            <div key={`${tr.metric}-${tr.type}`} className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
                                                     <span className="text-[10px] text-zinc-500 flex items-center gap-1">
