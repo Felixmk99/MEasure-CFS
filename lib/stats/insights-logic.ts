@@ -299,9 +299,8 @@ function getDescription(
     const action = isGood ? 'Keep' : 'Watch';
     const recommendation = `${emoji} ${action} ${metricAName} above ${formatNumber(medianA)}`;
 
-    // Build impact with percentage and actual values
-    const lagText = lag === 0 ? '' : lag === 1 ? ' the next day' : ` ${lag} days later`;
-    const impact = `${direction} ${metricBName} by ~${Math.round(stats.percentChange)}%${lagText} (from ${formatNumber(stats.typicalValue)} to ${formatNumber(stats.improvedValue)})`;
+    // Build impact with percentage and actual values (lag shown in badge, not text)
+    const impact = `${direction} ${metricBName} by ~${Math.round(stats.percentChange)}% (from ${formatNumber(stats.typicalValue)} to ${formatNumber(stats.improvedValue)})`;
 
     return `${recommendation}\n→ ${impact}`;
 }
