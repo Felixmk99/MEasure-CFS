@@ -59,11 +59,23 @@ describe('PEM Danger Logic', () => {
         expect(result.insufficientDataReason).toBe('no_recent_data')
     })
 
-    it('should return "needs_data" if no historical crashes found', () => {
+    it('should return "stable" if no historical crashes found (but history exists)', () => {
         const data = createMockData(-1, 0)
         const result = calculateCurrentPEMDanger(data as any)
-        expect(result.status).toBe('needs_data')
-        expect(result.insufficientDataReason).toBe('no_crashes')
+        expect(result.status).toBe('stable')
+        expect(result.matchedTriggers.length).toBe(0)
+    })
+
+    it('should correctly detect crashes from custom_metrics (lowercase or uppercase)', () => {
+        const data = Array(20).fill(null).map((_, i) => ({
+            date: format(subDays(new Date(), 20 - i), 'yyyy-MM-dd'),
+            hrv: 50,
+            custom_metrics: i === 5 ? { crash: 1 } : (i === 10 ? { Crash: 1 } : {}),
+            exertion_score: i === 3 || i === 8 ? 10 : 2
+        }))
+        const result = calculateCurrentPEMDanger(data as any)
+        expect(result.status).not.toBe('needs_data')
+        // It should find 2 crash episodes
     })
 
     it('should return "stable" if no triggers matched in last 7 days', () => {
