@@ -1,4 +1,5 @@
 import * as ss from 'simple-statistics';
+import { EXERTION_METRICS } from '@/lib/scoring/logic';
 
 export interface InsightMetric {
     date: string;
@@ -70,7 +71,6 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                         const stats = calculatePercentageChange(sortedData, metricA, metricB, medianA, lag);
 
                         // Filter out exertion metrics as effects (they are inputs, not outcomes)
-                        const EXERTION_METRICS = ['exertion_score', 'physical_exertion', 'mental_exertion', 'emotional_exertion', 'socially_demanding'] as const;
                         const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase().includes(e.toLowerCase()));
 
                         // Skip if metricB is an exertion metric (exertion is a choice, not an effect)
@@ -128,7 +128,7 @@ export function detectThresholds(
             }))
             .filter(p => !isNaN(p.x) && !isNaN(p.y));
 
-        if (pairs.length < 10) return [];
+        if (pairs.length < 10) return;
 
         // Simplified threshold detection: Look for the point where average Y increases significantly
         pairs.sort((a, b) => a.x - b.x);
