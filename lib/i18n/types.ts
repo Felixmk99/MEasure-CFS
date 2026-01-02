@@ -51,6 +51,7 @@ export interface Dictionary {
             status_optimal: string
             status_normal: string
             status_strained: string
+            status_unknown: string
         }
     }
     footer: {
