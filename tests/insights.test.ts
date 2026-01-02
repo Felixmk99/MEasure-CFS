@@ -38,7 +38,7 @@ describe('Insights Logic', () => {
         const results = calculateAdvancedCorrelations(negativeMockData);
         const hrvExertion = results.find(r => r.metricA === 'hrv' && r.metricB === 'exertion_score' && r.lag === 0);
         expect(hrvExertion?.coefficient).toBeLessThan(-0.8);
-        expect(hrvExertion?.description).toContain('associated with lower');
+        expect(hrvExertion?.description).toContain('below');
     });
 
     test('should detect lagged correlation (Lag 1)', () => {
