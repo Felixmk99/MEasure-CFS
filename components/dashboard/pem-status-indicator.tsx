@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { calculateCurrentPEMDanger, PEMDangerStatus } from '@/lib/stats/pem-danger-logic'
 import { Badge } from '@/components/ui/badge'
@@ -54,12 +54,12 @@ export function PemStatusIndicator() {
         return (
             <Badge variant="outline" className="gap-1.5 px-3 py-1 bg-zinc-100 text-zinc-500 border-zinc-200">
                 <AlertTriangle className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-xs">{t('navbar.pem_status.needs_data')}</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-xs">{t('navbar.pem_status.error_fetch')}</span>
             </Badge>
         )
     }
 
-    const config = {
+    const config = useMemo(() => ({
         danger: {
             color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-900/50',
             icon: AlertTriangle,
@@ -75,7 +75,7 @@ export function PemStatusIndicator() {
             icon: HelpCircle,
             label: t('navbar.pem_status.needs_data')
         }
-    }
+    }), [t])
 
     const current = status ? config[status.status] : config.needs_data
     const StatusIcon = current.icon
