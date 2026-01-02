@@ -16,6 +16,9 @@ export interface CorrelationResult {
     impactStrength: 'strong' | 'moderate' | 'weak';
     medianA: number;  // Median value of metric A for concrete thresholds
     medianB: number;  // Median value of metric B for concrete thresholds
+    percentChange: number;  // Percentage change in metric B
+    typicalValue: number;  // Typical value of metric B (when A is low)
+    improvedValue: number;  // Improved value of metric B (when A is high)
 }
 
 export interface ThresholdInsight {
@@ -59,16 +62,22 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                         const medianA = calculateMedian(pair.a);
                         const medianB = calculateMedian(pair.b);
 
+                        // Calculate percentage change and typical/improved values
+                        const stats = calculatePercentageChange(sortedData, metricA, metricB, medianA, lag);
+
                         results.push({
                             metricA,
                             metricB,
                             coefficient,
                             lag,
-                            description: getDescription(metricA, metricB, coefficient, lag, medianA, medianB),
+                            description: getDescription(metricA, metricB, coefficient, lag, medianA, stats),
                             impactDirection: coefficient > 0.1 ? 'positive' : coefficient < -0.1 ? 'negative' : 'neutral',
                             impactStrength: Math.abs(coefficient) > 0.7 ? 'strong' : Math.abs(coefficient) > 0.5 ? 'moderate' : 'weak',
                             medianA,
-                            medianB
+                            medianB,
+                            percentChange: stats.percentChange,
+                            typicalValue: stats.typicalValue,
+                            improvedValue: stats.improvedValue
                         });
                     }
                 } catch {
@@ -215,28 +224,84 @@ function formatMetric(metric: string): string {
     return metric.replaceAll('_', ' ').toLowerCase();
 }
 
-function getDescription(a: string, b: string, r: number, lag: number, medianA: number, medianB: number): string {
-    const absCoef = Math.abs(r);
+function average(values: number[]): number {
+    if (values.length === 0) return 0;
+    return values.reduce((sum, val) => sum + val, 0) / values.length;
+}
 
-    // Use qualitative descriptors for correlation strength
-    const strengthLabel = absCoef > 0.7 ? 'strongly' : absCoef > 0.5 ? 'moderately' : 'weakly';
+function calculatePercentageChange(
+    data: InsightMetric[],
+    metricA: string,
+    metricB: string,
+    medianA: number,
+    lag: number
+): { percentChange: number; typicalValue: number; improvedValue: number } {
+    // Split data into high and low groups based on medianA
+    const pairs: { a: number; b: number }[] = [];
 
-    // Build description with concrete thresholds
-    let description = '';
-    if (r > 0) {
-        // Positive correlation: high A → high B
-        description = `${formatMetric(a)} above ${formatNumber(medianA)} is ${strengthLabel} associated with ${formatMetric(b)} above ${formatNumber(medianB)}`;
-    } else {
-        // Negative correlation: high A → low B
-        description = `${formatMetric(a)} above ${formatNumber(medianA)} is ${strengthLabel} associated with ${formatMetric(b)} below ${formatNumber(medianB)}`;
+    for (let i = 0; i < data.length - lag; i++) {
+        const valA = getValue(data[i], metricA);
+        const valB = getValue(data[i + lag], metricB);
+        if (valA !== null && valB !== null) {
+            pairs.push({ a: valA, b: valB });
+        }
     }
 
-    // Add lag information
-    const lagText = lag === 0
-        ? ''
-        : lag === 1
-            ? ' the next day'
-            : ` ${lag} days later`;
+    const highA = pairs.filter(p => p.a > medianA).map(p => p.b);
+    const lowA = pairs.filter(p => p.a <= medianA).map(p => p.b);
 
-    return `${description}${lagText}.`;
+    const avgBWhenHighA = average(highA);
+    const avgBWhenLowA = average(lowA);
+
+    // Calculate percentage change
+    const percentChange = avgBWhenLowA !== 0
+        ? Math.abs(((avgBWhenHighA - avgBWhenLowA) / avgBWhenLowA) * 100)
+        : 0;
+
+    return {
+        percentChange,
+        typicalValue: avgBWhenLowA,
+        improvedValue: avgBWhenHighA
+    };
+}
+
+function isGoodPattern(metricB: string, r: number): boolean {
+    // Negative metrics (symptoms, fatigue, pain, etc.) - lower is better
+    const negativeMetrics = ['symptom', 'fatigue', 'pain', 'weakness', 'nausea', 'headache', 'dizziness', 'crash', 'ache'];
+    const isNegativeMetric = negativeMetrics.some(neg => metricB.toLowerCase().includes(neg));
+
+    if (isNegativeMetric) {
+        // For negative metrics, negative correlation is good (high A → low symptoms)
+        return r < 0;
+    } else {
+        // For positive metrics (HRV, steps, etc.), positive correlation is good
+        return r > 0;
+    }
+}
+
+function getDescription(
+    a: string,
+    b: string,
+    r: number,
+    lag: number,
+    medianA: number,
+    stats: { percentChange: number; typicalValue: number; improvedValue: number }
+): string {
+    const isGood = isGoodPattern(b, r);
+    const direction = r < 0 ? 'Reduces' : 'Increases';
+
+    // Format metric names
+    const metricAName = formatMetric(a);
+    const metricBName = formatMetric(b);
+
+    // Build recommendation with emoji indicator
+    const emoji = isGood ? '✅' : '⚠️';
+    const action = isGood ? 'Keep' : 'Watch';
+    const recommendation = `${emoji} ${action} ${metricAName} above ${formatNumber(medianA)}`;
+
+    // Build impact with percentage and actual values
+    const lagText = lag === 0 ? '' : lag === 1 ? ' the next day' : ` ${lag} days later`;
+    const impact = `${direction} ${metricBName} by ~${Math.round(stats.percentChange)}%${lagText} (from ${formatNumber(stats.typicalValue)} to ${formatNumber(stats.improvedValue)})`;
+
+    return `${recommendation}\n→ ${impact}`;
 }
