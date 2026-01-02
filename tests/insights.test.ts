@@ -16,8 +16,12 @@ describe('Insights Logic', () => {
 
     test('should calculate simultaneous correlation (Lag 0)', () => {
         const results = calculateAdvancedCorrelations(mockData);
-        // Headache and symptom_score move together perfectly in mockData at Lag 0
-        const headacheCorr = results.find(r => r.metricA === 'Headache' && r.metricB === 'symptom_score' && r.lag === 0);
+        // After symmetric duplicate removal, correlation might be stored as symptom_score vs Headache instead
+        const headacheCorr = results.find(r =>
+            ((r.metricA === 'Headache' && r.metricB === 'symptom_score') ||
+                (r.metricA === 'symptom_score' && r.metricB === 'Headache')) &&
+            r.lag === 0
+        );
         expect(headacheCorr?.coefficient).toBeGreaterThan(0.9);
     });
 
