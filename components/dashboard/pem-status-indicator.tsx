@@ -189,7 +189,9 @@ export function PemStatusIndicator() {
                                                             </div>
                                                         </div>
                                                         <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
-                                                            {tr.description || t('navbar.pem_status.matches')}
+                                                            {tr.descriptionKey
+                                                                ? t(tr.descriptionKey as any)
+                                                                : (tr.description || t('navbar.pem_status.matches'))}
                                                         </p>
                                                     </div>
                                                 ))}
@@ -213,7 +215,14 @@ export function PemStatusIndicator() {
                                                             </div>
                                                         </div>
                                                         <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight italic">
-                                                            {tr.description}
+                                                            {tr.descriptionKey
+                                                                ? t(tr.descriptionKey as any, tr.descriptionParams ? Object.fromEntries(
+                                                                    Object.entries(tr.descriptionParams).map(([k, v]) => [
+                                                                        k,
+                                                                        (v === 'exertion' || v === 'activity') ? t(`navbar.pem_status.${v}` as any) : v
+                                                                    ])
+                                                                ) : undefined)
+                                                                : tr.description}
                                                         </p>
                                                     </div>
                                                 ))}

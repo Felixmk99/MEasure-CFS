@@ -94,7 +94,7 @@ describe('PEM Danger Logic', () => {
         expect(result.status).toBe('danger')
         expect(result.matchedTriggers[0].metric).toContain('exertion')
         expect(result.matchedTriggers[0].isPersonal).toBe(true)
-        expect(result.matchedTriggers[0].description).toBeDefined()
+        expect(result.matchedTriggers[0].descriptionKey).toBe('navbar.pem_status.matches_personal_desc')
     })
 
     it('should detect cumulative load as a danger', () => {
@@ -111,7 +111,8 @@ describe('PEM Danger Logic', () => {
         expect(result.level).toBeGreaterThanOrEqual(40)
         const load = result.matchedTriggers.find(t => t.type === 'Cumulative Load')
         expect(load?.isPersonal).toBe(false)
-        expect(load?.description).toContain('significantly above your baseline')
+        expect(load?.descriptionKey).toBe('navbar.pem_status.matches_general_desc')
+        expect(load?.descriptionParams?.label).toBeDefined()
     })
 
     it('should correctly match composite (synergistic) triggers', () => {
