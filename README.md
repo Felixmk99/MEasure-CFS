@@ -2,7 +2,7 @@
 
 **Live at: [MEasure-CFS.com](https://measure-cfs.com) | [MEasure-CFS.de](https://measure-cfs.de)**
 
-**MEasure-CFS** is a inofficial, privacy-first health dashboard designed to empower patients living with ME/CFS and Long Covid. By transforming raw health data from symptom-tracking apps like Visible into actionable biological insights, we help users find their baseline, identify triggers, and master the art of pacing.
+**MEasure-CFS** is a professional-grade, privacy-first health dashboard designed to empower patients living with ME/CFS and Long Covid. By transforming raw health data from symptom-tracking apps like Visible into actionable biological insights, we help users find their baseline, identify triggers, and master the art of pacing.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black)
