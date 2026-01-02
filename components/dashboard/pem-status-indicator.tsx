@@ -136,7 +136,10 @@ export function PemStatusIndicator() {
                                                 {bio.key === 'resting_heart_rate' && <Zap className="w-4 h-4 text-amber-500" />}
                                                 {bio.key === 'step_count' && <Footprints className="w-4 h-4 text-emerald-500" />}
                                                 <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
-                                                    {bio.label}
+                                                    {bio.key === 'hrv' ? t('dashboard.metrics.hrv.label').split(' (')[0] :
+                                                        bio.key === 'resting_heart_rate' ? t('dashboard.metrics.resting_heart_rate.label') :
+                                                            bio.key === 'step_count' ? t('dashboard.metrics.step_count.label') :
+                                                                bio.label}
                                                 </span>
                                             </div>
                                             <Badge

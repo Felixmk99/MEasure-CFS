@@ -75,7 +75,8 @@ describe('PEM Danger Logic', () => {
         }))
         const result = calculateCurrentPEMDanger(data as any)
         expect(result.status).not.toBe('needs_data')
-        // It should find 2 crash episodes
+        // Verify crashes were detected (status should be stable or danger, not needs_data)
+        expect(['stable', 'danger']).toContain(result.status)
     })
 
     it('should return "stable" if no triggers matched in last 7 days and include biometrics', () => {
