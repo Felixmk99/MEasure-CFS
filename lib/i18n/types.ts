@@ -38,6 +38,11 @@ export interface Dictionary {
             cumulative_load: string
             stable_message: string
             error_fetch: string
+            biometrics_title: string
+            biometrics_stable: string
+            status_optimal: string
+            status_normal: string
+            status_strained: string
         }
     }
     footer: {

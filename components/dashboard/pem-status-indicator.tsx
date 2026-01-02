@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { calculateCurrentPEMDanger, PEMDangerStatus } from '@/lib/stats/pem-danger-logic'
 import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { AlertTriangle, CheckCircle2, HelpCircle, Info, Zap, ShieldCheck, HeartPulse, Footprints } from 'lucide-react'
+import { AlertTriangle, HelpCircle, Info, Zap, ShieldCheck, HeartPulse, Footprints } from 'lucide-react'
 import { useLanguage } from '@/components/providers/language-provider'
 import { format, addDays } from 'date-fns'
 
@@ -28,7 +28,7 @@ export function PemStatusIndicator() {
         try {
             const { data: metrics, error: selectError } = await supabase
                 .from('health_metrics')
-                .select('date, hrv, resting_heart_rate, step_count, symptom_score, exertion_score, custom_metrics')
+                .select('date, hrv, resting_heart_rate, step_count, symptom_score, exertion_score, crash, custom_metrics')
                 .eq('user_id', user.id)
                 .order('date', { ascending: true })
 

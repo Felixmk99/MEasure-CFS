@@ -136,7 +136,7 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
         const loadScore = 40 + (Math.max(avgExertion, avgSteps) - 0.8) * 20
         maxLevel = Math.max(maxLevel, loadScore)
         matchedTriggers.push({
-            metric: avgExertion > 0.8 ? 'exertion_score' : 'step_count',
+            metric: avgExertion >= avgSteps ? 'exertion_score' : 'step_count',
             type: 'Cumulative Load',
             leadDaysStart: 0,
             magnitude: 1.0,
