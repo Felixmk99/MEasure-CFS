@@ -97,6 +97,7 @@ export const de: Dictionary = {
             },
             hrv: {
                 label: "HRV (Herzfrequenzvariabilität)",
+                short_label: "HRV",
                 description: "Misst die Zeitvariation zwischen Herzschlägen. Höhere Werte zeigen bessere Erholung.",
                 better: "Höher ist besser"
             },

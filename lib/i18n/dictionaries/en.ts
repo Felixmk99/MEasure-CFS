@@ -191,8 +191,9 @@ export const en: Dictionary = {
                 better: "Lower is better"
             },
             hrv: {
-                label: "HRV",
-                description: "Measures the variation in time between heartbeats. Higher values indicate better recovery.",
+                label: "HRV (Heart Rate Variability)",
+                short_label: "HRV",
+                description: "Measures the time variation between heartbeats. Higher values indicate better recovery.",
                 better: "Higher is better"
             },
             resting_heart_rate: {

@@ -174,6 +174,7 @@ export interface Dictionary {
             }
             hrv: {
                 label: string
+                short_label: string
                 description: string
                 better: string
             }
