@@ -9,9 +9,11 @@ import { Label } from '@/components/ui/label'
 import { ArrowRight, Loader2, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { useUpload } from '@/components/providers/upload-provider'
+import { useLanguage } from '@/components/providers/language-provider'
 import { loginSchema } from '@/lib/validation/auth'
 
 export default function LoginPage() {
+    const { t } = useLanguage()
     const { pendingUpload } = useUpload()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -66,6 +68,7 @@ export default function LoginPage() {
                                 back home
                             </span>
                         </h1>
+                        <p className="text-muted-foreground italic mb-4">&quot;{t('auth.login.testimonial.quote')}&quot;</p>
                         <p className="text-muted-foreground text-base">
                             Sign in to visualize your progress.
                         </p>
@@ -123,7 +126,7 @@ export default function LoginPage() {
 
                     <div className="text-center pt-1">
                         <p className="text-xs text-muted-foreground">
-                            Don't have an account?{' '}
+                            Don&apos;t have an account?{' '}
                             <Link href="/signup" className="font-semibold text-foreground underline hover:text-primary transition-colors">
                                 Create Free Account
                             </Link>
@@ -144,7 +147,7 @@ export default function LoginPage() {
                             <span className="font-semibold tracking-wide text-sm uppercase">Privacy Guaranteed</span>
                         </div>
                         <h3 className="text-xl font-bold mb-4 leading-relaxed">
-                            "MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
+                            &quot;MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold.&quot;
                         </h3>
                         <div className="h-1 w-20 bg-[#F59E0B] rounded-full mt-6"></div>
                     </div>

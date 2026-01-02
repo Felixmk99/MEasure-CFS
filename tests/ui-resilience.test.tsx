@@ -7,8 +7,8 @@ import { LanguageProvider } from '../components/providers/language-provider';
 
 // Simplified Recharts Mock
 jest.mock('recharts', () => ({
-    ResponsiveContainer: ({ children }: any) => <div data-testid="recharts-container">{children}</div>,
-    ComposedChart: ({ children }: any) => <div data-testid="composed-chart">{children}</div>,
+    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="recharts-container">{children}</div>,
+    ComposedChart: ({ children }: { children: React.ReactNode }) => <div data-testid="composed-chart">{children}</div>,
     Area: () => <div>Area</div>,
     Line: () => <div>Line</div>,
     XAxis: () => <div>XAxis</div>,

@@ -38,7 +38,7 @@ export const SYMPTOM_EXCLUSIONS = [
  * Calculates the Total Exertion Score from a set of metrics.
  * Sums up any metric that matches the EXERTION_METRICS list.
  */
-export function calculateExertionScore(metrics: Record<string, any> | null | undefined): number {
+export function calculateExertionScore(metrics: Record<string, unknown> | null | undefined): number {
     if (!metrics) return 0
     let sum = 0
 
@@ -58,7 +58,7 @@ export function calculateExertionScore(metrics: Record<string, any> | null | und
  * Calculates the Total Symptom Score from a set of metrics.
  * Sums up ALL metrics EXCEPT those strictly excluded or identified as Exertion.
  */
-export function calculateSymptomScore(metrics: Record<string, any> | null | undefined): number {
+export function calculateSymptomScore(metrics: Record<string, unknown> | null | undefined): number {
     if (!metrics) return 0
     let sum = 0
 

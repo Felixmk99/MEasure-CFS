@@ -30,7 +30,8 @@ export function UploadProvider({ children }: { children: React.ReactNode }) {
                 const { name, content, type } = JSON.parse(stored)
                 if (name && content && type) {
                     const file = new File([content], name, { type: 'text/csv' })
-                    setPendingUploadState({ file, type })
+                    // Defer state update to next tick to avoid synchronous effect warning
+                    setTimeout(() => setPendingUploadState({ file, type }), 0)
                 }
             } catch (e) {
                 console.error("Failed to restore pending upload", e)

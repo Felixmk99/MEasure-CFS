@@ -1,3 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/** @jest-environment node */
+if (typeof Request === 'undefined') {
+    (global as any).Request = class {
+        url: string;
+        constructor(url: string) { this.url = url; }
+    };
+}
 import { middleware } from '../middleware';
 import { GET as authCallback } from '../app/auth/callback/route';
 import { NextResponse, NextRequest } from 'next/server';

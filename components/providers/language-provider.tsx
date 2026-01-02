@@ -13,7 +13,7 @@ type LanguageProviderProps = {
 type LanguageContextType = {
     locale: Locale
     setLocale: (locale: Locale) => void
-    t: (key: string) => string
+    t: (key: string, values?: Record<string, string | number>) => string
     dictionary: Dictionary
 }
 
@@ -21,7 +21,6 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children, initialLocale }: LanguageProviderProps) {
     const [locale, setLocaleState] = useState<Locale>(initialLocale || 'en')
-    const [mounted, setMounted] = useState(false)
 
     // Load persisted preference or detect domain
     useEffect(() => {
@@ -32,11 +31,10 @@ export function LanguageProvider({ children, initialLocale }: LanguageProviderPr
         const domainDefault: Locale = hostname.endsWith('.de') ? 'de' : 'en'
 
         if (saved && (saved === 'en' || saved === 'de')) {
-            setLocaleState(saved)
+            setTimeout(() => setLocaleState(saved), 0)
         } else {
-            setLocaleState(domainDefault)
+            setTimeout(() => setLocaleState(domainDefault), 0)
         }
-        setMounted(true)
     }, [])
 
     const setLocale = (newLocale: Locale) => {
@@ -46,17 +44,24 @@ export function LanguageProvider({ children, initialLocale }: LanguageProviderPr
 
     const dictionary = locale === 'de' ? de : en
 
-    const t = (path: string): string => {
+    const t = (path: string, values?: Record<string, string | number>): string => {
         const keys = path.split('.')
-        let current: any = dictionary
+        let current: unknown = dictionary
         for (const key of keys) {
-            if (current[key] === undefined) {
+            if (typeof current !== 'object' || current === null || (current as Record<string, unknown>)[key] === undefined) {
                 console.warn(`Translation missing for key: ${path}`)
                 return path
             }
-            current = current[key]
+            current = (current as Record<string, unknown>)[key]
         }
-        return current as string
+
+        let result = current as string
+        if (values) {
+            Object.entries(values).forEach(([key, value]) => {
+                result = result.replace(`{${key}}`, String(value))
+            })
+        }
+        return result
     }
 
     // Prevent hydration mismatch by rendering children only after mount, 

@@ -1,0 +1,93 @@
+
+> track-me@0.1.0 lint
+> eslint
+
+
+/Users/felixkania/Desktop/track-ME/app/dashboard/dashboard-client.tsx
+  117:27  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. This value was memoized in source but not in compilation output.
+
+/Users/felixkania/Desktop/track-ME/app/dashboard/dashboard-client.tsx:117:27
+  115 |
+  116 |     // -- 1b. Time Filtering for Charts --
+> 117 |     const processedData = useMemo(() => {
+      |                           ^^^^^^^^^^^^^^^
+> 118 |         if (enhancedInitialData.length === 0) return generateMockData()
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 119 |
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 129 |             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 130 |     }, [enhancedInitialData, visibleRange, timeRange])
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Could not preserve existing memoization
+  131 |
+  132 |     // -- 2a. Extract Dynamic Metrics --
+  133 |     const availableMetrics = useMemo(() => {  react-hooks/preserve-manual-memoization
+  236:9   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  357:17  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  387:17  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/components/experiments/experiment-list.tsx
+  32:47  warning  'onEdit' is defined but never used    @typescript-eslint/no-unused-vars
+  32:55  warning  'onDelete' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/components/layout/language-switcher.tsx
+  12:10  warning  'Languages' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/components/upload/xml-uploader.tsx
+  211:29  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/jest.config.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-var-requires')
+
+/Users/felixkania/Desktop/track-ME/lib/data/samsung-health-parser.ts
+  55:34  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/lib/statistics/experiment-analysis.test.ts
+  2:10  warning  'parseISO' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/lib/stats/insights-logic.ts
+   58:26  warning  '_e' is defined but never used     @typescript-eslint/no-unused-vars
+  120:43  warning  '_data' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/middleware.ts
+  27:58  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/new_landing_page/layout (1).tsx
+  7:7  warning  '_geist' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  8:7  warning  '_geistMono' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/new_landing_page/page (2).tsx
+  44:9  warning  'handleFileSelect' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/scripts/check-db.js
+   1:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-var-requires')
+  36:24  warning  'count' is assigned a value but never used                                                             @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/tests/e2e/dashboard-insights.spec.ts
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/e2e/experiments.spec.ts
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/e2e/upload-onboarding.spec.ts
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/ingestion.test.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/insights.test.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/scoring.test.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/ui-resilience.test.tsx
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+✖ 27 problems (1 error, 26 warnings)
+  0 errors and 14 warnings potentially fixable with the `--fix` option.
+

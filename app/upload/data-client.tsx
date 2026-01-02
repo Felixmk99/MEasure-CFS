@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect } from 'react'
 import { CsvUploader } from "@/components/upload/csv-uploader"
@@ -13,6 +14,7 @@ import { Plus, ChevronDown, ChevronUp } from "lucide-react"
 import { EditDataDialog } from "@/components/dashboard/edit-data-dialog"
 import { subDays, isAfter, startOfDay } from "date-fns"
 import { useMemo } from 'react'
+import { ScorableEntry } from "@/lib/scoring/composite-score"
 import {
     Select,
     SelectContent,
@@ -33,8 +35,9 @@ interface DataEntry {
     hrv: number | null
     resting_heart_rate: number | null
     symptom_score: number | null
-    custom_metrics: any
+    custom_metrics?: Record<string, unknown>
     exertion_score: number | null
+    step_count: number | null
     created_at: string
 }
 
@@ -49,11 +52,13 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     const [showUpload, setShowUpload] = useState(!(initialHasData && (hasSteps || isBearable)))
     const [editingEntry, setEditingEntry] = useState<DataEntry | null>(null)
 
+    // Standard hydration pattern for SSR/client mismatches
     useEffect(() => {
         setMounted(true)
     }, [])
 
-    // Sync state with server/prop updates (e.g. after router.refresh())
+    // Sync state with server/prop updates
+    // Safe prop-to-state sync pattern - only depends on props, not state
     useEffect(() => {
         setDataLog(initialData)
         setHasData(initialHasData)
@@ -98,7 +103,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         // Simply: I won't translate this single specific confirmation string fully perfectly.
         // OR better: I will add "Delete Entry?" to the next Dictionary update list if I have one.
         // For now:
-        if (!confirm('Are you sure you want to delete this entry?')) return // TODO: Add key
+        if (!confirm(t('upload.data_log.delete_entry_confirm'))) return
 
         const { error } = await supabase.from('health_metrics').delete().eq('id', id)
 
@@ -135,21 +140,43 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         }
     }
 
-    const handleUpdate = async (id: string, updatedData: any) => {
-        const { error } = await (supabase as any)
-            .from('health_metrics')
-            .update({
-                hrv: updatedData.hrv,
-                resting_heart_rate: updatedData.resting_heart_rate,
-                step_count: updatedData.step_count,
-                exertion_score: updatedData.exertion_score,
-                symptom_score: updatedData.symptom_score,
-                custom_metrics: updatedData.custom_metrics
-            } as any)
+    const handleUpdate = async (id: string, updatedData: Partial<ScorableEntry>) => {
+        type HealthMetricUpdate = {
+            hrv?: number | null
+            resting_heart_rate?: number | null
+            step_count?: number | null
+            exertion_score?: number | null
+            symptom_score?: number | null
+            custom_metrics?: Record<string, unknown>
+        }
+
+        const updatePayload = {
+            hrv: updatedData.hrv,
+            resting_heart_rate: updatedData.resting_heart_rate,
+            step_count: updatedData.step_count,
+            exertion_score: updatedData.exertion_score,
+            symptom_score: updatedData.symptom_score,
+            custom_metrics: updatedData.custom_metrics
+        } satisfies HealthMetricUpdate
+
+        // Supabase strict typing requires cast for update payload
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase.from('health_metrics') as any)
+            .update(updatePayload)
             .eq('id', id)
 
         if (!error) {
-            const newData = dataLog.map(item => item.id === id ? { ...item, ...updatedData } : item)
+            const newData = dataLog.map(item =>
+                item.id === id ? {
+                    ...item,
+                    hrv: updatedData.hrv ?? item.hrv,
+                    resting_heart_rate: updatedData.resting_heart_rate ?? item.resting_heart_rate,
+                    step_count: updatedData.step_count ?? item.step_count,
+                    exertion_score: updatedData.exertion_score ?? item.exertion_score,
+                    symptom_score: updatedData.symptom_score ?? item.symptom_score,
+                    custom_metrics: updatedData.custom_metrics ?? item.custom_metrics,
+                } : item
+            )
             setDataLog(newData)
             await revalidateApp()
             window.dispatchEvent(new CustomEvent('health-data-updated'))
@@ -173,10 +200,9 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 return (
                     <div className="p-12 text-center border-2 border-dashed rounded-[2.5rem] border-zinc-200 dark:border-zinc-800">
                         <Smartphone className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
-                        <h3 className="text-xl font-bold">Provider Coming Soon</h3>
+                        <h3 className="text-xl font-bold">{t('upload.data_log.provider_coming_soon')}</h3>
                         <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">
-                            Integrations for {stepProvider.charAt(0).toUpperCase() + stepProvider.slice(1)} are being built.
-                            Change your provider in Settings if you want to use another one.
+                            {t('upload.data_log.provider_built_hint', { provider: stepProvider.charAt(0).toUpperCase() + stepProvider.slice(1) })}
                         </p>
                     </div>
                 )
@@ -196,7 +222,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
 
                     <div className="space-y-2">
                         <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                            {hasData ? (hasSteps ? 'Health History' : t('upload.title')) : <>{t('upload.subtitle_prefix')} <span className="text-[#60A5FA]">{t('upload.subtitle_highlight')}</span> {t('navbar.data')}</>}
+                            {hasData ? (hasSteps ? t('upload.data_log.title') : t('upload.title')) : <>{t('upload.subtitle_prefix')} <span className="text-[#60A5FA]">{t('upload.subtitle_highlight')}</span> {t('navbar.data')}</>}
                         </h1>
                         <p className="text-muted-foreground text-sm max-w-lg mx-auto">
                             {hasData
@@ -222,7 +248,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                     className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Smartphone className="w-4 h-4 mr-2" />
-                                    {stepProvider.charAt(0).toUpperCase() + stepProvider.slice(1)} Steps
+                                    {stepProvider.charAt(0).toUpperCase() + stepProvider.slice(1)} {t('upload.data_log.table.steps')}
                                     {!hasData && <span className="ml-2 text-[10px] text-zinc-500">(Requires Health Data)</span>}
                                 </TabsTrigger>
                             </TabsList>
@@ -243,7 +269,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                     onClick={() => setShowUpload(false)}
                                 >
                                     <ChevronUp className="w-4 h-4 mr-1" />
-                                    Hide Import Tools
+                                    {t('upload.data_log.hide_import')}
                                 </Button>
                             </div>
                         )}
@@ -280,7 +306,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                         <SelectItem value="7d">{t('dashboard.time_ranges.d7')}</SelectItem>
                                         <SelectItem value="30d">{t('dashboard.time_ranges.d30')}</SelectItem>
                                         <SelectItem value="90d">{t('dashboard.time_ranges.m3')}</SelectItem>
-                                        <SelectItem value="6m">Last 6 Months</SelectItem>
+                                        <SelectItem value="6m">{t('dashboard.time_ranges.m6')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <Button variant="destructive" size="sm" onClick={handleDeleteAll} className="h-9 px-4 rounded-full text-xs font-semibold">
@@ -313,8 +339,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.resting_heart_rate ? `${entry.resting_heart_rate} bpm` : '-'}</td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>
                                                     <td className="px-6 py-4 text-muted-foreground">
-                                                        {(entry as any).step_count
-                                                            ? (!mounted ? (entry as any).step_count : (entry as any).step_count.toLocaleString())
+                                                        {entry.step_count
+                                                            ? (!mounted ? entry.step_count : entry.step_count.toLocaleString())
                                                             : '-'}
                                                     </td>
                                                     <td className="px-6 py-4 text-muted-foreground font-medium text-[#F59E0B]">
@@ -353,7 +379,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                             {/* Pagination Hint */}
                             {filteredData.length >= 500 && (
                                 <div className="bg-zinc-50 dark:bg-zinc-950 p-4 text-center text-xs text-muted-foreground border-t">
-                                    Showing recent 500 entries.
+                                    {t('upload.data_log.table.recent_hint')}
                                 </div>
                             )}
                         </div>
@@ -366,7 +392,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                         <div className="w-3 h-3 rounded-full bg-sky-500/20 flex items-center justify-center">
                             <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />
                         </div>
-                        Your health data is processed 100% locally in your browser.
+                        {t('upload.trust_badge')}
                     </div>
                 )}
 

@@ -50,10 +50,17 @@ export function OverviewChart({ data }: { data: ChartData[] }) {
                                 axisLine={false}
                                 tickFormatter={(str) => format(parseISO(str), "MMM d")}
                                 minTickGap={30}
+                                style={
+                                    {
+                                        fontSize: 12,
+                                        fill: "var(--color-text-secondary, #666)",
+                                        textAnchor: 'middle'
+                                    }
+                                }
                             />
                             <YAxis
                                 hide={false}
-                                domain={activeConfig.domain as any}
+                                domain={activeConfig.domain as [number | string, number | string]}
                                 tickLine={false}
                                 axisLine={false}
                             />

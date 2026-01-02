@@ -1,0 +1,60 @@
+
+> track-me@0.1.0 lint
+> eslint
+
+
+/Users/felixkania/Desktop/track-ME/app/dashboard/dashboard-client.tsx
+  236:9   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  357:17  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  387:17  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  960:20  error    Unexpected any. Specify a different type                                                               @typescript-eslint/no-explicit-any
+
+/Users/felixkania/Desktop/track-ME/components/upload/xml-uploader.tsx
+  211:29  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/jest.config.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-var-requires')
+
+/Users/felixkania/Desktop/track-ME/lib/stats/insights-logic.ts
+   58:26  warning  '_e' is defined but never used     @typescript-eslint/no-unused-vars
+  120:43  warning  '_data' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/middleware.ts
+  27:58  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/new_landing_page/layout (1).tsx
+  7:7  warning  '_geist' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  8:7  warning  '_geistMono' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/new_landing_page/page (2).tsx
+  44:9  warning  'handleFileSelect' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/scripts/check-db.js
+   1:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-var-requires')
+  36:24  warning  'count' is assigned a value but never used                                                             @typescript-eslint/no-unused-vars
+
+/Users/felixkania/Desktop/track-ME/tests/e2e/dashboard-insights.spec.ts
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/e2e/experiments.spec.ts
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/e2e/upload-onboarding.spec.ts
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/ingestion.test.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/insights.test.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/scoring.test.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/felixkania/Desktop/track-ME/tests/ui-resilience.test.tsx
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+✖ 22 problems (1 error, 21 warnings)
+  0 errors and 14 warnings potentially fixable with the `--fix` option.
+

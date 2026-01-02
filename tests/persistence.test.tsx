@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, renderHook, act, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { UploadProvider, useUpload } from '../components/providers/upload-provider';
+import { useUpload } from '../components/providers/upload-provider';
 import OnboardingPage from '../app/onboarding/page';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUser } from '../components/providers/user-provider';
@@ -45,9 +45,9 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock FileReader
 class MockFileReader {
-    onload: any;
+    onload: ((event: { target: { result: string | null } }) => void) | null = null;
     result: string = '';
-    readAsText(file: File) {
+    readAsText() {
         this.result = 'test content';
         setTimeout(() => {
             if (this.onload) this.onload({ target: { result: this.result } });
@@ -57,8 +57,8 @@ class MockFileReader {
 Object.defineProperty(window, 'FileReader', { value: MockFileReader });
 
 describe('Persistence & Onboarding Logic', () => {
-    let mockRouter: any;
-    let mockUser: any;
+    let mockRouter: { push: jest.Mock; replace: jest.Mock; refresh: jest.Mock };
+    let mockUser: { profile: null; updateSymptomProvider: jest.Mock; updateStepProvider: jest.Mock };
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -128,9 +128,11 @@ describe('Persistence & Onboarding Logic', () => {
             );
             const { result } = renderHook(() => RealUseUpload(), { wrapper });
 
-            expect(result.current.pendingUpload).not.toBeNull();
-            expect(result.current.pendingUpload?.file.name).toBe('restored.csv');
-            expect(result.current.pendingUpload?.type).toBe('bearable');
+            await waitFor(() => {
+                expect(result.current.pendingUpload).not.toBeNull();
+                expect(result.current.pendingUpload?.file.name).toBe('restored.csv');
+                expect(result.current.pendingUpload?.type).toBe('bearable');
+            });
         });
     });
 

@@ -10,7 +10,6 @@ import { revalidateApp } from '@/app/actions/revalidate'
 import { parseGoogleFitCsv } from '@/lib/data/google-fit-parser'
 
 export function GoogleFitUploader() {
-    const [uploading, setUploading] = useState(false)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -45,8 +44,7 @@ export function GoogleFitUploader() {
                     .select('date')
                     .eq('user_id', user.id)
 
-                const existingDatesDataTyped = (existingDatesData as { date: string }[] | null) || []
-                const existingDateSet = new Set(existingDatesDataTyped.map(r => r.date))
+                const existingDateSet = new Set((existingDatesData as { date: string }[] || []).map(r => r.date))
 
                 const filteredStepEntries = stepData.filter(entry => existingDateSet.has(entry.date))
                 const totalFiltered = filteredStepEntries.length
@@ -75,7 +73,7 @@ export function GoogleFitUploader() {
                         .in('date', dates)
                         .eq('user_id', user.id)
 
-                    const existingMap = new Map((existingRows || []).map((r: any) => [r.date, r]))
+                    const existingMap = new Map((existingRows || []).map((r: { date: string }) => [r.date, r]))
 
                     const upsertBatch = batch.map(newRecord => {
                         const existing = existingMap.get(newRecord.date)
@@ -91,6 +89,7 @@ export function GoogleFitUploader() {
 
                     const { error } = await supabase
                         .from('health_metrics')
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         .upsert(upsertBatch as any, {
                             onConflict: 'user_id, date'
                         })
@@ -109,10 +108,12 @@ export function GoogleFitUploader() {
                     router.push('/dashboard')
                 }, 1500)
 
-            } catch (err: any) {
-                console.error("Google Fit Error:", err)
+            } catch (err: unknown) {
+                console.error("Google Fit Upload Error:", err)
                 setStatus('error')
-                setMessage(err.message || "Failed to process Google Fit file.")
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload.'
+                setMessage(msg)
             }
         }
 

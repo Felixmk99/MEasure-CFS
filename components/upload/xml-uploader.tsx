@@ -4,15 +4,11 @@ import { useCallback, useState, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, FileCode, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { parseISO, format } from 'date-fns'
 import { revalidateApp } from '@/app/actions/revalidate'
 
 export function XmlUploader() {
-    const [uploading, setUploading] = useState(false)
-    const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -38,7 +34,6 @@ export function XmlUploader() {
 
                 const stepData: Record<string, number> = {}
                 let match
-                let count = 0
 
                 // Loop through all matches
                 while ((match = stepPattern.exec(text)) !== null) {
@@ -51,7 +46,6 @@ export function XmlUploader() {
                     if (date && !isNaN(value)) {
                         stepData[date] = (stepData[date] || 0) + value
                     }
-                    count++
                 }
 
                 if (Object.keys(stepData).length === 0) {
@@ -103,7 +97,7 @@ export function XmlUploader() {
                         .in('date', dates)
                         .eq('user_id', user.id)
 
-                    const existingMap = new Map((existingRows || []).map((r: any) => [r.date, r]))
+                    const existingMap = new Map((existingRows || []).map((r: { date: string }) => [r.date, r]))
 
                     // Prepare for Upsert (Merge step_count into existing records)
                     const upsertBatch = batch.map(newRecord => {
@@ -121,6 +115,7 @@ export function XmlUploader() {
                     // Upsert records (preserving symptoms/HRV)
                     const { error } = await supabase
                         .from('health_metrics')
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         .upsert(upsertBatch as any, {
                             onConflict: 'user_id, date'
                         })
@@ -144,10 +139,12 @@ export function XmlUploader() {
                     router.push('/dashboard')
                 }, 1500)
 
-            } catch (err: any) {
-                console.error("XML Parse/Upload Error:", JSON.stringify(err, null, 2))
+            } catch (err: unknown) {
+                console.error("XML Upload Error:", err)
                 setStatus('error')
-                setMessage(err.message || "Failed to process XML file.")
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload XML data.'
+                setMessage(msg)
             }
         }
 

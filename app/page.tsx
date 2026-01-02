@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useCallback } from "react"
+import { useCallback } from "react"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useRouter } from "next/navigation"
 import { useDropzone } from "react-dropzone"
 import { Button } from "@/components/ui/button"
 import {
   Upload,
-  Activity,
   LineChart,
   TrendingUp,
   Zap,
@@ -15,16 +14,13 @@ import {
   Cpu,
   BarChart3,
   FileUp,
-  Shield,
-  ArrowRight
+  Shield
 } from "lucide-react"
 import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 
 import { useUpload } from "@/components/providers/upload-provider"
-import { BrandLogo } from "@/components/brand/brand-logo"
-import { BrandDataCard } from "@/components/brand/data-card"
 
 export default function LandingPage() {
   const { t } = useLanguage()

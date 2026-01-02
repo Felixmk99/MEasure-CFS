@@ -20,9 +20,10 @@ export async function parseGoogleFitCsv(csvContent: string): Promise<ParsedStepD
             complete: (results) => {
                 const dailyAggregation: Record<string, number> = {}
 
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 results.data.forEach((row: any) => {
                     // Normalize headers (Google Fit headers can have many variations)
-                    const normalizedRow: Record<string, any> = {}
+                    const normalizedRow: Record<string, unknown> = {}
                     Object.keys(row).forEach(key => {
                         normalizedRow[key.toLowerCase().replace(/[\s_-]/g, '')] = row[key]
                     })
@@ -40,11 +41,13 @@ export async function parseGoogleFitCsv(csvContent: string): Promise<ParsedStepD
                     if (dateVal && stepsVal !== undefined && stepsVal !== null) {
                         try {
                             // Try parsing date (ISO or natural)
-                            let parsedDate = typeof dateVal === 'string' ? parseISO(dateVal) : new Date(dateVal)
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            let parsedDate = typeof dateVal === 'string' ? parseISO(dateVal) : new Date(dateVal as any)
 
                             // If invalid, fallback to plain JS Date
                             if (!isValid(parsedDate)) {
-                                parsedDate = new Date(dateVal)
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                parsedDate = new Date(dateVal as any)
                             }
 
                             if (isValid(parsedDate)) {
@@ -57,7 +60,7 @@ export async function parseGoogleFitCsv(csvContent: string): Promise<ParsedStepD
                                     dailyAggregation[dateKey] = (dailyAggregation[dateKey] || 0) + steps
                                 }
                             }
-                        } catch (e) {
+                        } catch {
                             // Skip malformed rows
                         }
                     }
@@ -69,7 +72,7 @@ export async function parseGoogleFitCsv(csvContent: string): Promise<ParsedStepD
 
                 resolve(data)
             },
-            error: (error: any) => {
+            error: (error: Error) => {
                 reject(error)
             }
         })

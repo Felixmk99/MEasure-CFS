@@ -15,24 +15,24 @@ export default function AuthCodeError() {
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight mb-4">
-                Login Link Expired
+                {t('authCodeError.title')}
             </h1>
 
             <p className="text-muted-foreground text-lg max-w-md mb-8">
-                It looks like this confirmation link has already been used or has expired. For security, each link can only be used once.
+                {t('authCodeError.description')}
             </p>
 
             <div className="grid gap-4 w-full max-w-xs">
                 <Button asChild className="rounded-full h-12 text-base font-semibold">
                     <Link href="/login">
-                        Try Logging In
+                        {t('authCodeError.button_login')}
                     </Link>
                 </Button>
 
                 <Button asChild variant="outline" className="rounded-full h-12 text-base font-semibold">
                     <Link href="/">
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back to Home
+                        {t('authCodeError.button_home')}
                     </Link>
                 </Button>
             </div>
@@ -40,10 +40,10 @@ export default function AuthCodeError() {
             <div className="mt-12 p-6 bg-zinc-50 dark:bg-zinc-900 rounded-3xl max-w-md border border-zinc-200 dark:border-zinc-800">
                 <div className="flex items-center gap-3 mb-3 text-sm font-bold uppercase tracking-tight text-[#3B82F6]">
                     <Mail className="w-4 h-4" />
-                    Need help?
+                    {t('authCodeError.help_title')}
                 </div>
                 <p className="text-sm text-left text-muted-foreground leading-relaxed">
-                    If you haven't logged in yet, try requesting a new link by entering your email at the login or signup page again. If the issue persists, feel free to contact us.
+                    {t('authCodeError.help_text')}
                 </p>
             </div>
         </div>

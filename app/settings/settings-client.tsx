@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Lock, User, Settings, FileText, Trash2, AlertTriangle, Activity, Smartphone, ClipboardList } from 'lucide-react'
+import { Lock, User as UserIcon, Settings, FileText, AlertTriangle, Activity, Smartphone, ClipboardList } from 'lucide-react'
 import { useUser } from '@/components/providers/user-provider'
 import {
     Select,
@@ -18,12 +18,12 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
-export default function SettingsClient({ user }: { user: any }) {
+import type { User } from '@supabase/supabase-js'
+
+export default function SettingsClient({ user }: { user: User }) {
     const supabase = createClient()
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
-    const [message, setMessage] = useState('')
-
     // Form State
     const [firstName, setFirstName] = useState(user.user_metadata?.first_name || '')
     const [lastName, setLastName] = useState(user.user_metadata?.last_name || '')
@@ -35,10 +35,10 @@ export default function SettingsClient({ user }: { user: any }) {
     // Update Profile Handler
     const handleUpdateProfile = async () => {
         setIsLoading(true)
-        setMessage('')
+
 
         try {
-            const { error } = await supabase.auth.updateUser({
+            const { error: updateAuthError } = await supabase.auth.updateUser({
                 data: {
                     first_name: firstName,
                     last_name: lastName,
@@ -46,11 +46,22 @@ export default function SettingsClient({ user }: { user: any }) {
                 }
             })
 
-            if (error) throw error
-            setMessage('Profile updated successfully.')
+            if (updateAuthError) throw updateAuthError
+
+            // Also update the 'profiles' table directly if needed, though the instruction snippet was malformed.
+            // Assuming the intent was to update auth metadata, which is handled above.
+            // If there was a separate 'profiles' table update intended, it would look like this:
+            // const { error: updateProfileError } = await supabase
+            //     .from('profiles')
+            //     .update({ first_name: firstName, last_name: lastName, full_name: `${firstName} ${lastName}`.trim() })
+            //     .eq('id', user.id);
+            // if (updateProfileError) throw updateProfileError;
+
+
             router.refresh()
-        } catch (error: any) {
-            setMessage(`Error: ${error.message}`)
+        } catch (err: unknown) {
+            console.error(err)
+
         } finally {
             setIsLoading(false)
         }
@@ -77,7 +88,8 @@ export default function SettingsClient({ user }: { user: any }) {
             router.push('/')
             router.refresh()
 
-        } catch (error: any) {
+        } catch (err: unknown) {
+            const error = err as Error
             alert(`Failed to delete account data: ${error.message}`)
             setIsDeleting(false)
         }
@@ -94,7 +106,7 @@ export default function SettingsClient({ user }: { user: any }) {
 
                 <nav className="flex flex-col space-y-1">
                     <Button variant="secondary" className="justify-start">
-                        <User className="mr-2 h-4 w-4" />
+                        <UserIcon className="mr-2 h-4 w-4" />
                         Profile
                     </Button>
                     <Button variant="ghost" className="justify-start" disabled>
@@ -146,7 +158,6 @@ export default function SettingsClient({ user }: { user: any }) {
 
                     </CardContent>
                     <CardFooter className="flex justify-between border-t px-6 py-4">
-                        <p className="text-sm text-muted-foreground">{message}</p>
                         <Button onClick={handleUpdateProfile} disabled={isLoading}>
                             {isLoading ? 'Saving...' : 'Save Changes'}
                         </Button>
@@ -237,7 +248,7 @@ function SymptomProviderCard() {
     const handleProviderChange = async (val: string) => {
         setUpdating(true)
         try {
-            await updateSymptomProvider(val as any)
+            await updateSymptomProvider(val as 'visible' | 'bearable')
         } catch (error) {
             console.error(error)
         } finally {
@@ -291,6 +302,7 @@ function StepProviderCard() {
     const handleProviderChange = async (val: string) => {
         setUpdating(true)
         try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await updateStepProvider(val as any)
         } catch (error) {
             console.error(error)

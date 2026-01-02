@@ -3,22 +3,22 @@
 import { useCallback, useState, useEffect, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Papa from 'papaparse'
-import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Upload, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { normalizeBearableData } from '@/lib/data/bearable-normalizer'
+import { normalizeBearableData, type BearableRow } from '@/lib/data/bearable-normalizer'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from "@/components/providers/language-provider"
 import { useUpload } from "@/components/providers/upload-provider"
 import { revalidateApp } from '@/app/actions/revalidate'
+import type { Database } from '@/types/database.types'
+
+type HealthMetricInsert = Database['public']['Tables']['health_metrics']['Insert']
 
 export function BearableUploader() {
     const { t } = useLanguage()
     const { pendingUpload, clearPendingUpload } = useUpload()
-    const [uploading, setUploading] = useState(false)
-    const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -47,7 +47,9 @@ export function BearableUploader() {
                         throw new Error('You must be logged in to upload data.')
                     }
 
-                    const validRows = results.data.filter((r: any) => Object.values(r).some(v => !!v));
+                    const validRows = results.data.filter((r): r is BearableRow =>
+                        typeof r === 'object' && r !== null && Object.values(r).some(v => !!v)
+                    )
                     const records = normalizeBearableData(validRows)
 
                     if (records.length === 0) {
@@ -75,7 +77,9 @@ export function BearableUploader() {
                         .select('date')
                         .eq('user_id', user.id)
 
-                    const existingDateSet = new Set((existingDatesData as any[] || []).map(r => r.date))
+                    const existingDateSet = new Set(
+                        (existingDatesData as { date: string }[] || []).map(r => r.date)
+                    )
 
                     // 2. Filter for brand-new days only
                     const recordsToUpload = dbRecords.filter(r => !existingDateSet.has(r.date))
@@ -92,12 +96,15 @@ export function BearableUploader() {
                     for (let i = 0; i < recordsToUpload.length; i += BATCH_SIZE) {
                         const batch = recordsToUpload.slice(i, i + BATCH_SIZE)
 
-                        const { error } = await supabase
-                            .from('health_metrics')
-                            .insert(batch as any)
+                        // Supabase strict typing requires cast for batch insert
+                        const { error } = await (supabase
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            .from('health_metrics') as any)
+                            .insert(batch as HealthMetricInsert[])
 
                         if (error) {
                             console.error("Supabase Error in Batch:", error)
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const errorMsg = error.message || (error as any).details || JSON.stringify(error)
                             throw new Error(`DB Error: ${errorMsg}`)
                         }
@@ -113,13 +120,12 @@ export function BearableUploader() {
                         router.push('/dashboard')
                     }, 1500)
 
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error("Bearable Upload Error:", err)
                     setStatus('error')
-                    const msg = err.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload Bearable data.'
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload Bearable data.'
                     setMessage(msg)
-                } finally {
-                    setUploading(false)
                 }
             },
             error: (err) => {
@@ -133,7 +139,7 @@ export function BearableUploader() {
         // We reuse the 'visible' type for the hook if needed, or we could add 'bearable'
         // For now, if the user starts an upload from the generic dropzone on landing, 
         // they might have 'visible' type. 
-        if (pendingUpload && (pendingUpload.type === 'visible' || pendingUpload.type === 'bearable' as any)) {
+        if (pendingUpload && (pendingUpload.type === 'visible' || pendingUpload.type === 'bearable')) {
             const file = pendingUpload.file
             clearPendingUpload()
             processFile(file)
@@ -196,7 +202,7 @@ export function BearableUploader() {
                                     "Drop your Bearable CSV file here to import your health data."}
                     </p>
                     {status === 'idle' && (
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your "Bearable" .csv file</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your &quot;Bearable&quot; .csv file</p>
                     )}
                 </div>
 

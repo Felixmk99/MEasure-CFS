@@ -3,9 +3,9 @@
 import { useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { format, differenceInDays, parseISO, isAfter, isBefore } from "date-fns"
-import { Plus, Trash, Pill, Activity, Moon, Utensils, ArrowUpRight, ArrowDownRight, Minus, Pencil, Beaker, Target } from "lucide-react"
+import { Plus, Trash, Pill, Activity, Moon, ArrowUpRight, ArrowDownRight, Minus, Pencil, Beaker, Target } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,11 +14,33 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Database } from "@/types/database.types"
+// import { Database } from "@/types/database.types"
 import { enhanceDataWithScore } from "@/lib/scoring/composite-score"
 import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
 import { ExperimentImpactResults, getFriendlyName } from "@/components/experiments/experiment-impact"
 import { useLanguage } from "@/components/providers/language-provider"
+
+// Form State logic moved outside component
+type ExperimentCategory = 'lifestyle' | 'medication' | 'supplement' | 'other'
+
+interface ExperimentFormData {
+    name: string
+    dosage: string
+    category: ExperimentCategory
+    start_date: string
+    end_date: string
+}
+
+const initialFormState: ExperimentFormData = {
+    name: '',
+    dosage: '',
+    category: 'lifestyle',
+    start_date: format(new Date(), 'yyyy-MM-dd'),
+    end_date: ''
+}
+
+const isValidCategory = (cat: string): cat is ExperimentCategory =>
+    ['lifestyle', 'medication', 'supplement', 'other'].includes(cat)
 
 export default function ExperimentsClient({ initialExperiments, history }: { initialExperiments: Experiment[], history: MetricDay[] }) {
     const { t } = useLanguage()
@@ -29,14 +51,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
     const supabase = createClient()
     const router = useRouter()
 
-    // Form State
-    const [formData, setFormData] = useState({
-        name: '',
-        dosage: '',
-        category: 'lifestyle',
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: ''
-    })
+    const [formData, setFormData] = useState<ExperimentFormData>(initialFormState)
 
     // Enhance history with Centralized Composite Score
     const enhancedHistory = useMemo(() => {
@@ -61,9 +76,11 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                 }
             });
             // 2. Custom Metrics Keys
-            if (d.custom_metrics && typeof d.custom_metrics === 'object') {
-                Object.keys(d.custom_metrics).forEach(k => {
-                    if (!excludedKeys.includes(k) && typeof d.custom_metrics[k] === 'number') {
+            const cm = d.custom_metrics;
+            if (cm && typeof cm === 'object') {
+                Object.keys(cm).forEach(k => {
+                    const val = cm[k];
+                    if (!excludedKeys.includes(k) && typeof val === 'number') {
                         allKeys.add(k);
                     }
                 });
@@ -71,10 +88,25 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         });
 
         allKeys.forEach(m => {
+            // Helper to safely extract metric value
+            const getMetricValue = (d: MetricDay): number | undefined => {
+                // Check top-level property
+                if (m in d) {
+                    const val = d[m as keyof MetricDay]
+                    return typeof val === 'number' ? val : undefined
+                }
+                // Check custom_metrics
+                if (d.custom_metrics && typeof d.custom_metrics === 'object' && m in d.custom_metrics) {
+                    const val = d.custom_metrics[m]
+                    return typeof val === 'number' ? val : undefined
+                }
+                return undefined
+            }
+
             // Retrieve value from top-level OR custom_metrics
             const values = dataToAnalyze
-                .map(d => d[m] ?? d.custom_metrics?.[m])
-                .filter(v => typeof v === 'number') as number[]
+                .map(d => getMetricValue(d))
+                .filter((v): v is number => typeof v === 'number')
 
             if (values.length > 0) {
                 const mean = values.reduce((a, b) => a + b, 0) / values.length
@@ -101,7 +133,9 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
             if (!user) throw new Error("No user")
 
             if (editingExp) {
-                const { data, error } = await (supabase as any).from('experiments').update({
+                // Supabase strict typing requires cast for update payload
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { data, error } = await (supabase.from('experiments') as any).update({
                     name: formData.name,
                     dosage: formData.dosage,
                     category: formData.category,
@@ -112,7 +146,9 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                 if (error) throw error
                 if (data) setExperiments(experiments.map(e => e.id === data.id ? (data as Experiment) : e))
             } else {
-                const { data, error } = await (supabase as any).from('experiments').insert({
+                // Supabase strict typing requires cast for insert payload
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { data, error } = await (supabase.from('experiments') as any).insert({
                     user_id: user.id,
                     name: formData.name,
                     dosage: formData.dosage,
@@ -127,7 +163,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
 
             setIsDialogOpen(false)
             setEditingExp(null)
-            setFormData({ name: '', dosage: '', category: 'lifestyle', start_date: format(new Date(), 'yyyy-MM-dd'), end_date: '' })
+            setFormData(initialFormState)
             router.refresh()
         } catch (e) {
             console.error(e)
@@ -141,7 +177,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
         setFormData({
             name: exp.name,
             dosage: exp.dosage || '',
-            category: (exp.category as any) || 'lifestyle',
+            category: (exp.category && isValidCategory(exp.category) ? exp.category : 'lifestyle'),
             start_date: exp.start_date,
             end_date: exp.end_date || ''
         })
@@ -206,7 +242,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                     setIsDialogOpen(open)
                     if (!open) {
                         setEditingExp(null)
-                        setFormData({ name: '', dosage: '', category: 'lifestyle', start_date: format(new Date(), 'yyyy-MM-dd'), end_date: '' })
+                        setFormData(initialFormState)
                     }
                 }}>
                     <DialogTrigger asChild>
@@ -242,7 +278,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                 <Label>{t('experiments.form.category')}</Label>
                                 <Select
                                     value={formData.category}
-                                    onValueChange={v => setFormData({ ...formData, category: v as any })}
+                                    onValueChange={(v) => setFormData({ ...formData, category: v as ExperimentCategory })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />

@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Activity, Footprints } from "lucide-react"
+import { Footprints } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState, useCallback, useMemo } from "react"
+import type { User } from "@supabase/supabase-js"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
@@ -29,7 +30,7 @@ import {
 
 export default function Navbar() {
     const supabase = useMemo(() => createClient(), [])
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<User | null>(null)
     const [hasData, setHasData] = useState<boolean>(false)
     const [hasMissingSteps, setHasMissingSteps] = useState<boolean>(false)
     const [mounted, setMounted] = useState(false)
@@ -122,6 +123,9 @@ export default function Navbar() {
                                     <Link href="/dashboard" className={getLinkClass('/dashboard')}>
                                         {t('navbar.dashboard')}
                                     </Link>
+                                    <Link href="/insights" className={getLinkClass('/insights')}>
+                                        {t('navbar.insights')}
+                                    </Link>
                                     <Link href="/experiments" className={getLinkClass('/experiments')}>
                                         {t('navbar.experiments')}
                                     </Link>
@@ -170,6 +174,9 @@ export default function Navbar() {
                                     <>
                                         <DropdownMenuItem asChild>
                                             <Link href="/dashboard" className="w-full">{t('navbar.dashboard')}</Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/insights" className="w-full">{t('navbar.insights')}</Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild>
                                             <Link href="/experiments" className="w-full">{t('navbar.experiments')}</Link>

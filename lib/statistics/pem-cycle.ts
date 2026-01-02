@@ -1,13 +1,13 @@
-export interface MetricData {
-    date: string
-    value: number
+import { mean, standardDeviation } from 'simple-statistics'
+
+export interface HealthEntry {
+    date: string;
+    custom_metrics?: Record<string, unknown>;
+    [key: string]: unknown;
 }
 
-import { mean, standardDeviation } from 'simple-statistics'
-import { startOfDay, endOfDay, parseISO } from 'date-fns'
-
 // Helper for baseline stats
-export function calculateBaselineStats(data: any[], metrics: string[]) {
+export function calculateBaselineStats(data: HealthEntry[], metrics: string[]) {
     const stats: Record<string, { mean: number, std: number }> = {}
 
     metrics.forEach(key => {
@@ -85,7 +85,7 @@ const EPOCH_POST_DAYS = 14
  * Extracts event-aligned windows (Epochs) around each crash start date.
  */
 export function extractEpochs(
-    sortedData: any[],
+    sortedData: HealthEntry[],
     crashIndices: number[],
     metricsToAnalyze: string[]
 ): CycleEpoch[] {
@@ -200,7 +200,7 @@ export function aggregateEpochs(epochs: CycleEpoch[], metrics: string[]) {
     const result = []
     for (let i = -EPOCH_PRE_DAYS; i <= EPOCH_POST_DAYS; i++) {
         const node = aggregation[i]
-        const metricsResult: Record<string, any> = {}
+        const metricsResult: Record<string, { mean: number, std: number, n: number }> = {}
 
         metrics.forEach(m => {
             if (node.count > 0) {
@@ -224,7 +224,7 @@ export function aggregateEpochs(epochs: CycleEpoch[], metrics: string[]) {
  * Phase 1 Analysis: Detect Triggers across ALL metrics
  * Refined to include acute triggers (Day 0) and improved confidence scoring.
  */
-export function analyzePreCrashPhase(aggregatedProfile: any[], baselineStats: Record<string, { mean: number, std: number }>) {
+export function analyzePreCrashPhase(aggregatedProfile: { dayOffset: number, metrics: Record<string, { mean: number, std: number, n: number }> }[], baselineStats: Record<string, { mean: number, std: number }>) {
     // We include day 0 for "Input" metrics (exertion, steps) because they can cause immediate crashes.
     // We exclude day 0 for "Output" metrics (symptoms) to avoid circular reasoning.
     const isInputMetric = (m: string) => {
@@ -233,7 +233,7 @@ export function analyzePreCrashPhase(aggregatedProfile: any[], baselineStats: Re
     };
 
     const metrics = Object.keys(aggregatedProfile[0]?.metrics || {})
-    const discoveries: { metric: string, type: 'spike' | 'drop', leadDaysStart: number, leadDaysEnd: number, magnitude: number, pctChange: number, isAcute?: boolean }[] = []
+    const discoveries: { metric: string, type: 'spike' | 'drop', leadDaysStart: number, leadDaysEnd: number, magnitude: number, pctChange: number, isAcute?: boolean, classification?: string, isSynergy?: boolean }[] = []
 
     // 1. Global Deviation Scanner
     metrics.forEach(m => {
@@ -279,12 +279,12 @@ export function analyzePreCrashPhase(aggregatedProfile: any[], baselineStats: Re
                 pctChange: pctChange * 100,
                 isAcute: peak.offset === 0,
                 classification
-            } as any)
+            })
         }
     })
 
     // 2. Combinatorial Scanner (Pairs)
-    const pairwiseDiscoveries: any[] = []
+    const pairwiseDiscoveries: { metric: string, type: 'spike' | 'drop', leadDaysStart: number, leadDaysEnd: number, magnitude: number, pctChange: number, isAcute?: boolean, classification?: string, isSynergy?: boolean }[] = []
     const metricList = metrics.filter(m => m !== 'Crash' && m !== 'crash')
 
     for (let i = 0; i < metricList.length; i++) {
@@ -567,7 +567,7 @@ export function analyzeCrashPhase(epochs: CycleEpoch[], baselineStats: Record<st
     const avgPhys = episodes.reduce((a, b) => a + b.physiologicalDuration, 0) / episodes.length
 
     // 2. Aggregate Discoveries (Solo metrics only)
-    const discoveries: any[] = []
+    const discoveries: { metric: string, type: 'spike' | 'drop', magnitude: number, pctChange: number, leadDaysStart: number, leadDaysEnd: number }[] = []
 
     metrics.forEach(m => {
         const avgPeakZ = episodes.reduce((a, b) => a + (b.peakMetrics[m] || 0), 0) / episodes.length
@@ -582,7 +582,9 @@ export function analyzeCrashPhase(epochs: CycleEpoch[], baselineStats: Record<st
                 metric: m,
                 type: avgPeakZ > 0 ? 'spike' : 'drop',
                 magnitude: Math.abs(avgPeakZ),
-                pctChange: pctChange * 100
+                pctChange: pctChange * 100,
+                leadDaysStart: 0,
+                leadDaysEnd: 0
             })
         }
     })

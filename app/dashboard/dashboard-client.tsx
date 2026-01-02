@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import React, { useState, useMemo, useCallback } from 'react'
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
     ResponsiveContainer,
     ComposedChart,
@@ -14,8 +14,8 @@ import {
     ReferenceArea,
     ReferenceLine
 } from 'recharts'
-import { Activity, Moon, TrendingUp, TrendingDown, Minus, Info } from "lucide-react"
-import { format, subDays, isAfter, parseISO } from "date-fns"
+import { Activity, TrendingUp, TrendingDown, Minus, Info } from "lucide-react"
+import { format, subDays, parseISO } from "date-fns"
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from "@/components/ui/switch"
@@ -34,8 +34,18 @@ import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger
 
 type TimeRange = '7d' | '30d' | '3m' | '1y' | 'all' | 'custom'
 
+interface MetricConfig {
+    label: string
+    color: string
+    domain: [number | 'auto' | 'dataMin' | 'dataMax', number | 'auto' | 'dataMin' | 'dataMax']
+    unit: string
+    invert: boolean
+    description: string
+    better: string
+}
+
 interface DashboardReviewProps {
-    data: any[]
+    data: ({ date: string, custom_metrics?: Record<string, unknown> } & Record<string, unknown>)[]
 }
 
 
@@ -48,7 +58,7 @@ import { PEMAnalysis } from "@/components/dashboard/pem-analysis"
 import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 
 export default function DashboardClient({ data: initialData }: DashboardReviewProps) {
-    const { t, locale } = useLanguage()
+    const { t } = useLanguage()
 
     // -- 0a. Source Detection (Check if Visible data exists: HRV or RHR) --
     const hasVisibleData = useMemo(() => {
@@ -117,7 +127,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 return itemDate >= s && (timeRange === 'custom' ? itemDate <= e : true)
             })
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    }, [enhancedInitialData, visibleRange, timeRange, dateRange])
+    }, [enhancedInitialData, visibleRange, timeRange])
 
     // -- 2a. Extract Dynamic Metrics --
     const availableMetrics = useMemo(() => {
@@ -146,15 +156,15 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             }
         })
         return allOptions
-    }, [processedData])
+    }, [processedData, hasVisibleData])
 
     // -- 2b. Helper to get Config for ANY metric --
-    const getMetricConfig = (key: string) => {
+    const getMetricConfig = useCallback((key: string): MetricConfig => {
         const registry = getMetricRegistryConfig(key);
         const invert = registry.direction === 'lower';
 
         // Base config from registry
-        const config = {
+        const config: MetricConfig = {
             label: registry.label || registry.key,
             color: registry.color || '#8b5cf6',
             domain: (key.includes('score') || key.includes('hrv') || key.includes('heart')) ? ['auto', 'dataMax'] : [0, 'dataMax'],
@@ -207,28 +217,29 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         }
 
         return config;
-    }
+    }, [t])
 
-    // -- 1b. Enhanced Chart Data (Trend Line) --
-    // Only calculate trend for the PRIMARY metric to avoid clutter
-    // -- 1b. Enhanced Chart Data (Trend Line) --
     // -- 1b. Enhanced Chart Data (Trend Line) --
     // Only calculate trend for the PRIMARY metric to avoid clutter
     const chartData = useMemo(() => {
         const data = [...processedData]
         // DEBUG: Check what the first item has for adjusted_score
-        console.log("Chart Data Sample:", data[0]?.adjusted_score, "Keys:", data[0] ? Object.keys(data[0]) : "No data")
+
 
         if (!showTrend || data.length < 2 || selectedMetrics.length === 0) return data
 
-        const trendsByIndex = new Map<number, any>()
 
-        // Helper to retrieve value safely (including computed fields like adjusted_score)
-        const getValue = (d: any, key: string) => {
+        const trendsByIndex = new Map<number, Record<string, number>>()
+
+        const getValue = (d: Record<string, unknown>, key: string): number | null => {
             // Check top-level (like adjusted_score, step_count)
-            if (d[key] !== undefined) return d[key]
+            if (d[key] !== undefined && typeof d[key] === 'number') return d[key] as number
             // Check custom_metrics (like composite_score)
-            if (d.custom_metrics?.[key] !== undefined) return d.custom_metrics[key]
+            const customMetrics = d.custom_metrics as Record<string, unknown> | undefined
+            if (customMetrics && customMetrics[key] !== undefined) {
+                const val = customMetrics[key]
+                return typeof val === 'number' ? val : null
+            }
             return null
         }
 
@@ -343,7 +354,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
             // 1. Current Period Data
             const currentValues = processedData
-                .map(d => d[metric])
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                .map(d => (d as Record<string, any>)[metric])
                 .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
             const currentAvg = currentValues.length > 0 ? currentValues.reduce((a, b) => a + b, 0) / currentValues.length : 0
@@ -351,7 +363,6 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             // 2. Previous Period Data Setup
             let prevStart: Date
             let prevEnd: Date
-            const now = new Date()
 
             const { start: cStart, end: cEnd } = visibleRange
 
@@ -373,7 +384,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             })
 
             const prevValues = prevData
-                .map(d => d[metric])
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                .map(d => (d as Record<string, any>)[metric])
                 .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
             // 3. Calculate "Period Change" (Linear Regression on Current Data)
@@ -429,7 +441,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 prevCrashCount
             }
         })
-    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, dateRange, visibleRange])
+    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig])
 
 
     // ... UI Render ...
@@ -437,22 +449,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     // Chart: Map selectedMetrics to Area/Line
 
     // -- 4. Mock Data Generator (Visualization Only) --
-    function generateMockData() {
-        const data = []
-        const now = new Date()
-        for (let i = 30; i >= 0; i--) {
-            const date = subDays(now, i)
-            // Create a gentle curve
-            const base = 50 + Math.sin(i / 5) * 20
-            data.push({
-                date: date.toISOString().split('T')[0],
-                hrv: Math.round(base + Math.random() * 10 - 5),
-                symptom_score: Math.max(0, Math.min(3, 1.5 + Math.cos(i / 4))),
-                resting_heart_rate: 60 + Math.random() * 5,
-            })
-        }
-        return data
-    }
+
 
     return (
         <div className="space-y-6">
@@ -474,7 +471,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                         : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
-                                {t(labelKey as any)}
+                                {t(labelKey)}
                             </button>
                         )
                     })}
@@ -543,7 +540,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 <div key={stat.key} className="space-y-1">
                                     <div className="text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: getMetricConfig(stat.key).color }}>
                                         {stat.label}
-                                        {(getMetricConfig(stat.key) as any).description && (
+                                        {getMetricConfig(stat.key).description && (
                                             <TooltipProvider>
                                                 <InfoTooltip>
                                                     <TooltipTrigger asChild>
@@ -551,8 +548,8 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                                     </TooltipTrigger>
                                                     <TooltipContent className="max-w-[200px] text-xs">
                                                         <p className="font-semibold mb-1">{t('dashboard.metrics.about')} {stat.label}</p>
-                                                        <p className="mb-2">{(getMetricConfig(stat.key) as any).description}</p>
-                                                        <p className="font-medium text-muted-foreground">{(getMetricConfig(stat.key) as any).better}</p>
+                                                        <p className="mb-2">{getMetricConfig(stat.key).description}</p>
+                                                        <p className="font-medium text-muted-foreground">{getMetricConfig(stat.key).better}</p>
                                                     </TooltipContent>
                                                 </InfoTooltip>
                                             </TooltipProvider>
@@ -739,7 +736,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                     {processedData.length === 0 && (
                         <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
                             <div className="text-center space-y-2">
-                                <p className="text-muted-foreground font-medium">{t('dashboard.status.insufficient_data' as any)}</p>
+                                <p className="text-muted-foreground font-medium">{t('dashboard.status.insufficient_data')}</p>
                                 <Button asChild variant="outline" size="sm">
                                     <Link href="/upload">{t('navbar.upload_data')}</Link>
                                 </Button>
@@ -750,7 +747,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                     <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                             <defs>
-                                {selectedMetrics.map((metric, i) => {
+                                {selectedMetrics.map((metric) => {
                                     const config = getMetricConfig(metric)
                                     // Sanitize ID for SVG (no spaces allowed)
                                     const safeId = metric.replace(/\s+/g, '-')
@@ -785,7 +782,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                         axisLine={false}
                                         tickLine={false}
                                         tick={{ fontSize: 12, fill: '#888' }}
-                                        domain={config.domain as any}
+                                        domain={config.domain as [number | 'auto' | 'dataMin' | 'dataMax', number | 'auto' | 'dataMin' | 'dataMax']}
                                         reversed={false}
                                         width={40}
                                         hide={index > 1}
@@ -800,7 +797,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                             <div className="bg-zinc-900 text-white text-xs p-3 rounded-lg shadow-xl border border-zinc-800">
                                                 <p className="font-semibold mb-2">{label ? format(parseISO(label as string), 'EEE, MMM d') : ''}</p>
                                                 <div className="flex flex-col gap-1">
-                                                    {payload.map((p: any) => {
+                                                    {payload.map((p) => {
                                                         // Filter out Trend line from tooltip if needed or keep it
                                                         if (String(p.dataKey).startsWith('trend_')) {
                                                             const metricKey = String(p.dataKey).replace('trend_', '')
@@ -872,7 +869,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 const episodes: { start: string, end: string }[] = []
                                 let currentEpisode: { start: string, end: string } | null = null
 
-                                chartData.forEach((d: any, i) => {
+                                chartData.forEach((d, i) => {
                                     const isCrash = d.custom_metrics?.Crash == 1 || d.custom_metrics?.crash == 1
                                     if (isCrash) {
                                         if (!currentEpisode) currentEpisode = { start: d.date, end: d.date }
@@ -943,4 +940,22 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
         </div>
     )
+}
+
+function generateMockData() {
+    const data = []
+    const now = new Date()
+    for (let i = 30; i >= 0; i--) {
+        const date = subDays(now, i)
+        // Create a gentle curve
+        const base = 50 + Math.sin(i / 5) * 20
+        data.push({
+            date: date.toISOString().split('T')[0],
+            hrv: Math.round(base + Math.random() * 10 - 5),
+            symptom_score: Math.max(0, Math.min(3, 1.5 + Math.cos(i / 4))),
+            resting_heart_rate: 60 + Math.random() * 5,
+            custom_metrics: undefined
+        })
+    }
+    return data as unknown as DashboardReviewProps['data']
 }

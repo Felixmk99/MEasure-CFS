@@ -1,6 +1,21 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendClient: Resend | null | undefined = undefined;
+
+// Initialize Resend client lazily to avoid build-time errors when API key is missing
+function getResendClient(): Resend | null {
+    if (resendClient !== undefined) {
+        return resendClient;
+    }
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+        console.warn('RESEND_API_KEY not configured - email notifications disabled');
+        resendClient = null;
+        return resendClient;
+    }
+    resendClient = new Resend(apiKey);
+    return resendClient;
+}
 
 export async function sendSignupNotification(userData: {
     id: string;
@@ -13,6 +28,12 @@ export async function sendSignupNotification(userData: {
 
     if (!adminEmail) {
         console.warn('ADMIN_EMAIL is not set, skipping signup notification');
+        return;
+    }
+
+    const resend = getResendClient();
+    if (!resend) {
+        console.warn('Resend client not available, skipping email notification');
         return;
     }
 

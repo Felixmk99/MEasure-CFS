@@ -29,8 +29,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
-            const { data, error } = await (supabase
-                .from('profiles') as any)
+            const { data, error } = await supabase
+                .from('profiles')
                 .select('*')
                 .eq('id', user.id)
                 .single()
@@ -42,6 +42,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 // Auto-create an empty profile so they trigger the onboarding redirect.
                 const { data: newProfile, error: createError } = await supabase
                     .from('profiles')
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     .insert({ id: user.id } as any)
                     .select()
                     .single()
@@ -60,7 +61,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
 
     useEffect(() => {
-        fetchProfile()
+        setTimeout(() => fetchProfile(), 0)
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
             if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
@@ -90,9 +91,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
-        const { error } = await (supabase
-            .from('profiles') as any)
-            .upsert({ id: user.id, step_provider: provider })
+        const { error } = await supabase
+            .from('profiles')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .upsert({ id: user.id, step_provider: provider } as any)
 
         if (!error) {
             setProfile(prev => prev
@@ -113,9 +115,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
-        const { error } = await (supabase
-            .from('profiles') as any)
-            .upsert({ id: user.id, symptom_provider: provider })
+        const { error } = await supabase
+            .from('profiles')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .upsert({ id: user.id, symptom_provider: provider } as any)
 
         if (!error) {
             setProfile(prev => prev

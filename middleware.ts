@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
                     return request.cookies.getAll()
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) =>
+                    cookiesToSet.forEach(({ name, value }) =>
                         request.cookies.set(name, value)
                     )
                     response = NextResponse.next({
@@ -53,7 +53,8 @@ export async function middleware(request: NextRequest) {
     // Protected routes
     if (request.nextUrl.pathname.startsWith('/dashboard') ||
         request.nextUrl.pathname.startsWith('/upload') ||
-        request.nextUrl.pathname.startsWith('/experiments')) {
+        request.nextUrl.pathname.startsWith('/experiments') ||
+        request.nextUrl.pathname.startsWith('/insights')) {
         if (!user) {
             return NextResponse.redirect(new URL('/login', request.url))
         }

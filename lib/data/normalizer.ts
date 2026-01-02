@@ -2,20 +2,20 @@
 /**
  * Normalizes CSV headers and maps them to database columns.
  */
-export function normalizeVisibleData(row: any) {
+export function normalizeVisibleData(row: Record<string, unknown>) {
     // Helper to safely parse floats from strings like "10.5" or handle numbers
-    const parseFloatSafe = (val: any) => {
+    const parseFloatSafe = (val: unknown) => {
         if (typeof val === 'number') return val
         if (!val && val !== 0) return null
-        const parsed = parseFloat(val)
+        const parsed = parseFloat(val as string)
         return isNaN(parsed) ? null : parsed
     }
 
     // Helper for integers
-    const parseIntSafe = (val: any) => {
+    const parseIntSafe = (val: unknown) => {
         if (typeof val === 'number') return Math.round(val)
         if (!val && val !== 0) return null
-        const parsed = parseInt(val, 10)
+        const parsed = parseInt(val as string, 10)
         return isNaN(parsed) ? null : parsed
     }
 

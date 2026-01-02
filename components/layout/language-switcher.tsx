@@ -9,7 +9,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Languages, Check } from "lucide-react"
+import { Check } from "lucide-react"
 
 export function LanguageSwitcher() {
     const { locale, setLocale } = useLanguage()

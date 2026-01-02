@@ -1,16 +1,31 @@
-import { Database } from "@/types/database.types";
 import { calculateSymptomScore, calculateExertionScore } from "@/lib/scoring/logic";
+
+interface RawRecord {
+    [key: string]: string | undefined;
+}
+
+interface DailyRecord {
+    date: string;
+    custom_metrics: Record<string, number>;
+    hrv?: number;
+    resting_heart_rate?: number;
+    step_count?: number;
+    symptom_score?: number;
+    exertion_score?: number;
+    composite_score?: number;
+    _has_trackers?: boolean;
+}
 
 /**
  * Normalizes "Long Format" CSV data from Visible.
  * Each row in CSV is one measurement (e.g. HRV, Symptom, etc.) for a specific date.
  * We need to PIVOT this into one object per Day.
  */
-export function normalizeLongFormatData(rows: any[]) {
-    const dailyRecords: Record<string, any> = {};
+export function normalizeLongFormatData(rows: RawRecord[]) {
+    const dailyRecords: Record<string, DailyRecord> = {};
 
     // Helper to find key case-insensitively
-    const findKey = (row: any, candidates: string[]) => {
+    const findKey = (row: RawRecord, candidates: string[]) => {
         const keys = Object.keys(row);
         for (const candidate of candidates) {
             const found = keys.find(k => k.toLowerCase().trim() === candidate.toLowerCase());
@@ -30,8 +45,8 @@ export function normalizeLongFormatData(rows: any[]) {
 
         const date = dateKey ? row[dateKey] : null;
         const name = nameKey ? row[nameKey] : null;
-        const valueStr = valueKey ? row[valueKey] : null;
-        const value = parseFloat(valueStr);
+        const valueStr = valueKey ? row[valueKey] : '';
+        const value = parseFloat(valueStr || '0');
         const category = categoryKey ? row[categoryKey] : 'Other';
 
         if (!date || isNaN(value)) return;

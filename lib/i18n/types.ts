@@ -13,6 +13,7 @@ export interface Dictionary {
     }
     navbar: {
         dashboard: string
+        insights: string
         experiments: string
         data: string
         upload_data: string
@@ -128,6 +129,7 @@ export interface Dictionary {
             d7: string
             d30: string
             m3: string
+            m6: string
             y1: string
             all: string
         }
@@ -254,6 +256,7 @@ export interface Dictionary {
         description_empty: string
         description_data: string
         private_badge: string
+        trust_badge: string
         tabs: {
             visible: string
             bearable: string
@@ -275,6 +278,10 @@ export interface Dictionary {
             title: string
             delete_all: string
             delete_confirm: string
+            delete_entry_confirm: string
+            provider_coming_soon: string
+            provider_built_hint: string
+            hide_import: string
             table: {
                 date: string
                 rhr: string
@@ -283,6 +290,7 @@ export interface Dictionary {
                 symptoms: string
                 action: string
                 empty: string
+                recent_hint: string
             }
         }
     }
@@ -296,5 +304,13 @@ export interface Dictionary {
         medical_disclaimer_text: string
         not_medical_product: string
         copyright: string
+    }
+    authCodeError: {
+        title: string
+        description: string
+        button_login: string
+        button_home: string
+        help_title: string
+        help_text: string
     }
 }

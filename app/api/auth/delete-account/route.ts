@@ -3,7 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-export async function DELETE(request: Request) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function DELETE(_request: Request) {
     try {
         const supabase = await createClient()
         const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -21,9 +22,17 @@ export async function DELETE(request: Request) {
             }, { status: 500 })
         }
 
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        if (!supabaseUrl) {
+            console.error('NEXT_PUBLIC_SUPABASE_URL is not defined')
+            return NextResponse.json({
+                error: 'Server misconfiguration: Missing Supabase URL.'
+            }, { status: 500 })
+        }
+
         // Create Admin Client
         const supabaseAdmin = createAdminClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            supabaseUrl,
             serviceRoleKey,
             {
                 auth: {
@@ -70,7 +79,7 @@ export async function DELETE(request: Request) {
         }
 
         return NextResponse.json({ success: true })
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Unexpected error in delete-account:', error)
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }
