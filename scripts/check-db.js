@@ -33,7 +33,7 @@ async function checkConnection() {
         // 2. Check Database Table access
         // We try to select 0 rows just to see if the table exists and we have permission
         // Note: If RLS is on and we are anon, we might get 0 rows back (success) or an error if table doesn't exist.
-        const { error, count } = await supabase
+        const { error } = await supabase
             .from('health_metrics')
             .select('*', { count: 'exact', head: true });
 

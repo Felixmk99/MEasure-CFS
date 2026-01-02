@@ -4,7 +4,7 @@ import React from 'react'
 import { CorrelationResult, ThresholdInsight } from '@/lib/stats/insights-logic'
 import { Card, CardContent } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { Zap, Info, ShieldCheck, Timer, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react'
+import { Zap, Info, ShieldCheck, Timer, TrendingUp, TrendingDown } from 'lucide-react'
 
 interface InsightsCardsProps {
     correlations: CorrelationResult[]
@@ -48,7 +48,6 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
             {significantLags.map((c, i) => {
                 const isNegativeImpact = c.coefficient > 0 && (c.metricB.includes('symptom') || c.metricB.includes('fatigue'));
                 const isPositiveImpact = c.coefficient < 0 && (c.metricB.includes('symptom') || c.metricB.includes('fatigue'));
-                const cardColor = isNegativeImpact ? 'red' : isPositiveImpact ? 'green' : 'blue';
                 const bgGradient = isNegativeImpact
                     ? 'from-red-50 to-white dark:from-red-950/20 dark:to-zinc-900 border-l-red-500'
                     : isPositiveImpact
@@ -99,7 +98,6 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
             {strongSimultaneous.map((c, i) => {
                 const isNegativeImpact = c.coefficient > 0 && (c.metricB.includes('symptom') || c.metricB.includes('fatigue'));
                 const isPositiveImpact = c.coefficient < 0 && (c.metricB.includes('symptom') || c.metricB.includes('fatigue'));
-                const cardColor = isNegativeImpact ? 'red' : isPositiveImpact ? 'green' : 'indigo';
                 const bgGradient = isNegativeImpact
                     ? 'from-red-50 to-white dark:from-red-950/20 dark:to-zinc-900 border-l-red-500'
                     : isPositiveImpact
