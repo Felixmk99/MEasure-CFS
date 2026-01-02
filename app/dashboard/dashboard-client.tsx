@@ -159,6 +159,18 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     }, [processedData, hasVisibleData])
 
     // -- 2b. Helper to get Config for ANY metric --
+    const getValue = useCallback((d: Record<string, unknown>, key: string): number | null => {
+        // Check top-level (like adjusted_score, step_count)
+        if (d[key] !== undefined && typeof d[key] === 'number') return d[key] as number
+        // Check custom_metrics (like composite_score)
+        const customMetrics = d.custom_metrics as Record<string, unknown> | undefined
+        if (customMetrics && customMetrics[key] !== undefined) {
+            const val = customMetrics[key]
+            return typeof val === 'number' ? val : null
+        }
+        return null
+    }, [])
+
     const getMetricConfig = useCallback((key: string): MetricConfig => {
         const registry = getMetricRegistryConfig(key);
         const invert = registry.direction === 'lower';
@@ -230,18 +242,6 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
 
 
         const trendsByIndex = new Map<number, Record<string, number>>()
-
-        const getValue = (d: Record<string, unknown>, key: string): number | null => {
-            // Check top-level (like adjusted_score, step_count)
-            if (d[key] !== undefined && typeof d[key] === 'number') return d[key] as number
-            // Check custom_metrics (like composite_score)
-            const customMetrics = d.custom_metrics as Record<string, unknown> | undefined
-            if (customMetrics && customMetrics[key] !== undefined) {
-                const val = customMetrics[key]
-                return typeof val === 'number' ? val : null
-            }
-            return null
-        }
 
         selectedMetrics.forEach(metric => {
             // Determine Trend Type Strategy
@@ -352,12 +352,15 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         return selectedMetrics.map(metric => {
             const config = getMetricConfig(metric)
 
-            // 1. Current Period Data
-            const currentValues = processedData
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                .map(d => (d as Record<string, any>)[metric])
-                .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
+            // 1. Current Period Data (Using helper to ensure consistent key lookup)
+            const currentPoints = processedData
+                .map(d => ({
+                    val: getValue(d, metric),
+                    t: new Date(d.date).getTime()
+                }))
+                .filter(p => typeof p.val === 'number' && !isNaN(p.val)) as { val: number, t: number }[]
 
+            const currentValues = currentPoints.map(p => p.val)
             const currentAvg = currentValues.length > 0 ? currentValues.reduce((a, b) => a + b, 0) / currentValues.length : 0
 
             // 2. Previous Period Data Setup
@@ -388,19 +391,39 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 .map(d => (d as Record<string, any>)[metric])
                 .filter(v => typeof v === 'number' && !isNaN(v)) as number[]
 
-            // 3. Calculate "Period Change" (Linear Regression on Current Data)
+            // 3. Calculate "Period Change" (Alignment: Use same strategy as visual chart)
             let periodTrendPct = 0
             let periodTrendStatus = 'stable'
 
-            if (currentValues.length >= 2) {
-                const dataPoints = currentValues.map((val, idx) => [idx, val])
-                const { m, b } = linearRegression(dataPoints)
-                const startVal = b
-                const endVal = m * (currentValues.length - 1) + b
-                const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
-                const denominator = midpoint < 0.5 ? 0.5 : midpoint
+            if (currentPoints.length >= 2) {
+                // Determine strategy (Sync with Chart logic lines 248+)
+                let strategy: 'regression' | 'moving_average' = 'regression'
+                let maWindow = 3
+                if (['30d'].includes(timeRange)) { strategy = 'moving_average'; maWindow = 5; }
+                else if (['3m'].includes(timeRange)) { strategy = 'moving_average'; maWindow = 7; }
+                else if (timeRange === '1y') { strategy = 'moving_average'; maWindow = 14; }
+                else if (timeRange === 'all') { strategy = 'moving_average'; maWindow = 30; }
 
-                periodTrendPct = ((endVal - startVal) / denominator) * 100
+                if (strategy === 'regression') {
+                    // Time-Aware Linear Regression
+                    const dataPoints = currentPoints.map(p => [p.t, p.val])
+                    const regression = linearRegression(dataPoints)
+                    const predict = linearRegressionLine(regression)
+                    const startVal = predict(visibleRange.start.getTime())
+                    const endVal = predict(visibleRange.end.getTime())
+                    const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
+                    const denominator = Math.max(midpoint, 0.5)
+                    periodTrendPct = ((endVal - startVal) / denominator) * 100
+                } else {
+                    // Moving Average Trend: Compare Last Window Avg to First Window Avg
+                    const firstWindow = currentPoints.slice(0, maWindow).map(p => p.val)
+                    const lastWindow = currentPoints.slice(-maWindow).map(p => p.val)
+                    const firstAvg = firstWindow.reduce((a, b) => a + b, 0) / firstWindow.length
+                    const lastAvg = lastWindow.reduce((a, b) => a + b, 0) / lastWindow.length
+                    const midpoint = (Math.abs(firstAvg) + Math.abs(lastAvg)) / 2
+                    const denominator = Math.max(midpoint, 0.5)
+                    periodTrendPct = ((lastAvg - firstAvg) / denominator) * 100
+                }
 
                 if (Math.abs(periodTrendPct) < 1) periodTrendStatus = 'stable'
                 else if (periodTrendPct > 0) periodTrendStatus = config.invert ? 'worsening' : 'improving'
@@ -414,8 +437,10 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             if (prevValues.length > 0 && currentValues.length > 0) {
                 const trendPrevAvg = prevValues.reduce((a, b) => a + b, 0) / prevValues.length
                 const trendCurrAvg = currentValues.reduce((a, b) => a + b, 0) / currentValues.length
+
+                // vs Prev also uses midpoint for symmetry and zero-safety
                 const midpoint = (Math.abs(trendPrevAvg) + Math.abs(trendCurrAvg)) / 2
-                const denominator = midpoint < 0.5 ? 0.5 : midpoint
+                const denominator = Math.max(midpoint, 0.5)
                 const diff = trendCurrAvg - trendPrevAvg
                 compareTrendPct = (diff / denominator) * 100
 
@@ -441,7 +466,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 prevCrashCount
             }
         })
-    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig])
+    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig, getValue])
 
 
     // ... UI Render ...
