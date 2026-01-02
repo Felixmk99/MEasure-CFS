@@ -98,7 +98,7 @@ describe('PEM Danger Logic', () => {
     })
 
     it('should detect cumulative load as a danger', () => {
-        const data = createMockData(10, -10, true) // Historical triggers but not active
+        const data = createMockData(10, -10, true)
         // Manually set high average exertion in the last 7 days
         for (let i = 33; i < 40; i++) {
             data[i].exertion_score = 15
@@ -112,5 +112,39 @@ describe('PEM Danger Logic', () => {
         const load = result.matchedTriggers.find(t => t.type === 'Cumulative Load')
         expect(load?.isPersonal).toBe(false)
         expect(load?.description).toContain('significantly above your baseline')
+    })
+
+    it('should correctly match composite (synergistic) triggers', () => {
+        const data = createMockData(-1, 0, false) // Generic base
+        // Create a historical synergistic crash
+        data[5].crash = 1
+        data[3].exertion_score = 8
+        data[3].step_count = 5000
+
+        // Today has same synergy
+        data[38].exertion_score = 8
+        data[38].step_count = 5000
+
+        const result = calculateCurrentPEMDanger(data as any)
+        expect(result.status).toBe('danger')
+        const composite = result.matchedTriggers.find(t => t.metric.includes(' + '))
+        expect(composite).toBeDefined()
+    })
+
+    it('should deduplicate triggers that match on multiple days', () => {
+        const data = createMockData(5, -1) // Historical at day 5
+        // Match on multiple days (37, 38, 39)
+        data[37].exertion_score = 10
+        data[38].exertion_score = 10
+        data[39].exertion_score = 10
+
+        const result = calculateCurrentPEMDanger(data as any)
+        const personalExertion = result.matchedTriggers.filter(t => t.metric === 'exertion_score' && t.isPersonal)
+        const generalExertion = result.matchedTriggers.filter(t => t.metric === 'exertion_score' && !t.isPersonal)
+
+        // Should only have 1 personal trigger despite matching on 3 days
+        expect(personalExertion.length).toBe(1)
+        // Should also have 1 general trigger
+        expect(generalExertion.length).toBe(1)
     })
 })

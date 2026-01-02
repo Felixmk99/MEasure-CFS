@@ -39,6 +39,7 @@ export const de: Dictionary = {
             matches_general: "Allgemeine Risikoindikatoren:",
             explanation: "Erklärung",
             cumulative_load: "Hohe kumulative Belastung erkannt",
+            danger_fallback: "Erhöhte Aktivitäts-Werte im Vergleich zu deiner Basislinie erkannt. Bitte prüfe dein Protokoll für Details.",
             stable_message: "Deine aktuelle Belastung liegt innerhalb deiner historisch sicheren Zone.",
             error_fetch: "Fehler beim Laden des PEM-Status",
             biometrics_title: "Biometrische Basiswerte",

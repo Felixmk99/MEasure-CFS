@@ -39,6 +39,7 @@ export const en: Dictionary = {
             matches_general: "General Risk Indicators:",
             explanation: "Explanation",
             cumulative_load: "High cumulative activity detected",
+            danger_fallback: "High activity levels detected relative to your baseline. Please check your data log for details.",
             stable_message: "Current activity levels are within your historical safe zone.",
             error_fetch: "Failed to load PEM status",
             biometrics_title: "Biometric Baseline",
