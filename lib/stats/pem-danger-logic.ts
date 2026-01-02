@@ -1,0 +1,145 @@
+import { HealthEntry, calculateBaselineStats, extractEpochs, calculateZScores, aggregateEpochs, analyzePreCrashPhase } from '@/lib/statistics/pem-cycle'
+import { subDays, isAfter, startOfDay, parseISO } from 'date-fns'
+
+export interface PEMDangerStatus {
+    status: 'danger' | 'stable' | 'needs_data'
+    level: number // 0-100
+    matchedTriggers: {
+        metric: string
+        type: string
+        leadDaysStart: number
+        magnitude: number
+        currentZ: number
+    }[]
+    insufficientDataReason?: 'no_history' | 'no_recent_data' | 'no_crashes'
+}
+
+/**
+ * Calculates the current PEM danger level based on historical triggers.
+ */
+export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus {
+    if (!data || data.length < 10) {
+        return { status: 'needs_data', level: 0, matchedTriggers: [], insufficientDataReason: 'no_history' }
+    }
+
+    // 1. Sort data
+    const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+    // 2. Check for recent data (last 7 days from today)
+    const today = startOfDay(new Date())
+    const sevenDaysAgo = subDays(today, 7)
+    const recentData = sortedData.filter(d => isAfter(parseISO(d.date), sevenDaysAgo))
+
+    if (recentData.length === 0) {
+        return { status: 'needs_data', level: 0, matchedTriggers: [], insufficientDataReason: 'no_recent_data' }
+    }
+
+    // 3. Identify Metrics to analyze
+    const allMetrics = new Set<string>()
+    sortedData.forEach(d => {
+        Object.keys(d).forEach(k => {
+            if (k !== 'date' && k !== 'id' && k !== 'user_id' && k !== 'custom_metrics' && typeof d[k] === 'number') allMetrics.add(k)
+        })
+        if (d.custom_metrics) {
+            Object.keys(d.custom_metrics).forEach(k => {
+                if (typeof d.custom_metrics?.[k] === 'number') allMetrics.add(k)
+            })
+        }
+    })
+    const metricsToAnalyze = Array.from(allMetrics).filter(m => m !== 'Crash' && m !== 'crash')
+
+    // 4. Calculate Baseline from ALL history
+    const baselineStats = calculateBaselineStats(sortedData, Array.from(allMetrics))
+
+    // 5. Find historical crashes
+    const crashIndices = sortedData
+        .map((d, i) => (d.crash === 1 || d.crash === '1' || d.custom_metrics?.Crash === 1 || d.custom_metrics?.Crash === '1') ? i : -1)
+        .filter(i => i !== -1)
+
+    // Filter to only 'start' of crash episodes (first day of a streak)
+    const crashStarts = crashIndices.filter((idx, i) => i === 0 || idx > crashIndices[i - 1] + 1)
+
+    if (crashStarts.length === 0) {
+        return { status: 'needs_data', level: 0, matchedTriggers: [], insufficientDataReason: 'no_crashes' }
+    }
+
+    // 6. Extract Triggers (Phase 1 Logic)
+    const epochs = extractEpochs(sortedData, crashStarts, Array.from(allMetrics))
+    const zEpochs = calculateZScores(epochs, baselineStats)
+    const aggregated = aggregateEpochs(zEpochs, Array.from(allMetrics))
+    const { discoveries } = analyzePreCrashPhase(aggregated, baselineStats)
+
+    // 7. Calculate Current Z-Scores for the last 7 days
+    const matchedTriggers: PEMDangerStatus['matchedTriggers'] = []
+    let maxLevel = 0
+
+    recentData.forEach(day => {
+        const dayDate = parseISO(day.date)
+
+        discoveries.forEach(tr => {
+            // Support composite metrics (e.g., "Steps + Work")
+            const subMetrics = tr.metric.split(' + ')
+            let currentZ = 0
+
+            if (subMetrics.length > 1) {
+                // Synergistic trigger
+                const z1 = getZScore(day, subMetrics[0], baselineStats)
+                const z2 = getZScore(day, subMetrics[1], baselineStats)
+                currentZ = (z1 + z2) / Math.sqrt(2)
+            } else {
+                currentZ = getZScore(day, tr.metric, baselineStats)
+            }
+
+            // If current Z-score is significant and matches historical trigger polarity
+            const threshold = tr.magnitude * 0.75 // 75% of historical peak magnitude
+            if (Math.abs(currentZ) >= threshold && ((tr.type === 'spike' && currentZ > 0) || (tr.type === 'drop' && currentZ < 0))) {
+                // Check if the "impact day" (day + leadDays) is in the future or today
+                const impactDay = subDays(dayDate, -Math.abs(tr.leadDaysStart))
+                if (!isAfter(today, impactDay)) {
+                    matchedTriggers.push({
+                        metric: tr.metric,
+                        type: tr.classification || 'Trigger',
+                        leadDaysStart: tr.leadDaysStart,
+                        magnitude: tr.magnitude,
+                        currentZ
+                    })
+                    // Scoring: 50 base if matched + extra based on how close Z is to historical peak
+                    const score = Math.min(100, 50 + (Math.abs(currentZ) / tr.magnitude) * 50)
+                    if (score > maxLevel) maxLevel = score
+                }
+            }
+        })
+    })
+
+    // 8. Generic "Cumulative Load" check
+    const avgExertion = recentData.reduce((acc, d) => acc + getZScore(d, 'exertion_score', baselineStats), 0) / recentData.length
+    const avgSteps = recentData.reduce((acc, d) => acc + getZScore(d, 'step_count', baselineStats), 0) / recentData.length
+
+    if (avgExertion > 0.8 || avgSteps > 0.8) {
+        maxLevel = Math.max(maxLevel, 40)
+        if (maxLevel === 40) {
+            matchedTriggers.push({
+                metric: avgExertion > 0.8 ? 'Exertion' : 'Steps',
+                type: 'Cumulative Load',
+                leadDaysStart: 0,
+                magnitude: 1.0,
+                currentZ: Math.max(avgExertion, avgSteps)
+            })
+        }
+    }
+
+    return {
+        status: maxLevel >= 50 ? 'danger' : 'stable',
+        level: maxLevel,
+        matchedTriggers: matchedTriggers.slice(0, 3)
+    }
+}
+
+function getZScore(entry: HealthEntry, key: string, baselineStats: Record<string, { mean: number, std: number }>): number {
+    const val = entry[key] ?? entry.custom_metrics?.[key] ?? null
+    const num = typeof val === 'number' ? val : (val ? Number(val) : null)
+    if (num === null || isNaN(num) || !baselineStats[key]) return 0
+
+    const { mean, std } = baselineStats[key]
+    return std > 0 ? (num - mean) / std : (num > mean ? 1 : 0)
+}

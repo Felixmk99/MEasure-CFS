@@ -24,7 +24,19 @@ export const en: Dictionary = {
         profile: "Profile",
         welcome: "Welcome",
         missing_steps_hint: "Missing Steps?",
-        missing_steps_tooltip: "Upload Apple, Google or Samsung health step data to improve your Health Score accuracy."
+        missing_steps_tooltip: "Upload Apple, Google or Samsung health step data to improve your Health Score accuracy.",
+        pem_status: {
+            label: "PEM Status",
+            needs_data: "Needs Data",
+            stable: "All Clear",
+            danger: "PEM Danger",
+            reason_no_history: "Minimum 10 days of data + 1 crash required",
+            reason_no_recent_data: "No data in the last 7 days",
+            reason_no_crashes: "No historical crashes found to analyze",
+            prediction: "Predicted crash: {day}",
+            matches: "Matches historical triggers:",
+            cumulative_load: "High cumulative activity detected"
+        }
     },
     footer: {
         built_by: "Built by Felix Kania",
