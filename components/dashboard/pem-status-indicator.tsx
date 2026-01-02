@@ -164,30 +164,56 @@ export function PemStatusIndicator() {
                             </div>
                         </div>
                     ) : (
-                        <div className="space-y-3">
-                            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-tight">
-                                {t('navbar.pem_status.matches')}
-                            </p>
-                            <div className="space-y-2">
-                                {status?.matchedTriggers?.map((tr) => (
-                                    <div key={`${tr.metric}-${tr.type}`} className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
-                                            <span className="text-[10px] text-zinc-500 flex items-center gap-1">
-                                                <Zap className="w-2.5 h-2.5" />
-                                                {tr.type}
-                                            </span>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-[10px] font-medium text-zinc-400 uppercase">
-                                                {tr.leadDaysStart > 0
-                                                    ? t('navbar.pem_status.prediction').replace('{day}', format(addDays(new Date(), tr.leadDaysStart), 'eee'))
-                                                    : t('navbar.pem_status.cumulative_load')}
+                        <div className="space-y-4">
+                            {/* Group 1: Personal Patterns */}
+                            {status?.matchedTriggers?.some(t => t.isPersonal) && (
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
+                                        {t('navbar.pem_status.matches_personal')}
+                                    </p>
+                                    <div className="space-y-1.5">
+                                        {status.matchedTriggers.filter(t => t.isPersonal).map((tr) => (
+                                            <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-lg bg-red-50/50 dark:bg-red-900/10 border border-red-100/50 dark:border-red-900/20">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-sm font-bold text-red-700 dark:text-red-400 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
+                                                    <div className="text-[10px] font-bold text-red-600/70 dark:text-red-400/70 bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded uppercase">
+                                                        {tr.leadDaysStart > 0
+                                                            ? t('navbar.pem_status.prediction').replace('{day}', format(addDays(new Date(), tr.leadDaysStart), 'eee'))
+                                                            : t('navbar.pem_status.cumulative_load')}
+                                                    </div>
+                                                </div>
+                                                <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
+                                                    {tr.description || t('navbar.pem_status.matches')}
+                                                </p>
                                             </div>
-                                        </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            )}
+
+                            {/* Group 2: General Trends */}
+                            {status?.matchedTriggers?.some(t => !t.isPersonal) && (
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
+                                        {t('navbar.pem_status.matches_general')}
+                                    </p>
+                                    <div className="space-y-1.5">
+                                        {status.matchedTriggers.filter(t => !t.isPersonal).map((tr) => (
+                                            <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
+                                                    <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded uppercase">
+                                                        {t('navbar.pem_status.cumulative_load')}
+                                                    </div>
+                                                </div>
+                                                <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight italic">
+                                                    {tr.description}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

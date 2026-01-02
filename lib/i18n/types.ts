@@ -35,6 +35,9 @@ export interface Dictionary {
             reason_no_crashes: string
             prediction: string
             matches: string
+            matches_personal: string
+            matches_general: string
+            explanation: string
             cumulative_load: string
             stable_message: string
             error_fetch: string
