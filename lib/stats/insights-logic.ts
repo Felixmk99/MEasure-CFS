@@ -14,6 +14,7 @@ export interface CorrelationResult {
     lag: number; // Days shift
     impactDirection: 'positive' | 'negative' | 'neutral';
     impactStrength: 'strong' | 'moderate' | 'weak';
+    medianA: number  // Median value of metric A for concrete thresholds
 }
 
 export interface ThresholdInsight {
@@ -36,9 +37,13 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
     // Sort data by date for lagged analysis
     const sortedData = [...data].sort((a, b) => a.date.localeCompare(b.date));
 
-    metrics.forEach(metricA => {
-        metrics.forEach(metricB => {
+    metrics.forEach((metricA, indexA) => {
+        metrics.forEach((metricB, indexB) => {
             if (metricA === metricB) return;
+
+            // Only calculate each pair once to avoid symmetric duplicates
+            // (correlation is symmetric: corr(A,B) = corr(B,A))
+            if (indexB <= indexA) return;
 
             // Calculate for Lag 0, 1, 2
             [0, 1, 2].forEach(lag => {
@@ -49,14 +54,20 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                     const coefficient = ss.sampleCorrelation(pair.a, pair.b);
                     // Always include lag 0 for the matrix, filter others for "Insights"
                     if (lag === 0 || Math.abs(coefficient) > 0.4) {
+                        // Calculate medians for concrete thresholds
+                        const medianA = calculateMedian(pair.a);
+                        const medianB = calculateMedian(pair.b);
+
                         results.push({
                             metricA,
                             metricB,
                             coefficient,
                             lag,
-                            description: getDescription(metricA, metricB, coefficient, lag),
+                            description: getDescription(metricA, metricB, coefficient, lag, medianA, medianB),
                             impactDirection: coefficient > 0.1 ? 'positive' : coefficient < -0.1 ? 'negative' : 'neutral',
-                            impactStrength: Math.abs(coefficient) > 0.7 ? 'strong' : Math.abs(coefficient) > 0.5 ? 'moderate' : 'weak'
+                            impactStrength: Math.abs(coefficient) > 0.7 ? 'strong' : Math.abs(coefficient) > 0.5 ? 'moderate' : 'weak',
+                            medianA,
+                            medianB
                         });
                     }
                 } catch {
@@ -179,12 +190,36 @@ function getValue(record: InsightMetric, key: string): number | null {
     return null;
 }
 
-function getDescription(a: string, b: string, r: number, lag: number): string {
+
+function calculateMedian(values: number[]): number {
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
+}
+
+function formatNumber(value: number): string {
+    // Round to reasonable precision
+    if (value >= 1000) {
+        return Math.round(value).toLocaleString();
+    } else if (value >= 10) {
+        return Math.round(value).toString();
+    } else {
+        return value.toFixed(1);
+    }
+}
+
+function formatMetric(metric: string): string {
+    return metric.replaceAll('_', ' ').toLowerCase();
+}
+
+function getDescription(a: string, b: string, r: number, lag: number, medianA: number, medianB: number): string {
     const absCoef = Math.abs(r);
-    
+
     // Use qualitative descriptors for correlation strength
     const strengthLabel = absCoef > 0.7 ? 'strongly' : absCoef > 0.5 ? 'moderately' : 'weakly';
-    
+
     // Clearly state the relationship direction
     let relationship = '';
     if (r > 0) {
@@ -194,13 +229,13 @@ function getDescription(a: string, b: string, r: number, lag: number): string {
         // Negative correlation: move in opposite directions
         relationship = `Higher ${a.replaceAll('_', ' ')} is ${strengthLabel} associated with lower ${b.replaceAll('_', ' ')}`;
     }
-    
+
     // Add lag information
-    const lagText = lag === 0 
-        ? '' 
-        : lag === 1 
-            ? ' the next day' 
+    const lagText = lag === 0
+        ? ''
+        : lag === 1
+            ? ' the next day'
             : ` ${lag} days later`;
-    
+
     return `${relationship}${lagText}.`;
 }
