@@ -89,27 +89,28 @@ describe('PEM Danger Logic', () => {
     })
 
     it('should return "danger" if a trigger is matched recently', () => {
-        // Historical crash at 10, trigger at 8 (lead=2)
-        // Today is 39. If we have a spike at 38, impact is 40 (tomorrow).
-        const data = createMockData(10, -1) // Spike yesterday (38), impact at 40 (future)
+        const data = createMockData(2, -1) // Trigger 2 days ago, impact within 7 days
         const result = calculateCurrentPEMDanger(data as any)
         expect(result.status).toBe('danger')
-        expect(result.matchedTriggers.length).toBeGreaterThan(0)
         expect(result.matchedTriggers[0].metric).toContain('exertion')
+        expect(result.matchedTriggers[0].isPersonal).toBe(true)
+        expect(result.matchedTriggers[0].description).toBeDefined()
     })
 
     it('should detect cumulative load as a danger', () => {
         const data = createMockData(10, -10, true) // Historical triggers but not active
         // Manually set high average exertion in the last 7 days
         for (let i = 33; i < 40; i++) {
-            data[i].exertion_score = 5 // High-ish (std is usually 0 here, but logic handles it)
+            data[i].exertion_score = 15
         }
         // Baseline calc will see mean ~2, std ~1 if we add some variance
         data[0].exertion_score = 1
         data[1].exertion_score = 3
 
         const result = calculateCurrentPEMDanger(data as any)
-        // High cumulative load (> 0.8 Z-score avg)
         expect(result.level).toBeGreaterThanOrEqual(40)
+        const load = result.matchedTriggers.find(t => t.type === 'Cumulative Load')
+        expect(load?.isPersonal).toBe(false)
+        expect(load?.description).toContain('significantly above your baseline')
     })
 })

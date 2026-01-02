@@ -10,6 +10,8 @@ export interface PEMDangerStatus {
         leadDaysStart: number
         magnitude: number
         currentZ: number
+        isPersonal: boolean
+        description?: string
     }[]
     biometrics?: {
         key: string
@@ -118,7 +120,9 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
                         type: tr.classification || 'Trigger',
                         leadDaysStart: tr.leadDaysStart,
                         magnitude: tr.magnitude,
-                        currentZ
+                        currentZ,
+                        isPersonal: true,
+                        description: `Matches a pattern from your history.`
                     })
                     // Scoring: 50 base if matched + extra based on how close Z is to historical peak
                     const score = Math.min(100, 50 + (Math.abs(currentZ) / tr.magnitude) * 50)
@@ -132,17 +136,24 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
     const avgExertion = recentData.reduce((acc, d) => acc + getZScore(d, 'exertion_score', baselineStats), 0) / recentData.length
     const avgSteps = recentData.reduce((acc, d) => acc + getZScore(d, 'step_count', baselineStats), 0) / recentData.length
 
-    if (avgExertion > 0.8 || avgSteps > 0.8) {
-        const loadScore = 40 + (Math.max(avgExertion, avgSteps) - 0.8) * 20
-        maxLevel = Math.max(maxLevel, loadScore)
-        matchedTriggers.push({
-            metric: avgExertion >= avgSteps ? 'exertion_score' : 'step_count',
-            type: 'Cumulative Load',
-            leadDaysStart: 0,
-            magnitude: 1.0,
-            currentZ: Math.max(avgExertion, avgSteps)
-        })
+    const checkCumulative = (val: number, key: string, label: string) => {
+        if (val > 0.8) {
+            const loadScore = 40 + (val - 0.8) * 20
+            maxLevel = Math.max(maxLevel, loadScore)
+            matchedTriggers.push({
+                metric: key,
+                type: 'Cumulative Load',
+                leadDaysStart: 0,
+                magnitude: 1.0,
+                currentZ: val,
+                isPersonal: false,
+                description: `Your recent average ${label} is significantly above your baseline.`
+            })
+        }
     }
+
+    checkCumulative(avgExertion, 'exertion_score', 'exertion')
+    checkCumulative(avgSteps, 'step_count', 'activity')
 
     // 9. Status & Cleanup
     const isDanger = maxLevel >= 50
