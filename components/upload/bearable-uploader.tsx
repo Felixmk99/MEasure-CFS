@@ -97,8 +97,8 @@ export function BearableUploader() {
                         const batch = recordsToUpload.slice(i, i + BATCH_SIZE)
 
                         // Supabase strict typing requires cast for batch insert
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const { error } = await (supabase
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             .from('health_metrics') as any)
                             .insert(batch as HealthMetricInsert[])
 
