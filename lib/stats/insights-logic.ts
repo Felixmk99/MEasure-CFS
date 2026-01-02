@@ -14,7 +14,8 @@ export interface CorrelationResult {
     lag: number; // Days shift
     impactDirection: 'positive' | 'negative' | 'neutral';
     impactStrength: 'strong' | 'moderate' | 'weak';
-    medianA: number  // Median value of metric A for concrete thresholds
+    medianA: number;  // Median value of metric A for concrete thresholds
+    medianB: number;  // Median value of metric B for concrete thresholds
 }
 
 export interface ThresholdInsight {
