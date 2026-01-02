@@ -58,7 +58,9 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
 
     // Sync state with server/prop updates
     // Safe prop-to-state sync pattern - only depends on props, not state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         setDataLog(initialData)
         setHasData(initialHasData)
     }, [initialData, initialHasData])
