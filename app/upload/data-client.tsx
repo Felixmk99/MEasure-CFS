@@ -51,13 +51,16 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     const [showUpload, setShowUpload] = useState(!(initialHasData && (hasSteps || isBearable)))
     const [editingEntry, setEditingEntry] = useState<DataEntry | null>(null)
 
+    // Standard hydration pattern for SSR/client mismatches
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true)
     }, [])
 
     // Sync state with server/prop updates
     // Safe prop-to-state sync pattern - only depends on props, not state
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDataLog(initialData)
         setHasData(initialHasData)
     }, [initialData, initialHasData])
