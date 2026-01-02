@@ -12,6 +12,8 @@ export interface PEMDangerStatus {
         currentZ: number
         isPersonal: boolean
         description?: string
+        descriptionKey?: string
+        descriptionParams?: Record<string, string>
     }[]
     biometrics?: {
         key: string
@@ -122,7 +124,7 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
                         magnitude: tr.magnitude,
                         currentZ,
                         isPersonal: true,
-                        description: `Matches a pattern from your history.`
+                        descriptionKey: 'navbar.pem_status.matches_personal_desc'
                     })
                     // Scoring: 50 base if matched + extra based on how close Z is to historical peak
                     const score = Math.min(100, 50 + (Math.abs(currentZ) / tr.magnitude) * 50)
@@ -144,7 +146,7 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
      */
     const checkCumulative = (val: number, key: string, label: string) => {
         if (val > 0.8) {
-            const loadScore = 40 + (val - 0.8) * 20
+            const loadScore = Math.min(100, 40 + (val - 0.8) * 20)
             maxLevel = Math.max(maxLevel, loadScore)
             matchedTriggers.push({
                 metric: key,
@@ -153,7 +155,8 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
                 magnitude: 1.0,
                 currentZ: val,
                 isPersonal: false,
-                description: `Your recent average ${label} is significantly above your baseline.`
+                descriptionKey: 'navbar.pem_status.matches_general_desc',
+                descriptionParams: { label }
             })
         }
     }

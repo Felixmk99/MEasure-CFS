@@ -38,6 +38,10 @@ export interface Dictionary {
             matches_personal: string
             matches_general: string
             explanation: string
+            matches_personal_desc: string
+            matches_general_desc: string
+            exertion: string
+            activity: string
             cumulative_load: string
             danger_fallback: string
             stable_message: string
