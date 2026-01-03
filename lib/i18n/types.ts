@@ -350,6 +350,42 @@ export interface Dictionary {
         medical_disclaimer_text: string
         not_medical_product: string
         copyright: string
+        info_ddg: string
+        operator: string
+        country: string
+        email: string
+        disclaimer_title: string
+        disclaimer_text: string
+        privacy_page: {
+            intro: string
+            health_data_title: string
+            health_data_text: string
+            s1_title: string
+            s1_operator: string
+            s1_how: string
+            s1_purpose: string
+            s2_title: string
+            s2_text: string
+            s3_title: string
+            s3_intro: string
+            s3_rights: string[]
+            s3_delete_hint: string
+            last_updated: string
+        }
+        terms_page: {
+            not_medical_product_long: string
+            s1_title: string
+            s1_desc_en: string
+            s1_desc_de: string
+            s2_title: string
+            s2_desc_en: string
+            s2_desc_de: string
+            s3_title: string
+            s3_desc: string
+            s4_title: string
+            s4_desc: string
+            last_updated: string
+        }
     }
     authCodeError: {
         title: string

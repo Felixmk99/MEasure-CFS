@@ -367,7 +367,49 @@ export const en: Dictionary = {
         medical_disclaimer: "Medical Disclaimer",
         medical_disclaimer_text: "This app is for informational purposes only and does not provide medical advice, diagnosis, or treatment. Always seek the advice of your physician.",
         not_medical_product: "Not for medical use",
-        copyright: "© 2025 Visible Analytics. All rights reserved."
+        copyright: "© 2025 Visible Analytics. All rights reserved.",
+        info_ddg: "Information according to § 5 DDG",
+        operator: "Website Operator",
+        country: "Germany",
+        email: "Email",
+        disclaimer_title: "Disclaimer",
+        disclaimer_text: "The contents of our pages were created with great care. However, we cannot guarantee the correctness, completeness and actuality of the contents. As a service provider, we are responsible for our own content on these pages according to the general laws pursuant to § 7 para.1 DDG.",
+        privacy_page: {
+            intro: "The protection of your personal data is a special concern of ours. We treat your personal data confidentially and in accordance with the statutory data protection regulations and this privacy policy.",
+            health_data_title: "Important Note on Health Data",
+            health_data_text: "We process sensitive health data (e.g. symptom scores, HRV values) according to Art. 9 Para. 2 lit. a GDPR exclusively based on your explicit consent.",
+            s1_title: "1. Data Collection on this Website",
+            s1_operator: "Operator: The data processing on this website is carried out by the website operator (see Legal Notice).",
+            s1_how: "How do we collect your data? Your data is collected when you provide it to us. This is data that you enter during registration or provide by uploading CSV files (e.g. Visible Export).",
+            s1_purpose: "What do we use your data for? Part of the data is collected to ensure the error-free provision of the website. Other data is used to analyze your health progress (visualization of correlations).",
+            s2_title: "2. Hosting and Data Infrastructure",
+            s2_text: "We host the data with our partner Supabase. The data is stored in encrypted form. We have taken measures to protect your data from unauthorized access. A transfer of your health data to third parties for advertising purposes will not take place under any circumstances.",
+            s3_title: "3. Your Rights",
+            s3_intro: "You have the right at any time:",
+            s3_rights: [
+                "To receive information about your stored data (Art. 15 GDPR)",
+                "To demand the correction of incorrect data (Art. 16 GDPR)",
+                "To demand the deletion of your data ('Right to be forgotten', Art. 17 GDPR)",
+                "To object to the processing (Art. 21 GDPR)",
+                "To revoke your consent with effect for the future"
+            ],
+            s3_delete_hint: "You can delete your entire account and all data at any time in the settings.",
+            last_updated: "Last updated: December 2025"
+        },
+        terms_page: {
+            not_medical_product_long: "This app is NOT a medical device within the meaning of the EU Medical Device Regulation (MDR). It serves exclusively for the visualization and correlation of existing health data for your personal well-being. The app does not provide diagnoses, therapy recommendations, and does not replace a visit to a qualified doctor. If you have medical complaints, please seek professional help immediately.",
+            s1_title: "1. Scope",
+            s1_desc_en: "Track-ME is provided 'as is' without warranties of any kind. We do not guarantee that the service will be uninterrupted or error-free.",
+            s1_desc_de: "By using the web app 'Visible Analytics', you agree to the following terms of use. The app is provided by Felix Kania as a free tool.",
+            s2_title: "2. Scope of Service",
+            s2_desc_en: "The Insights feature provides statistical correlations based on your data. These are mathematical observations 'as calculated' and do not imply medical causation. Always consult a healthcare professional for medical advice.",
+            s2_desc_de: "'Visible Analytics' enables users to upload health data (e.g. from the Visible App or Apple Health) for graphical processing and statistical evaluation of personal trends. We assume no guarantee for the constant availability of the app or the error-free calculation.",
+            s3_title: "3. Limitation of Liability",
+            s3_desc: "The use of the app is at your own risk. We are not liable for damages arising from the use or reliance on the graphics or statistics provided by the app. This applies particularly to decisions regarding your health that you make based on the app.",
+            s4_title: "4. Changes to the Conditions",
+            s4_desc: "We reserve the right to change these terms of use at any time. The current version is always available via the website.",
+            last_updated: "Last updated: December 30, 2024"
+        }
     },
     authCodeError: {
         title: "Login Link Expired",
