@@ -31,9 +31,8 @@ export default function TermsPage() {
                         <Scale className="w-6 h-6 text-blue-500" />
                         <h2 className="text-2xl font-bold text-foreground">{t('legal.terms_page.s1_title')}</h2>
                     </div>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">{t('legal.terms_page.s1_desc_en')}</p>
                     <p className="text-muted-foreground leading-relaxed">
-                        {t('legal.terms_page.s1_desc_de')}
+                        {t('legal.terms_page.s1_desc')}
                     </p>
                 </section>
 
@@ -42,9 +41,8 @@ export default function TermsPage() {
                         <Activity className="w-6 h-6 text-blue-500" />
                         <h2 className="text-2xl font-bold text-foreground">{t('legal.terms_page.s2_title')}</h2>
                     </div>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">{t('legal.terms_page.s2_desc_en')}</p>
                     <p className="text-muted-foreground leading-relaxed">
-                        {t('legal.terms_page.s2_desc_de')}
+                        {t('legal.terms_page.s2_desc')}
                     </p>
                 </section>
 

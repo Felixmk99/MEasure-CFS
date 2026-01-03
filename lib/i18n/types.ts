@@ -88,6 +88,9 @@ export interface Dictionary {
         }
         steps: {
             prefix: string
+            label_01: string
+            label_02: string
+            label_03: string
             "01": { title: string; desc: string }
             "02": { title: string; desc: string }
             "03": { title: string; desc: string }
@@ -375,11 +378,9 @@ export interface Dictionary {
         terms_page: {
             not_medical_product_long: string
             s1_title: string
-            s1_desc_en: string
-            s1_desc_de: string
+            s1_desc: string
             s2_title: string
-            s2_desc_en: string
-            s2_desc_de: string
+            s2_desc: string
             s3_title: string
             s3_desc: string
             s4_title: string

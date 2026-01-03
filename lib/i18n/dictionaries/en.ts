@@ -97,6 +97,9 @@ export const en: Dictionary = {
         },
         steps: {
             prefix: "Step",
+            label_01: "Step 01",
+            label_02: "Step 02",
+            label_03: "Step 03",
             "01": {
                 title: "Upload your biomarker data",
                 desc: "Import CSV files from any symptom tracker. We support HRV, RHR, activity levels, sleep metrics, and custom symptom logs."
@@ -399,11 +402,9 @@ export const en: Dictionary = {
         terms_page: {
             not_medical_product_long: "This app is NOT a medical device within the meaning of the EU Medical Device Regulation (MDR). It serves exclusively for the visualization and correlation of existing health data for your personal well-being. The app does not provide diagnoses, therapy recommendations, and does not replace a visit to a qualified doctor. If you have medical complaints, please seek professional help immediately.",
             s1_title: "1. Scope",
-            s1_desc_en: "Track-ME is provided 'as is' without warranties of any kind. We do not guarantee that the service will be uninterrupted or error-free.",
-            s1_desc_de: "By using the web app 'Visible Analytics', you agree to the following terms of use. The app is provided by Felix Kania as a free tool.",
+            s1_desc: "Track-ME is provided 'as is' without warranties of any kind. We do not guarantee that the service will be uninterrupted or error-free.",
             s2_title: "2. Scope of Service",
-            s2_desc_en: "The Insights feature provides statistical correlations based on your data. These are mathematical observations 'as calculated' and do not imply medical causation. Always consult a healthcare professional for medical advice.",
-            s2_desc_de: "'Visible Analytics' enables users to upload health data (e.g. from the Visible App or Apple Health) for graphical processing and statistical evaluation of personal trends. We assume no guarantee for the constant availability of the app or the error-free calculation.",
+            s2_desc: "The Insights feature provides statistical correlations based on your data. These are mathematical observations 'as calculated' and do not imply medical causation. Always consult a healthcare professional for medical advice.",
             s3_title: "3. Limitation of Liability",
             s3_desc: "The use of the app is at your own risk. We are not liable for damages arising from the use or reliance on the graphics or statistics provided by the app. This applies particularly to decisions regarding your health that you make based on the app.",
             s4_title: "4. Changes to the Conditions",

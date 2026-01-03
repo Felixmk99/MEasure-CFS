@@ -180,6 +180,9 @@ export const de: Dictionary = {
         },
         steps: {
             prefix: "Schritt",
+            label_01: "Schritt 01",
+            label_02: "Schritt 02",
+            label_03: "Schritt 03",
             "01": {
                 title: "Lade deine Biomarker-Daten hoch",
                 desc: "Importiere CSV-Dateien von jedem Symptom-Tracker. Wir unterstützen HRV, Ruhepuls, Aktivitätslevel, Schlafdaten und eigene Symptomprotokolle."
@@ -399,11 +402,9 @@ export const de: Dictionary = {
         terms_page: {
             not_medical_product_long: "Diese App ist KEIN Medizinprodukt im Sinne der EU-Medizinprodukteverordnung (MDR). Sie dient ausschließlich der Visualisierung und Korrelation von bereits existierenden Gesundheitsdaten für Ihr persönliches Wohlbefinden. Die App stellt keine Diagnosen, gibt keine Therapieempfehlungen und ersetzt nicht den Besuch bei einem qualifizierten Arzt. Wenn Sie medizinische Beschwerden haben, suchen Sie bitte umgehend professionelle Hilfe auf.",
             s1_title: "1. Geltungsbereich",
-            s1_desc_en: "Track-ME is provided 'as is' without warranties of any kind. We do not guarantee that the service will be uninterrupted or error-free.",
-            s1_desc_de: "Durch die Nutzung der Web-App 'Visible Analytics' erklären Sie sich mit den folgenden Nutzungsbedingungen einverstanden. Die App wird von Felix Kania als kostenloses Tool zur Verfügung gestellt.",
+            s1_desc: "Durch die Nutzung der Web-App 'Visible Analytics' erklären Sie sich mit den folgenden Nutzungsbedingungen einverstanden. Die App wird von Felix Kania als kostenloses Tool zur Verfügung gestellt.",
             s2_title: "2. Leistungsumfang",
-            s2_desc_en: "The Insights feature provides statistical correlations based on your data. These are mathematical observations 'as calculated' and do not imply medical causation. Always consult a healthcare professional for medical advice.",
-            s2_desc_de: "'Visible Analytics' ermöglicht Nutzern den Upload von Gesundheitsdaten (z.B. aus der Visible App oder Apple Health) zur grafischen Aufarbeitung und statistischen Auswertung persönlicher Trends. Wir übernehmen keine Garantie für die ständige Verfügbarkeit der App oder die Fehlerfreiheit der Berechnungen.",
+            s2_desc: "'Visible Analytics' ermöglicht Nutzern den Upload von Gesundheitsdaten (z.B. aus der Visible App oder Apple Health) zur grafischen Aufarbeitung und statistischen Auswertung persönlicher Trends. Wir übernehmen keine Garantie für die ständige Verfügbarkeit der App oder die Fehlerfreiheit der Berechnungen.",
             s3_title: "3. Haftungsbeschränkung",
             s3_desc: "Die Nutzung der App erfolgt auf eigene Gefahr. Wir haften nicht für Schäden, die aus der Nutzung oder im Vertrauen auf die von der App bereitgestellten Grafiken oder Statistiken entstehen. Dies gilt insbesondere für Entscheidungen bezüglich Ihrer Gesundheit, die Sie auf Grundlage der App treffen.",
             s4_title: "4. Änderungen der Bedingungen",

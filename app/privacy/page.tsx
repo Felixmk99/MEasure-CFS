@@ -76,7 +76,7 @@ export default function PrivacyPage() {
                         <div className="space-y-3 text-muted-foreground text-sm leading-relaxed">
                             <p>{t('legal.privacy_page.s3_intro')}</p>
                             <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                                {dictionary.legal.privacy_page.s3_rights.map((right: string, index: number) => (
+                                {(dictionary.legal.privacy_page.s3_rights || []).map((right: string, index: number) => (
                                     <li key={index}>{right}</li>
                                 ))}
                             </ul>

@@ -221,7 +221,7 @@ export default function LandingPage() {
                     <FileSpreadsheet className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.prefix')} 01</div>
+                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_01')}</div>
                     <h3 className="text-2xl font-bold mb-3 text-[#1E293B]">{t('landing.steps.01.title')}</h3>
                     <p className="text-muted-foreground leading-relaxed">{t('landing.steps.01.desc')}</p>
                   </div>
@@ -282,7 +282,7 @@ export default function LandingPage() {
                     <Cpu className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.prefix')} 02</div>
+                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_02')}</div>
                     <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('landing.steps.02.title')}</h3>
                     <p className="text-muted-foreground leading-relaxed">{t('landing.steps.02.desc')}</p>
                   </div>
@@ -299,7 +299,7 @@ export default function LandingPage() {
                     <BarChart3 className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.prefix')} 03</div>
+                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_03')}</div>
                     <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('landing.steps.03.title')}</h3>
                     <p className="text-muted-foreground leading-relaxed">{t('landing.steps.03.desc')}</p>
                   </div>

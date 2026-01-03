@@ -88,6 +88,7 @@ export default function SettingsClient({ user }: { user: User }) {
                 window.location.href = '/'
             } catch (error) {
                 console.error('Logout after deletion failed:', error)
+                alert('Account deleted, but sign-out failed. You may need to clear your browser cache.')
                 window.location.href = '/'
             }
 
