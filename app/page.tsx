@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 
 import { useUpload } from "@/components/providers/upload-provider"
@@ -35,7 +36,7 @@ export default function LandingPage() {
       const isBearable = name.includes('bearable')
 
       if (!isVisible && !isBearable) {
-        alert("Invalid file. Please upload a 'Visible' or 'Bearable' export file.")
+        toast.error("Invalid file. Please upload a 'Visible' or 'Bearable' export file.")
         return
       }
 

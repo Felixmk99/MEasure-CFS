@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -88,13 +89,13 @@ export default function SettingsClient({ user }: { user: User }) {
                 window.location.href = '/'
             } catch (error) {
                 console.error('Logout after deletion failed:', error)
-                alert('Account deleted, but sign-out failed. You may need to clear your browser cache.')
+                toast.error('Account deleted, but sign-out failed. You may need to clear your browser cache.')
                 window.location.href = '/'
             }
 
         } catch (err: unknown) {
             const error = err as Error
-            alert(`Failed to delete account data: ${error.message}`)
+            toast.error(`Failed to delete account data: ${error.message}`)
             setIsDeleting(false)
         }
     }
