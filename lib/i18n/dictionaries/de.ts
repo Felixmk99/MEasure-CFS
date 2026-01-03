@@ -176,11 +176,15 @@ export const de: Dictionary = {
                 desc: "Multivariate Regression isoliert die Wirkung jeder Behandlung. Wisse genau, was funktioniert, mit statistischer Sicherheit."
             },
             recovery: {
-                title: "Erholungs-Einblicke",
-                desc: "Erkenne die Hystereselücke – wenn du dich okay fühlst, aber deine Biologie noch nicht bereit ist. Verhindere Rückfälle durch vorausschauendes Handeln."
+                title: "PEM-Gefahren-Erkennung",
+                desc: "Stoppe Crashs, bevor sie entstehen. Unser Algorithmus erkennt subtile biometrische Veränderungen, die ein drohendes PEM-Ereignis signalisieren, und gibt dir die Kontrolle, dich rechtzeitig auszuruhen."
             }
         },
         steps: {
+            prefix: "Schritt",
+            label_01: "Schritt 01",
+            label_02: "Schritt 02",
+            label_03: "Schritt 03",
             "01": {
                 title: "Lade deine Biomarker-Daten hoch",
                 desc: "Importiere CSV-Dateien von jedem Symptom-Tracker. Wir unterstützen HRV, Ruhepuls, Aktivitätslevel, Schlafdaten und eigene Symptomprotokolle."
@@ -192,6 +196,22 @@ export const de: Dictionary = {
             "03": {
                 title: "Erhalte vorausschauende Einblicke",
                 desc: "Erhalte handlungsorientierte Empfehlungen, bevor ein Crash eintritt. Verfolge die Wirksamkeit von Behandlungen und verstehe die Warnsignale deines Körpers."
+            },
+            metrics: {
+                hrv: "HRV",
+                rhr: "Ruhepuls",
+                sleep: "Schlafqualität"
+            },
+            analysis: {
+                buildup: "AUFBAU",
+                event: "EREIGNIS",
+                recovery: "ERHOLUNG"
+            },
+            status: {
+                crash_risk: "Crash-Risiko",
+                high: "HOCH",
+                recovery_status: "Erholungsstatus",
+                impact: "Auswirkung"
             }
         },
         privacy_badge: {
@@ -352,7 +372,47 @@ export const de: Dictionary = {
         medical_disclaimer: "Medizinischer Haftungsausschluss",
         medical_disclaimer_text: "Diese App dient ausschließlich Informationszwecken und bietet keine medizinische Beratung, Diagnose oder Behandlung. Lassen Sie sich immer von Ihrem Arzt beraten.",
         not_medical_product: "Kein Medizinprodukt",
-        copyright: "© 2025 Visible Analytics. Alle Rechte vorbehalten."
+        copyright: "© 2025 Visible Analytics. Alle Rechte vorbehalten.",
+        info_ddg: "Angaben gemäß § 5 DDG",
+        operator: "Betreiber der Webseite",
+        country: "Deutschland",
+        email: "E-Mail",
+        disclaimer_title: "Haftungsausschluss",
+        disclaimer_text: "Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.",
+        privacy_page: {
+            intro: "Der Schutz Ihrer persönlichen Daten ist uns ein besonderes Anliegen. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.",
+            health_data_title: "Wichtiger Hinweis zu Gesundheitsdaten",
+            health_data_text: "Wir verarbeiten sensible Gesundheitsdaten (z. B. Symptom-Scores, HRV-Werte) gemäß Art. 9 Abs. 2 lit. a DSGVO ausschließlich auf Grundlage Ihrer ausdrücklichen Einwilligung.",
+            s1_title: "1. Datenerfassung auf dieser Webseite",
+            s1_operator: "Betreiber: Die Datenverarbeitung auf dieser Webseite erfolgt durch den Webseitenbetreiber (siehe Impressum).",
+            s1_how: "Wie erfassen wir Ihre Daten? Ihre Daten werden dadurch erhoben, dass Sie uns diese mitteilen. Hierbei handelt es sich um Daten, die Sie bei der Anmeldung eingeben oder durch den Upload von CSV-Dateien (z.B. Visible Export) bereitstellen.",
+            s1_purpose: "Wofür nutzen wir Ihre Daten? Ein Teil der Daten wird erhoben, um eine fehlerfreie Bereitstellung der Webseite zu gewährleisten. Andere Daten werden zur Analyse Ihres Gesundheitsverlaufs (Visualisierung von Korrelationen) genutzt.",
+            s2_title: "2. Hosting und Dateninfrastruktur",
+            s2_text: "Wir hosten die Daten bei unserem Partner Supabase. Die Daten werden in verschlüsselter Form gespeichert. Wir haben Maßnahmen getroffen, um Ihre Daten vor unbefugtem Zugriff zu schützen. Eine Weitergabe Ihrer Gesundheitsdaten an Dritte zu Werbezwecken findet unter keinen Umständen statt.",
+            s3_title: "3. Ihre Rechte",
+            s3_intro: "Sie haben jederzeit das Recht:",
+            s3_rights: [
+                "Auskunft über Ihre gespeicherten Daten zu erhalten (Art. 15 DSGVO)",
+                "Die Berichtigung unrichtiger Daten zu verlangen (Art. 16 DSGVO)",
+                "Die Löschung Ihrer Daten zu verlangen ('Recht auf Vergessenwerden', Art. 17 DSGVO)",
+                "Widerspruch gegen die Verarbeitung einzulegen (Art. 21 DSGVO)",
+                "Ihre Einwilligung mit Wirkung für die Zukunft zu widerrufen"
+            ],
+            s3_delete_hint: "Sie können Ihren gesamten Account und alle Daten jederzeit in den Einstellungen löschen.",
+            last_updated: "Stand: Dezember 2025"
+        },
+        terms_page: {
+            not_medical_product_long: "Diese App ist KEIN Medizinprodukt im Sinne der EU-Medizinprodukteverordnung (MDR). Sie dient ausschließlich der Visualisierung und Korrelation von bereits existierenden Gesundheitsdaten für Ihr persönliches Wohlbefinden. Die App stellt keine Diagnosen, gibt keine Therapieempfehlungen und ersetzt nicht den Besuch bei einem qualifizierten Arzt. Wenn Sie medizinische Beschwerden haben, suchen Sie bitte umgehend professionelle Hilfe auf.",
+            s1_title: "1. Geltungsbereich",
+            s1_desc: "Durch die Nutzung der Web-App 'Visible Analytics' erklären Sie sich mit den folgenden Nutzungsbedingungen einverstanden. Die App wird von Felix Kania als kostenloses Tool zur Verfügung gestellt.",
+            s2_title: "2. Leistungsumfang",
+            s2_desc: "'Visible Analytics' ermöglicht Nutzern den Upload von Gesundheitsdaten (z.B. aus der Visible App oder Apple Health) zur grafischen Aufarbeitung und statistischen Auswertung persönlicher Trends. Wir übernehmen keine Garantie für die ständige Verfügbarkeit der App oder die Fehlerfreiheit der Berechnungen.",
+            s3_title: "3. Haftungsbeschränkung",
+            s3_desc: "Die Nutzung der App erfolgt auf eigene Gefahr. Wir haften nicht für Schäden, die aus der Nutzung oder im Vertrauen auf die von der App bereitgestellten Grafiken oder Statistiken entstehen. Dies gilt insbesondere für Entscheidungen bezüglich Ihrer Gesundheit, die Sie auf Grundlage der App treffen.",
+            s4_title: "4. Änderungen der Bedingungen",
+            s4_desc: "Wir behalten uns das Recht vor, diese Nutzungsbedingungen jederzeit zu ändern. Die aktuelle Fassung ist stets über die Webseite abrufbar.",
+            last_updated: "Zuletzt aktualisiert: 30. Dezember 2024"
+        }
     },
     authCodeError: {
         title: "Link abgelaufen",
@@ -361,5 +421,12 @@ export const de: Dictionary = {
         button_home: "Zurück zur Startseite",
         help_title: "Hilfe benötigt?",
         help_text: "Wenn du dich noch nicht eingeloggt hast, versuche einen neuen Link anzufordern, indem du deine E-Mail erneut auf der Login- oder Registrierungsseite eingibst. Wenn das Problem weiterhin besteht, kontaktiere uns gerne."
+    },
+    auth: {
+        login: {
+            testimonial: {
+                quote: "MEasure-CFS verwandelt meinen Brain Fog in einen klaren Plan. Es ist das erste Mal, dass ich meinen Energie-Einbrüchen voraus bin."
+            }
+        }
     }
 }

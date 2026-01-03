@@ -21,7 +21,7 @@ export default function TermsPage() {
                 <AlertDescription className="text-base text-red-800 dark:text-red-300 leading-relaxed">
                     {t('legal.medical_disclaimer_text')}
                     <br /><br />
-                    Diese App ist <strong>kein Medizinprodukt</strong> im Sinne der EU-Medizinprodukteverordnung (MDR). Sie dient ausschließlich der Visualisierung und Korrelation von bereits existierenden Gesundheitsdaten für Ihr persönliches Wohlbefinden. Die App stellt keine Diagnosen, gibt keine Therapieempfehlungen und ersetzt nicht den Besuch bei einem qualifizierten Arzt. Wenn Sie medizinische Beschwerden haben, suchen Sie bitte umgehend professionelle Hilfe auf.
+                    {t('legal.terms_page.not_medical_product_long')}
                 </AlertDescription>
             </Alert>
 
@@ -29,45 +29,43 @@ export default function TermsPage() {
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">
                         <Scale className="w-6 h-6 text-blue-500" />
-                        <h2 className="text-2xl font-bold text-foreground">1. Geltungsbereich</h2>
+                        <h2 className="text-2xl font-bold text-foreground">{t('legal.terms_page.s1_title')}</h2>
                     </div>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Track-ME is provided &quot;as is&quot; without warranties of any kind. We do not guarantee that the service will be uninterrupted or error-free.</p>
                     <p className="text-muted-foreground leading-relaxed">
-                        Durch die Nutzung der Web-App &quot;Visible Analytics&quot; erklären Sie sich mit den folgenden Nutzungsbedingungen einverstanden. Die App wird von Felix Kania als kostenloses Tool zur Verfügung gestellt.
+                        {t('legal.terms_page.s1_desc')}
                     </p>
                 </section>
 
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">
                         <Activity className="w-6 h-6 text-blue-500" />
-                        <h2 className="text-2xl font-bold text-foreground">2. Leistungsumfang</h2>
+                        <h2 className="text-2xl font-bold text-foreground">{t('legal.terms_page.s2_title')}</h2>
                     </div>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">The Insights feature provides statistical correlations based on your data. These are mathematical observations &quot;as calculated&quot; and do not imply medical causation. Always consult a healthcare professional for medical advice.</p>
                     <p className="text-muted-foreground leading-relaxed">
-                        &quot;Visible Analytics&quot; ermöglicht Nutzern den Upload von Gesundheitsdaten (z.B. aus der Visible App oder Apple Health) zur grafischen Aufarbeitung und statistischen Auswertung persönlicher Trends. Wir übernehmen keine Garantie für die ständige Verfügbarkeit der App oder die Fehlerfreiheit der Berechnungen.
+                        {t('legal.terms_page.s2_desc')}
                     </p>
                 </section>
 
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">
                         <Ban className="w-6 h-6 text-red-500" />
-                        <h2 className="text-2xl font-bold text-foreground">3. Haftungsbeschränkung</h2>
+                        <h2 className="text-2xl font-bold text-foreground">{t('legal.terms_page.s3_title')}</h2>
                     </div>
                     <p className="text-muted-foreground leading-relaxed">
-                        Die Nutzung der App erfolgt auf eigene Gefahr. Wir haften nicht für Schäden, die aus der Nutzung oder im Vertrauen auf die von der App bereitgestellten Grafiken oder Statistiken entstehen. Dies gilt insbesondere für Entscheidungen bezüglich Ihrer Gesundheit, die Sie auf Grundlage der App treffen.
+                        {t('legal.terms_page.s3_desc')}
                     </p>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-foreground">4. Änderungen der Bedingungen</h2>
+                    <h2 className="text-2xl font-bold text-foreground">{t('legal.terms_page.s4_title')}</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                        Wir behalten uns das Recht vor, diese Nutzungsbedingungen jederzeit zu ändern. Die aktuelle Fassung ist stets über die Webseite abrufbar.
+                        {t('legal.terms_page.s4_desc')}
                     </p>
                 </section>
             </div>
 
             <p className="text-xs text-muted-foreground mt-16 italic">
-                Zuletzt aktualisiert: 30. Dezember 2024
+                {t('legal.terms_page.last_updated')}
             </p>
         </div>
     )

@@ -89,9 +89,29 @@ export interface Dictionary {
             recovery: { title: string; desc: string }
         }
         steps: {
+            prefix: string
+            label_01: string
+            label_02: string
+            label_03: string
             "01": { title: string; desc: string }
             "02": { title: string; desc: string }
             "03": { title: string; desc: string }
+            metrics: {
+                hrv: string
+                rhr: string
+                sleep: string
+            }
+            analysis: {
+                buildup: string
+                event: string
+                recovery: string
+            }
+            status: {
+                crash_risk: string
+                high: string
+                recovery_status: string
+                impact: string
+            }
         }
         privacy_badge: {
             title: string
@@ -335,6 +355,40 @@ export interface Dictionary {
         medical_disclaimer_text: string
         not_medical_product: string
         copyright: string
+        info_ddg: string
+        operator: string
+        country: string
+        email: string
+        disclaimer_title: string
+        disclaimer_text: string
+        privacy_page: {
+            intro: string
+            health_data_title: string
+            health_data_text: string
+            s1_title: string
+            s1_operator: string
+            s1_how: string
+            s1_purpose: string
+            s2_title: string
+            s2_text: string
+            s3_title: string
+            s3_intro: string
+            s3_rights: string[]
+            s3_delete_hint: string
+            last_updated: string
+        }
+        terms_page: {
+            not_medical_product_long: string
+            s1_title: string
+            s1_desc: string
+            s2_title: string
+            s2_desc: string
+            s3_title: string
+            s3_desc: string
+            s4_title: string
+            s4_desc: string
+            last_updated: string
+        }
     }
     authCodeError: {
         title: string
@@ -343,5 +397,12 @@ export interface Dictionary {
         button_home: string
         help_title: string
         help_text: string
+    }
+    auth: {
+        login: {
+            testimonial: {
+                quote: string
+            }
+        }
     }
 }

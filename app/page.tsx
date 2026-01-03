@@ -9,7 +9,7 @@ import {
   Upload,
   LineChart,
   TrendingUp,
-  Zap,
+  AlertTriangle,
   FileSpreadsheet,
   Cpu,
   BarChart3,
@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 
 import { useUpload } from "@/components/providers/upload-provider"
@@ -35,7 +36,7 @@ export default function LandingPage() {
       const isBearable = name.includes('bearable')
 
       if (!isVisible && !isBearable) {
-        alert("Invalid file. Please upload a 'Visible' or 'Bearable' export file.")
+        toast.error("Invalid file. Please upload a 'Visible' or 'Bearable' export file.")
         return
       }
 
@@ -130,7 +131,7 @@ export default function LandingPage() {
                 >
                   <Upload className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-3 text-slate-900 tracking-tight">{t('landing.hero.drop_title_generic') || "Drop App export to begin"}</h3>
+                <h3 className="text-2xl font-semibold mb-3 text-slate-900 tracking-tight">{t('landing.hero.drop_title_generic')}</h3>
                 <p className="text-slate-600 mb-6 max-w-md mx-auto leading-relaxed">
                   {t('landing.hero.drop_desc')}
                 </p>
@@ -180,9 +181,9 @@ export default function LandingPage() {
                     )
                   },
                   {
-                    icon: Zap, key: 'recovery', svg: (
-                      <svg width="100%" height="32" className="text-primary">
-                        <path d="M0,16 Q10,16 15,8 T30,16 Q35,16 40,24 T55,16 Q65,16 70,8 T85,16" fill="none" stroke="currentColor" strokeWidth="2" />
+                    icon: AlertTriangle, key: 'recovery', svg: (
+                      <svg width="100%" height="32" className="text-rose-500">
+                        <path d="M0,24 L15,24 L20,8 L25,30 L30,24 L50,24 L55,12 L60,28 L65,24 L85,24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     )
                   }
@@ -221,7 +222,7 @@ export default function LandingPage() {
                     <FileSpreadsheet className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">Step 01</div>
+                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_01')}</div>
                     <h3 className="text-2xl font-bold mb-3 text-[#1E293B]">{t('landing.steps.01.title')}</h3>
                     <p className="text-muted-foreground leading-relaxed">{t('landing.steps.01.desc')}</p>
                   </div>
@@ -230,9 +231,9 @@ export default function LandingPage() {
               <div className="order-2 p-8 md:p-10 rounded-2xl bg-gradient-to-br from-[#60A5FA]/5 to-white/50 border border-[#60A5FA]/20 relative overflow-hidden bg-gradient-radial from-[#60A5FA]/10 via-transparent to-transparent">
                 <div className="space-y-3 relative z-10">
                   {[
-                    { label: "HRV", value: "62.4", unit: "ms", bar: "75%" },
-                    { label: "RHR", value: "68", unit: "bpm", bar: "60%" },
-                    { label: "Sleep Quality", value: "78", unit: "%", bar: "78%" },
+                    { label: t('landing.steps.metrics.hrv'), value: "62.4", unit: "ms", bar: "75%" },
+                    { label: t('landing.steps.metrics.rhr'), value: "68", unit: "bpm", bar: "60%" },
+                    { label: t('landing.steps.metrics.sleep'), value: "78", unit: "%", bar: "78%" },
                   ].map((metric, idx) => (
                     <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-white/90 border border-[#60A5FA]/10">
                       <span className="text-xs font-medium text-[#1E293B]">{metric.label}</span>
@@ -255,17 +256,17 @@ export default function LandingPage() {
                 <div className="flex items-center justify-between w-full mb-6 px-4">
                   <div className="text-center">
                     <div className="text-xl font-bold text-slate-900 font-mono">-2.4σ</div>
-                    <div className="text-[9px] text-muted-foreground uppercase font-mono">BUILDUP</div>
+                    <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.buildup')}</div>
                   </div>
                   <div className="w-px h-8 bg-primary/20" />
                   <div className="text-center">
                     <div className="text-xl font-bold text-rose-500 font-mono">-4.1σ</div>
-                    <div className="text-[9px] text-muted-foreground uppercase font-mono">EVENT</div>
+                    <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.event')}</div>
                   </div>
                   <div className="w-px h-8 bg-primary/20" />
                   <div className="text-center">
                     <div className="text-xl font-bold text-accent font-mono">+1.8σ</div>
-                    <div className="text-[9px] text-muted-foreground uppercase font-mono">RECOVERY</div>
+                    <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.recovery')}</div>
                   </div>
                 </div>
                 <div className="w-full h-24 relative">
@@ -282,7 +283,7 @@ export default function LandingPage() {
                     <Cpu className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">Step 02</div>
+                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_02')}</div>
                     <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('landing.steps.02.title')}</h3>
                     <p className="text-muted-foreground leading-relaxed">{t('landing.steps.02.desc')}</p>
                   </div>
@@ -299,7 +300,7 @@ export default function LandingPage() {
                     <BarChart3 className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">Step 03</div>
+                    <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_03')}</div>
                     <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('landing.steps.03.title')}</h3>
                     <p className="text-muted-foreground leading-relaxed">{t('landing.steps.03.desc')}</p>
                   </div>
@@ -309,19 +310,19 @@ export default function LandingPage() {
                 <div className="space-y-3 relative z-10">
                   <div className="p-3 rounded-lg bg-rose-50/80 border border-rose-200">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-bold text-rose-800 uppercase font-mono tracking-tighter">Crash Risk</span>
-                      <span className="text-sm font-black text-rose-600 font-mono">HIGH</span>
+                      <span className="text-xs font-bold text-rose-800 uppercase font-mono tracking-tighter">{t('landing.steps.status.crash_risk')}</span>
+                      <span className="text-sm font-black text-rose-600 font-mono">{t('landing.steps.status.high')}</span>
                     </div>
                   </div>
                   <div className="p-3 rounded-lg bg-amber-50/80 border border-amber-200">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-amber-800 uppercase font-mono tracking-tighter">Recovery Status</span>
+                      <span className="text-xs font-bold text-amber-800 uppercase font-mono tracking-tighter">{t('landing.steps.status.recovery_status')}</span>
                       <span className="text-sm font-black text-amber-600 font-mono">75%</span>
                     </div>
                   </div>
                   <div className="p-3 rounded-lg bg-blue-50/80 border border-blue-200">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-blue-800 uppercase font-mono tracking-tighter">Impact</span>
+                      <span className="text-xs font-bold text-blue-800 uppercase font-mono tracking-tighter">{t('landing.steps.status.impact')}</span>
                       <span className="text-sm font-black text-primary font-mono">+18%</span>
                     </div>
                   </div>
