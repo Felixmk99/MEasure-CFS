@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Auth routes (redirect if logged in)
-    if (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup') {
+    if (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup' || request.nextUrl.pathname === '/') {
         if (user) {
             return NextResponse.redirect(new URL('/dashboard', request.url))
         }
