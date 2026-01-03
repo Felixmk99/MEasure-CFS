@@ -39,7 +39,7 @@ export const en: Dictionary = {
             matches_general: "General Risk Indicators:",
             explanation: "Explanation",
             matches_personal_desc: "Matches a pattern from your history.",
-            matches_general_desc: "Your recent average {label} is significantly above your baseline.",
+            matches_general_desc: "Your recent {label} levels are significantly higher than your body is used to.",
             cumulative_load: "High cumulative activity detected",
             exertion: "exertion",
             activity: "activity",
@@ -51,7 +51,9 @@ export const en: Dictionary = {
             status_optimal: "Optimal",
             status_normal: "Stable",
             status_strained: "Strained",
-            status_unknown: "No Baseline"
+            status_unknown: "No Baseline",
+            no_personal_matches: "No specific historical crash patterns matched.",
+            no_general_matches: "Activity levels are within your safe baseline."
         }
     },
     footer: {

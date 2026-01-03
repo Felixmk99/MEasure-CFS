@@ -52,6 +52,8 @@ export interface Dictionary {
             status_normal: string
             status_strained: string
             status_unknown: string
+            no_personal_matches: string
+            no_general_matches: string
         }
     }
     footer: {
