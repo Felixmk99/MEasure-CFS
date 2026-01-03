@@ -174,8 +174,8 @@ export const de: Dictionary = {
                 desc: "Multivariate Regression isoliert die Wirkung jeder Behandlung. Wisse genau, was funktioniert, mit statistischer Sicherheit."
             },
             recovery: {
-                title: "Erholungs-Einblicke",
-                desc: "Erkenne die Hystereselücke – wenn du dich okay fühlst, aber deine Biologie noch nicht bereit ist. Verhindere Rückfälle durch vorausschauendes Handeln."
+                title: "PEM-Gefahren-Erkennung",
+                desc: "Stoppe Crashs, bevor sie entstehen. Unser Algorithmus erkennt subtile biometrische Veränderungen, die ein drohendes PEM-Ereignis signalisieren, und gibt dir die Kontrolle, dich rechtzeitig auszuruhen."
             }
         },
         steps: {

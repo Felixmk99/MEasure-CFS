@@ -91,8 +91,8 @@ export const en: Dictionary = {
                 desc: "Multivariate regression isolates each treatment's impact. Know exactly what's working with statistical confidence."
             },
             recovery: {
-                title: "Recovery Insights",
-                desc: "Detect the hysteresis gap—when you feel okay but your biology isn't ready. Prevent relapses with predictive agency."
+                title: "PEM Danger Detection",
+                desc: "Stop crashes before they start. Our proprietary algorithm identifies subtle biometric shifts that signal an impending PEM event, giving you the agency to rest before it's too late."
             }
         },
         steps: {

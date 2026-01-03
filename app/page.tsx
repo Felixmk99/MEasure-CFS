@@ -9,7 +9,7 @@ import {
   Upload,
   LineChart,
   TrendingUp,
-  Zap,
+  AlertTriangle,
   FileSpreadsheet,
   Cpu,
   BarChart3,
@@ -180,9 +180,9 @@ export default function LandingPage() {
                     )
                   },
                   {
-                    icon: Zap, key: 'recovery', svg: (
-                      <svg width="100%" height="32" className="text-primary">
-                        <path d="M0,16 Q10,16 15,8 T30,16 Q35,16 40,24 T55,16 Q65,16 70,8 T85,16" fill="none" stroke="currentColor" strokeWidth="2" />
+                    icon: AlertTriangle, key: 'recovery', svg: (
+                      <svg width="100%" height="32" className="text-rose-500">
+                        <path d="M0,24 L15,24 L20,8 L25,30 L30,24 L50,24 L55,12 L60,28 L65,24 L85,24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     )
                   }
