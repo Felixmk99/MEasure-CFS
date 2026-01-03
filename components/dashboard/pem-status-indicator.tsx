@@ -177,70 +177,79 @@ export function PemStatusIndicator() {
                                 </div>
                             )}
                         </div>
-                    ) : (
+                    ) : ( // This is the 'danger' block
                         <div className="space-y-4">
-                            {status?.matchedTriggers && status.matchedTriggers.length > 0 ? (
-                                <>
-                                    {/* Group 1: Personal Patterns */}
-                                    {status.matchedTriggers.some(tr => tr.isPersonal) && (
-                                        <div className="space-y-2">
-                                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
-                                                {t('navbar.pem_status.matches_personal')}
-                                            </p>
-                                            <div className="space-y-1.5">
-                                                {status.matchedTriggers.filter(tr => tr.isPersonal).map((tr) => (
-                                                    <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-lg bg-red-50/50 dark:bg-red-900/10 border border-red-100/50 dark:border-red-900/20">
-                                                        <div className="flex items-center justify-between mb-1">
-                                                            <span className="text-sm font-bold text-red-700 dark:text-red-400 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
-                                                            <div className="text-[10px] font-bold text-red-600/70 dark:text-red-400/70 bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded uppercase">
-                                                                {tr.leadDaysStart > 0
-                                                                    ? t('navbar.pem_status.prediction', { day: format(addDays(new Date(), tr.leadDaysStart), 'eee') })
-                                                                    : t('navbar.pem_status.cumulative_load')}
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
-                                                            {tr.descriptionKey
-                                                                ? t(tr.descriptionKey)
-                                                                : (tr.description || t('navbar.pem_status.matches'))}
-                                                        </p>
+                            {/* Group 1: Personal Patterns */}
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
+                                    {t('navbar.pem_status.matches_personal')}
+                                </p>
+                                <div className="space-y-1.5">
+                                    {status?.matchedTriggers?.some(tr => tr.isPersonal) ? (
+                                        status?.matchedTriggers?.filter(tr => tr.isPersonal).map((tr) => (
+                                            <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-xl bg-red-50/50 dark:bg-red-900/10 border border-red-100/50 dark:border-red-900/20">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-sm font-bold text-red-700 dark:text-red-400 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
+                                                    <div className="text-[10px] font-bold text-red-600/70 dark:text-red-400/70 bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded uppercase">
+                                                        {tr.leadDaysStart > 0
+                                                            ? t('navbar.pem_status.prediction', { day: format(addDays(new Date(), tr.leadDaysStart), 'eee') })
+                                                            : t('navbar.pem_status.cumulative_load')}
                                                     </div>
-                                                ))}
+                                                </div>
+                                                <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight">
+                                                    {tr.descriptionKey
+                                                        ? t(tr.descriptionKey)
+                                                        : (tr.description || t('navbar.pem_status.matches'))}
+                                                </p>
                                             </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 border-dashed">
+                                            <p className="text-[10px] text-zinc-500 italic leading-tight">
+                                                {t('navbar.pem_status.no_personal_matches')}
+                                            </p>
                                         </div>
                                     )}
+                                </div>
+                            </div>
 
-                                    {/* Group 2: General Trends */}
-                                    {status.matchedTriggers.some(tr => !tr.isPersonal) && (
-                                        <div className="space-y-2">
-                                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
-                                                {t('navbar.pem_status.matches_general')}
-                                            </p>
-                                            <div className="space-y-1.5">
-                                                {status.matchedTriggers.filter(tr => !tr.isPersonal).map((tr) => (
-                                                    <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-                                                        <div className="flex items-center justify-between mb-1">
-                                                            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
-                                                            <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded uppercase">
-                                                                {t('navbar.pem_status.cumulative_load')}
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight italic">
-                                                            {tr.descriptionKey
-                                                                ? t(tr.descriptionKey, tr.descriptionParams ? Object.fromEntries(
-                                                                    Object.entries(tr.descriptionParams).map(([k, v]) => [
-                                                                        k,
-                                                                        (v === 'exertion' || v === 'activity') ? t(`navbar.pem_status.${v}`) : v
-                                                                    ])
-                                                                ) : undefined)
-                                                                : tr.description}
-                                                        </p>
+                            {/* Group 2: General Trends */}
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-1">
+                                    {t('navbar.pem_status.matches_general')}
+                                </p>
+                                <div className="space-y-1.5">
+                                    {status?.matchedTriggers?.some(tr => !tr.isPersonal) ? (
+                                        status?.matchedTriggers?.filter(tr => !tr.isPersonal).map((tr) => (
+                                            <div key={`${tr.metric}-${tr.type}`} className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{tr.metric.replaceAll('_', ' ')}</span>
+                                                    <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded uppercase">
+                                                        {t('navbar.pem_status.cumulative_load')}
                                                     </div>
-                                                ))}
+                                                </div>
+                                                <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-tight italic">
+                                                    {tr.descriptionKey
+                                                        ? t(tr.descriptionKey, tr.descriptionParams ? Object.fromEntries(
+                                                            Object.entries(tr.descriptionParams).map(([k, v]) => [
+                                                                k,
+                                                                (v === 'exertion' || v === 'activity') ? t(`navbar.pem_status.${v}`) : v
+                                                            ])
+                                                        ) : undefined)
+                                                        : tr.description}
+                                                </p>
                                             </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 border-dashed">
+                                            <p className="text-[10px] text-zinc-500 italic leading-tight">
+                                                {t('navbar.pem_status.no_general_matches')}
+                                            </p>
                                         </div>
                                     )}
-                                </>
-                            ) : (
+                                </div>
+                            </div>
+                            {status?.matchedTriggers?.length === 0 && (
                                 <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 flex items-center gap-3">
                                     <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                                     <p className="text-sm text-amber-800 dark:text-amber-200 leading-snug">

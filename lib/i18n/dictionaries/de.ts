@@ -39,19 +39,21 @@ export const de: Dictionary = {
             matches_general: "Allgemeine Risikoindikatoren:",
             explanation: "Erklärung",
             matches_personal_desc: "Entspricht Mustern aus deiner Vorgeschichte.",
-            matches_general_desc: "Dein Durchschnittliche(s) {label} liegt deutlich über deinem Basiswert.",
-            cumulative_load: "Hohe kumulative Belastung erkannt",
+            matches_general_desc: "Deine durchschnittliche {label} ist aktuell deutlich höher als es dein Körper gewohnt ist.",
+            cumulative_load: "Hohe Gesamtbelastung erkannt",
             exertion: "Belastung",
             activity: "Aktivität",
-            danger_fallback: "Erhöhte Aktivitäts-Werte im Vergleich zu deiner Basislinie erkannt. Bitte prüfe dein Protokoll für Details.",
-            stable_message: "Deine aktuelle Belastung liegt innerhalb deiner historisch sicheren Zone.",
-            error_fetch: "Fehler beim Laden des PEM-Status",
+            danger_fallback: "Hohe Belastungswerte im Vergleich zu deiner Baseline erkannt. Bitte prüfe dein Daten-Log für Details.",
+            stable_message: "Deine Aktivität liegt aktuell in deinem persönlichen Sicherheitsbereich.",
+            error_fetch: "PEM-Status konnte nicht geladen werden",
             biometrics_title: "Biometrische Basiswerte",
             biometrics_stable: "Deine biometrischen Basiswerte sind im grünen Bereich. Keine Risikomuster erkannt.",
             status_optimal: "Optimal",
             status_normal: "Stabil",
             status_strained: "Belastet",
-            status_unknown: "Keine Baseline"
+            status_unknown: "Keine Baseline",
+            no_personal_matches: "Keine deiner persönlichen Belastungsmuster erkannt.",
+            no_general_matches: "Deine Belastung liegt innerhalb deines sicheren Bereichs."
         }
     },
     footer: {
