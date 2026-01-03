@@ -84,9 +84,8 @@ export default function SettingsClient({ user }: { user: User }) {
             // 3. Sign Out (only if deletion was successful)
             await supabase.auth.signOut()
 
-            // 4. Redirect
-            router.push('/')
-            router.refresh()
+            // 4. Hard redirect to home
+            window.location.href = '/'
 
         } catch (err: unknown) {
             const error = err as Error

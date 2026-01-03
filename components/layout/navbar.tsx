@@ -245,11 +245,8 @@ export default function Navbar() {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={async () => {
                                         await supabase.auth.signOut()
-                                        setUser(null)
-                                        setHasData(false)
-                                        setHasMissingSteps(false)
-                                        router.push('/')
-                                        router.refresh()
+                                        // Hard redirect to home to avoid race conditions with server-side redirects on protected pages
+                                        window.location.href = '/'
                                     }}>
                                         {t('navbar.logout')}
                                     </DropdownMenuItem>
