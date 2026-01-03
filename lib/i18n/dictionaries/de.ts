@@ -418,5 +418,12 @@ export const de: Dictionary = {
         button_home: "Zurück zur Startseite",
         help_title: "Hilfe benötigt?",
         help_text: "Wenn du dich noch nicht eingeloggt hast, versuche einen neuen Link anzufordern, indem du deine E-Mail erneut auf der Login- oder Registrierungsseite eingibst. Wenn das Problem weiterhin besteht, kontaktiere uns gerne."
+    },
+    auth: {
+        login: {
+            testimonial: {
+                quote: "MEasure-CFS verwandelt meinen Brain Fog in einen klaren Plan. Es ist das erste Mal, dass ich meinen Energie-Einbrüchen voraus bin."
+            }
+        }
     }
 }

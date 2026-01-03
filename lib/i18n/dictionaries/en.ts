@@ -418,5 +418,12 @@ export const en: Dictionary = {
         button_home: "Back to Home",
         help_title: "Need help?",
         help_text: "If you haven't logged in yet, try requesting a new link by entering your email at the login or signup page again. If the issue persists, feel free to contact us."
+    },
+    auth: {
+        login: {
+            testimonial: {
+                quote: "MEasure-CFS turns my brain fog into a clear plan. It's the first time I feel ahead of my energy crashes."
+            }
+        }
     }
 }

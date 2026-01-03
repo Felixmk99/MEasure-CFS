@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Shield, Lock, Eye, Database, Trash2 } from 'lucide-react'
 
 export default function PrivacyPage() {
-    const { t } = useLanguage()
+    const { t, dictionary } = useLanguage()
 
     return (
         <div className="container max-w-4xl py-12 px-6">
@@ -76,7 +76,7 @@ export default function PrivacyPage() {
                         <div className="space-y-3 text-muted-foreground text-sm leading-relaxed">
                             <p>{t('legal.privacy_page.s3_intro')}</p>
                             <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                                {t('legal.privacy_page.s3_rights').map((right: string, index: number) => (
+                                {dictionary.legal.privacy_page.s3_rights.map((right: string, index: number) => (
                                     <li key={index}>{right}</li>
                                 ))}
                             </ul>

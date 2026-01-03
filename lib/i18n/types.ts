@@ -395,4 +395,11 @@ export interface Dictionary {
         help_title: string
         help_text: string
     }
+    auth: {
+        login: {
+            testimonial: {
+                quote: string
+            }
+        }
+    }
 }
