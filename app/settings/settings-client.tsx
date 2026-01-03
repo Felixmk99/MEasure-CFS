@@ -81,11 +81,15 @@ export default function SettingsClient({ user }: { user: User }) {
                 throw new Error(result.error || 'Failed to delete account from authentication system.')
             }
 
-            // 3. Sign Out (only if deletion was successful)
-            await supabase.auth.signOut()
-
-            // 4. Hard redirect to home
-            window.location.href = '/'
+            try {
+                // 3. Sign Out (only if deletion was successful)
+                await supabase.auth.signOut()
+                // 4. Hard redirect to home - appropriate for account deletion to reset all state
+                window.location.href = '/'
+            } catch (error) {
+                console.error('Logout after deletion failed:', error)
+                window.location.href = '/'
+            }
 
         } catch (err: unknown) {
             const error = err as Error
