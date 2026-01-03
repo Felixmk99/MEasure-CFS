@@ -179,6 +179,7 @@ export const de: Dictionary = {
             }
         },
         steps: {
+            prefix: "Schritt",
             "01": {
                 title: "Lade deine Biomarker-Daten hoch",
                 desc: "Importiere CSV-Dateien von jedem Symptom-Tracker. Wir unterstützen HRV, Ruhepuls, Aktivitätslevel, Schlafdaten und eigene Symptomprotokolle."
@@ -190,6 +191,22 @@ export const de: Dictionary = {
             "03": {
                 title: "Erhalte vorausschauende Einblicke",
                 desc: "Erhalte handlungsorientierte Empfehlungen, bevor ein Crash eintritt. Verfolge die Wirksamkeit von Behandlungen und verstehe die Warnsignale deines Körpers."
+            },
+            metrics: {
+                hrv: "HRV",
+                rhr: "Ruhepuls",
+                sleep: "Schlafqualität"
+            },
+            analysis: {
+                buildup: "AUFBAU",
+                event: "EREIGNIS",
+                recovery: "ERHOLUNG"
+            },
+            status: {
+                crash_risk: "Crash-Risiko",
+                high: "HOCH",
+                recovery_status: "Erholungsstatus",
+                impact: "Auswirkung"
             }
         },
         privacy_badge: {

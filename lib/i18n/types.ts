@@ -87,9 +87,26 @@ export interface Dictionary {
             recovery: { title: string; desc: string }
         }
         steps: {
+            prefix: string
             "01": { title: string; desc: string }
             "02": { title: string; desc: string }
             "03": { title: string; desc: string }
+            metrics: {
+                hrv: string
+                rhr: string
+                sleep: string
+            }
+            analysis: {
+                buildup: string
+                event: string
+                recovery: string
+            }
+            status: {
+                crash_risk: string
+                high: string
+                recovery_status: string
+                impact: string
+            }
         }
         privacy_badge: {
             title: string

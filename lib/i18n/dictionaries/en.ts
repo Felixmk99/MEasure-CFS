@@ -96,6 +96,7 @@ export const en: Dictionary = {
             }
         },
         steps: {
+            prefix: "Step",
             "01": {
                 title: "Upload your biomarker data",
                 desc: "Import CSV files from any symptom tracker. We support HRV, RHR, activity levels, sleep metrics, and custom symptom logs."
@@ -107,6 +108,22 @@ export const en: Dictionary = {
             "03": {
                 title: "Get predictive insights",
                 desc: "Receive actionable recommendations before crashes hit. Track treatment efficacy and understand your body's early warning signals."
+            },
+            metrics: {
+                hrv: "HRV",
+                rhr: "RHR",
+                sleep: "Sleep Quality"
+            },
+            analysis: {
+                buildup: "BUILDUP",
+                event: "EVENT",
+                recovery: "RECOVERY"
+            },
+            status: {
+                crash_risk: "Crash Risk",
+                high: "HIGH",
+                recovery_status: "Recovery Status",
+                impact: "Impact"
             }
         },
         privacy_badge: {
