@@ -6,7 +6,7 @@ if (typeof Request === 'undefined') {
         constructor(url: string) { this.url = url; }
     };
 }
-import { middleware } from '../middleware';
+import { proxy } from '../proxy';
 import { GET as authCallback } from '../app/auth/callback/route';
 import { NextResponse, NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
@@ -64,7 +64,7 @@ describe('Auth & Routing Logic', () => {
 
         it('should redirect root with code to /auth/callback', async () => {
             const req = createRequest('/', '?code=123');
-            await middleware(req);
+            await proxy(req);
             expect(NextResponse.redirect).toHaveBeenCalledWith(
                 expect.objectContaining({ pathname: '/auth/callback' })
             );
@@ -73,7 +73,7 @@ describe('Auth & Routing Logic', () => {
         it('should redirect /dashboard to /login if no user session', async () => {
             mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null } });
             const req = createRequest('/dashboard');
-            await middleware(req);
+            await proxy(req);
             expect(NextResponse.redirect).toHaveBeenCalledWith(
                 expect.objectContaining({ pathname: '/login' })
             );
@@ -81,7 +81,7 @@ describe('Auth & Routing Logic', () => {
 
         it('CRITICAL: should NOT call getUser on /auth/callback path', async () => {
             const req = createRequest('/auth/callback', '?code=123');
-            await middleware(req);
+            await proxy(req);
             // This is the key fix for the otp_expired bug
             expect(mockSupabase.auth.getUser).not.toHaveBeenCalled();
         });
@@ -89,7 +89,7 @@ describe('Auth & Routing Logic', () => {
         it('should redirect /login to /dashboard if user is already logged in', async () => {
             mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: '123' } } });
             const req = createRequest('/login');
-            await middleware(req);
+            await proxy(req);
             expect(NextResponse.redirect).toHaveBeenCalledWith(
                 expect.objectContaining({ pathname: '/dashboard' })
             );
