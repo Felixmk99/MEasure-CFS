@@ -73,7 +73,7 @@ export default function SettingsClient({ user }: { user: User }) {
     // Delete Account Handler
     const handleDeleteAccount = async () => {
         const confirmKeyword = t('settings.delete_account.confirm_keyword')
-        if (deleteConfirmation !== confirmKeyword) return
+        if (deleteConfirmation.trim().toLocaleUpperCase(locale) !== confirmKeyword.trim().toLocaleUpperCase(locale)) return
         setIsDeleting(true)
 
         try {
@@ -221,9 +221,9 @@ export default function SettingsClient({ user }: { user: User }) {
 
                         <div className="space-y-2">
                             <Label htmlFor="confirmDelete" className="text-sm font-medium">
-                                {t('settings.delete_account.confirm_label', { keyword: '|||' }).split('|||')[0]}
+                                {t('settings.delete_account.confirm_label_before')}
                                 <span className="font-bold text-red-600">{t('settings.delete_account.confirm_keyword')}</span>
-                                {t('settings.delete_account.confirm_label', { keyword: '|||' }).split('|||')[1]}
+                                {t('settings.delete_account.confirm_label_after')}
                             </Label>
                             <Input
                                 id="confirmDelete"

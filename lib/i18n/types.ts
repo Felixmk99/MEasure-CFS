@@ -461,7 +461,8 @@ export interface Dictionary {
             warning_access: string
             warning_data: string
             warning_recovery: string
-            confirm_label: string
+            confirm_label_before: string
+            confirm_label_after: string
             confirm_keyword: string
             button_delete: string
             button_deleting: string
