@@ -25,7 +25,7 @@ export async function parseGenericStepCsv(
         Papa.parse(fileOrContent, {
             header: true,
             skipEmptyLines: true,
-            dynamicTyping: true,
+            dynamicTyping: false,
             complete: (results) => {
                 const dailyAggregation: Record<string, number> = {}
                 const headers = results.meta.fields || []
@@ -85,6 +85,9 @@ export async function parseGenericStepCsv(
                         // If comma appears after dot, assume European format (e.g. 1.234,56)
                         if (normalized.includes('.') && normalized.includes(',') && normalized.lastIndexOf(',') > normalized.lastIndexOf('.')) {
                             normalized = normalized.replace(/\./g, '').replace(',', '.')
+                        } else if (/^\d{1,3}(\.\d{3})+$/.test(normalized)) {
+                            // European integer with dot as thousand separator (e.g., "1.234" or "12.345.678")
+                            normalized = normalized.replace(/\./g, '')
                         } else {
                             // US format or simple decimal, or German without dots (1234,56)
                             // If it has only comma and no dots, treat comma as decimal if it looks like a decimal separator

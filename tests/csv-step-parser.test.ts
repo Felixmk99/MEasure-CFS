@@ -30,12 +30,14 @@ describe('parseGenericStepCsv', () => {
         // Test German date format (DD.MM.YYYY) and European number format (1.234,56)
         const csvGerman = `Datum,Schritte
 01.01.2023,5000
-02.01.2023,"6.500,00"`
+02.01.2023,"6.500,00"
+03.01.2023,"1.234"`
 
         const result = await parseGenericStepCsv(csvGerman)
-        expect(result).toHaveLength(2)
+        expect(result).toHaveLength(3)
         expect(result[0]).toEqual({ date: '2023-01-01', steps: 5000 })
         expect(result[1]).toEqual({ date: '2023-01-02', steps: 6500 })
+        expect(result[2]).toEqual({ date: '2023-01-03', steps: 1234 }) // "1.234" should represent 1234, not 1
     })
 
     test('filters data based on validDates', async () => {
