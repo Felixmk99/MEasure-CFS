@@ -23,7 +23,7 @@ import { useLanguage } from '@/components/providers/language-provider'
 import type { User } from '@supabase/supabase-js'
 
 export default function SettingsClient({ user }: { user: User }) {
-    const { t } = useLanguage()
+    const { t, locale } = useLanguage()
     const supabase = createClient()
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
