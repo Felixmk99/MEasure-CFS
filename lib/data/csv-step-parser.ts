@@ -31,15 +31,24 @@ export async function parseGenericStepCsv(
                 const headers = results.meta.fields || []
 
                 // Identify columns
+                // Identify columns - use flexible matching (includes) to catch things like "Date/Time" or "Schrittzählung (count)"
+                // The previous "robust" logic was too strict for these common variations.
                 const matchesHeader = (header: string, candidates: string[]) => {
                     const lower = header.toLowerCase()
-                    return candidates.some(c => lower === c || lower.startsWith(c + '_') || lower.endsWith('_' + c))
+                    return candidates.some(c => lower.includes(c))
                 }
                 const dateCol = headers.find(h => matchesHeader(h, DATE_HEADERS))
                 const stepsCol = headers.find(h => matchesHeader(h, STEP_HEADERS))
 
                 if (!dateCol || !stepsCol) {
-                    reject(new Error('missing_columns'))
+                    const missing = []
+                    if (!dateCol) missing.push('Date/Datum')
+                    if (!stepsCol) missing.push('Steps/Schritte')
+
+                    // Throw a descriptive error string that can be parsed or just displayed if simple
+                    // Best is to reject with an object but generic error handler expects Error object usually.
+                    // Let's create a custom error message structure: "missing_columns:Col1,Col2"
+                    reject(new Error(`missing_columns:${missing.join(', ')}`))
                     return
                 }
 

@@ -439,19 +439,20 @@ export const en: Dictionary = {
             processed_progress: "Processed {current} / {total} days...",
             parse_error: "Failed to parse file: {error}",
             no_steps_found: "No step count records found in this file.",
-            no_matching_dates: "No matching log dates found. Please upload your symptom data first.",
-            found_matching_days: "Found {count} matching days. Preparing upload...",
-            success_steps: "Successfully updated steps for {count} days!",
-            requires_data: "Requires Health Data"
-        },
-        data_log: {
-            title: "Data Log",
-            delete_all: "Delete all data",
+            no_matching_dates: "No matching dates found in your file based on your existing health data.",
+            found_matching_days: "Found {count} days of new step data.",
+            success_steps: "Successfully imported {count} days of steps!",
+            requires_data: "Please upload Health Metrics first (Visible/Bearable) to define which days to track.",
+            missing_columns_error: "Missing required columns: {columns}. Please check your CSV header.",
             delete_confirm: "WARNING: This will delete ALL your uploaded health records. This action cannot be undone. Are you sure?",
             delete_entry_confirm: "Are you sure you want to delete this entry?",
             provider_coming_soon: "Provider coming soon",
             provider_built_hint: "Integrations for {provider} are currently being built. Change your provider in settings if you wish to use a different one.",
             hide_import: "Hide Import Tools",
+        },
+        data_log: {
+            title: "Data Log",
+            delete_all: "Delete all data",
             table: {
                 date: "Date",
                 rhr: "RHR",

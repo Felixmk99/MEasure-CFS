@@ -136,7 +136,13 @@ export function GenericCsvStepUploader() {
                 console.error("CSV Upload Error:", err)
                 setStatus('error')
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload.'
+                let msg = (err as any)?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || 'Failed to upload.'
+
+                if (msg.startsWith('missing_columns:')) {
+                    const columns = msg.split(':')[1]
+                    msg = t('upload.messages.missing_columns_error', { columns })
+                }
+
                 setMessage(msg)
             }
         }

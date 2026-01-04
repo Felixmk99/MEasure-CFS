@@ -396,15 +396,16 @@ export interface Dictionary {
             found_matching_days: string
             success_steps: string
             requires_data: string
-        }
-        data_log: {
-            title: string
-            delete_all: string
+            missing_columns_error: string
             delete_confirm: string
             delete_entry_confirm: string
             provider_coming_soon: string
             provider_built_hint: string
             hide_import: string
+        }
+        data_log: {
+            title: string
+            delete_all: string
             table: {
                 date: string
                 rhr: string

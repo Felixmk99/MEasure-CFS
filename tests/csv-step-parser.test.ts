@@ -57,6 +57,7 @@ describe('parseGenericStepCsv', () => {
     test('throws error for missing columns', async () => {
         const csv = `Wrong,Column
 2023-01-01,5000`
-        await expect(parseGenericStepCsv(csv)).rejects.toThrow('missing_columns')
+        // Should throw explicit error listing missing columns
+        await expect(parseGenericStepCsv(csv)).rejects.toThrow('missing_columns:Date/Datum, Steps/Schritte')
     })
 })
