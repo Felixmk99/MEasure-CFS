@@ -163,13 +163,13 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
         const label = t(`common.metric_labels.${key}`)
         if (label !== `common.metric_labels.${key}`) return label
 
-        if (process.env.NODE_ENV === 'development') {
-            console.warn(`Translation missing for metric: ${key}`)
-        }
-
         // Try to find in dashboard.metrics (complex object)
         const complexLabel = t(`dashboard.metrics.${key}.label`)
         if (complexLabel !== `dashboard.metrics.${key}.label`) return complexLabel
+
+        if (process.env.NODE_ENV === 'development') {
+            console.warn(`Translation missing for metric: ${key}`)
+        }
 
         // Fallback: Capitalize
         return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
@@ -533,7 +533,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                                 </div>
                                                             </TooltipTrigger>
                                                             <TooltipContent className="max-w-[200px] text-[10px]">
-                                                                <p>This metric takes an average of {analysis.phase3?.avgBiologicalRecoveryTail?.toFixed(1)} days to return to your normal range after a crash starts.</p>
+                                                                <p>{t('insights.pem_analysis.phase3.metric_recovery_time', { days: analysis.phase3?.avgBiologicalRecoveryTail?.toFixed(1) || '0' })}</p>
                                                             </TooltipContent>
                                                         </InfoTooltip>
                                                     </TooltipProvider>

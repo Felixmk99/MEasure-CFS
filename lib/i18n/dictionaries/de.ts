@@ -742,7 +742,8 @@ export const de: Dictionary = {
                 hysteresis_title: "Biologische Latenz (Hysterese)",
                 hysteresis_desc: "Misst, wie lange deine Biomarker (HRV, RHR) brauchen, um zur Baseline zurückzukehren, **nachdem** die akuten Symptome abgeklungen sind. Dies ist der 'Nachhall', den dein Körper noch verarbeitet.",
                 slowest: "Am langsamsten",
-                days_tail: "Tage Nachlauf"
+                days_tail: "Tage Nachlauf",
+                metric_recovery_time: "Diese Metrik benötigt durchschnittlich +{days} Tage, um nach einem Crash wieder in deinen Normalbereich zurückzukehren."
             },
             discovery: {
                 increase: "Anstieg",

@@ -742,7 +742,8 @@ export const en: Dictionary = {
                 hysteresis_title: "Biological Lag (Hysteresis)",
                 hysteresis_desc: "Measures how long your biomarkers (HRV, RHR) take to return to baseline **after** you stopped feeling the acute effects of the crash. This is the 'hangover' your body is still processing.",
                 slowest: "Slowest",
-                days_tail: "Days Tail"
+                days_tail: "Days Tail",
+                metric_recovery_time: "This metric takes an average of +{days} days to return to your normal range after a crash starts."
             },
             discovery: {
                 increase: "Increase",

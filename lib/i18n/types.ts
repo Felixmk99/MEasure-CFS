@@ -690,6 +690,7 @@ export interface Dictionary {
                 hysteresis_desc: string
                 slowest: string
                 days_tail: string
+                metric_recovery_time: string
             }
             discovery: {
                 increase: string
