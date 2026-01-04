@@ -134,7 +134,7 @@ export function CsvUploader() {
                 setMessage(t('upload.messages.parse_error', { error: err.message }))
             }
         })
-    }, [supabase, router])
+    }, [supabase, router, t])
 
     useEffect(() => {
         if (pendingUpload && pendingUpload.type === 'visible') {

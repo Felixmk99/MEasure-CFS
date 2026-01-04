@@ -136,7 +136,7 @@ export function BearableUploader() {
                 setMessage(t('upload.messages.parse_error', { error: err.message }))
             }
         })
-    }, [supabase, router])
+    }, [supabase, router, t])
 
     useEffect(() => {
         // We reuse the 'visible' type for the hook if needed, or we could add 'bearable'

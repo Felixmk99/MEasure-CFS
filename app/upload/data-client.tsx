@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { CsvUploader } from "@/components/upload/csv-uploader"
 import { XmlUploader } from "@/components/upload/xml-uploader"
 import { Lock, Trash2, Calendar, FileText, Smartphone, Activity, Pencil } from "lucide-react"
-import { format, parseISO } from "date-fns"
+import { parseISO } from "date-fns"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -160,9 +160,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
         } satisfies HealthMetricUpdate
 
         // Supabase strict typing requires cast for update payload
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await (supabase.from('health_metrics') as any)
-            .update(updatePayload)
+        const { error } = await supabase.from('health_metrics')
+            .update(updatePayload as Record<string, unknown>)
             .eq('id', id)
 
         if (!error) {
@@ -248,7 +247,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                     className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Smartphone className="w-4 h-4 mr-2" />
-                                    {t(`upload.tabs.${stepProvider}` as any)}
+                                    {t(`upload.tabs.${stepProvider as 'apple' | 'google' | 'samsung'}`)}
                                     {!hasData && <span className="ml-2 text-[10px] text-zinc-500">({t('upload.messages.requires_data')})</span>}
                                 </TabsTrigger>
                             </TabsList>

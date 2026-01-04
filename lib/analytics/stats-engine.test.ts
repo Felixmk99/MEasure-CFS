@@ -1,5 +1,5 @@
 import { analyzeExperiment, Experiment, Metric } from './stats-engine'
-import { ScorableEntry } from '@/lib/scoring/composite-score'
+
 
 
 // Mock dependencies if needed, but here we integration test with the pure function logic

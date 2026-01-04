@@ -126,7 +126,7 @@ export function SamsungHealthUploader() {
 
         reader.readAsText(file)
 
-    }, [supabase, router])
+    }, [supabase, router, t])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
