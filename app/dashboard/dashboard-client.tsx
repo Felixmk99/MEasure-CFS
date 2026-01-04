@@ -659,7 +659,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 checked={showCrashes}
                                 onCheckedChange={setShowCrashes}
                             />
-                            <Label htmlFor="pem-mode" className="text-xs text-muted-foreground hidden md:block">PEM</Label>
+                            <Label htmlFor="pem-mode" className="text-xs text-muted-foreground hidden md:block">{t('dashboard.pem_mode')}</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                             <Switch
@@ -673,7 +673,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                     }
                                 }}
                             />
-                            <Label htmlFor="compare-mode" className="text-xs text-muted-foreground hidden md:block">Compare</Label>
+                            <Label htmlFor="compare-mode" className="text-xs text-muted-foreground hidden md:block">{t('dashboard.compare_mode')}</Label>
                         </div>
 
 
@@ -694,7 +694,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-[200px] max-h-[300px] overflow-y-auto">
-                                <DropdownMenuLabel>{isCompareMode ? t('dashboard.metrics_dropdown') : 'Select Metric'}</DropdownMenuLabel>
+                                <DropdownMenuLabel>{isCompareMode ? t('dashboard.metrics_dropdown') : t('dashboard.select_placeholder')}</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {availableMetrics.map((m) => {
                                     const isSelected = selectedMetrics.includes(m.value)

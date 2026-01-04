@@ -165,7 +165,10 @@ export interface Dictionary {
         subtitle_prefix: string
         subtitle_suffix: string
         trend_mode: string
+        compare_mode: string
+        pem_mode: string
         metrics_dropdown: string
+        select_placeholder: string
         metrics_selected: string
         charts: {
             synced: string

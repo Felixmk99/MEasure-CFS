@@ -211,6 +211,9 @@ export const en: Dictionary = {
         subtitle_prefix: "Tracking your",
         subtitle_suffix: "over time.",
         trend_mode: "Trend",
+        compare_mode: "Compare",
+        pem_mode: "PEM",
+        select_placeholder: "Select Metric",
         metrics_dropdown: "Metrics (Max 2)",
         metrics_selected: "Selected",
         charts: {
