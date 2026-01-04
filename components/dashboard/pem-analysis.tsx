@@ -8,6 +8,7 @@ import { parseISO, startOfDay, endOfDay } from "date-fns"
 import { calculateBaselineStats, extractEpochs, calculateZScores, aggregateEpochs, analyzePreCrashPhase, analyzeRecoveryPhase, analyzeCrashPhase } from "@/lib/statistics/pem-cycle"
 import { Tooltip as InfoTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/components/providers/language-provider"
 
 import { ScorableEntry } from '@/lib/scoring/composite-score'
 
@@ -37,7 +38,38 @@ interface Discovery {
     isSynergy?: boolean;
 }
 
+const getClassificationLabel = (classification: string | undefined, isAcute: boolean | undefined, t: (key: string) => string): string => {
+    if (!classification) {
+        return isAcute
+            ? t('insights.pem_analysis.classifications.acute')
+            : t('insights.pem_analysis.classifications.cumulative')
+    }
+    const map: Record<string, string> = {
+        'Acute': 'insights.pem_analysis.classifications.acute',
+        'Lagged': 'insights.pem_analysis.classifications.lagged',
+        'Historical': 'insights.pem_analysis.classifications.historical',
+        'Cumulative': 'insights.pem_analysis.classifications.cumulative'
+    }
+    return t(map[classification] || map['Cumulative'])
+}
+
+const getClassificationDesc = (classification: string | undefined, isAcute: boolean | undefined, t: (key: string) => string): string => {
+    if (!classification) {
+        return isAcute
+            ? t('insights.pem_analysis.classifications.onset_desc')
+            : t('insights.pem_analysis.classifications.pre_onset_desc')
+    }
+    const map: Record<string, string> = {
+        'Acute': 'insights.pem_analysis.classifications.acute_desc',
+        'Lagged': 'insights.pem_analysis.classifications.lagged_desc',
+        'Historical': 'insights.pem_analysis.classifications.historical_desc',
+        'Cumulative': 'insights.pem_analysis.classifications.cumulative_desc'
+    }
+    return t(map[classification] || map['Cumulative'])
+}
+
 export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
+    const { t } = useLanguage()
 
     const analysis: CycleAnalysisResult | null = useMemo(() => {
         if (!data || data.length < 10) return null
@@ -126,11 +158,20 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
         if (key.includes(' + ')) {
             return key.split(' + ').map(k => getFriendlyName(k)).join(' + ')
         }
-        if (key === 'composite_score') return 'Track-Me Score'
-        if (key === 'exertion_score') return 'Exertion'
-        if (key === 'hrv') return 'HRV'
-        if (key === 'resting_heart_rate') return 'Resting HR'
-        if (key === 'step_count') return 'Steps'
+
+        // Try to find in common.metric_labels
+        const label = t(`common.metric_labels.${key}`)
+        if (label !== `common.metric_labels.${key}`) return label
+
+        // Try to find in dashboard.metrics (complex object)
+        const complexLabel = t(`dashboard.metrics.${key}.label`)
+        if (complexLabel !== `dashboard.metrics.${key}.label`) return complexLabel
+
+        if (process.env.NODE_ENV === 'development') {
+            console.warn(`Translation missing for metric: ${key}`)
+        }
+
+        // Fallback: Capitalize
         return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
     }
 
@@ -149,12 +190,12 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                 <CardHeader className="py-4">
                     <CardTitle className="text-base flex items-center gap-2">
                         <Activity className="w-4 h-4 text-green-500" />
-                        No PEM Clusters Detected
+                        {t('insights.pem_analysis.no_clusters.title')}
                     </CardTitle>
                     <CardDescription>
                         {analysis?.filterApplied
-                            ? "No crashes detected in the selected timeframe."
-                            : "You don't have enough crash data to perform a full Cycle Analysis yet."}
+                            ? t('insights.pem_analysis.no_clusters.desc')
+                            : t('insights.pem_analysis.no_clusters.desc_short')}
                     </CardDescription>
                 </CardHeader>
             </Card>
@@ -170,16 +211,16 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-sm font-semibold text-orange-500 uppercase tracking-widest">
                                 <TrendingUp className="w-4 h-4" />
-                                Phase 1: Buildup
+                                {t('insights.pem_analysis.phase1.title')}
                             </div>
                             <div className="flex items-center gap-3">
                                 {analysis.phase1?.cumulativeLoadDetected && (
                                     <Badge variant="outline" className="text-[10px] bg-orange-500/10 border-orange-500/20 text-orange-600">
-                                        Cumulative Load Detected
+                                        {t('insights.pem_analysis.phase1.cumulative')}
                                     </Badge>
                                 )}
                                 <div className="flex items-center gap-1.5" title="Statistical confidence based on consistency across episodes">
-                                    <span className="text-[10px] font-bold text-muted-foreground uppercase">Confidence:</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{t('insights.pem_analysis.phase1.confidence')}</span>
                                     <div className="flex gap-0.5">
                                         {[1, 2, 3, 4, 5].map((i) => (
                                             <div
@@ -226,7 +267,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                         </span>
                                                         {d.isSynergy && (
                                                             <span className="text-[8px] font-medium text-purple-500 flex items-center gap-0.5 uppercase tracking-tighter">
-                                                                <Target className="w-2 h-2" /> Synergy
+                                                                <Target className="w-2 h-2" /> {t('insights.pem_analysis.discovery.synergy')}
                                                             </span>
                                                         )}
                                                     </div>
@@ -243,15 +284,11 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                                 !d.classification && d.isAcute && "bg-red-500/10 text-red-600",
                                                                 !d.classification && !d.isAcute && "bg-orange-500/10 text-orange-600"
                                                             )}>
-                                                                {d.classification || (d.isAcute ? 'Acute' : 'Cumulative')}
+                                                                {getClassificationLabel(d.classification, d.isAcute, t)}
                                                             </Badge>
                                                         </TooltipTrigger>
                                                         <TooltipContent className="max-w-[200px] text-[10px]">
-                                                            {d.classification === 'Acute' && "Trigger happened on the same day the crash started."}
-                                                            {d.classification === 'Lagged' && "Short delay (1-2 days) between cause and effect."}
-                                                            {d.classification === 'Historical' && "A single event from 3+ days ago that likely contributed."}
-                                                            {d.classification === 'Cumulative' && "A sustained buildup of strain over multiple days."}
-                                                            {!d.classification && (d.isAcute ? "Trigger happened on onset day." : "Trigger happened before onset.")}
+                                                            {getClassificationDesc(d.classification, d.isAcute, t)}
                                                         </TooltipContent>
                                                     </InfoTooltip>
                                                 </TooltipProvider>
@@ -268,18 +305,18 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                         {Math.abs(d.pctChange).toFixed(0)}%
                                                     </div>
                                                     <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-70">
-                                                        {d.type === 'spike' ? 'Increase' : 'Decrease'}
+                                                        {d.type === 'spike' ? t('insights.pem_analysis.discovery.increase') : t('insights.pem_analysis.discovery.decrease')}
                                                     </span>
                                                 </div>
 
                                                 {/* Timeframe Pill */}
                                                 <div className="bg-background/80 dark:bg-zinc-900/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold border border-border/50 shadow-sm">
                                                     {d.leadDaysStart === 0 && d.leadDaysEnd === 0 ? (
-                                                        <span>On onset (Day 0)</span>
+                                                        <span>{t('insights.pem_analysis.discovery.onset')}</span>
                                                     ) : d.leadDaysStart === d.leadDaysEnd ? (
-                                                        <span>{d.leadDaysStart}d before</span>
+                                                        <span>{t('insights.pem_analysis.discovery.day_before', { day: d.leadDaysStart?.toString() || '0' })}</span>
                                                     ) : (
-                                                        <span>{d.leadDaysStart}-{d.leadDaysEnd}d before</span>
+                                                        <span>{t('insights.pem_analysis.discovery.days_before', { start: d.leadDaysStart?.toString() || '0', end: d.leadDaysEnd?.toString() || '' })}</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -297,10 +334,10 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                             ) : (
                                 <div className="space-y-4">
                                     <div className="text-base font-medium text-muted-foreground">
-                                        No clear trigger pattern
+                                        {t('insights.pem_analysis.phase1.no_pattern')}
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        No acute statistical spikes found in your metrics during the 7-day buildup. Your crashes may be caused by a &quot;slow burn&quot; of cumulative baseline energy expenditure.
+                                        {t('insights.pem_analysis.phase1.no_pattern_desc')}
                                     </p>
                                 </div>
                             )}
@@ -314,16 +351,16 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-sm font-semibold text-red-500 uppercase tracking-widest">
                                 <Target className="w-4 h-4" />
-                                Phase 2: The Event
+                                {t('insights.pem_analysis.phase2.title')}
                             </div>
                             <div className="flex gap-4">
                                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100/50 dark:bg-red-900/20 text-[10px] font-bold uppercase text-red-600 dark:text-red-400 border border-red-200/50 dark:border-red-900/30">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                                    Logged: {analysis.phase2?.avgLoggedDuration.toFixed(1)}d
+                                    {t('insights.pem_analysis.phase2.logged', { val: analysis.phase2?.avgLoggedDuration.toFixed(1) || '0' })}
                                 </div>
                                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-600/10 dark:bg-red-900/40 text-[10px] font-bold uppercase text-red-700 dark:text-red-400 border border-red-300/50 dark:border-red-900/50" title="Window where biomarkers deviate > 1.0 sigma from normal">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
-                                    Physiological: {analysis.phase2?.avgPhysiologicalDuration.toFixed(1)}d
+                                    {t('insights.pem_analysis.phase2.physiological', { val: analysis.phase2?.avgPhysiologicalDuration.toFixed(1) || '0' })}
                                 </div>
                             </div>
                         </div>
@@ -333,10 +370,10 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex flex-col gap-1">
                                     <h3 className="text-2xl font-black text-red-600 dark:text-red-500 leading-none uppercase tracking-tighter">
-                                        {analysis.phase2?.type || 'Unknown'}
+                                        {analysis.phase2?.type || t('common.unknown')}
                                     </h3>
                                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
-                                        Impact Classification • Baseline: 90 Days
+                                        {t('insights.pem_analysis.phase2.classification')}
                                     </p>
                                 </div>
 
@@ -347,8 +384,8 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                             (analysis.phase2?.avgPhysiologicalDuration ?? 0) > (analysis.phase2?.avgLoggedDuration ?? 0) ? "text-red-600 dark:text-red-400" : "text-emerald-600"
                                         )}>
                                             {(analysis.phase2?.avgPhysiologicalDuration ?? 0) > (analysis.phase2?.avgLoggedDuration ?? 0)
-                                                ? `Bio-Stress Persists +${((analysis.phase2?.avgPhysiologicalDuration ?? 0) - (analysis.phase2?.avgLoggedDuration ?? 0)).toFixed(1)}d`
-                                                : "Recovered with logs"}
+                                                ? t('insights.pem_analysis.phase2.persists', { val: ((analysis.phase2?.avgPhysiologicalDuration ?? 0) - (analysis.phase2?.avgLoggedDuration ?? 0)).toFixed(1) })
+                                                : t('insights.pem_analysis.phase2.recovered')}
                                         </span>
                                         <TooltipProvider>
                                             <InfoTooltip>
@@ -356,8 +393,8 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                     <Info className="w-3.5 h-3.5 opacity-40 hover:opacity-100 cursor-help" />
                                                 </TooltipTrigger>
                                                 <TooltipContent className="max-w-[250px] text-[11px]">
-                                                    <p className="font-bold mb-1">Biological Stress Duration</p>
-                                                    <p>Measures how long your body stays in a &quot;Strained&quot; state (Low HRV, High Heart Rate, or High Symptoms). Temporary &quot;good&quot; shifts in biomarkers are ignored to ensure accuracy.</p>
+                                                    <p className="font-bold mb-1">{t('insights.pem_analysis.phase2.bio_stress_title')}</p>
+                                                    <p>{t('insights.pem_analysis.phase2.bio_stress_desc')}</p>
                                                 </TooltipContent>
                                             </InfoTooltip>
                                         </TooltipProvider>
@@ -365,7 +402,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
 
                                     {(analysis.phase2?.extendingMetrics?.length ?? 0) > 0 && (
                                         <div className="flex flex-wrap justify-end gap-1">
-                                            <span className="text-[9px] font-bold text-muted-foreground uppercase mr-1 mt-0.5">Extended by:</span>
+                                            <span className="text-[9px] font-bold text-muted-foreground uppercase mr-1 mt-0.5">{t('insights.pem_analysis.phase2.extended_by')}</span>
                                             {analysis.phase2?.extendingMetrics?.map((m: string) => (
                                                 <Badge
                                                     key={m}
@@ -413,7 +450,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                     {Math.abs(d.pctChange).toFixed(0)}%
                                                 </div>
                                                 <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-70">
-                                                    Peak Deviation
+                                                    {t('insights.pem_analysis.phase2.peak_deviation')}
                                                 </span>
                                             </div>
                                         </div>
@@ -437,16 +474,16 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-sm font-semibold text-blue-500 uppercase tracking-widest">
                                 <TrendingUp className="w-4 h-4" />
-                                Phase 3: The Recovery Tail
+                                {t('insights.pem_analysis.phase3.title')}
                             </div>
                             <div className="flex gap-4 text-[10px] font-bold uppercase text-muted-foreground">
                                 <div className="flex items-center gap-1.5" title="The period where you were actively logging a crash.">
                                     <span className="w-2 h-2 rounded-full bg-blue-400 opacity-60" />
-                                    Subjective Log: +{analysis.phase3?.avgSymptomRecoveryTail.toFixed(1)}d
+                                    {t('insights.pem_analysis.phase3.subjective', { val: analysis.phase3?.avgSymptomRecoveryTail.toFixed(1) || '0' })}
                                 </div>
                                 <div className="flex items-center gap-1.5" title="The period where your body remained in a strained state.">
                                     <span className="w-2 h-2 rounded-full bg-blue-600" />
-                                    Biological Lag: +{analysis.phase3?.avgBiologicalRecoveryTail.toFixed(1)}d
+                                    {t('insights.pem_analysis.phase3.biological', { val: analysis.phase3?.avgBiologicalRecoveryTail.toFixed(1) || '0' })}
                                 </div>
                             </div>
                         </div>
@@ -455,21 +492,21 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                         <div className="space-y-4">
                             <div className="flex items-baseline justify-between mb-2">
                                 <h3 className="text-xl font-black text-blue-600 dark:text-blue-400 leading-none uppercase tracking-tighter">
-                                    {(analysis.phase3?.avgBiologicalRecoveryTail ?? 0) > (analysis.phase3?.avgSymptomRecoveryTail ?? 0) ? "Biological Lag" : "Fast Recovery"}
+                                    {(analysis.phase3?.avgBiologicalRecoveryTail ?? 0) > (analysis.phase3?.avgSymptomRecoveryTail ?? 0) ? t('insights.pem_analysis.phase3.lag') : t('insights.pem_analysis.phase3.fast')}
                                 </h3>
                                 <div className="text-right">
                                     <div className="text-xs font-bold text-muted-foreground uppercase flex items-center justify-end gap-1.5">
                                         {(analysis.phase3?.hysteresisGap ?? 0) > 1
-                                            ? `Body lag: +${analysis.phase3?.hysteresisGap?.toFixed(1)}d after feeling better`
-                                            : "Body resets alongside symptoms"}
+                                            ? t('insights.pem_analysis.phase3.body_lag', { val: analysis.phase3?.hysteresisGap?.toFixed(1) || '0' })
+                                            : t('insights.pem_analysis.phase3.body_reset')}
                                         <TooltipProvider>
                                             <InfoTooltip>
                                                 <TooltipTrigger asChild>
                                                     <Info className="w-3.5 h-3.5 opacity-50 hover:opacity-100 cursor-help" />
                                                 </TooltipTrigger>
                                                 <TooltipContent className="max-w-[250px] text-[11px]">
-                                                    <p className="font-bold mb-1">Biological Lag (Hysteresis)</p>
-                                                    <p>Measures how long your biomarkers (HRV, RHR) take to return to baseline <strong>after</strong> you stopped feeling the acute effects of the crash. This is the &quot;hangover&quot; your body is still processing.</p>
+                                                    <p className="font-bold mb-1">{t('insights.pem_analysis.phase3.hysteresis_title')}</p>
+                                                    <p>{t('insights.pem_analysis.phase3.hysteresis_desc')}</p>
                                                 </TooltipContent>
                                             </InfoTooltip>
                                         </TooltipProvider>
@@ -483,7 +520,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                         <div key={m} className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30 rounded-xl p-3 relative group">
                                             <div className="absolute top-3 right-3">
                                                 <Badge variant="outline" className="text-[8px] font-black border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 uppercase px-1.5 py-0">
-                                                    Slowest
+                                                    {t('insights.pem_analysis.phase3.slowest')}
                                                 </Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
@@ -496,14 +533,14 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                                 </div>
                                                             </TooltipTrigger>
                                                             <TooltipContent className="max-w-[200px] text-[10px]">
-                                                                <p>This metric takes an average of {analysis.phase3?.avgBiologicalRecoveryTail?.toFixed(1)} days to return to your normal range after a crash starts.</p>
+                                                                <p>{t('insights.pem_analysis.phase3.metric_recovery_time', { days: analysis.phase3?.avgBiologicalRecoveryTail?.toFixed(1) || '0' })}</p>
                                                             </TooltipContent>
                                                         </InfoTooltip>
                                                     </TooltipProvider>
                                                     <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{getFriendlyName(m)}</span>
                                                 </div>
                                                 <span className="text-xl font-black text-blue-700 dark:text-blue-500 tracking-tighter">
-                                                    +{analysis.phase3?.avgBiologicalRecoveryTail?.toFixed(1)} <span className="text-[10px] uppercase text-blue-500/60 font-bold ml-1">Days Tail</span>
+                                                    +{analysis.phase3?.avgBiologicalRecoveryTail?.toFixed(1)} <span className="text-[10px] uppercase text-blue-500/60 font-bold ml-1">{t('insights.pem_analysis.phase3.days_tail')}</span>
                                                 </span>
                                             </div>
                                         </div>
@@ -516,7 +553,9 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
 
             </div>
             <p className="text-xs text-muted-foreground text-center pt-2 max-w-2xl mx-auto">
-                * Analysis based on <strong>{analysis.episodeCount} crash episodes</strong> using Superposed Epoch Analysis (SEA).
+                {t('insights.pem_analysis.footer', { count: analysis.episodeCount?.toString() || '0' })
+                    .split(/\*\*(.*?)\*\*/)
+                    .map((part, i) => i % 2 === 1 ? <strong key={i} className="font-bold">{part}</strong> : part)}
             </p>
         </div>
     )

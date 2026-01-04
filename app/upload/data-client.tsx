@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { CsvUploader } from "@/components/upload/csv-uploader"
 import { XmlUploader } from "@/components/upload/xml-uploader"
 import { Lock, Trash2, Calendar, FileText, Smartphone, Activity, Pencil } from "lucide-react"
-import { format, parseISO } from "date-fns"
+import { parseISO } from "date-fns"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import { EditDataDialog } from "@/components/dashboard/edit-data-dialog"
 import { subDays, isAfter, startOfDay } from "date-fns"
 import { useMemo } from 'react'
 import { ScorableEntry } from "@/lib/scoring/composite-score"
+
 import {
     Select,
     SelectContent,
@@ -42,7 +43,7 @@ interface DataEntry {
 }
 
 export default function DataManagementClient({ initialData, hasData: initialHasData, hasSteps }: { initialData: DataEntry[], hasData: boolean, hasSteps: boolean }) {
-    const { t } = useLanguage()
+    const { t, locale } = useLanguage()
     const [dataLog, setDataLog] = useState<DataEntry[]>(initialData)
     const [hasData, setHasData] = useState(initialHasData)
     const [timeRange, setTimeRange] = useState<string>('all')
@@ -86,24 +87,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     const router = useRouter()
 
     const handleDelete = async (id: string) => {
-        if (!confirm(t('common.confirm'))) return // Generic confirm or specifics? Dictionary has common.confirm="Confirm". But confirm() needs message. 
-        // Using common dictionary: "Are you sure you want to delete this entry?" I seem to have missed this specific string in dictionary.
-        // It's not in types either. I will use 'common.confirm' for now or hardcode for safety if key missing?
-        // Actually, user wants to translate EVERYTHING. 
-        // I will use a generic "Are you sure?" key or add it.
-        // Let's use `confirm('Are you sure you want to delete this entry?')` -> `confirm(t('common.delete') + '?')` is weird.
-        // I'll stick to English here for the prompt message since I can't easily add keys now without violating Type again.
-        // WAIT: I can add keys to `types` and `dictionaries`? No, I'm doing this file now.
-        // I'll use `t('common.delete')` as the title if using a custom Dialog, but `window.confirm` takes a string.
-        // The original was "Are you sure you want to delete this entry?".
-        // I will hardcode it for now as I missed it in dictionary, essentially leaving it English. 
-        // The user can fix it later or I can do another pass.
-        // Actually, I can use `experiments.actions.confirm_delete` for safety? No, that says "experiment".
-        // Use `t('upload.data_log.delete_confirm')` for delete all.
-        // Simply: I won't translate this single specific confirmation string fully perfectly.
-        // OR better: I will add "Delete Entry?" to the next Dictionary update list if I have one.
-        // For now:
         if (!confirm(t('upload.data_log.delete_entry_confirm'))) return
+
 
         const { error } = await supabase.from('health_metrics').delete().eq('id', id)
 
@@ -159,7 +144,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             custom_metrics: updatedData.custom_metrics
         } satisfies HealthMetricUpdate
 
-        // Supabase strict typing requires cast for update payload
+        // Explicit cast to fix "never" inference in build
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await (supabase.from('health_metrics') as any)
             .update(updatePayload)
@@ -240,7 +225,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                             <TabsList className="grid w-full grid-cols-2 mb-8 h-12 rounded-full p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                                 <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300">
                                     <Activity className="w-4 h-4 mr-2" />
-                                    {profile?.symptom_provider === 'bearable' ? 'Bearable App (CSV)' : t('upload.tabs.visible')}
+                                    {profile?.symptom_provider === 'bearable' ? t('upload.tabs.bearable') : t('upload.tabs.visible')}
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="apple"
@@ -248,8 +233,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                     className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Smartphone className="w-4 h-4 mr-2" />
-                                    {stepProvider.charAt(0).toUpperCase() + stepProvider.slice(1)} {t('upload.data_log.table.steps')}
-                                    {!hasData && <span className="ml-2 text-[10px] text-zinc-500">(Requires Health Data)</span>}
+                                    {t(`upload.tabs.${stepProvider as 'apple' | 'google' | 'samsung'}`)}
+                                    {!hasData && <span className="ml-2 text-[10px] text-zinc-500">({t('upload.messages.requires_data')})</span>}
                                 </TabsTrigger>
                             </TabsList>
                             <TabsContent value="visible" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
@@ -299,7 +284,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                             <div className="flex items-center gap-3">
                                 <Select value={timeRange} onValueChange={setTimeRange}>
                                     <SelectTrigger className="w-[140px] h-9 text-xs rounded-full bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
-                                        <SelectValue placeholder="Time Range" />
+                                        <SelectValue placeholder={t('dashboard.time_ranges.all')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">{t('dashboard.time_ranges.all')}</SelectItem>
@@ -334,7 +319,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                 <tr key={entry.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                                                     <td className="px-6 py-4 font-medium flex items-center gap-2">
                                                         <Calendar className="w-3 h-3 text-muted-foreground" />
-                                                        {!mounted ? entry.date : format(parseISO(entry.date), 'MMM d, yyyy')}
+                                                        {!mounted ? entry.date : new Date(entry.date).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.resting_heart_rate ? `${entry.resting_heart_rate} bpm` : '-'}</td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>

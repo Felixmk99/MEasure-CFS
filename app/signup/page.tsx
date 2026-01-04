@@ -64,16 +64,16 @@ export default function SignupPage() {
         })
         if (error) {
             if (error.message.includes("already registered")) {
-                setError("Account already exists. Please Log In.")
+                setError(t('auth.signup.error_exists'))
             } else {
                 setError(error.message)
             }
         }
         else {
             if (pendingUpload) {
-                setError('Account created! Please check your email to confirm. After confirming, we will automatically process your uploaded data.')
+                setError(t('auth.signup.success_pending'))
             } else {
-                setError('Check your email for the confirmation link.')
+                setError(t('auth.signup.success_confirm'))
             }
         }
         setLoading(false)
@@ -85,50 +85,50 @@ export default function SignupPage() {
                 <div className="max-w-md w-full mx-auto space-y-3">
                     <div className="space-y-1">
                         <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-                            Start your <br />
+                            {t('auth.signup.title_start')} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-[#3B82F6]">
-                                clarity journey
+                                {t('auth.signup.title_highlight')}
                             </span>
                         </h1>
                         <p className="text-muted-foreground italic mb-4">&quot;{t('auth.login.testimonial.quote')}&quot;</p>
                         <p className="text-muted-foreground text-sm">
-                            Create a secure space to analyze your trends.
+                            {t('auth.signup.subtitle')}
                         </p>
                     </div>
 
                     <div className="space-y-2.5">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-1">
-                                <Label htmlFor="firstName" className="text-xs font-medium">First Name</Label>
+                                <Label htmlFor="firstName" className="text-xs font-medium">{t('auth.signup.first_name')}</Label>
                                 <Input
-                                    id="firstName" placeholder="Jane" className="bg-muted/30 border-muted-foreground/20 h-10"
+                                    id="firstName" placeholder={t('auth.signup.placeholder_first_name')} className="bg-muted/30 border-muted-foreground/20 h-10"
                                     value={firstName} onChange={e => setFirstName(e.target.value)}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <Label htmlFor="lastName" className="text-xs font-medium">Last Name</Label>
+                                <Label htmlFor="lastName" className="text-xs font-medium">{t('auth.signup.last_name')}</Label>
                                 <Input
-                                    id="lastName" placeholder="Doe" className="bg-muted/30 border-muted-foreground/20 h-10"
+                                    id="lastName" placeholder={t('auth.signup.placeholder_last_name')} className="bg-muted/30 border-muted-foreground/20 h-10"
                                     value={lastName} onChange={e => setLastName(e.target.value)}
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-1">
-                            <Label htmlFor="email" className="text-xs font-medium">Email Address</Label>
+                            <Label htmlFor="email" className="text-xs font-medium">{t('auth.common.email')}</Label>
                             <Input
-                                id="email" type="email" placeholder="jane@example.com" className="bg-muted/30 border-muted-foreground/20 h-10"
+                                id="email" type="email" placeholder={t('auth.common.placeholder_email')} className="bg-muted/30 border-muted-foreground/20 h-10"
                                 value={email} onChange={e => setEmail(e.target.value)}
                             />
                         </div>
 
                         <div className="space-y-1">
-                            <Label htmlFor="password" className="text-xs font-medium">Password</Label>
+                            <Label htmlFor="password" className="text-xs font-medium">{t('auth.common.password')}</Label>
                             <Input
-                                id="password" type="password" placeholder="••••••••" className="bg-muted/30 border-muted-foreground/20 h-10"
+                                id="password" type="password" placeholder={t('auth.common.placeholder_password')} className="bg-muted/30 border-muted-foreground/20 h-10"
                                 value={password} onChange={e => setPassword(e.target.value)}
                             />
-                            <p className="text-[10px] text-muted-foreground">Must be at least 8 characters</p>
+                            <p className="text-[10px] text-muted-foreground">{t('auth.signup.password_hint')}</p>
                         </div>
 
                         {/* Legal Selection */}
@@ -143,8 +143,8 @@ export default function SignupPage() {
                                     <Label htmlFor="terms" className="text-xs font-normal text-muted-foreground cursor-pointer leading-relaxed">
                                         {t('legal.agree_terms_privacy')}
                                         <div className="flex gap-2 mt-1">
-                                            <Link href="/terms" target="_blank" className="text-blue-500 hover:underline">Terms</Link>
-                                            <Link href="/privacy" target="_blank" className="text-blue-500 hover:underline">Privacy</Link>
+                                            <Link href="/terms" target="_blank" className="text-blue-500 hover:underline">{t('legal.terms')}</Link>
+                                            <Link href="/privacy" target="_blank" className="text-blue-500 hover:underline">{t('legal.privacy')}</Link>
                                         </div>
                                     </Label>
                                 </div>
@@ -176,15 +176,15 @@ export default function SignupPage() {
                             disabled={loading}
                         >
                             {loading && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
-                            Create Account
+                            {t('auth.signup.button_create')}
                             {!loading && <ArrowRight className="ml-2 h-3 w-3" />}
                         </Button>
 
                         <div className="text-center pt-1">
                             <p className="text-xs text-muted-foreground">
-                                Already have an account?{' '}
+                                {t('auth.signup.already_have_account')}{' '}
                                 <Link href="/login" className="font-semibold text-foreground underline hover:text-primary transition-colors">
-                                    Log In
+                                    {t('auth.signup.button_login')}
                                 </Link>
                             </p>
                         </div>
@@ -201,10 +201,10 @@ export default function SignupPage() {
                             <div className="p-2 bg-green-500/20 rounded-full text-green-400">
                                 <Shield className="h-5 w-5" />
                             </div>
-                            <span className="font-semibold tracking-wide text-sm uppercase">Privacy Guaranteed</span>
+                            <span className="font-semibold tracking-wide text-sm uppercase">{t('auth.common.privacy_guaranteed')}</span>
                         </div>
                         <h3 className="text-xl font-bold mb-4 leading-relaxed">
-                            &quot;MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold.&quot;
+                            &quot;{t('auth.common.privacy_quote')}&quot;
                         </h3>
                         <div className="h-1 w-20 bg-[#F59E0B] rounded-full my-6"></div>
 
@@ -214,8 +214,8 @@ export default function SignupPage() {
                                     <TrendingUp className="h-4 w-4" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-sm">Visualize Your Baseline</h4>
-                                    <p className="text-xs text-white/60">Understand your energy envelope.</p>
+                                    <h4 className="font-semibold text-sm">{t('auth.signup.feature_baseline_title')}</h4>
+                                    <p className="text-xs text-white/60">{t('auth.signup.feature_baseline_desc')}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -223,8 +223,8 @@ export default function SignupPage() {
                                     <Shield className="h-4 w-4" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-sm">Patient-First Design</h4>
-                                    <p className="text-xs text-white/60">Built for the chronic illness community.</p>
+                                    <h4 className="font-semibold text-sm">{t('auth.signup.feature_design_title')}</h4>
+                                    <p className="text-xs text-white/60">{t('auth.signup.feature_design_desc')}</p>
                                 </div>
                             </div>
                         </div>

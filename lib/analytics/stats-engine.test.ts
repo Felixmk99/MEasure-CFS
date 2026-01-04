@@ -1,6 +1,5 @@
-import { analyzeExperiment } from './stats-engine'
-import { ScorableEntry } from '@/lib/scoring/composite-score'
-import { Experiment } from '@/lib/statistics/experiment-analysis'
+import { analyzeExperiment, Experiment, Metric } from './stats-engine'
+
 
 
 // Mock dependencies if needed, but here we integration test with the pure function logic
@@ -20,10 +19,10 @@ const generateMetrics = (count: number, startDay: string, baseScore: number) => 
             resting_heart_rate: 60,
             exertion_score: 0,
             step_count: 0,
-            custom_metrics: null,
+            custom_metrics: {},
             raw_data: null,
             created_at: new Date().toISOString()
-        }
+        } as unknown as Metric
     })
 }
 
@@ -34,15 +33,17 @@ describe('analyzeExperiment', () => {
         // Treatment: 30 days of good health (HRV 100 ~ Score 100)
         const treatment = generateMetrics(30, '2023-01-31', 100)
 
-        const allMetrics: ScorableEntry[] = [...baseline, ...treatment]
+        const allMetrics: Metric[] = [...baseline, ...treatment]
 
         const experiment: Experiment = {
             id: 'exp1',
+            user_id: 'user',
             name: 'Test Exp',
             dosage: '10mg',
             category: 'medication',
             start_date: '2023-01-31',
-            end_date: '2023-03-02'
+            end_date: '2023-03-02',
+            created_at: new Date().toISOString()
         }
 
         const result = analyzeExperiment(experiment, allMetrics)
@@ -58,8 +59,11 @@ describe('analyzeExperiment', () => {
     it('should return null if insufficient data', () => {
         const metrics = generateMetrics(2, '2023-01-01', 50)
         const experiment: Partial<Experiment> = {
+            id: 'exp1',
+            user_id: 'user',
             start_date: '2023-01-02',
-            end_date: '2023-01-05'
+            end_date: '2023-01-05',
+            created_at: new Date().toISOString()
         }
 
         // Not enough baseline days

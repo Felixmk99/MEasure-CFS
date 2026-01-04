@@ -9,8 +9,41 @@ export const en: Dictionary = {
         delete: "Delete",
         confirm: "Confirm",
         success: "Success",
-        custom: "Custom"
+        custom: "Custom",
+        unknown: "Unknown",
+        metric_labels: {
+            step_count: "Steps",
+            hrv: "HRV",
+            resting_heart_rate: "Resting HR",
+            symptom_score: "Symptom Score",
+            exertion_score: "Total Exertion",
+            composite_score: "Symptom Score",
+            adjusted_score: "MEasure-CFS Score",
+            sleep: "Sleep",
+            fatigue: "Fatigue",
+            anxiety: "Anxiety",
+            cough: "Cough",
+            depression: "Depression",
+            fever: "Fever",
+            headaches: "Headaches",
+            headache: "Headache",
+            lightheadedness: "Lightheadedness",
+            "memory/mental": "Memory/Mental Fog",
+            "muscle weakness": "Muscle Weakness",
+            nausea: "Nausea",
+            "physical exertion": "Physical Exertion",
+            "cognitive exertion": "Cognitive Exertion",
+            "emotional exertion": "Emotional Exertion",
+            "social exertion": "Social Exertion",
+            work: "Work",
+            stress: "Stress",
+            palpitations: "Palpitations",
+            stability_score: "Stability Score",
+            muscle_aches: "Muscle Aches",
+            energy: "Energy"
+        }
     },
+
     navbar: {
         dashboard: "Dashboard",
         insights: "Insights",
@@ -180,6 +213,9 @@ export const en: Dictionary = {
         subtitle_prefix: "Tracking your",
         subtitle_suffix: "over time.",
         trend_mode: "Trend",
+        compare_mode: "Compare",
+        pem_mode: "PEM",
+        select_placeholder: "Select Metric",
         metrics_dropdown: "Metrics (Max 2)",
         metrics_selected: "Selected",
         charts: {
@@ -253,6 +289,26 @@ export const en: Dictionary = {
                 label: "Sleep Problems",
                 description: "Tracks difficulties with sleep quality and duration. High score = Poor sleep.",
                 better: "Lower is better"
+            },
+            palpitations: {
+                label: "Palpitations",
+                description: "Tracks heart rhythm disturbances.",
+                better: "Lower is better"
+            },
+            stability_score: {
+                label: "Stability Score",
+                description: "Tracks day-to-day energy stability.",
+                better: "Higher is better"
+            },
+            muscle_aches: {
+                label: "Muscle Aches",
+                description: "Tracks severity of muscle pain.",
+                better: "Lower is better"
+            },
+            energy: {
+                label: "Energy",
+                description: "Self-reported energy level.",
+                better: "Higher is better"
             }
         },
         crash_mode: "Analyze PEM",
@@ -284,6 +340,8 @@ export const en: Dictionary = {
             category: "Category",
             start_date: "Start Date",
             end_date: "End Date (Optional)",
+            name_placeholder: "e.g. Low Dose Naltrexone",
+            dosage_placeholder: "e.g. 0.5mg",
             categories: {
                 lifestyle: "Lifestyle (Pacing, Rest)",
                 medication: "Medication",
@@ -296,18 +354,27 @@ export const en: Dictionary = {
             day: "Active • Day",
             confidence: "Model Confidence",
             confidence_hint: "Requires ~30 days for full accuracy.",
+            confidence_desc: "Statistical confidence based on current data volume and variance.",
             impact_title: "Independent Health Impact (Controlled for overlaps)",
             no_active_title: "No active experiments",
-            no_active_desc: "Start a new experiment to track how interventions affect your health."
+            no_active_desc: "Start a new experiment to track how interventions affect your health.",
+            started_at: "Started {date}"
         },
         history: {
             title: "Historical Archive",
             independent_outcome: "Independent Outcome",
+            outcome_positive: "Positive",
+            outcome_negative: "Negative",
+            outcome_neutral: "Neutral",
             influence: "Influence",
             no_history: "No concluded experiments in the archive."
         },
         impact: {
             insufficient: "Insufficient data to isolate independent impact yet.",
+            no_significant: "No statistically significant impacts detected for this experiment yet.",
+            high_confidence_desc: "Highly likely to be a real effect (95% confidence).",
+            trend_desc: "Suggested trend, but more data may be needed.",
+            not_significant_desc: "Not statistically significant.",
             significance: {
                 significant: "Significant",
                 trend: "Trend",
@@ -339,17 +406,47 @@ export const en: Dictionary = {
             success: "Upload Complete!",
             error: "Upload Failed",
             uploading: "Uploading...",
+            parsing: "Parsing File...",
             button_upload: "Upload New File",
             button_select: "Select File",
-            button_retry: "Try Again"
+            button_retry: "Try Again",
+            title_visible: "Upload your Visible CSV",
+            title_apple: "Upload Apple Health Export",
+            title_google: "Upload Google Fit Export",
+            title_samsung: "Upload Samsung Health Export",
+            title_bearable: "Upload Bearable Export",
+            hint_visible: "Drop your Visible export here to see your trends.",
+            hint_apple: "Drag and drop export.xml. We only extract steps matching your Visible data.",
+            hint_google: "Drag and drop your Google Fit daily activity CSV.",
+            hint_samsung: "Drag and drop your Samsung Health steps CSV.",
+            hint_bearable: "Drop your Bearable CSV file here to import your health data.",
+            file_type_csv: "Supports .csv files",
+            file_type_xml: "Supports .xml files"
+        },
+        messages: {
+            invalid_file: "Invalid file. Please upload the correct {provider} export file.",
+            parsing_file: "Parsing {provider} file...",
+            processing_measurements: "Processing {count} measurements...",
+            login_required: "You must be logged in to upload data.",
+            uploading_days: "Uploading {count} days of data...",
+            checking_existing: "Checking for existing records...",
+            no_new_data: "All data in this file is already in your history. No new days to add.",
+            adding_days: "Adding {count} new days of data...",
+            processed_progress: "Processed {current} / {total} days...",
+            parse_error: "Failed to parse file: {error}",
+            no_steps_found: "No step count records found in this file.",
+            no_matching_dates: "No matching log dates found. Please upload your symptom data first.",
+            found_matching_days: "Found {count} matching days. Preparing upload...",
+            success_steps: "Successfully updated steps for {count} days!",
+            requires_data: "Requires Health Data"
         },
         data_log: {
             title: "Data Log",
-            delete_all: "Delete All Data",
-            delete_confirm: "WARNING: This will delete ALL your uploaded health data. This action cannot be undone. Are you sure?",
+            delete_all: "Delete all data",
+            delete_confirm: "WARNING: This will delete ALL your uploaded health records. This action cannot be undone. Are you sure?",
             delete_entry_confirm: "Are you sure you want to delete this entry?",
-            provider_coming_soon: "Provider Coming Soon",
-            provider_built_hint: "Integrations for {provider} are being built. Change your provider in Settings if you want to use another one.",
+            provider_coming_soon: "Provider coming soon",
+            provider_built_hint: "Integrations for {provider} are currently being built. Change your provider in settings if you wish to use a different one.",
             hide_import: "Hide Import Tools",
             table: {
                 date: "Date",
@@ -359,8 +456,71 @@ export const en: Dictionary = {
                 symptoms: "Symptoms",
                 action: "Action",
                 empty: "No recent entries found.",
-                recent_hint: "Showing recent 500 entries."
+                recent_hint: "Showing last 500 entries."
             }
+        }
+    },
+    settings: {
+        title: "Settings",
+        subtitle: "Manage your account.",
+        sidebar: {
+            profile: "Profile",
+            security: "Security",
+            preferences: "Preferences",
+            data_export: "Data & Export",
+            soon: "Soon"
+        },
+        profile: {
+            title: "Public Profile",
+            description: "This information will be displayed on your profile.",
+            first_name: "First name",
+            last_name: "Last name",
+            button_save: "Save Changes",
+            button_saving: "Saving..."
+        },
+        personal: {
+            title: "Personal Details",
+            description: "Manage your contact information.",
+            email: "Email address"
+        },
+        symptom_integration: {
+            title: "Symptom Tracker Integration",
+            description: "Choose which app you use to track your daily symptoms.",
+            provider_label: "Symptom Provider",
+            placeholder: "Select symptom tracker",
+            hint: "This switches the uploader in the Data tab. Existing data is never overwritten.",
+            visible: "Visible App",
+            bearable: "Bearable App"
+        },
+        step_integration: {
+            title: "Health Data Integration",
+            description: "Choose which app provides your daily step data.",
+            provider_label: "Step Data Provider",
+            placeholder: "Select step provider",
+            hint: "Determines which steps uploader is shown in the Data tab.",
+            apple: "Apple Health",
+            google: "Google Fit",
+            samsung: "Samsung Health",
+            whoop: "Whoop",
+            garmin: "Garmin",
+            soon: "Soon"
+        },
+        delete_account: {
+            title: "Delete Account",
+            description: "Irreversible Action. Please review the information below.",
+            warning_title: "Warning",
+            warning_access: "Deleting your account will immediately remove your access.",
+            warning_data: "Trend analysis history will be permanently deleted (secure wipe).",
+            warning_recovery: "Account recovery is not possible.",
+            confirm_label_before: "To confirm, please type ",
+            confirm_label_after: " below",
+            confirm_keyword: "DELETE",
+            button_delete: "Permanently Delete",
+            button_deleting: "Deleting data...",
+            success_toast: "Account deleted successfully.",
+            error_toast: "Failed to delete account data: {error}",
+            error_fallback: "Failed to delete account from authentication system.",
+            signout_failed: "Account deleted, but sign-out failed. You may need to clear your browser cache."
         }
     },
     legal: {
@@ -423,10 +583,189 @@ export const en: Dictionary = {
         help_text: "If you haven't logged in yet, try requesting a new link by entering your email at the login or signup page again. If the issue persists, feel free to contact us."
     },
     auth: {
+        common: {
+            email: "Email Address",
+            password: "Password",
+            placeholder_email: "jane@example.com",
+            placeholder_password: "••••••••",
+            privacy_guaranteed: "Privacy Guaranteed",
+            privacy_quote: "MEasure-CFS hosts your health data securely with Supabase, protected by Row Level Security (RLS) and stored encrypted. No records are ever shared."
+        },
         login: {
+            title_start: "Welcome",
+            title_highlight: "back home",
+            subtitle: "Sign in to visualize your progress.",
+            forgot_password: "Forgot password?",
+            button_signin: "Sign In",
+            no_account: "Don't have an account?",
+            button_create: "Create Free Account",
+            error_invalid: "Invalid credentials. If you don't have an account, please sign up.",
             testimonial: {
-                quote: "MEasure-CFS turns my brain fog into a clear plan. It's the first time I feel ahead of my energy crashes."
+                quote: "MEasure-CFS helps me reduce my PEM episodes."
             }
+        },
+        signup: {
+            title_start: "Start your",
+            title_highlight: "clarity journey",
+            subtitle: "Create a secure space to analyze your symptom data.",
+            first_name: "First Name",
+            last_name: "Last Name",
+            placeholder_first_name: "Jane",
+            placeholder_last_name: "Doe",
+            password_hint: "Must be at least 8 characters",
+            button_create: "Create Account",
+            already_have_account: "Already have an account?",
+            button_login: "Log In",
+            feature_baseline_title: "Visualize Your Baseline",
+            feature_baseline_desc: "Understand your energy envelope.",
+            feature_design_title: "Patient-First Design",
+            feature_design_desc: "Built for the chronic illness community.",
+            error_exists: "Account already exists. Please Log In.",
+            success_pending: "Account created! Please check your email to confirm. After confirming, you can sign in and start uploading your health data from your dashboard.",
+            success_confirm: "Check your email for the confirmation link."
+        }
+    },
+    insights: {
+        hero: {
+            title: "Insights",
+            desc: "Deep analysis of your all-time health data to find the hidden patterns in your recovery.",
+            all_time: "All-Time Analysis",
+            last_updated: "Last updated: {date}"
+        },
+        empty: {
+            title: "No Insights Yet",
+            desc: "You need to upload some health data first before we can analyze your symptom patterns.",
+            button: "Upload your first CSV"
+        },
+        gathering: {
+            title: "Gathering Biological Data",
+            desc: "We need at least 7 days of data to provide statistically significant insights. Keep tracking!",
+            progress: "Current Progress: {count} / 7 days"
+        },
+        patterns: {
+            title: "Actionable Patterns",
+            safe_zones: "Safe Zones",
+            safe_zone_detected: "Safe Zone Detected",
+            same_day: "Same Day Effects",
+            next_day: "Next Day Effects",
+            two_day: "2-Day Delayed Effects",
+            insufficient_data: "Keep tracking your symptoms to unlock biological insights.",
+            cards: {
+                today: "Today",
+                plus_1_day: "+1 Day",
+                plus_2_days: "+2 Days",
+                impact: {
+                    direct: "Direct Impact",
+                    high_warning: "High Impact Warning",
+                    helpful_connection: "Helpful Connection",
+                    helpful_pattern: "Helpful Pattern",
+                    direct_connection: "Direct Connection",
+                    hidden_lag: "Hidden Lag Warning"
+                }
+            }
+        },
+        clusters: {
+            title: "Biological Clusters",
+            heatmap: {
+                title: "Symptom Correlation Heatmap",
+                lag_zero: "(Lag = 0)",
+                desc: "Identifies same-day relationships between symptoms. Green = positive correlation, Red = negative correlation.",
+                showing: "Showing {count} of {total} metrics",
+                legend: "Legend:",
+                strong_negative: "Strong Negative",
+                strong_positive: "Strong Positive",
+                insufficient: "Insufficient Data",
+                correlation: "Correlation",
+                strength: {
+                    strong: "Strong",
+                    moderate: "Moderate",
+                    weak: "Weak",
+                    very_weak: "Very Weak"
+                },
+                relation: {
+                    positive: "Positive",
+                    negative: "Negative",
+                    neutral: "Neutral",
+                    suffix: "relationship"
+                }
+            }
+        },
+        logic: {
+            reduces: "Reduces",
+            increases: "Increases",
+            keep: "Keep",
+            watch: "Watch",
+            above: "above",
+            below: "below",
+            by: "by ~",
+            from: "from",
+            to: "to",
+            threshold_desc: "Staying below {limit} {metric} keeps your {impact} significantly lower."
+        },
+        footer: {
+            disclaimer: "Statistical insights are for informational purposes only and not medical advice. Always consult your physician."
+        },
+        pem_analysis: {
+            title: "PEM Insights",
+            no_clusters: {
+                title: "No PEM Clusters Detected",
+                desc: "No crashes detected in the selected timeframe.",
+                desc_short: "You don't have enough crash data to perform a full Cycle Analysis yet."
+            },
+            phase1: {
+                title: "Phase 1: Buildup",
+                cumulative: "Cumulative Load Detected",
+                confidence: "Confidence:",
+                no_pattern: "No clear trigger pattern",
+                no_pattern_desc: "No acute statistical spikes found in your metrics during the 7-day buildup. Your crashes may be caused by a 'slow burn' of cumulative baseline energy expenditure."
+            },
+            phase2: {
+                title: "Phase 2: The Event",
+                logged: "Logged: {val}d",
+                physiological: "Physiological: {val}d",
+                classification: "Impact Classification • Baseline: 90 Days",
+                persists: "Bio-Stress Persists +{val}d",
+                recovered: "Recovered with logs",
+                bio_stress_title: "Biological Stress Duration",
+                bio_stress_desc: "Measures how long your body stays in a 'Strained' state (Low HRV, High Heart Rate, or High Symptoms). Temporary 'good' shifts in biomarkers are ignored to ensure accuracy.",
+                extended_by: "Extended by:",
+                peak_deviation: "Peak Deviation"
+            },
+            phase3: {
+                title: "Phase 3: The Recovery Tail",
+                subjective: "Subjective Log: +{val}d",
+                biological: "Biological Lag: +{val}d",
+                lag: "Biological Lag",
+                fast: "Fast Recovery",
+                body_lag: "Body lag: +{val}d after feeling better",
+                body_reset: "Body resets alongside symptoms",
+                hysteresis_title: "Biological Lag (Hysteresis)",
+                hysteresis_desc: "Measures how long your biomarkers (HRV, RHR) take to return to baseline **after** you stopped feeling the acute effects of the crash. This is the 'hangover' your body is still processing.",
+                slowest: "Slowest",
+                days_tail: "Days Tail",
+                metric_recovery_time: "This metric takes an average of +{days} days to return to your normal range after a crash starts."
+            },
+            discovery: {
+                increase: "Increase",
+                decrease: "Decrease",
+                onset: "On onset (Day 0)",
+                days_before: "{start}-{end}d before",
+                day_before: "{day}d before",
+                synergy: "Synergy"
+            },
+            classifications: {
+                acute: "Acute",
+                lagged: "Lagged",
+                historical: "Historical",
+                cumulative: "Cumulative",
+                acute_desc: "Trigger happened on the same day the crash started.",
+                lagged_desc: "Short delay (1-2 days) between cause and effect.",
+                historical_desc: "A single event from 3+ days ago that likely contributed.",
+                cumulative_desc: "A sustained buildup of strain over multiple days.",
+                onset_desc: "Trigger happened on onset day.",
+                pre_onset_desc: "Trigger happened before onset."
+            },
+            footer: "Analysis based on **{count} crash episodes** using Superposed Epoch Analysis (SEA)."
         }
     }
 }

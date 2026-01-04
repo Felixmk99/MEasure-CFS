@@ -68,4 +68,20 @@ describe('analyzeExperiments (Multivariate OLS)', () => {
         expect(impacts).not.toContain('Crash')
         expect(impacts).not.toContain('Physical Exertion')
     })
+
+    it('should return empty if metrics have no numeric data', () => {
+        const history = generateHistory(20, '2023-01-01', () => ({
+            hrv: 'invalid'
+        }))
+        const experiments: Experiment[] = [{ id: 'A', name: 'A', dosage: null, start_date: '2023-01-10', end_date: null, category: 'med' }]
+        const reports = analyzeExperiments(experiments, history, {})
+        expect(reports).toHaveLength(0)
+    })
+
+    it('should handle small datasets gracefully', () => {
+        const history = generateHistory(5, '2023-01-01', () => ({ hrv: 50 }))
+        const experiments: Experiment[] = [{ id: 'A', name: 'A', dosage: null, start_date: '2023-01-02', end_date: null, category: 'med' }]
+        const reports = analyzeExperiments(experiments, history, {})
+        expect(reports).toHaveLength(0)
+    })
 })

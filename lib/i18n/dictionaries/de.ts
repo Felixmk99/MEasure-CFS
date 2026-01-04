@@ -9,8 +9,41 @@ export const de: Dictionary = {
         delete: "Löschen",
         confirm: "Bestätigen",
         success: "Erfolg",
-        custom: "Benutzerdefiniert"
+        custom: "Benutzerdefiniert",
+        unknown: "Unbekannt",
+        metric_labels: {
+            step_count: "Schritte",
+            hrv: "HRV",
+            resting_heart_rate: "Ruhepuls",
+            symptom_score: "Symptom-Score",
+            exertion_score: "Gesamtbelastung",
+            composite_score: "Symptom-Score",
+            adjusted_score: "MEasure-CFS Score",
+            sleep: "Schlaf",
+            fatigue: "Fatigue",
+            anxiety: "Angst",
+            cough: "Husten",
+            depression: "Depression",
+            fever: "Fieber",
+            headaches: "Kopfschmerzen",
+            headache: "Kopfschmerz",
+            lightheadedness: "Benommenheit",
+            "memory/mental": "Konzentrationsstörungen",
+            "muscle weakness": "Muskelschwäche",
+            nausea: "Übelkeit",
+            "physical exertion": "Physische Belastung",
+            "cognitive exertion": "Kognitive Belastung",
+            "emotional exertion": "Emotionale Belastung",
+            "social exertion": "Soziale Belastung",
+            work: "Arbeit",
+            stress: "Stress",
+            palpitations: "Herzklopfen",
+            stability_score: "Stabilitäts-Score",
+            muscle_aches: "Muskelschmerzen",
+            energy: "Energie"
+        }
     },
+
     navbar: {
         dashboard: "Dashboard",
         insights: "Einblicke",
@@ -26,34 +59,34 @@ export const de: Dictionary = {
         missing_steps_hint: "Schritte fehlen?",
         missing_steps_tooltip: "Lade Apple Health, Google Fit oder Samsung Health Schrittdaten hoch, um die Genauigkeit deines Gesundheits-Scores zu verbessern.",
         pem_status: {
-            label: "PEM-Status",
-            needs_data: "Daten fehlen",
-            stable: "Stabil",
-            danger: "PEM-Gefahr",
-            reason_no_history: "Mind. 10 Tage + 1 Crash nötig",
-            reason_no_recent_data: "Keine Daten in den letzten 7 Tagen",
-            reason_no_crashes: "Keine historischen Crashes analysiert",
-            prediction: "Vorausgesagter Crash: {day}",
-            matches: "Entspricht historischen Triggern:",
-            matches_personal: "Persönliche Risikomuster:",
-            matches_general: "Allgemeine Risikoindikatoren:",
-            explanation: "Erklärung",
-            matches_personal_desc: "Entspricht Mustern aus deiner Vorgeschichte.",
-            matches_general_desc: "Deine durchschnittliche {label} ist aktuell deutlich höher als es dein Körper gewohnt ist.",
-            cumulative_load: "Hohe Gesamtbelastung erkannt",
+            label: "PEM-Risikoanalyse",
+            needs_data: "Nicht genügend Daten",
+            stable: "Stabiler Bereich",
+            danger: "Akute Crash-Gefahr",
+            reason_no_history: "Datenbasis fehlt (mind. 10 Tage + 1 Crash)",
+            reason_no_recent_data: "Keine aktuellen Daten (letzte 7 Tage)",
+            reason_no_crashes: "Keine bekannten Crashes zur Analyse",
+            prediction: "Prognose: Crash am {day} möglich",
+            matches: "Übereinstimmung mit Crash-Triggern:",
+            matches_personal: "Individuelle Risikomuster:",
+            matches_general: "Allgemeine Warnsignale:",
+            explanation: "Details",
+            matches_personal_desc: "Deine aktuellen Werte ähneln Phasen, die früher zu einem Crash geführt haben.",
+            matches_general_desc: "Deine durchschnittliche {label} ist deutlich höher als dein übliches Toleranzniveau.",
+            cumulative_load: "Kritische Gesamtbelastung",
             exertion: "Belastung",
             activity: "Aktivität",
-            danger_fallback: "Hohe Belastungswerte im Vergleich zu deiner Baseline erkannt. Bitte prüfe dein Daten-Log für Details.",
-            stable_message: "Deine Aktivität liegt aktuell in deinem persönlichen Sicherheitsbereich.",
-            error_fetch: "PEM-Status konnte nicht geladen werden",
-            biometrics_title: "Biometrische Basiswerte",
-            biometrics_stable: "Deine biometrischen Basiswerte sind im grünen Bereich. Keine Risikomuster erkannt.",
+            danger_fallback: "Deine Belastungswerte überschreiten deine Baseline signifikant.",
+            stable_message: "Deine aktuelle Aktivität liegt innerhalb deiner individuellen Belastungsgrenzen.",
+            error_fetch: "Analyse konnte nicht geladen werden",
+            biometrics_title: "Biometrische Stabilität",
+            biometrics_stable: "Biometrische Werte unauffällig. Keine akuten Warnzeichen.",
             status_optimal: "Optimal",
             status_normal: "Stabil",
-            status_strained: "Belastet",
-            status_unknown: "Keine Baseline",
-            no_personal_matches: "Keine deiner persönlichen Belastungsmuster erkannt.",
-            no_general_matches: "Deine Belastung liegt innerhalb deines sicheren Bereichs."
+            status_strained: "Beansprucht",
+            status_unknown: "Unzureichende Daten",
+            no_personal_matches: "Keine individuellen Risikomuster erkannt.",
+            no_general_matches: "Belastung im grünen Bereich."
         }
     },
     footer: {
@@ -65,6 +98,9 @@ export const de: Dictionary = {
         subtitle_prefix: "Verlauf deiner",
         subtitle_suffix: "im Zeitverlauf.",
         trend_mode: "Trend",
+        compare_mode: "Vergleichen",
+        pem_mode: "PEM",
+        select_placeholder: "Metrik auswählen",
         metrics_dropdown: "Metriken (Max 2)",
         metrics_selected: "Ausgewählt",
         charts: {
@@ -97,7 +133,7 @@ export const de: Dictionary = {
         },
         metrics: {
             composite_score: {
-                label: "Symptom-Score",
+                label: "Track-Me Score",
                 description: "Die Summe all deiner getrackten Symptome.",
                 better: "Niedriger ist besser"
             },
@@ -136,8 +172,28 @@ export const de: Dictionary = {
             },
             sleep: {
                 label: "Schlafprobleme",
-                description: "Erfasst Schwierigkeiten mit der Schlafqualität und -dauer. Hoher Score = Schlechter Schlaf.",
+                description: "Verfolgt Schwierigkeiten mit Schlafqualität und -dauer. Hoher Score = Schlechter Schlaf.",
                 better: "Niedriger ist besser"
+            },
+            palpitations: {
+                label: "Herzklopfen",
+                description: "Verfolgt Herzrhythmusstörungen.",
+                better: "Niedriger ist besser"
+            },
+            stability_score: {
+                label: "Stabilitäts-Score",
+                description: "Verfolgt die tägliche Energiestabilität.",
+                better: "Höher ist besser"
+            },
+            muscle_aches: {
+                label: "Muskelschmerzen",
+                description: "Verfolgt die Intensität von Muskelschmerzen.",
+                better: "Niedriger ist besser"
+            },
+            energy: {
+                label: "Energie",
+                description: "Selbstberichtetes Energieniveau.",
+                better: "Höher ist besser"
             }
         },
         crash_mode: "PEM Analyse",
@@ -160,7 +216,7 @@ export const de: Dictionary = {
                 instant: "Sofortige Einblicke"
             },
             transform_title: "Verstehe deine Erkrankung",
-            predictive_insights: "mit datengestützten Analysen",
+            predictive_insights: "durch datengetriebene Analysen",
             drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
             drop_title_generic: "Zieh deine Visible App Daten hierher, um zu beginnen",
             drop_desc: "Lade CSV-Dateien von deiner Visible oder Bearable App hoch (weitere Apps folgen in Kürze).",
@@ -284,6 +340,8 @@ export const de: Dictionary = {
             category: "Kategorie",
             start_date: "Startdatum",
             end_date: "Enddatum (Optional)",
+            name_placeholder: "z.B. Low Dose Naltrexone",
+            dosage_placeholder: "z.B. 0,5mg",
             categories: {
                 lifestyle: "Lebensstil (Pacing, Ruhe)",
                 medication: "Medikament",
@@ -296,18 +354,27 @@ export const de: Dictionary = {
             day: "Aktiv • Tag",
             confidence: "Modell-Konfidenz",
             confidence_hint: "Benötigt ~30 Tage für volle Genauigkeit.",
+            confidence_desc: "Statistische Konfidenz basierend auf dem aktuellen Datenvolumen und der Varianz.",
             impact_title: "Unabhängiger Gesundheits-Einfluss (kontrolliert auf Überlappungen)",
             no_active_title: "Keine aktiven Experimente",
-            no_active_desc: "Starte ein neues Experiment, um zu verfolgen, wie Interventionen deine Gesundheit beeinflussen."
+            no_active_desc: "Starte ein neues Experiment, um zu verfolgen, wie Interventionen deine Gesundheit beeinflussen.",
+            started_at: "Gestartet am {date}"
         },
         history: {
             title: "Historisches Archiv",
             independent_outcome: "Unabhängiges Ergebnis",
+            outcome_positive: "Positiver",
+            outcome_negative: "Negativer",
+            outcome_neutral: "Neutraler",
             influence: "Einfluss",
             no_history: "Keine abgeschlossenen Experimente im Archiv."
         },
         impact: {
             insufficient: "Noch nicht genügend Daten, um unabhängigen Einfluss zu isolieren.",
+            no_significant: "Noch keine statistisch signifikanten Auswirkungen für dieses Experiment erkannt.",
+            high_confidence_desc: "Sehr wahrscheinlich ein realer Effekt (95% Konfidenz).",
+            trend_desc: "Angedeuteter Trend, aber möglicherweise werden mehr Daten benötigt.",
+            not_significant_desc: "Nicht statistisch signifikant.",
             significance: {
                 significant: "Signifikant",
                 trend: "Trend",
@@ -334,14 +401,44 @@ export const de: Dictionary = {
             samsung: "Samsung Health Schritte (CSV)"
         },
         dropzone: {
-            idle: "Ziehe deine Visible-Exportdatei hierher oder klicke unten, um sie auszuwählen.",
+            idle: "Ziehe deinen Export hierher oder klicke unten, um ihn auszuwählen.",
             active: "Datei hier ablegen...",
-            success: "Upload abgeschlossen!",
+            success: "Upload erfolgreich!",
             error: "Upload fehlgeschlagen",
-            uploading: "Wird hochgeladen...",
+            uploading: "Daten werden übertragen...",
+            parsing: "Datei wird analysiert...",
             button_upload: "Neue Datei hochladen",
             button_select: "Datei auswählen",
-            button_retry: "Erneut versuchen"
+            button_retry: "Erneut versuchen",
+            title_visible: "Visible-CSV hochladen",
+            title_apple: "Apple-Health-Export hochladen",
+            title_google: "Google-Fit-Export hochladen",
+            title_samsung: "Samsung-Health-Export hochladen",
+            title_bearable: "Bearable-Export hochladen",
+            hint_visible: "Ziehe deinen Visible-Export hierher, um deine Trends zu sehen.",
+            hint_apple: "Ziehe die export.xml hierher. Wir extrahieren nur Schritte, die zu deinen Visible-Daten passen.",
+            hint_google: "Ziehe deine Google-Fit-CSV für tägliche Aktivitäten hierher.",
+            hint_samsung: "Ziehe deine Samsung-Health-Schritt-CSV hierher.",
+            hint_bearable: "Ziehe deine Bearable-CSV hierher, um deine Gesundheitsdaten zu importieren.",
+            file_type_csv: "Unterstützt .csv Dateien",
+            file_type_xml: "Unterstützt .xml Dateien"
+        },
+        messages: {
+            invalid_file: "Ungültige Datei. Bitte lade die korrekte {provider}-Exportdatei hoch.",
+            parsing_file: "{provider}-Datei wird analysiert...",
+            processing_measurements: "{count} Messwerte werden verarbeitet...",
+            login_required: "Du musst eingeloggt sein, um Daten hochzuladen.",
+            uploading_days: "{count} Tage werden hochgeladen...",
+            checking_existing: "Vorhandene Datensätze werden geprüft...",
+            no_new_data: "Alle Daten in dieser Datei sind bereits in deinem Verlauf vorhanden. Keine neuen Tage zum Hinzufügen.",
+            adding_days: "{count} neue Tage werden hinzugefügt...",
+            processed_progress: "{current} / {total} Tage verarbeitet...",
+            parse_error: "Fehler beim Analysieren der Datei: {error}",
+            no_steps_found: "Keine Schrittzähler-Daten in dieser Datei gefunden.",
+            no_matching_dates: "Keine passenden Protokolldaten gefunden. Bitte lade zuerst deine Symptomdaten hoch.",
+            found_matching_days: "{count} übereinstimmende Tage gefunden. Upload wird vorbereitet...",
+            success_steps: "Schritte für {count} Tage erfolgreich aktualisiert!",
+            requires_data: "Benötigt Gesundheitsdaten"
         },
         data_log: {
             title: "Datenprotokoll",
@@ -361,6 +458,69 @@ export const de: Dictionary = {
                 empty: "Keine aktuellen Einträge gefunden.",
                 recent_hint: "Zeigt die letzten 500 Einträge an."
             }
+        }
+    },
+    settings: {
+        title: "Einstellungen",
+        subtitle: "Verwalte dein Konto.",
+        sidebar: {
+            profile: "Profil",
+            security: "Sicherheit",
+            preferences: "Einstellungen",
+            data_export: "Daten & Export",
+            soon: "Bald"
+        },
+        profile: {
+            title: "Öffentliches Profil",
+            description: "Diese Informationen werden in deinem Profil angezeigt.",
+            first_name: "Vorname",
+            last_name: "Nachname",
+            button_save: "Änderungen speichern",
+            button_saving: "Speichert..."
+        },
+        personal: {
+            title: "Persönliche Details",
+            description: "Verwalte deine Kontaktinformationen.",
+            email: "E-Mail-Adresse"
+        },
+        symptom_integration: {
+            title: "Integration der Symptom-Tracker",
+            description: "Wähle die App aus, mit der du deine täglichen Symptome verfolgst.",
+            provider_label: "Symptom-Anbieter",
+            placeholder: "Symptom-Tracker auswählen",
+            hint: "Dies schaltet den Uploader im Tab 'Daten' um. Bestehende Daten werden niemals überschrieben.",
+            visible: "Visible App",
+            bearable: "Bearable App"
+        },
+        step_integration: {
+            title: "Integration von Gesundheitsdaten",
+            description: "Wähle die App aus, die deine täglichen Schrittdaten bereitstellt.",
+            provider_label: "Schrittdaten-Anbieter",
+            placeholder: "Schritt-Anbieter auswählen",
+            hint: "Bestimmt, welcher Schritt-Uploader im Tab 'Daten' angezeigt wird.",
+            apple: "Apple Health",
+            google: "Google Fit",
+            samsung: "Samsung Health",
+            whoop: "Whoop",
+            garmin: "Garmin",
+            soon: "Bald"
+        },
+        delete_account: {
+            title: "Konto löschen",
+            description: "Unwiderrufliche Aktion. Bitte lies die folgenden Informationen sorgfältig durch.",
+            warning_title: "Warnung",
+            warning_access: "Das Löschen deines Kontos führt zum sofortigen Verlust deines Zugangs.",
+            warning_data: "Dein Analyse-Verlauf wird permanent gelöscht (sichere Löschung).",
+            warning_recovery: "Eine Kontowiederherstellung ist nicht möglich.",
+            confirm_label_before: "Zur Bestätigung, gib bitte ",
+            confirm_label_after: " unten ein",
+            confirm_keyword: "LÖSCHEN",
+            button_delete: "Unwiderruflich löschen",
+            button_deleting: "Daten werden gelöscht...",
+            success_toast: "Konto erfolgreich gelöscht.",
+            error_toast: "Fehler beim Löschen der Kontodaten: {error}",
+            error_fallback: "Fehler beim Löschen des Kontos aus dem Authentifizierungssystem.",
+            signout_failed: "Konto gelöscht, aber Abmeldung fehlgeschlagen. Bitte Browser-Cache leeren."
         }
     },
     legal: {
@@ -423,10 +583,189 @@ export const de: Dictionary = {
         help_text: "Wenn du dich noch nicht eingeloggt hast, versuche einen neuen Link anzufordern, indem du deine E-Mail erneut auf der Login- oder Registrierungsseite eingibst. Wenn das Problem weiterhin besteht, kontaktiere uns gerne."
     },
     auth: {
+        common: {
+            email: "E-Mail-Adresse",
+            password: "Passwort",
+            placeholder_email: "name@beispiel.de",
+            placeholder_password: "••••••••",
+            privacy_guaranteed: "Datenschutz garantiert",
+            privacy_quote: "MEasure-CFS speichert deine Gesundheitsdaten sicher bei Supabase, geschützt durch Row Level Security (RLS) und verschlüsselt. Es werden keine Daten geteilt."
+        },
         login: {
+            title_start: "Willkommen",
+            title_highlight: "zurück",
+            subtitle: "Melde dich an, um deine Fortschritte zu sehen.",
+            forgot_password: "Passwort vergessen?",
+            button_signin: "Anmelden",
+            no_account: "Noch kein Konto?",
+            button_create: "Kostenloses Konto erstellen",
+            error_invalid: "Ungültige Zugangsdaten. Wenn du noch kein Konto hast, registriere dich bitte.",
             testimonial: {
                 quote: "MEasure-CFS hilft mir dabei PEM effektiver zu vermeiden."
             }
+        },
+        signup: {
+            title_start: "Beginne deine",
+            title_highlight: "Krankheit zu verstehen",
+            subtitle: "Erstelle eine sichere Umgebung, um deine Symptome zu analysieren.",
+            first_name: "Vorname",
+            last_name: "Nachname",
+            placeholder_first_name: "Max",
+            placeholder_last_name: "Mustermensch",
+            password_hint: "Muss mindestens 8 Zeichen lang sein",
+            button_create: "Konto erstellen",
+            already_have_account: "Hast du bereits ein Konto?",
+            button_login: "Anmelden",
+            feature_baseline_title: "Verstehe deine Baseline",
+            feature_baseline_desc: "Lerne dein Energie-Envelope kennen.",
+            feature_design_title: "Patientenorientiertes Design",
+            feature_design_desc: "Für Menschen mit chronischen Krankheiten entwickelt.",
+            error_exists: "Konto existiert bereits. Bitte melde dich an.",
+            success_pending: "Konto erstellt! Bitte prüfe deine E-Mails zur Bestätigung. Danach kannst du dich anmelden und mit dem Hochladen deiner Daten im Dashboard beginnen.",
+            success_confirm: "Prüfe deine E-Mails für den Bestätigungslink."
+        }
+    },
+    insights: {
+        hero: {
+            title: "Einblicke",
+            desc: "Tiefgehende Analyse deiner gesamten Gesundheitsdaten, um versteckte Muster in deiner Genesung zu finden.",
+            all_time: "Gesamtzeitanalyse",
+            last_updated: "Zuletzt aktualisiert: {date}"
+        },
+        empty: {
+            title: "Noch keine Einblicke",
+            desc: "Du musst zuerst Gesundheitsdaten hochladen, bevor wir deine Symptommuster analysieren können.",
+            button: "Erste CSV hochladen"
+        },
+        gathering: {
+            title: "Sammle biologische Daten",
+            desc: "Wir benötigen mindestens 7 Tage Daten, um statistisch signifikante Einblicke zu geben. Tracke weiter!",
+            progress: "Aktueller Fortschritt: {count} / 7 Tage"
+        },
+        patterns: {
+            title: "Handlungsmuster",
+            safe_zones: "Sicherheitszonen",
+            safe_zone_detected: "Sicherheitszone erkannt",
+            same_day: "Effekte am selben Tag",
+            next_day: "Effekte am nächsten Tag",
+            two_day: "2 Tage verzögerte Effekte",
+            insufficient_data: "Tracke deine Symptome weiter, um biologische Einblicke zu erhalten.",
+            cards: {
+                today: "Heute",
+                plus_1_day: "+1 Tag",
+                plus_2_days: "+2 Tage",
+                impact: {
+                    direct: "Direkte Auswirkung",
+                    high_warning: "Warnung vor starker Auswirkung",
+                    helpful_connection: "Hilfreicher Zusammenhang",
+                    helpful_pattern: "Hilfreiches Muster",
+                    direct_connection: "Direkte Verbindung",
+                    hidden_lag: "Verzögerte Warnung"
+                }
+            }
+        },
+        clusters: {
+            title: "Biologische Cluster",
+            heatmap: {
+                title: "Symptom-Korrelations-Heatmap",
+                lag_zero: "(Verzögerung = 0)",
+                desc: "Identifiziert Zusammenhänge zwischen Symptomen am selben Tag. Grün = positive Korrelation, Rot = negative Korrelation.",
+                showing: "Zeige {count} von {total} Metriken",
+                legend: "Legende:",
+                strong_negative: "Stark Negativ",
+                strong_positive: "Stark Positiv",
+                insufficient: "Unzureichende Daten",
+                correlation: "Korrelation",
+                strength: {
+                    strong: "Stark",
+                    moderate: "Mittel",
+                    weak: "Schwach",
+                    very_weak: "Sehr schwach"
+                },
+                relation: {
+                    positive: "Positive",
+                    negative: "Negative",
+                    neutral: "Neutrale",
+                    suffix: "Beziehung"
+                }
+            }
+        },
+        logic: {
+            reduces: "Reduziert",
+            increases: "Erhöht",
+            keep: "Halte",
+            watch: "Beobachte",
+            above: "über",
+            below: "unter",
+            by: "um ~",
+            from: "von",
+            to: "auf",
+            threshold_desc: "Das Einhalten von unter {limit} {metric} hält dein {impact} deutlich niedriger."
+        },
+        footer: {
+            disclaimer: "Statistische Einblicke dienen nur zu Informationszwecken und sind kein medizinischer Rat. Konsultiere immer deinen Arzt."
+        },
+        pem_analysis: {
+            title: "PEM Analyse",
+            no_clusters: {
+                title: "Keine PEM-Cluster erkannt",
+                desc: "Keine Crashes im ausgewählten Zeitraum gefunden.",
+                desc_short: "Datenmenge noch nicht ausreichend für vollständige Zyklus-Analyse."
+            },
+            phase1: {
+                title: "Phase 1: Aufbau",
+                cumulative: "Kumulative Belastung erkannt",
+                confidence: "Konfidenz:",
+                no_pattern: "Kein klares Triggermuster",
+                no_pattern_desc: "Keine akuten statistischen Spitzen in deinen Metriken während der 7-tägigen Aufbauphase gefunden. Deine Crashes könnten durch einen 'schleichenden Prozess' kumulativer Grundbelastung verursacht sein."
+            },
+            phase2: {
+                title: "Phase 2: Das Ereignis",
+                logged: "Protokolliert: {val}d",
+                physiological: "Physiologisch: {val}d",
+                classification: "Impact-Klassifizierung • Baseline: 90 Tage",
+                persists: "Bio-Stress besteht weiter +{val}d",
+                recovered: "Erholung zeitgleich mit Log",
+                bio_stress_title: "Dauer des biologischen Stress",
+                bio_stress_desc: "Misst, wie lange dein Körper in einem 'belasteten' Zustand bleibt (niedrige HRV, hohe Herzfrequenz oder starke Symptome). Kurzzeitige Verbesserungen werden ignoriert, um Genauigkeit zu gewährleisten.",
+                extended_by: "Verlängert durch:",
+                peak_deviation: "Maximale Abweichung"
+            },
+            phase3: {
+                title: "Phase 3: Die Erholungsphase",
+                subjective: "Subjektives Log: +{val}d",
+                biological: "Biologische Verzögerung: +{val}d",
+                lag: "Biologische Verzögerung",
+                fast: "Schnelle Erholung",
+                body_lag: "Körper hinkt hinterher: +{val}d nach Besserung",
+                body_reset: "Körper erholt sich parallel zu Symptomen",
+                hysteresis_title: "Biologische Latenz (Hysterese)",
+                hysteresis_desc: "Misst, wie lange deine Biomarker (HRV, RHR) brauchen, um zur Baseline zurückzukehren, **nachdem** die akuten Symptome abgeklungen sind. Dies ist der 'Nachhall', den dein Körper noch verarbeitet.",
+                slowest: "Am langsamsten",
+                days_tail: "Tage Nachlauf",
+                metric_recovery_time: "Diese Metrik benötigt durchschnittlich +{days} Tage, um nach einem Crash wieder in deinen Normalbereich zurückzukehren."
+            },
+            discovery: {
+                increase: "Anstieg",
+                decrease: "Abfall",
+                onset: "Am Crash-Tag (Tag 0)",
+                days_before: "{start}-{end}d davor",
+                day_before: "{day}d davor",
+                synergy: "Synergie"
+            },
+            classifications: {
+                acute: "Akut",
+                lagged: "Verzögert",
+                historical: "Historisch",
+                cumulative: "Kumulativ",
+                acute_desc: "Trigger trat am Tag des Crash-Beginns auf.",
+                lagged_desc: "Kurze Verzögerung (1-2 Tage) zwischen Ursache und Wirkung.",
+                historical_desc: "Ein Einzelereignis vor 3+ Tagen, das wahrscheinlich beigetragen hat.",
+                cumulative_desc: "Eine anhaltende Belastung über mehrere Tage hinweg.",
+                onset_desc: "Trigger trat am Tag des Beginns auf.",
+                pre_onset_desc: "Trigger trat vor dem Beginn auf."
+            },
+            footer: "Analyse basierend auf **{count} Crash-Episoden** mittels Superposed Epoch Analysis (SEA)."
         }
     }
 }

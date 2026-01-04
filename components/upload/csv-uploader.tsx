@@ -24,12 +24,12 @@ export function CsvUploader() {
     const processFile = useCallback(async (file: File) => {
         if (!file.name.toLowerCase().includes('visible')) {
             setStatus('error')
-            setMessage("Invalid file. Please upload a 'Visible' export file (filename must contain 'visible').")
+            setMessage(t('upload.messages.invalid_file', { provider: 'Visible' }))
             return
         }
 
         setStatus('parsing')
-        setMessage('Parsing CSV file...')
+        setMessage(t('upload.messages.parsing_file', { provider: 'Visible' }))
 
         Papa.parse(file, {
             header: true,
@@ -37,11 +37,11 @@ export function CsvUploader() {
             complete: async (results) => {
                 try {
                     setStatus('uploading')
-                    setMessage(`Processing ${results.data.length} measurements...`)
+                    setMessage(t('upload.messages.processing_measurements', { count: results.data.length }))
 
                     const { data: { user } } = await supabase.auth.getUser()
                     if (!user) {
-                        throw new Error('You must be logged in to upload data.')
+                        throw new Error(t('upload.messages.login_required'))
                     }
 
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,10 +51,10 @@ export function CsvUploader() {
 
                     if (records.length === 0) {
                         const headers = results.meta.fields || []
-                        throw new Error(`No valid records. Found ${validRows.length} rows. Headers: ${headers.join(', ')}`)
+                        throw new Error(t('upload.messages.parse_error', { error: `No valid records. Headers: ${headers.join(', ')}` }))
                     }
 
-                    setMessage(`Uploading ${records.length} days of data...`)
+                    setMessage(t('upload.messages.uploading_days', { count: records.length }))
 
                     const dbRecords = records.map(r => ({
                         user_id: user.id,
@@ -72,7 +72,7 @@ export function CsvUploader() {
 
                     // 1. Fetch existing dates to implement "Append-Only" strategy
                     // This protects manual edits and speeds up the process significantly.
-                    setMessage('Checking for existing days...')
+                    setMessage(t('upload.messages.checking_existing'))
                     const { data: existingDatesData } = await supabase
                         .from('health_metrics')
                         .select('date')
@@ -86,11 +86,11 @@ export function CsvUploader() {
 
                     if (recordsToUpload.length === 0) {
                         setStatus('success')
-                        setMessage('All data in this CSV is already in your history. No new days to add.')
+                        setMessage(t('upload.messages.no_new_data'))
                         return
                     }
 
-                    setMessage(`Adding ${recordsToUpload.length} new days of data...`)
+                    setMessage(t('upload.messages.adding_days', { count: recordsToUpload.length }))
 
                     const BATCH_SIZE = 50
                     for (let i = 0; i < recordsToUpload.length; i += BATCH_SIZE) {
@@ -107,7 +107,10 @@ export function CsvUploader() {
                             throw new Error(`DB Error: ${errorMsg}`)
                         }
 
-                        setMessage(`Processed ${Math.min(i + BATCH_SIZE, recordsToUpload.length)} / ${recordsToUpload.length} days...`)
+                        setMessage(t('upload.messages.processed_progress', {
+                            current: Math.min(i + BATCH_SIZE, recordsToUpload.length),
+                            total: recordsToUpload.length
+                        }))
                     }
 
                     setStatus('success')
@@ -128,10 +131,10 @@ export function CsvUploader() {
             },
             error: (err) => {
                 setStatus('error')
-                setMessage('Failed to parse CSV: ' + err.message)
+                setMessage(t('upload.messages.parse_error', { error: err.message }))
             }
         })
-    }, [supabase, router])
+    }, [supabase, router, t])
 
     useEffect(() => {
         if (pendingUpload && pendingUpload.type === 'visible') {
@@ -188,16 +191,14 @@ export function CsvUploader() {
                         {status === 'uploading' ? t('upload.dropzone.uploading') :
                             status === 'success' ? t('upload.dropzone.success') :
                                 status === 'error' ? t('upload.dropzone.error') :
-                                    "Upload your CSV file"}
+                                    t('upload.dropzone.title_visible')}
                     </h3>
                     <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-                        {status === 'uploading' ? message :
-                            status === 'success' ? message :
-                                status === 'error' ? message :
-                                    t('upload.dropzone.idle')}
+                        {status === 'uploading' || status === 'success' || status === 'error' ? message :
+                            t('upload.dropzone.hint_visible')}
                     </p>
                     {status === 'idle' && (
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Upload your &quot;Visible&quot; .csv file</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">{t('upload.dropzone.file_type_csv')}</p>
                     )}
                 </div>
 
