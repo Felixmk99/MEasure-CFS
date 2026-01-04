@@ -773,5 +773,27 @@ export const de: Dictionary = {
             },
             footer: "Analyse basierend auf **{count} Crash-Episoden** mittels Superposed Epoch Analysis (SEA)."
         }
+    },
+    exertion_preference: {
+        modal: {
+            title: "Belastungspräferenz",
+            description: "Wie beeinflusst Bewegung Ihre Gesundheitswerte? Diese Einstellung passt die Berechnung Ihres MEasure-CFS Scores an.",
+            option_desirable: {
+                title: "Wünschenswert (Bewegung ist gut)",
+                description: "Schritte und Belastung senken Ihren Symptom-Belastungsscore. Wählen Sie dies, wenn Aktivität hilft oder gute Gesundheit anzeigt."
+            },
+            option_undesirable: {
+                title: "Unerwünscht (Belastung vermeiden)",
+                description: "Schritte und Belastung erhöhen Ihren Symptom-Belastungsscore. Wählen Sie dies, wenn Sie unter PEM leiden und Aktivität begrenzen müssen."
+            },
+            submit: "Präferenz speichern",
+            loading: "Speichern...",
+            success_toast: "Präferenz erfolgreich gespeichert"
+        },
+        settings: {
+            title: "Belastungspräferenz",
+            description: "Steuern Sie, wie Schritte und Belastung in Ihren Gesamtscore einfließen.",
+            label: "Belastungseinfluss"
+        }
     }
 }

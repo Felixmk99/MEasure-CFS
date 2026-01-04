@@ -773,5 +773,27 @@ export const en: Dictionary = {
             },
             footer: "Analysis based on **{count} crash episodes** using Superposed Epoch Analysis (SEA)."
         }
+    },
+    exertion_preference: {
+        modal: {
+            title: "Exertion Preference",
+            description: "How does movement and exertion affect your health metrics? This setting adjusts how your MEasure-CFS score is calculated.",
+            option_desirable: {
+                title: "Desirable (Movement is Good)",
+                description: "Steps and exertion lower your symptom burden score. Choose this if activity helps or indicates good health."
+            },
+            option_undesirable: {
+                title: "Undesirable (Avoid Exertion)",
+                description: "Steps and exertion increase your symptom burden score. Choose this if you suffer from PEM and must limit activity."
+            },
+            submit: "Save Preference",
+            loading: "Saving...",
+            success_toast: "Preference saved successfully"
+        },
+        settings: {
+            title: "Exertion Preference",
+            description: "Control how steps and exertion factor into your composite score.",
+            label: "Exertion Impact"
+        }
     }
 }

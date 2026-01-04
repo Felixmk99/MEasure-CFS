@@ -23,9 +23,19 @@ export default async function InsightsPage() {
         // Fallback to empty array to prevent crash
     }
 
+    // Fetch User Profile
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('exertion_preference')
+        .eq('id', user.id)
+        .single()
+
     return (
         <div className="container mx-auto py-8">
-            <InsightsClient data={healthMetrics || []} />
+            <InsightsClient
+                data={healthMetrics || []}
+                exertionPreference={profile?.exertion_preference}
+            />
         </div>
     )
 }

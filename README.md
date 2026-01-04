@@ -76,5 +76,14 @@ ALTER TABLE profiles ADD CONSTRAINT profiles_step_provider_check
   CHECK (step_provider IN ('apple', 'google', 'garmin', 'samsung', 'whoop', 'csv'));
 ```
 
+**Add Exertion Preference:**
+To support the "Exertion Preference" feature, add the column and constraint:
+```sql
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS exertion_preference text;
+ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_exertion_preference_check;
+ALTER TABLE profiles ADD CONSTRAINT profiles_exertion_preference_check
+  CHECK (exertion_preference IN ('desirable', 'undesirable'));
+```
+
 ## 📄 License
 This project is licensed under the MIT License.

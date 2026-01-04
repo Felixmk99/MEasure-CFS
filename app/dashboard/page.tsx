@@ -2,38 +2,45 @@ import { createClient } from '@/lib/supabase/server'
 import DashboardClient from './dashboard-client'
 import { redirect } from 'next/navigation'
 
+import { ExertionPreferenceModal } from '@/components/modals/exertion-preference-modal'
+
 export default async function DashboardPage() {
     const supabase = await createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-        redirect('/login')
+        return redirect('/auth/login')
     }
 
-    // Fetch Health Data (Check existence first)
-    const { count, error } = await supabase
-        .from('health_metrics')
-        .select('*', { count: 'exact', head: true }) // efficient count
-        .eq('user_id', user.id)
+    // Fetch User Profile for Exertion Preference
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('exertion_preference')
+        .eq('id', user.id)
+        .single()
 
-    if (!error && count === 0) {
-        redirect('/upload')
-    }
-
-    // If data exists, fetch it for the chart
-    const { data: healthMetrics } = await supabase
-        .from('health_metrics')
+    // 1. Fetch ALL Data (Server-Side)
+    const { data: rawData, error } = await supabase
+        .from('daily_metrics')
         .select('*')
         .eq('user_id', user.id)
         .order('date', { ascending: true })
 
+    if (error) {
+        console.error("Error fetching data:", error)
+    }
+
+    // 2. Pass Raw Data to Client (Client will handle scoring & filtering)
     return (
-        <div className="container mx-auto py-6">
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* We pass data to the client component for interactivity */}
-                <DashboardClient data={healthMetrics || []} />
-            </div>
+        <div className="container mx-auto p-4 space-y-8">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <ExertionPreferenceModal currentPreference={(profile as any)?.exertion_preference} />
+            <DashboardClient
+                data={rawData || []}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                exertionPreference={(profile as any)?.exertion_preference}
+            />
         </div>
     )
 }

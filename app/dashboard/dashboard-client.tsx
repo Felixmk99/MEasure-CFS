@@ -46,6 +46,7 @@ interface MetricConfig {
 
 interface DashboardReviewProps {
     data: ({ date: string, custom_metrics?: Record<string, unknown> } & Record<string, unknown>)[]
+    exertionPreference?: 'desirable' | 'undesirable' | null
 }
 
 
@@ -57,7 +58,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { PEMAnalysis } from "@/components/dashboard/pem-analysis"
 import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 
-export default function DashboardClient({ data: initialData }: DashboardReviewProps) {
+export default function DashboardClient({ data: initialData, exertionPreference }: DashboardReviewProps) {
     const { t } = useLanguage()
 
     // -- 0a. Source Detection (Check if Visible data exists: HRV or RHR) --
@@ -99,7 +100,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         if (!initialData || initialData.length === 0) return []
 
         // Enhance with Centralized Score using all-time history for stable normalization
-        const enhanced = enhanceDataWithScore(initialData)
+        const enhanced = enhanceDataWithScore(initialData, undefined, exertionPreference || 'desirable')
 
         return enhanced.map(d => ({
             ...d,
@@ -339,7 +340,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             ...d,
             ...trendsByIndex.get(i)
         }))
-    }, [processedData, showTrend, selectedMetrics, timeRange, getValue, getTrendStrategy, visibleRange])
+    }, [processedData, showTrend, selectedMetrics, timeRange, getValue, getTrendStrategy, visibleRange, exertionPreference])
 
     // -- 3. Calculate Stats for ALL selected metrics --
     const multiStats = useMemo(() => {

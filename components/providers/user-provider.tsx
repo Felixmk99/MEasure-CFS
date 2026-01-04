@@ -14,6 +14,7 @@ interface UserContextType {
     loading: boolean
     updateStepProvider: (provider: StepProvider) => Promise<void>
     updateSymptomProvider: (provider: SymptomProvider) => Promise<void>
+    updateExertionPreference: (preference: 'desirable' | 'undesirable') => Promise<void>
     refreshProfile: () => Promise<void>
 }
 
@@ -103,6 +104,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                     id: user.id,
                     step_provider: provider,
                     symptom_provider: 'visible', // Default for new profile
+                    exertion_preference: null,
                     updated_at: new Date().toISOString()
                 }
             )
@@ -127,6 +129,32 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                     id: user.id,
                     step_provider: 'apple', // Default for new profile
                     symptom_provider: provider,
+                    exertion_preference: null,
+                    updated_at: new Date().toISOString()
+                }
+            )
+        } else {
+            throw error
+        }
+    }
+
+    const updateExertionPreference = async (preference: 'desirable' | 'undesirable') => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { error } = await supabase
+            .from('profiles')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .upsert({ id: user.id, exertion_preference: preference } as any)
+
+        if (!error) {
+            setProfile(prev => prev
+                ? { ...prev, exertion_preference: preference }
+                : {
+                    id: user.id,
+                    step_provider: 'apple',
+                    symptom_provider: 'visible',
+                    exertion_preference: preference,
                     updated_at: new Date().toISOString()
                 }
             )
@@ -136,7 +164,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <UserContext.Provider value={{ profile, loading, updateStepProvider, updateSymptomProvider, refreshProfile: fetchProfile }}>
+        <UserContext.Provider value={{ profile, loading, updateStepProvider, updateSymptomProvider, updateExertionPreference, refreshProfile: fetchProfile }}>
             {children}
         </UserContext.Provider>
     )

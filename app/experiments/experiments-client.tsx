@@ -42,7 +42,7 @@ const initialFormState: ExperimentFormData = {
 const isValidCategory = (cat: string): cat is ExperimentCategory =>
     ['lifestyle', 'medication', 'supplement', 'other'].includes(cat)
 
-export default function ExperimentsClient({ initialExperiments, history }: { initialExperiments: Experiment[], history: MetricDay[] }) {
+export default function ExperimentsClient({ initialExperiments, history, exertionPreference }: { initialExperiments: Experiment[], history: MetricDay[], exertionPreference?: 'desirable' | 'undesirable' | null }) {
     const { t, locale } = useLanguage()
     const [experiments, setExperiments] = useState<Experiment[]>(initialExperiments)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -55,8 +55,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
 
     // Enhance history with Centralized Composite Score
     const enhancedHistory = useMemo(() => {
-        return enhanceDataWithScore(history)
-    }, [history])
+        return enhanceDataWithScore(history, undefined, exertionPreference || 'desirable')
+    }, [history, exertionPreference])
 
     // Calculate Baseline Stats for Z-Scores
     const baselineStats = useMemo(() => {

@@ -15,17 +15,18 @@ const MIN_DAYS_FOR_INSIGHTS = 7
 
 interface InsightsClientProps {
     data: InsightMetric[]
+    exertionPreference?: 'desirable' | 'undesirable' | null
 }
 
-export default function InsightsClient({ data }: InsightsClientProps) {
+export default function InsightsClient({ data, exertionPreference }: InsightsClientProps) {
     const { t } = useLanguage()
     const hasData = data && data.length > 0
     const hasInsufficientData = hasData && data.length < MIN_DAYS_FOR_INSIGHTS
     // 1. Enhance Data with Composite Score (Client-Side Calc)
     const enhancedData = useMemo(() => {
         if (!data || data.length === 0) return []
-        return enhanceDataWithScore(data)
-    }, [data])
+        return enhanceDataWithScore(data, undefined, exertionPreference || 'desirable')
+    }, [data, exertionPreference])
 
     // 2. Process all-time analysis
     const { correlations, thresholds } = useMemo(() => {

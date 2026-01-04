@@ -34,11 +34,19 @@ export default async function ExperimentsPage() {
         .eq('user_id', user.id)
         .order('date', { ascending: true });
 
+    // 4. Fetch User Profile
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('exertion_preference')
+        .eq('id', user.id)
+        .single();
+
     return (
         <div className="container mx-auto py-6">
             <ExperimentsClient
                 initialExperiments={experiments || []}
                 history={history || []}
+                exertionPreference={profile?.exertion_preference}
             />
         </div>
     );
