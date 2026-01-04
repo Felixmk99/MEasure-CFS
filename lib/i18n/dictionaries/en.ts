@@ -398,7 +398,8 @@ export const en: Dictionary = {
             bearable: "Bearable App (CSV)",
             apple: "Apple Health Steps (XML)",
             google: "Google Fit Steps (CSV)",
-            samsung: "Samsung Health Steps (CSV)"
+            samsung: "Samsung Health Steps (CSV)",
+            csv: "CSV File"
         },
         dropzone: {
             idle: "Drag and drop your Visible export here, or click below to browse.",
@@ -415,16 +416,19 @@ export const en: Dictionary = {
             title_google: "Upload Google Fit Export",
             title_samsung: "Upload Samsung Health Export",
             title_bearable: "Upload Bearable Export",
+            title_csv: "Upload Generic CSV",
             hint_visible: "Drop your Visible export here to see your trends.",
             hint_apple: "Drag and drop export.xml. We only extract steps matching your Visible data.",
             hint_google: "Drag and drop your Google Fit daily activity CSV.",
             hint_samsung: "Drag and drop your Samsung Health steps CSV.",
             hint_bearable: "Drop your Bearable CSV file here to import your health data.",
+            hint_csv: "Upload a file with columns 'Date' and 'Steps'.",
             file_type_csv: "Supports .csv files",
             file_type_xml: "Supports .xml files"
         },
         messages: {
             invalid_file: "Invalid file. Please upload the correct {provider} export file.",
+            file_too_large: "File is too large. Maximum size is 100MB.",
             parsing_file: "Parsing {provider} file...",
             processing_measurements: "Processing {count} measurements...",
             login_required: "You must be logged in to upload data.",
@@ -435,19 +439,20 @@ export const en: Dictionary = {
             processed_progress: "Processed {current} / {total} days...",
             parse_error: "Failed to parse file: {error}",
             no_steps_found: "No step count records found in this file.",
-            no_matching_dates: "No matching log dates found. Please upload your symptom data first.",
-            found_matching_days: "Found {count} matching days. Preparing upload...",
-            success_steps: "Successfully updated steps for {count} days!",
-            requires_data: "Requires Health Data"
-        },
-        data_log: {
-            title: "Data Log",
-            delete_all: "Delete all data",
+            no_matching_dates: "No matching dates found in your file based on your existing health data.",
+            found_matching_days: "Found {count} days of new step data.",
+            success_steps: "Successfully imported {count} days of steps!",
+            requires_data: "Please upload Health Metrics first (Visible/Bearable) to define which days to track.",
+            missing_columns_error: "Missing required columns: {columns}. Please check your CSV header.",
             delete_confirm: "WARNING: This will delete ALL your uploaded health records. This action cannot be undone. Are you sure?",
             delete_entry_confirm: "Are you sure you want to delete this entry?",
             provider_coming_soon: "Provider coming soon",
             provider_built_hint: "Integrations for {provider} are currently being built. Change your provider in settings if you wish to use a different one.",
             hide_import: "Hide Import Tools",
+        },
+        data_log: {
+            title: "Data Log",
+            delete_all: "Delete all data",
             table: {
                 date: "Date",
                 rhr: "RHR",
@@ -503,6 +508,7 @@ export const en: Dictionary = {
             samsung: "Samsung Health",
             whoop: "Whoop",
             garmin: "Garmin",
+            csv: "CSV File",
             soon: "Soon"
         },
         delete_account: {

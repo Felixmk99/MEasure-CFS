@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Lock, User as UserIcon, Settings, FileText, AlertTriangle, Activity, Smartphone, ClipboardList } from 'lucide-react'
+import { Lock, User as UserIcon, Settings, FileText, AlertTriangle, Activity, Smartphone, ClipboardList, FileSpreadsheet } from 'lucide-react'
 import { useUser } from '@/components/providers/user-provider'
 import {
     Select,
@@ -357,6 +357,11 @@ function StepProviderCard() {
                             <SelectItem value="samsung">
                                 <span className="flex items-center gap-2">
                                     <Smartphone className="w-4 h-4 text-indigo-500" /> {t('settings.step_integration.samsung')}
+                                </span>
+                            </SelectItem>
+                            <SelectItem value="csv">
+                                <span className="flex items-center gap-2">
+                                    <FileSpreadsheet className="w-4 h-4 text-stone-500" /> {t('settings.step_integration.csv')}
                                 </span>
                             </SelectItem>
                             <SelectItem value="whoop" disabled>

@@ -352,6 +352,7 @@ export interface Dictionary {
             apple: string
             google: string
             samsung: string
+            csv: string
         }
         dropzone: {
             idle: string
@@ -368,16 +369,19 @@ export interface Dictionary {
             title_google: string
             title_samsung: string
             title_bearable: string
+            title_csv: string
             hint_visible: string
             hint_apple: string
             hint_google: string
             hint_samsung: string
             hint_bearable: string
+            hint_csv: string
             file_type_csv: string
             file_type_xml: string
         }
         messages: {
             invalid_file: string
+            file_too_large: string
             parsing_file: string
             processing_measurements: string
             login_required: string
@@ -392,15 +396,16 @@ export interface Dictionary {
             found_matching_days: string
             success_steps: string
             requires_data: string
-        }
-        data_log: {
-            title: string
-            delete_all: string
+            missing_columns_error: string
             delete_confirm: string
             delete_entry_confirm: string
             provider_coming_soon: string
             provider_built_hint: string
             hide_import: string
+        }
+        data_log: {
+            title: string
+            delete_all: string
             table: {
                 date: string
                 rhr: string
@@ -456,6 +461,7 @@ export interface Dictionary {
             samsung: string
             whoop: string
             garmin: string
+            csv: string
             soon: string
         }
         delete_account: {

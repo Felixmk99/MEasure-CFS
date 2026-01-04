@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/user-provider'
 import { useUpload } from '@/components/providers/upload-provider'
 import { Button } from '@/components/ui/button'
-import { Smartphone, Activity, Laptop, Watch, Heart, ClipboardList } from 'lucide-react'
+import { Smartphone, Activity, Laptop, Watch, Heart, ClipboardList, FileSpreadsheet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const SYMPTOM_PROVIDERS = [
@@ -67,6 +67,14 @@ const STEP_PROVIDERS = [
         color: 'bg-red-50 dark:bg-red-900/20',
         textColor: 'text-red-600 dark:text-red-400',
         description: 'Whoop fitness trackers (Coming Soon)'
+    },
+    {
+        id: 'csv',
+        name: 'CSV File',
+        icon: FileSpreadsheet,
+        color: 'bg-stone-50 dark:bg-stone-900',
+        textColor: 'text-stone-600 dark:text-stone-400',
+        description: 'Upload generic CSV file'
     }
 ] as const
 

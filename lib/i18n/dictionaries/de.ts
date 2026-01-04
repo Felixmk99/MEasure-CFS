@@ -398,7 +398,8 @@ export const de: Dictionary = {
             bearable: "Bearable App (CSV)",
             apple: "Apple Health Schritte (XML)",
             google: "Google Fit Schritte (CSV)",
-            samsung: "Samsung Health Schritte (CSV)"
+            samsung: "Samsung Health Schritte (CSV)",
+            csv: "CSV Datei"
         },
         dropzone: {
             idle: "Ziehe deinen Export hierher oder klicke unten, um ihn auszuwählen.",
@@ -415,16 +416,19 @@ export const de: Dictionary = {
             title_google: "Google-Fit-Export hochladen",
             title_samsung: "Samsung-Health-Export hochladen",
             title_bearable: "Bearable-Export hochladen",
+            title_csv: "CSV-Datei hochladen",
             hint_visible: "Ziehe deinen Visible-Export hierher, um deine Trends zu sehen.",
             hint_apple: "Ziehe die export.xml hierher. Wir extrahieren nur Schritte, die zu deinen Visible-Daten passen.",
             hint_google: "Ziehe deine Google-Fit-CSV für tägliche Aktivitäten hierher.",
             hint_samsung: "Ziehe deine Samsung-Health-Schritt-CSV hierher.",
             hint_bearable: "Ziehe deine Bearable-CSV hierher, um deine Gesundheitsdaten zu importieren.",
+            hint_csv: "Lade eine Datei mit den Spalten 'Datum' und 'Schritte' hoch.",
             file_type_csv: "Unterstützt .csv Dateien",
             file_type_xml: "Unterstützt .xml Dateien"
         },
         messages: {
             invalid_file: "Ungültige Datei. Bitte lade die korrekte {provider}-Exportdatei hoch.",
+            file_too_large: "Datei ist zu groß. Maximale Größe ist 100MB.",
             parsing_file: "{provider}-Datei wird analysiert...",
             processing_measurements: "{count} Messwerte werden verarbeitet...",
             login_required: "Du musst eingeloggt sein, um Daten hochzuladen.",
@@ -435,19 +439,20 @@ export const de: Dictionary = {
             processed_progress: "{current} / {total} Tage verarbeitet...",
             parse_error: "Fehler beim Analysieren der Datei: {error}",
             no_steps_found: "Keine Schrittzähler-Daten in dieser Datei gefunden.",
-            no_matching_dates: "Keine passenden Protokolldaten gefunden. Bitte lade zuerst deine Symptomdaten hoch.",
-            found_matching_days: "{count} übereinstimmende Tage gefunden. Upload wird vorbereitet...",
-            success_steps: "Schritte für {count} Tage erfolgreich aktualisiert!",
-            requires_data: "Benötigt Gesundheitsdaten"
+            no_matching_dates: "Keine übereinstimmenden Daten in deiner Datei gefunden (basierend auf deinen vorhandenen Gesundheitsdaten).",
+            found_matching_days: "{count} Tage mit neuen Schrittdaten gefunden.",
+            success_steps: "{count} Tage Schritte erfolgreich importiert!",
+            requires_data: "Bitte lade zuerst Gesundheitsdaten (Visible/Bearable) hoch, um die zu trackenden Tage zu definieren.",
+            missing_columns_error: "Fehlende Spalten: {columns}. Bitte überprüfe die CSV-Kopfzeile.",
+            delete_confirm: "WARNUNG: Dies löscht ALLE deine hochgeladenen Gesundheitsdaten. Diese Aktion kann nicht rückgängig gemacht werden. Bist du sicher?",
+            delete_entry_confirm: "Bist du sicher, dass du diesen Eintrag löschen möchtest?",
+            provider_coming_soon: "Anbieter folgt bald",
+            provider_built_hint: "Integrationen für {provider} werden derzeit entwickelt. Ändere deinen Anbieter in den Einstellungen, falls du einen anderen verwenden möchtest.",
+            hide_import: "Import-Tools ausblenden"
         },
         data_log: {
             title: "Datenprotokoll",
             delete_all: "Alle Daten löschen",
-            delete_confirm: "WARNUNG: Dies löscht ALLE deine hochgeladenen Gesundheitsdaten. Diese Aktion kann nicht rückgängig gemacht werden. Bist du sicher?",
-            delete_entry_confirm: "Bist du sicher, dass du diesen Eintrag löschen möchtest?",
-            provider_coming_soon: "Anbieter demnächst verfügbar",
-            provider_built_hint: "Integrationen für {provider} werden gerade entwickelt. Ändere deinen Anbieter in den Einstellungen, wenn du einen anderen nutzen möchtest.",
-            hide_import: "Import-Tools ausblenden",
             table: {
                 date: "Datum",
                 rhr: "Ruhepuls",
@@ -503,6 +508,7 @@ export const de: Dictionary = {
             samsung: "Samsung Health",
             whoop: "Whoop",
             garmin: "Garmin",
+            csv: "CSV Datei",
             soon: "Bald"
         },
         delete_account: {
