@@ -160,7 +160,7 @@ export const de: Dictionary = {
                 instant: "Sofortige Einblicke"
             },
             transform_title: "Verstehe deine Erkrankung",
-            predictive_insights: "mit datengestützten Analysen",
+            predictive_insights: "durch datengetriebene Analysen",
             drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
             drop_title_generic: "Zieh deine Visible App Daten hierher, um zu beginnen",
             drop_desc: "Lade CSV-Dateien von deiner Visible oder Bearable App hoch (weitere Apps folgen in Kürze).",
@@ -426,10 +426,10 @@ export const de: Dictionary = {
         common: {
             email: "E-Mail-Adresse",
             password: "Passwort",
-            placeholder_email: "max@beispiel.de",
+            placeholder_email: "name@beispiel.de",
             placeholder_password: "••••••••",
             privacy_guaranteed: "Datenschutz garantiert",
-            privacy_quote: "MEasure-CFS verarbeitet alle deine CSV-Daten lokal oder gesichert in deiner privaten Instanz. Es werden keine sensiblen Gesundheitsdaten verkauft."
+            privacy_quote: "MEasure-CFS verarbeitet alle deine Daten lokal oder gesichert in deiner privaten Instanz. Es werden keine Gesundheitsdaten mit Dritten geteilt."
         },
         login: {
             title_start: "Willkommen",
@@ -445,13 +445,13 @@ export const de: Dictionary = {
             }
         },
         signup: {
-            title_start: "Beginne deinen",
-            title_highlight: "Weg zur Klarheit",
-            subtitle: "Erstelle einen sicheren Ort, um deine Trends zu analysieren.",
+            title_start: "Beginne deine",
+            title_highlight: "Krankheit zu verstehen",
+            subtitle: "Erstelle eine sichere Umgebung, um deine Symptome zu analysieren.",
             first_name: "Vorname",
             last_name: "Nachname",
             placeholder_first_name: "Max",
-            placeholder_last_name: "Mustermann",
+            placeholder_last_name: "Mustermensch",
             password_hint: "Muss mindestens 8 Zeichen lang sein",
             button_create: "Konto erstellen",
             already_have_account: "Hast du bereits ein Konto?",

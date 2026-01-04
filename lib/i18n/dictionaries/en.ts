@@ -429,7 +429,7 @@ export const en: Dictionary = {
             placeholder_email: "jane@example.com",
             placeholder_password: "••••••••",
             privacy_guaranteed: "Privacy Guaranteed",
-            privacy_quote: "MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
+            privacy_quote: "MEasure-CFS processes all your data locally or secure in your private isolate. No health records are ever shared."
         },
         login: {
             title_start: "Welcome",
@@ -441,13 +441,13 @@ export const en: Dictionary = {
             button_create: "Create Free Account",
             error_invalid: "Invalid credentials. If you don't have an account, please sign up.",
             testimonial: {
-                quote: "MEasure-CFS turns my brain fog into a clear plan. It's the first time I feel ahead of my energy crashes."
+                quote: "MEasure-CFS helps me reduce my PEM episodes."
             }
         },
         signup: {
             title_start: "Start your",
             title_highlight: "clarity journey",
-            subtitle: "Create a secure space to analyze your trends.",
+            subtitle: "Create a secure space to analyze your symptom data.",
             first_name: "First Name",
             last_name: "Last Name",
             placeholder_first_name: "Jane",
