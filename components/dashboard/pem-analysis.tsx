@@ -38,6 +38,36 @@ interface Discovery {
     isSynergy?: boolean;
 }
 
+const getClassificationLabel = (classification: string | undefined, isAcute: boolean | undefined, t: (key: string) => string): string => {
+    if (!classification) {
+        return isAcute
+            ? t('insights.pem_analysis.classifications.acute')
+            : t('insights.pem_analysis.classifications.cumulative')
+    }
+    const map: Record<string, string> = {
+        'Acute': 'insights.pem_analysis.classifications.acute',
+        'Lagged': 'insights.pem_analysis.classifications.lagged',
+        'Historical': 'insights.pem_analysis.classifications.historical',
+        'Cumulative': 'insights.pem_analysis.classifications.cumulative'
+    }
+    return t(map[classification] || map['Cumulative'])
+}
+
+const getClassificationDesc = (classification: string | undefined, isAcute: boolean | undefined, t: (key: string) => string): string => {
+    if (!classification) {
+        return isAcute
+            ? t('insights.pem_analysis.classifications.onset_desc')
+            : t('insights.pem_analysis.classifications.pre_onset_desc')
+    }
+    const map: Record<string, string> = {
+        'Acute': 'insights.pem_analysis.classifications.acute_desc',
+        'Lagged': 'insights.pem_analysis.classifications.lagged_desc',
+        'Historical': 'insights.pem_analysis.classifications.historical_desc',
+        'Cumulative': 'insights.pem_analysis.classifications.cumulative_desc'
+    }
+    return t(map[classification] || map['Cumulative'])
+}
+
 export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
     const { t } = useLanguage()
 
@@ -132,6 +162,10 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
         // Try to find in common.metric_labels
         const label = t(`common.metric_labels.${key}`)
         if (label !== `common.metric_labels.${key}`) return label
+
+        if (process.env.NODE_ENV === 'development') {
+            console.warn(`Translation missing for metric: ${key}`)
+        }
 
         // Try to find in dashboard.metrics (complex object)
         const complexLabel = t(`dashboard.metrics.${key}.label`)
@@ -250,20 +284,11 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                                 !d.classification && d.isAcute && "bg-red-500/10 text-red-600",
                                                                 !d.classification && !d.isAcute && "bg-orange-500/10 text-orange-600"
                                                             )}>
-                                                                {d.classification
-                                                                    ? (d.classification === 'Acute' ? t('insights.pem_analysis.classifications.acute')
-                                                                        : d.classification === 'Lagged' ? t('insights.pem_analysis.classifications.lagged')
-                                                                            : d.classification === 'Historical' ? t('insights.pem_analysis.classifications.historical')
-                                                                                : t('insights.pem_analysis.classifications.cumulative'))
-                                                                    : (d.isAcute ? t('insights.pem_analysis.classifications.acute') : t('insights.pem_analysis.classifications.cumulative'))}
+                                                                {getClassificationLabel(d.classification, d.isAcute, t)}
                                                             </Badge>
                                                         </TooltipTrigger>
                                                         <TooltipContent className="max-w-[200px] text-[10px]">
-                                                            {d.classification === 'Acute' && t('insights.pem_analysis.classifications.acute_desc')}
-                                                            {d.classification === 'Lagged' && t('insights.pem_analysis.classifications.lagged_desc')}
-                                                            {d.classification === 'Historical' && t('insights.pem_analysis.classifications.historical_desc')}
-                                                            {d.classification === 'Cumulative' && t('insights.pem_analysis.classifications.cumulative_desc')}
-                                                            {!d.classification && (d.isAcute ? t('insights.pem_analysis.classifications.onset_desc') : t('insights.pem_analysis.classifications.pre_onset_desc'))}
+                                                            {getClassificationDesc(d.classification, d.isAcute, t)}
                                                         </TooltipContent>
                                                     </InfoTooltip>
                                                 </TooltipProvider>

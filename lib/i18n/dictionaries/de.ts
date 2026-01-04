@@ -706,7 +706,7 @@ export const de: Dictionary = {
             disclaimer: "Statistische Einblicke dienen nur zu Informationszwecken und sind kein medizinischer Rat. Konsultiere immer deinen Arzt."
         },
         pem_analysis: {
-            title: "PEM Insights",
+            title: "PEM Analyse",
             no_clusters: {
                 title: "Keine PEM-Cluster erkannt",
                 desc: "Keine Crashes im ausgewählten Zeitraum gefunden.",
