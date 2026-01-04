@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 
@@ -13,7 +13,8 @@ async function checkConnection() {
         return;
     }
 
-    console.log(`   URL: ${url}`);
+    const urlObj = new URL(url);
+    console.log(`   URL: ${urlObj.protocol}//${urlObj.hostname.substring(0, 10)}...`);
     // Obfuscate key for log safety
     console.log(`   Key: ${key.substring(0, 10)}...`);
 

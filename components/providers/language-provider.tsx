@@ -19,23 +19,25 @@ type LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
-export function LanguageProvider({ children, initialLocale }: LanguageProviderProps) {
-    const [locale, setLocaleState] = useState<Locale>(initialLocale || 'en')
+export function LanguageProvider({ children, initialLocale = 'en' }: LanguageProviderProps) {
+    const [locale, setLocaleState] = useState<Locale>(initialLocale)
+    const initialLocaleRef = React.useRef(initialLocale)
 
-    // Load persisted preference or detect domain
+    // Load persisted preference or detect domain on mount
     useEffect(() => {
         const hostname = window.location.hostname.toLowerCase()
         const saved = localStorage.getItem('track-me-locale') as Locale
 
-        // Smart domain-based defaulting
+        // Smart domain-based defaulting (Client-side fallback)
         const domainDefault: Locale = hostname.endsWith('.de') ? 'de' : 'en'
+        const targetLocale = (saved === 'en' || saved === 'de') ? saved : domainDefault
 
-        if (saved && (saved === 'en' || saved === 'de')) {
-            setTimeout(() => setLocaleState(saved), 0)
-        } else {
-            setTimeout(() => setLocaleState(domainDefault), 0)
+        // Only update if the target locale differs from the initial SSR locale
+        if (targetLocale !== initialLocaleRef.current) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setLocaleState(targetLocale)
         }
-    }, [])
+    }, []) // Mount-only to avoid re-running on language switches
 
     const setLocale = (newLocale: Locale) => {
         setLocaleState(newLocale)

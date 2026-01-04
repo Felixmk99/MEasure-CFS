@@ -148,7 +148,7 @@ export const de: Dictionary = {
             badge: "Privacy-First Gesundheitsanalyse",
             title_main: "Verstehe deinen Körper.",
             title_highlight: "Meistere deine Energie.",
-            subtitle: "Ein sicherer Raum für ME/CFS- und Long-Covid-Betroffene, um Daten von \"Visible\" und anderen Symptom-Tracking-Apps zu visualisieren. Erkenne Crash-Trigger, verfolge die Wirksamkeit von Medikamenten und finde deine Baseline—ohne Kompromisse beim Datenschutz.",
+            subtitle: "Ein sicherer Raum für ME/CFS- und Long-Covid-Betroffene, um Daten von \"Visible\" und anderen Symptom-Tagebuch-Apps zu visualisieren und analysieren. Erkenne Crash-Trigger, verfolge die Wirksamkeit von Medikamenten und finde deine Baseline—ohne Kompromisse beim Datenschutz.",
             dropzone: {
                 title: "Analysiere deine CSV sofort",
                 subtitle: "Zieh dein Visible-Export hierher, um zu beginnen",
@@ -159,11 +159,11 @@ export const de: Dictionary = {
                 secure: "Sichere Speicherung",
                 instant: "Sofortige Einblicke"
             },
-            transform_title: "Verstehe deine Gesundheit",
+            transform_title: "Verstehe deine Erkrankung",
             predictive_insights: "mit datengestützten Analysen",
             drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
-            drop_title_generic: "Zieh deine App Daten hierher, um zu beginnen",
-            drop_desc: "Lade CSV-Dateien von deiner Visible oder Bearable App hoch (weitere Apps folgen in Kürze). Deine Reise zur Klarheit beginnt hier.",
+            drop_title_generic: "Zieh deine Visible App Daten hierher, um zu beginnen",
+            drop_desc: "Lade CSV-Dateien von deiner Visible oder Bearable App hoch (weitere Apps folgen in Kürze).",
             create_account_hint: "Neu hier? Erstelle zuerst ein Konto →"
         },
         pillars: {
@@ -177,7 +177,7 @@ export const de: Dictionary = {
             },
             recovery: {
                 title: "PEM-Gefahren-Erkennung",
-                desc: "Stoppe Crashs, bevor sie entstehen. Unser Algorithmus erkennt subtile biometrische Veränderungen, die ein drohendes PEM-Ereignis signalisieren, und gibt dir die Kontrolle, dich rechtzeitig auszuruhen."
+                desc: "Stoppe Crashs, bevor sie entstehen. Unser Algorithmus erkennt subtile Veränderungen, die ein drohendes PEM-Ereignis signalisieren, und gibt dir die Kontrolle, dich rechtzeitig auszuruhen."
             }
         },
         steps: {
@@ -219,8 +219,8 @@ export const de: Dictionary = {
             desc: "Deine Gesundheitsdaten sind sensibel. Die gesamte Verarbeitung ist sicher, verschlüsselt und wird niemals geteilt. Deine Daten gehören dir, immer."
         },
         cta: {
-            title: "Bereit, die Kontrolle über deine Gesundheit zu übernehmen?",
-            desc: "Schließe dich Patienten an, die Daten in Erholung verwandeln. Beginne noch heute mit der Analyse deiner Biomarker.",
+            title: "Bereit, deine Erkrankung besser zu verstehen?",
+            desc: "Schließe dich Patienten an, die Daten in Erkenntnisse verwandeln. Beginne noch heute mit der Analyse deiner Krankheitsdaten.",
             button_signup: "Kostenloses Konto erstellen",
             button_demo: "Demo ansehen"
         },
@@ -425,7 +425,7 @@ export const de: Dictionary = {
     auth: {
         login: {
             testimonial: {
-                quote: "MEasure-CFS verwandelt meinen Brain Fog in einen klaren Plan. Es ist das erste Mal, dass ich meinen Energie-Einbrüchen voraus bin."
+                quote: "MEasure-CFS hilft mir dabei PEM effektiver zu vermeiden."
             }
         }
     }
