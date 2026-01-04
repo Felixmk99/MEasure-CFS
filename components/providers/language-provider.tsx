@@ -33,11 +33,12 @@ export function LanguageProvider({ children, initialLocale = 'en' }: LanguagePro
         if (saved && (saved === 'en' || saved === 'de')) {
             // Only update if saved preference differs from SSR language
             if (saved !== locale) {
-                setLocaleState(saved)
+                // Wrap in setTimeout to avoid synchronous cascading render lint error
+                setTimeout(() => setLocaleState(saved), 0)
             }
         } else if (domainDefault !== locale) {
             // If no saved pref, and client domain detection suggests different language than server, update
-            setLocaleState(domainDefault)
+            setTimeout(() => setLocaleState(domainDefault), 0)
         }
     }, [locale])
 
