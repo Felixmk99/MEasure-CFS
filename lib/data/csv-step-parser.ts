@@ -31,8 +31,12 @@ export async function parseGenericStepCsv(
                 const headers = results.meta.fields || []
 
                 // Identify columns
-                const dateCol = headers.find(h => DATE_HEADERS.some(dh => h.toLowerCase().includes(dh)))
-                const stepsCol = headers.find(h => STEP_HEADERS.some(sh => h.toLowerCase().includes(sh)))
+                const matchesHeader = (header: string, candidates: string[]) => {
+                    const lower = header.toLowerCase()
+                    return candidates.some(c => lower === c || lower.startsWith(c + '_') || lower.endsWith('_' + c))
+                }
+                const dateCol = headers.find(h => matchesHeader(h, DATE_HEADERS))
+                const stepsCol = headers.find(h => matchesHeader(h, STEP_HEADERS))
 
                 if (!dateCol || !stepsCol) {
                     reject(new Error('missing_columns'))

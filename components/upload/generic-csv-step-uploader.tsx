@@ -21,15 +21,15 @@ export function GenericCsvStepUploader() {
         const file = acceptedFiles[0]
         if (!file) return
 
-        setStatus('parsing')
-        setMessage(t('upload.messages.parsing_file', { provider: 'CSV' }))
-
         const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB limit
         if (file.size > MAX_FILE_SIZE) {
             setStatus('error')
             setMessage(t('upload.messages.file_too_large'))
             return
         }
+
+        setStatus('parsing')
+        setMessage(t('upload.messages.parsing_file', { provider: 'CSV' }))
 
         const reader = new FileReader()
 
@@ -58,22 +58,16 @@ export function GenericCsvStepUploader() {
                 const stepData = await parseGenericStepCsv(text, existingDateSet)
 
                 if (stepData.length === 0) {
-                    throw new Error(t('upload.messages.no_steps_found'))
-                }
-
-                // Filter (parser does it but let's be double sure or handle logic if parser didn't)
-                const filteredStepEntries = stepData // Parser already filtered using existingDateSet
-                const totalFiltered = filteredStepEntries.length
-
-                if (totalFiltered === 0) {
                     throw new Error(t('upload.messages.no_matching_dates'))
                 }
+
+                const totalFiltered = stepData.length
 
                 setStatus('uploading')
                 setMessage(t('upload.messages.found_matching_days', { count: totalFiltered }))
 
                 // Prepare DB Records
-                const dbRecords = filteredStepEntries.map(entry => ({
+                const dbRecords = stepData.map(entry => ({
                     user_id: user.id,
                     date: entry.date,
                     step_count: entry.steps
