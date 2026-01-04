@@ -63,5 +63,18 @@ Seamlessly ingest CSV exports from the **Visible** app. We handle the heavy lift
    ```
    Visit `http://localhost:3000` to start tracking.
 
+## 💾 Database Administration
+
+### Manual Migrations
+Track-ME uses a schema file (`supabase/schema.sql`) but does not currently employ an automated migration system. If you sort updating an existing analysis database, you may need to apply schema changes manually.
+
+**Enable CSV Step Provider:**
+To allow 'csv' as a step provider in the settings, run this SQL in your Supabase SQL Editor:
+```sql
+ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_step_provider_check;
+ALTER TABLE profiles ADD CONSTRAINT profiles_step_provider_check 
+  CHECK (step_provider IN ('apple', 'google', 'garmin', 'samsung', 'whoop', 'csv'));
+```
+
 ## 📄 License
 This project is licensed under the MIT License.
