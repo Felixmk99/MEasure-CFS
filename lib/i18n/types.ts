@@ -651,5 +651,65 @@ export interface Dictionary {
         footer: {
             disclaimer: string
         }
+        pem_analysis: {
+            title: string
+            no_clusters: {
+                title: string
+                desc: string
+                desc_short: string
+            }
+            phase1: {
+                title: string
+                cumulative: string
+                confidence: string
+                no_pattern: string
+                no_pattern_desc: string
+            }
+            phase2: {
+                title: string
+                logged: string
+                physiological: string
+                classification: string
+                persists: string
+                recovered: string
+                bio_stress_title: string
+                bio_stress_desc: string
+                extended_by: string
+                peak_deviation: string
+            }
+            phase3: {
+                title: string
+                subjective: string
+                biological: string
+                lag: string
+                fast: string
+                body_lag: string
+                body_reset: string
+                hysteresis_title: string
+                hysteresis_desc: string
+                slowest: string
+                days_tail: string
+            }
+            discovery: {
+                increase: string
+                decrease: string
+                onset: string
+                days_before: string
+                synergy: string
+            }
+            classifications: {
+                acute: string
+                lagged: string
+                historical: string
+                cumulative: string
+                acute_desc: string
+                lagged_desc: string
+                historical_desc: string
+                cumulative_desc: string
+                onset_desc: string
+                pre_onset_desc: string
+            }
+            footer: string
+        }
     }
 }

@@ -702,6 +702,66 @@ export const en: Dictionary = {
         },
         footer: {
             disclaimer: "Statistical insights are for informational purposes only and not medical advice. Always consult your physician."
+        },
+        pem_analysis: {
+            title: "PEM Insights",
+            no_clusters: {
+                title: "No PEM Clusters Detected",
+                desc: "No crashes detected in the selected timeframe.",
+                desc_short: "You don't have enough crash data to perform a full Cycle Analysis yet."
+            },
+            phase1: {
+                title: "Phase 1: Buildup",
+                cumulative: "Cumulative Load Detected",
+                confidence: "Confidence:",
+                no_pattern: "No clear trigger pattern",
+                no_pattern_desc: "No acute statistical spikes found in your metrics during the 7-day buildup. Your crashes may be caused by a 'slow burn' of cumulative baseline energy expenditure."
+            },
+            phase2: {
+                title: "Phase 2: The Event",
+                logged: "Logged: {val}d",
+                physiological: "Physiological: {val}d",
+                classification: "Impact Classification • Baseline: 90 Days",
+                persists: "Bio-Stress Persists +{val}d",
+                recovered: "Recovered with logs",
+                bio_stress_title: "Biological Stress Duration",
+                bio_stress_desc: "Measures how long your body stays in a 'Strained' state (Low HRV, High Heart Rate, or High Symptoms). Temporary 'good' shifts in biomarkers are ignored to ensure accuracy.",
+                extended_by: "Extended by:",
+                peak_deviation: "Peak Deviation"
+            },
+            phase3: {
+                title: "Phase 3: The Recovery Tail",
+                subjective: "Subjective Log: +{val}d",
+                biological: "Biological Lag: +{val}d",
+                lag: "Biological Lag",
+                fast: "Fast Recovery",
+                body_lag: "Body lag: +{val}d after feeling better",
+                body_reset: "Body resets alongside symptoms",
+                hysteresis_title: "Biological Lag (Hysteresis)",
+                hysteresis_desc: "Measures how long your biomarkers (HRV, RHR) take to return to baseline **after** you stopped feeling the acute effects of the crash. This is the 'hangover' your body is still processing.",
+                slowest: "Slowest",
+                days_tail: "Days Tail"
+            },
+            discovery: {
+                increase: "Increase",
+                decrease: "Decrease",
+                onset: "On onset (Day 0)",
+                days_before: "{start}-{end}d before",
+                synergy: "Synergy"
+            },
+            classifications: {
+                acute: "Acute",
+                lagged: "Lagged",
+                historical: "Historical",
+                cumulative: "Cumulative",
+                acute_desc: "Trigger happened on the same day the crash started.",
+                lagged_desc: "Short delay (1-2 days) between cause and effect.",
+                historical_desc: "A single event from 3+ days ago that likely contributed.",
+                cumulative_desc: "A sustained buildup of strain over multiple days.",
+                onset_desc: "Trigger happened on onset day.",
+                pre_onset_desc: "Trigger happened before onset."
+            },
+            footer: "Analysis based on **{count} crash episodes** using Superposed Epoch Analysis (SEA)."
         }
     }
 }

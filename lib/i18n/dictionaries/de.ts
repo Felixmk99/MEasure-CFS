@@ -702,6 +702,66 @@ export const de: Dictionary = {
         },
         footer: {
             disclaimer: "Statistische Einblicke dienen nur zu Informationszwecken und sind kein medizinischer Rat. Konsultiere immer deinen Arzt."
+        },
+        pem_analysis: {
+            title: "PEM Insights",
+            no_clusters: {
+                title: "Keine PEM-Cluster erkannt",
+                desc: "Keine Crashes im ausgewählten Zeitraum gefunden.",
+                desc_short: "Datenmenge noch nicht ausreichend für vollständige Zyklus-Analyse."
+            },
+            phase1: {
+                title: "Phase 1: Aufbau",
+                cumulative: "Kumulative Belastung erkannt",
+                confidence: "Konfidenz:",
+                no_pattern: "Kein klares Triggermuster",
+                no_pattern_desc: "Keine akuten statistischen Spitzen in deinen Metriken während der 7-tägigen Aufbauphase gefunden. Deine Crashes könnten durch einen 'schleichenden Prozess' kumulativer Grundbelastung verursacht sein."
+            },
+            phase2: {
+                title: "Phase 2: Das Ereignis",
+                logged: "Protokolliert: {val}d",
+                physiological: "Physiologisch: {val}d",
+                classification: "Impact-Klassifizierung • Baseline: 90 Tage",
+                persists: "Bio-Stress besteht weiter +{val}d",
+                recovered: "Erholung zeitgleich mit Log",
+                bio_stress_title: "Dauer des biologischen Stress",
+                bio_stress_desc: "Misst, wie lange dein Körper in einem 'belasteten' Zustand bleibt (niedrige HRV, hohe Herzfrequenz oder starke Symptome). Kurzzeitige Verbesserungen werden ignoriert, um Genauigkeit zu gewährleisten.",
+                extended_by: "Verlängert durch:",
+                peak_deviation: "Maximale Abweichung"
+            },
+            phase3: {
+                title: "Phase 3: Die Erholungsphase",
+                subjective: "Subjektives Log: +{val}d",
+                biological: "Biologische Verzögerung: +{val}d",
+                lag: "Biologische Verzögerung",
+                fast: "Schnelle Erholung",
+                body_lag: "Körper hinkt hinterher: +{val}d nach Besserung",
+                body_reset: "Körper erholt sich parallel zu Symptomen",
+                hysteresis_title: "Biologische Latenz (Hysterese)",
+                hysteresis_desc: "Misst, wie lange deine Biomarker (HRV, RHR) brauchen, um zur Baseline zurückzukehren, **nachdem** die akuten Symptome abgeklungen sind. Dies ist der 'Nachhall', den dein Körper noch verarbeitet.",
+                slowest: "Am langsamsten",
+                days_tail: "Tage Nachlauf"
+            },
+            discovery: {
+                increase: "Anstieg",
+                decrease: "Abfall",
+                onset: "Am Crash-Tag (Tag 0)",
+                days_before: "{start}-{end}d davor",
+                synergy: "Synergie"
+            },
+            classifications: {
+                acute: "Akut",
+                lagged: "Verzögert",
+                historical: "Historisch",
+                cumulative: "Kumulativ",
+                acute_desc: "Trigger trat am Tag des Crash-Beginns auf.",
+                lagged_desc: "Kurze Verzögerung (1-2 Tage) zwischen Ursache und Wirkung.",
+                historical_desc: "Ein Einzelereignis vor 3+ Tagen, das wahrscheinlich beigetragen hat.",
+                cumulative_desc: "Eine anhaltende Belastung über mehrere Tage hinweg.",
+                onset_desc: "Trigger trat am Tag des Beginns auf.",
+                pre_onset_desc: "Trigger trat vor dem Beginn auf."
+            },
+            footer: "Analyse basierend auf **{count} Crash-Episoden** mittels Superposed Epoch Analysis (SEA)."
         }
     }
 }
