@@ -215,7 +215,7 @@ export const de: Dictionary = {
                 secure: "Sichere Speicherung",
                 instant: "Sofortige Einblicke"
             },
-            transform_title: "Verstehe deinen Körper besser",
+            transform_title: "Verstehe deinen Körper",
             predictive_insights: "durch datenbasierte Einblicke",
             drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
             drop_title_generic: "Zieh deine Visible App Daten hierher, um zu beginnen",
