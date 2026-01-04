@@ -15,7 +15,6 @@ import { EditDataDialog } from "@/components/dashboard/edit-data-dialog"
 import { subDays, isAfter, startOfDay } from "date-fns"
 import { useMemo } from 'react'
 import { ScorableEntry } from "@/lib/scoring/composite-score"
-import { Database } from "@/types/database.types"
 
 import {
     Select,

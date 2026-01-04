@@ -468,6 +468,8 @@ export interface Dictionary {
             button_deleting: string
             success_toast: string
             error_toast: string
+            error_fallback: string
+            signout_failed: string
         }
     }
     legal: {

@@ -513,7 +513,9 @@ export const en: Dictionary = {
             button_delete: "Permanently Delete",
             button_deleting: "Deleting data...",
             success_toast: "Account deleted successfully.",
-            error_toast: "Failed to delete account data: {error}"
+            error_toast: "Failed to delete account data: {error}",
+            error_fallback: "Failed to delete account from authentication system.",
+            signout_failed: "Account deleted, but sign-out failed. You may need to clear your browser cache."
         }
     },
     legal: {

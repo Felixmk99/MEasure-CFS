@@ -513,7 +513,9 @@ export const de: Dictionary = {
             button_delete: "Unwiderruflich löschen",
             button_deleting: "Daten werden gelöscht...",
             success_toast: "Konto erfolgreich gelöscht.",
-            error_toast: "Fehler beim Löschen der Kontodaten: {error}"
+            error_toast: "Fehler beim Löschen der Kontodaten: {error}",
+            error_fallback: "Fehler beim Löschen des Kontos aus dem Authentifizierungssystem.",
+            signout_failed: "Konto gelöscht, aber Abmeldung fehlgeschlagen. Bitte Browser-Cache leeren."
         }
     },
     legal: {

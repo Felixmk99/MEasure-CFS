@@ -82,7 +82,7 @@ export default function SettingsClient({ user }: { user: User }) {
             const result = await response.json()
 
             if (!response.ok) {
-                throw new Error(result.error || 'Failed to delete account from authentication system.')
+                throw new Error(result.error || t('settings.delete_account.error_fallback'))
             }
 
             try {
@@ -92,7 +92,7 @@ export default function SettingsClient({ user }: { user: User }) {
                 window.location.href = '/'
             } catch (error) {
                 console.error('Logout after deletion failed:', error)
-                toast.error('Account deleted, but sign-out failed. You may need to clear your browser cache.')
+                toast.error(t('settings.delete_account.signout_failed'))
                 window.location.href = '/'
             }
 
