@@ -238,7 +238,7 @@ export default function SettingsClient({ user }: { user: User }) {
                         <Button
                             variant="destructive"
                             onClick={handleDeleteAccount}
-                            disabled={deleteConfirmation !== t('settings.delete_account.confirm_keyword') || isDeleting}
+                            disabled={deleteConfirmation.trim().toLocaleUpperCase(locale) !== t('settings.delete_account.confirm_keyword').trim().toLocaleUpperCase(locale) || isDeleting}
                             className="bg-red-600 hover:bg-red-700"
                         >
                             {isDeleting ? t('settings.delete_account.button_deleting') : t('settings.delete_account.button_delete')}

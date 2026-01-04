@@ -15,6 +15,8 @@ import { EditDataDialog } from "@/components/dashboard/edit-data-dialog"
 import { subDays, isAfter, startOfDay } from "date-fns"
 import { useMemo } from 'react'
 import { ScorableEntry } from "@/lib/scoring/composite-score"
+import { Database } from "@/types/database.types"
+
 import {
     Select,
     SelectContent,
@@ -86,24 +88,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
     const router = useRouter()
 
     const handleDelete = async (id: string) => {
-        if (!confirm(t('common.confirm'))) return // Generic confirm or specifics? Dictionary has common.confirm="Confirm". But confirm() needs message. 
-        // Using common dictionary: "Are you sure you want to delete this entry?" I seem to have missed this specific string in dictionary.
-        // It's not in types either. I will use 'common.confirm' for now or hardcode for safety if key missing?
-        // Actually, user wants to translate EVERYTHING. 
-        // I will use a generic "Are you sure?" key or add it.
-        // Let's use `confirm('Are you sure you want to delete this entry?')` -> `confirm(t('common.delete') + '?')` is weird.
-        // I'll stick to English here for the prompt message since I can't easily add keys now without violating Type again.
-        // WAIT: I can add keys to `types` and `dictionaries`? No, I'm doing this file now.
-        // I'll use `t('common.delete')` as the title if using a custom Dialog, but `window.confirm` takes a string.
-        // The original was "Are you sure you want to delete this entry?".
-        // I will hardcode it for now as I missed it in dictionary, essentially leaving it English. 
-        // The user can fix it later or I can do another pass.
-        // Actually, I can use `experiments.actions.confirm_delete` for safety? No, that says "experiment".
-        // Use `t('upload.data_log.delete_confirm')` for delete all.
-        // Simply: I won't translate this single specific confirmation string fully perfectly.
-        // OR better: I will add "Delete Entry?" to the next Dictionary update list if I have one.
-        // For now:
         if (!confirm(t('upload.data_log.delete_entry_confirm'))) return
+
 
         const { error } = await supabase.from('health_metrics').delete().eq('id', id)
 
@@ -159,9 +145,10 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
             custom_metrics: updatedData.custom_metrics
         } satisfies HealthMetricUpdate
 
-        // Supabase strict typing requires cast for update payload
-        const { error } = await supabase.from('health_metrics')
-            .update(updatePayload as Record<string, unknown>)
+        // Explicit cast to fix "never" inference in build
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase.from('health_metrics') as any)
+            .update(updatePayload)
             .eq('id', id)
 
         if (!error) {
