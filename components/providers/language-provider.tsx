@@ -19,23 +19,27 @@ type LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
-export function LanguageProvider({ children, initialLocale }: LanguageProviderProps) {
-    const [locale, setLocaleState] = useState<Locale>(initialLocale || 'en')
+export function LanguageProvider({ children, initialLocale = 'en' }: LanguageProviderProps) {
+    const [locale, setLocaleState] = useState<Locale>(initialLocale)
 
     // Load persisted preference or detect domain
     useEffect(() => {
         const hostname = window.location.hostname.toLowerCase()
         const saved = localStorage.getItem('track-me-locale') as Locale
 
-        // Smart domain-based defaulting
+        // Smart domain-based defaulting (Client-side fallback)
         const domainDefault: Locale = hostname.endsWith('.de') ? 'de' : 'en'
 
         if (saved && (saved === 'en' || saved === 'de')) {
-            setTimeout(() => setLocaleState(saved), 0)
-        } else {
-            setTimeout(() => setLocaleState(domainDefault), 0)
+            // Only update if saved preference differs from SSR language
+            if (saved !== locale) {
+                setLocaleState(saved)
+            }
+        } else if (domainDefault !== locale) {
+            // If no saved pref, and client domain detection suggests different language than server, update
+            setLocaleState(domainDefault)
         }
-    }, [])
+    }, [locale])
 
     const setLocale = (newLocale: Locale) => {
         setLocaleState(newLocale)

@@ -20,16 +20,22 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "sonner";
+import { headers } from "next/headers";
+import { Locale } from "@/lib/i18n/types";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const host = headersList.get("host") || "";
+  const initialLocale: Locale = host.toLowerCase().endsWith(".de") ? "de" : "en";
+
   return (
-    <html lang="en">
+    <html lang={initialLocale}>
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`} suppressHydrationWarning>
-        <LanguageProvider>
+        <LanguageProvider initialLocale={initialLocale}>
           <UserProvider>
             <UploadProvider>
               <Navbar />
