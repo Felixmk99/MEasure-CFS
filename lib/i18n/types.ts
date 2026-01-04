@@ -399,10 +399,46 @@ export interface Dictionary {
         help_text: string
     }
     auth: {
+        common: {
+            email: string
+            password: string
+            placeholder_email: string
+            placeholder_password: string
+            privacy_guaranteed: string
+            privacy_quote: string
+        }
         login: {
+            title_start: string
+            title_highlight: string
+            subtitle: string
+            forgot_password: string
+            button_signin: string
+            no_account: string
+            button_create: string
+            error_invalid: string
             testimonial: {
                 quote: string
             }
+        }
+        signup: {
+            title_start: string
+            title_highlight: string
+            subtitle: string
+            first_name: string
+            last_name: string
+            placeholder_first_name: string
+            placeholder_last_name: string
+            password_hint: string
+            button_create: string
+            already_have_account: string
+            button_login: string
+            feature_baseline_title: string
+            feature_baseline_desc: string
+            feature_design_title: string
+            feature_design_desc: string
+            error_exists: string
+            success_pending: string
+            success_confirm: string
         }
     }
 }

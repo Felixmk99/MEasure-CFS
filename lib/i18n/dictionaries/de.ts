@@ -423,10 +423,46 @@ export const de: Dictionary = {
         help_text: "Wenn du dich noch nicht eingeloggt hast, versuche einen neuen Link anzufordern, indem du deine E-Mail erneut auf der Login- oder Registrierungsseite eingibst. Wenn das Problem weiterhin besteht, kontaktiere uns gerne."
     },
     auth: {
+        common: {
+            email: "E-Mail-Adresse",
+            password: "Passwort",
+            placeholder_email: "max@beispiel.de",
+            placeholder_password: "••••••••",
+            privacy_guaranteed: "Datenschutz garantiert",
+            privacy_quote: "MEasure-CFS verarbeitet alle deine CSV-Daten lokal oder gesichert in deiner privaten Instanz. Es werden keine sensiblen Gesundheitsdaten verkauft."
+        },
         login: {
+            title_start: "Willkommen",
+            title_highlight: "zurück",
+            subtitle: "Melde dich an, um deine Fortschritte zu sehen.",
+            forgot_password: "Passwort vergessen?",
+            button_signin: "Anmelden",
+            no_account: "Noch kein Konto?",
+            button_create: "Kostenloses Konto erstellen",
+            error_invalid: "Ungültige Zugangsdaten. Wenn du noch kein Konto hast, registriere dich bitte.",
             testimonial: {
                 quote: "MEasure-CFS hilft mir dabei PEM effektiver zu vermeiden."
             }
+        },
+        signup: {
+            title_start: "Beginne deinen",
+            title_highlight: "Weg zur Klarheit",
+            subtitle: "Erstelle einen sicheren Ort, um deine Trends zu analysieren.",
+            first_name: "Vorname",
+            last_name: "Nachname",
+            placeholder_first_name: "Max",
+            placeholder_last_name: "Mustermann",
+            password_hint: "Muss mindestens 8 Zeichen lang sein",
+            button_create: "Konto erstellen",
+            already_have_account: "Hast du bereits ein Konto?",
+            button_login: "Anmelden",
+            feature_baseline_title: "Verstehe dein Baseline",
+            feature_baseline_desc: "Lerne dein Energie-Envelope kennen.",
+            feature_design_title: "Patientenorientiertes Design",
+            feature_design_desc: "Für Menschen mit chronischen Krankheiten entwickelt.",
+            error_exists: "Konto existiert bereits. Bitte melde dich an.",
+            success_pending: "Konto erstellt! Bitte prüfe deine E-Mails zur Bestätigung. Danach verarbeiten wir deine hochgeladenen Daten automatisch.",
+            success_confirm: "Prüfe deine E-Mails für den Bestätigungslink."
         }
     }
 }

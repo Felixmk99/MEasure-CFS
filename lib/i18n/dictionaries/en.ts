@@ -423,10 +423,46 @@ export const en: Dictionary = {
         help_text: "If you haven't logged in yet, try requesting a new link by entering your email at the login or signup page again. If the issue persists, feel free to contact us."
     },
     auth: {
+        common: {
+            email: "Email Address",
+            password: "Password",
+            placeholder_email: "jane@example.com",
+            placeholder_password: "••••••••",
+            privacy_guaranteed: "Privacy Guaranteed",
+            privacy_quote: "MEasure-CFS processes all your CSV data locally or secure in your private isolate. No sensitive health records are ever sold."
+        },
         login: {
+            title_start: "Welcome",
+            title_highlight: "back home",
+            subtitle: "Sign in to visualize your progress.",
+            forgot_password: "Forgot password?",
+            button_signin: "Sign In",
+            no_account: "Don't have an account?",
+            button_create: "Create Free Account",
+            error_invalid: "Invalid credentials. If you don't have an account, please sign up.",
             testimonial: {
                 quote: "MEasure-CFS turns my brain fog into a clear plan. It's the first time I feel ahead of my energy crashes."
             }
+        },
+        signup: {
+            title_start: "Start your",
+            title_highlight: "clarity journey",
+            subtitle: "Create a secure space to analyze your trends.",
+            first_name: "First Name",
+            last_name: "Last Name",
+            placeholder_first_name: "Jane",
+            placeholder_last_name: "Doe",
+            password_hint: "Must be at least 8 characters",
+            button_create: "Create Account",
+            already_have_account: "Already have an account?",
+            button_login: "Log In",
+            feature_baseline_title: "Visualize Your Baseline",
+            feature_baseline_desc: "Understand your energy envelope.",
+            feature_design_title: "Patient-First Design",
+            feature_design_desc: "Built for the chronic illness community.",
+            error_exists: "Account already exists. Please Log In.",
+            success_pending: "Account created! Please check your email to confirm. After confirming, we will automatically process your uploaded data.",
+            success_confirm: "Check your email for the confirmation link."
         }
     }
 }
