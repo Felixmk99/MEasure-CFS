@@ -12,10 +12,19 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://measure-cfs.de"),
   title: "MEasure-CFS",
   description: "Privacy-focused health dashboard for Long Covid and ME/CFS",
   icons: {
     icon: "/favicon.svg",
+  },
+  openGraph: {
+    title: "MEasure-CFS",
+    description: "Privacy-focused health dashboard for Long Covid and ME/CFS",
+    url: "https://measure-cfs.de",
+    siteName: "MEasure-CFS",
+    locale: "en_US",
+    type: "website",
   },
 };
 
