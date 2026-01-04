@@ -34,8 +34,8 @@ export function LanguageProvider({ children, initialLocale = 'en' }: LanguagePro
 
         // Only update if the target locale differs from the initial SSR locale
         if (targetLocale !== initialLocaleRef.current) {
-            // Wrap in setTimeout to satisfy the "Avoid calling setState() directly within an effect" rule
-            setTimeout(() => setLocaleState(targetLocale), 0)
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setLocaleState(targetLocale)
         }
     }, []) // Mount-only to avoid re-running on language switches
 

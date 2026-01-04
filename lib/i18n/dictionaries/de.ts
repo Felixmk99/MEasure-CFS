@@ -217,8 +217,8 @@ export const de: Dictionary = {
             desc: "Deine Gesundheitsdaten sind sensibel. Die gesamte Verarbeitung ist sicher, verschlüsselt und wird niemals geteilt. Deine Daten gehören dir, immer."
         },
         cta: {
-            title: "Bereit, die Kontrolle über deine Gesundheit zu übernehmen?",
-            desc: "Schließe dich Patienten an, die Daten in Erholung verwandeln. Beginne noch heute mit der Analyse deiner Biomarker.",
+            title: "Bereit, deine Erkrankung besser zu verstehen?",
+            desc: "Schließe dich Patienten an, die Daten in Erkenntnisse verwandeln. Beginne noch heute mit der Analyse deiner Krankheitsdaten.",
             button_signup: "Kostenloses Konto erstellen",
             button_demo: "Demo ansehen"
         },
@@ -423,7 +423,7 @@ export const de: Dictionary = {
     auth: {
         login: {
             testimonial: {
-                quote: "MEasure-CFS verwandelt meinen Brain Fog in einen klaren Plan. Es ist das erste Mal, dass ich meinen Energie-Einbrüchen voraus bin."
+                quote: "MEasure-CFS hilft mir dabei PEM effektiver zu vermeiden."
             }
         }
     }
