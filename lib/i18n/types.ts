@@ -352,6 +352,7 @@ export interface Dictionary {
             apple: string
             google: string
             samsung: string
+            csv: string
         }
         dropzone: {
             idle: string
@@ -368,11 +369,13 @@ export interface Dictionary {
             title_google: string
             title_samsung: string
             title_bearable: string
+            title_csv: string
             hint_visible: string
             hint_apple: string
             hint_google: string
             hint_samsung: string
             hint_bearable: string
+            hint_csv: string
             file_type_csv: string
             file_type_xml: string
         }
@@ -456,6 +459,7 @@ export interface Dictionary {
             samsung: string
             whoop: string
             garmin: string
+            csv: string
             soon: string
         }
         delete_account: {

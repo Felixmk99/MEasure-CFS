@@ -398,7 +398,8 @@ export const en: Dictionary = {
             bearable: "Bearable App (CSV)",
             apple: "Apple Health Steps (XML)",
             google: "Google Fit Steps (CSV)",
-            samsung: "Samsung Health Steps (CSV)"
+            samsung: "Samsung Health Steps (CSV)",
+            csv: "CSV File"
         },
         dropzone: {
             idle: "Drag and drop your Visible export here, or click below to browse.",
@@ -415,11 +416,13 @@ export const en: Dictionary = {
             title_google: "Upload Google Fit Export",
             title_samsung: "Upload Samsung Health Export",
             title_bearable: "Upload Bearable Export",
+            title_csv: "Upload Generic CSV",
             hint_visible: "Drop your Visible export here to see your trends.",
             hint_apple: "Drag and drop export.xml. We only extract steps matching your Visible data.",
             hint_google: "Drag and drop your Google Fit daily activity CSV.",
             hint_samsung: "Drag and drop your Samsung Health steps CSV.",
             hint_bearable: "Drop your Bearable CSV file here to import your health data.",
+            hint_csv: "Upload a file with columns 'Date' and 'Steps'.",
             file_type_csv: "Supports .csv files",
             file_type_xml: "Supports .xml files"
         },
@@ -503,6 +506,7 @@ export const en: Dictionary = {
             samsung: "Samsung Health",
             whoop: "Whoop",
             garmin: "Garmin",
+            csv: "CSV File",
             soon: "Soon"
         },
         delete_account: {

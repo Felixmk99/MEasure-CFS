@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { CsvUploader } from "@/components/upload/csv-uploader"
+import { GenericCsvStepUploader } from "@/components/upload/generic-csv-step-uploader"
 import { XmlUploader } from "@/components/upload/xml-uploader"
 import { Lock, Trash2, Calendar, FileText, Smartphone, Activity, Pencil } from "lucide-react"
 import { parseISO } from "date-fns"
@@ -181,6 +182,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 return <GoogleFitUploader />
             case 'samsung':
                 return <SamsungHealthUploader />
+            case 'csv':
+                return <GenericCsvStepUploader />
             default:
                 return (
                     <div className="p-12 text-center border-2 border-dashed rounded-[2.5rem] border-zinc-200 dark:border-zinc-800">
