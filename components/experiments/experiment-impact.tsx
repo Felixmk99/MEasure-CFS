@@ -32,7 +32,7 @@ export const getFriendlyName = (metric: string, t: (key: string) => string) => {
     if (m === 'hrv') return t('dashboard.metrics.hrv.label');
     if (m === 'resting_heart_rate' || m === 'rhr') return t('dashboard.metrics.resting_heart_rate.label');
     if (m === 'symptom_score') return t('dashboard.metrics.composite_score.label');
-    if (m === 'composite_score') return "MEasure-CFS Score"
+    if (m === 'composite_score') return t('dashboard.metrics.adjusted_score.label');
 
     // Check for explicit dictionary match
     const dashLabel = t(`dashboard.metrics.${m}.label`)
@@ -67,7 +67,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
         return (
             <div className="flex items-center gap-2 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg text-xs text-muted-foreground italic">
                 <Info className="w-3.5 h-3.5" />
-                No statistically significant impacts detected for this experiment yet.
+                {t('experiments.impact.no_significant')}
             </div>
         )
     }
@@ -127,11 +127,11 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                         <TooltipContent side="top">
                                             <p className="text-xs">p-value: {impact.pValue.toFixed(3)}</p>
                                             {impact.pValue < 0.05 ? (
-                                                <p className="text-[10px] opacity-70">Highly likely to be a real effect (95% confidence).</p>
+                                                <p className="text-[10px] opacity-70">{t('experiments.impact.high_confidence_desc')}</p>
                                             ) : impact.pValue < 0.20 ? (
-                                                <p className="text-[10px] opacity-70">Suggested trend, but more data may be needed.</p>
+                                                <p className="text-[10px] opacity-70">{t('experiments.impact.trend_desc')}</p>
                                             ) : (
-                                                <p className="text-[10px] opacity-70">Not statistically significant.</p>
+                                                <p className="text-[10px] opacity-70">{t('experiments.impact.not_significant_desc')}</p>
                                             )}
                                         </TooltipContent>
                                     </Tooltip>

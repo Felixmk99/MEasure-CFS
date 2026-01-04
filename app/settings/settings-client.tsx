@@ -18,10 +18,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { useLanguage } from '@/components/providers/language-provider'
 
 import type { User } from '@supabase/supabase-js'
 
 export default function SettingsClient({ user }: { user: User }) {
+    const { t } = useLanguage()
     const supabase = createClient()
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
@@ -70,7 +72,8 @@ export default function SettingsClient({ user }: { user: User }) {
 
     // Delete Account Handler
     const handleDeleteAccount = async () => {
-        if (deleteConfirmation !== 'DELETE') return
+        const confirmKeyword = t('settings.delete_account.confirm_keyword')
+        if (deleteConfirmation !== confirmKeyword) return
         setIsDeleting(true)
 
         try {
@@ -95,7 +98,7 @@ export default function SettingsClient({ user }: { user: User }) {
 
         } catch (err: unknown) {
             const error = err as Error
-            toast.error(`Failed to delete account data: ${error.message}`)
+            toast.error(t('settings.delete_account.error_toast', { error: error.message }))
             setIsDeleting(false)
         }
     }
@@ -105,26 +108,26 @@ export default function SettingsClient({ user }: { user: User }) {
             {/* Sidebar Navigation */}
             <aside className="w-full md:w-64 flex flex-col gap-2">
                 <div className="mb-4 px-4">
-                    <h1 className="text-2xl font-bold">Settings</h1>
-                    <p className="text-sm text-muted-foreground">Manage your account.</p>
+                    <h1 className="text-2xl font-bold">{t('settings.title')}</h1>
+                    <p className="text-sm text-muted-foreground">{t('settings.subtitle')}</p>
                 </div>
 
                 <nav className="flex flex-col space-y-1">
                     <Button variant="secondary" className="justify-start">
                         <UserIcon className="mr-2 h-4 w-4" />
-                        Profile
+                        {t('settings.sidebar.profile')}
                     </Button>
                     <Button variant="ghost" className="justify-start" disabled>
                         <Lock className="mr-2 h-4 w-4" />
-                        Security (Soon)
+                        {t('settings.sidebar.security')} ({t('settings.sidebar.soon')})
                     </Button>
                     <Button variant="ghost" className="justify-start" disabled>
                         <Settings className="mr-2 h-4 w-4" />
-                        Preferences (Soon)
+                        {t('settings.sidebar.preferences')} ({t('settings.sidebar.soon')})
                     </Button>
                     <Button variant="ghost" className="justify-start" disabled>
                         <FileText className="mr-2 h-4 w-4" />
-                        Data & Export (Soon)
+                        {t('settings.sidebar.data_export')} ({t('settings.sidebar.soon')})
                     </Button>
                 </nav>
             </aside>
@@ -135,15 +138,15 @@ export default function SettingsClient({ user }: { user: User }) {
                 {/* Public Profile Card */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Public Profile</CardTitle>
-                        <CardDescription>This information will be displayed on your profile.</CardDescription>
+                        <CardTitle>{t('settings.profile.title')}</CardTitle>
+                        <CardDescription>{t('settings.profile.description')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
 
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="firstName">First name</Label>
+                                <Label htmlFor="firstName">{t('settings.profile.first_name')}</Label>
                                 <Input
                                     id="firstName"
                                     value={firstName}
@@ -151,7 +154,7 @@ export default function SettingsClient({ user }: { user: User }) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="lastName">Last name</Label>
+                                <Label htmlFor="lastName">{t('settings.profile.last_name')}</Label>
                                 <Input
                                     id="lastName"
                                     value={lastName}
@@ -164,7 +167,7 @@ export default function SettingsClient({ user }: { user: User }) {
                     </CardContent>
                     <CardFooter className="flex justify-between border-t px-6 py-4">
                         <Button onClick={handleUpdateProfile} disabled={isLoading}>
-                            {isLoading ? 'Saving...' : 'Save Changes'}
+                            {isLoading ? t('settings.profile.button_saving') : t('settings.profile.button_save')}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -172,12 +175,12 @@ export default function SettingsClient({ user }: { user: User }) {
                 {/* Personal Details Card */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Personal Details</CardTitle>
-                        <CardDescription>Manage your contact information.</CardDescription>
+                        <CardTitle>{t('settings.personal.title')}</CardTitle>
+                        <CardDescription>{t('settings.personal.description')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email address</Label>
+                            <Label htmlFor="email">{t('settings.personal.email')}</Label>
                             <Input id="email" value={user.email} disabled className="bg-muted" />
                         </div>
                     </CardContent>
@@ -192,9 +195,9 @@ export default function SettingsClient({ user }: { user: User }) {
                 {/* Delete Account Card */}
                 <Card className="border-red-200 dark:border-red-900/50 bg-red-50/10 dark:bg-red-900/10">
                     <CardHeader>
-                        <CardTitle className="text-red-600 dark:text-red-400">Delete Account</CardTitle>
+                        <CardTitle className="text-red-600 dark:text-red-400">{t('settings.delete_account.title')}</CardTitle>
                         <CardDescription>
-                            Irreversible Action. Please review the information below.
+                            {t('settings.delete_account.description')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -204,12 +207,12 @@ export default function SettingsClient({ user }: { user: User }) {
                                     <AlertTriangle className="h-5 w-5 text-red-400" aria-hidden="true" />
                                 </div>
                                 <div className="ml-3">
-                                    <h3 className="text-sm font-medium text-red-800 dark:text-red-300">Warning</h3>
+                                    <h3 className="text-sm font-medium text-red-800 dark:text-red-300">{t('settings.delete_account.warning_title')}</h3>
                                     <div className="mt-2 text-sm text-red-700 dark:text-red-400">
                                         <ul className="list-disc pl-5 space-y-1">
-                                            <li>Deleting your account will immediately remove your access.</li>
-                                            <li>Trend analysis history will be <strong>permanently deleted</strong> (secure wipe).</li>
-                                            <li>Account recovery is not possible.</li>
+                                            <li>{t('settings.delete_account.warning_access')}</li>
+                                            <li>{t('settings.delete_account.warning_data')}</li>
+                                            <li>{t('settings.delete_account.warning_recovery')}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -218,11 +221,13 @@ export default function SettingsClient({ user }: { user: User }) {
 
                         <div className="space-y-2">
                             <Label htmlFor="confirmDelete" className="text-sm font-medium">
-                                To confirm, please type <span className="font-bold text-red-600">DELETE</span> below
+                                {t('settings.delete_account.confirm_label', { keyword: '|||' }).split('|||')[0]}
+                                <span className="font-bold text-red-600">{t('settings.delete_account.confirm_keyword')}</span>
+                                {t('settings.delete_account.confirm_label', { keyword: '|||' }).split('|||')[1]}
                             </Label>
                             <Input
                                 id="confirmDelete"
-                                placeholder="DELETE"
+                                placeholder={t('settings.delete_account.confirm_keyword')}
                                 value={deleteConfirmation}
                                 onChange={(e) => setDeleteConfirmation(e.target.value)}
                                 className="max-w-md bg-white dark:bg-zinc-950"
@@ -233,10 +238,10 @@ export default function SettingsClient({ user }: { user: User }) {
                         <Button
                             variant="destructive"
                             onClick={handleDeleteAccount}
-                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                            disabled={deleteConfirmation !== t('settings.delete_account.confirm_keyword') || isDeleting}
                             className="bg-red-600 hover:bg-red-700"
                         >
-                            {isDeleting ? 'Deleting data...' : 'Permanently Delete'}
+                            {isDeleting ? t('settings.delete_account.button_deleting') : t('settings.delete_account.button_delete')}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -247,6 +252,7 @@ export default function SettingsClient({ user }: { user: User }) {
 }
 
 function SymptomProviderCard() {
+    const { t } = useLanguage()
     const { profile, updateSymptomProvider } = useUser()
     const [updating, setUpdating] = useState(false)
 
@@ -264,35 +270,35 @@ function SymptomProviderCard() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Symptom Tracker Integration</CardTitle>
-                <CardDescription>Choose which app you use to track your daily symptoms.</CardDescription>
+                <CardTitle>{t('settings.symptom_integration.title')}</CardTitle>
+                <CardDescription>{t('settings.symptom_integration.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
-                    <Label className="text-sm font-medium">Symptom Provider</Label>
+                    <Label className="text-sm font-medium">{t('settings.symptom_integration.provider_label')}</Label>
                     <Select
                         value={profile?.symptom_provider || 'visible'}
                         onValueChange={handleProviderChange}
                         disabled={updating}
                     >
                         <SelectTrigger className="w-full md:w-[350px]">
-                            <SelectValue placeholder="Select symptom tracker" />
+                            <SelectValue placeholder={t('settings.symptom_integration.placeholder')} />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="visible">
                                 <span className="flex items-center gap-2">
-                                    <Activity className="w-4 h-4 text-rose-500" /> Visible App
+                                    <Activity className="w-4 h-4 text-rose-500" /> {t('settings.symptom_integration.visible')}
                                 </span>
                             </SelectItem>
                             <SelectItem value="bearable">
                                 <span className="flex items-center gap-2">
-                                    <ClipboardList className="w-4 h-4 text-orange-500" /> Bearable App
+                                    <ClipboardList className="w-4 h-4 text-orange-500" /> {t('settings.symptom_integration.bearable')}
                                 </span>
                             </SelectItem>
                         </SelectContent>
                     </Select>
                     <p className="text-[10px] text-muted-foreground">
-                        This switches the uploader in the Data tab. Existing data is never overwritten.
+                        {t('settings.symptom_integration.hint')}
                     </p>
                 </div>
             </CardContent>
@@ -301,6 +307,7 @@ function SymptomProviderCard() {
 }
 
 function StepProviderCard() {
+    const { t } = useLanguage()
     const { profile, updateStepProvider } = useUser()
     const [updating, setUpdating] = useState(false)
 
@@ -319,46 +326,46 @@ function StepProviderCard() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Health Data Integration</CardTitle>
-                <CardDescription>Choose which app provides your daily step data.</CardDescription>
+                <CardTitle>{t('settings.step_integration.title')}</CardTitle>
+                <CardDescription>{t('settings.step_integration.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
-                    <Label className="text-sm font-medium">Step Data Provider</Label>
+                    <Label className="text-sm font-medium">{t('settings.step_integration.provider_label')}</Label>
                     <Select
                         value={profile?.step_provider || 'apple'}
                         onValueChange={handleProviderChange}
                         disabled={updating}
                     >
                         <SelectTrigger className="w-full md:w-[350px]">
-                            <SelectValue placeholder="Select step provider" />
+                            <SelectValue placeholder={t('settings.step_integration.placeholder')} />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="apple">
                                 <span className="flex items-center gap-2">
-                                    <Smartphone className="w-4 h-4" /> Apple Health
+                                    <Smartphone className="w-4 h-4" /> {t('settings.step_integration.apple')}
                                 </span>
                             </SelectItem>
                             <SelectItem value="google">
                                 <span className="flex items-center gap-2">
-                                    <Activity className="w-4 h-4 text-blue-500" /> Google Fit
+                                    <Activity className="w-4 h-4 text-blue-500" /> {t('settings.step_integration.google')}
                                 </span>
                             </SelectItem>
                             <SelectItem value="garmin" disabled>
-                                <span className="flex items-center gap-2">Garmin (Soon)</span>
+                                <span className="flex items-center gap-2">{t('settings.step_integration.garmin')} ({t('settings.step_integration.soon')})</span>
                             </SelectItem>
                             <SelectItem value="samsung">
                                 <span className="flex items-center gap-2">
-                                    <Smartphone className="w-4 h-4 text-indigo-500" /> Samsung Health
+                                    <Smartphone className="w-4 h-4 text-indigo-500" /> {t('settings.step_integration.samsung')}
                                 </span>
                             </SelectItem>
                             <SelectItem value="whoop" disabled>
-                                <span className="flex items-center gap-2">Whoop (Soon)</span>
+                                <span className="flex items-center gap-2">{t('settings.step_integration.whoop')} ({t('settings.step_integration.soon')})</span>
                             </SelectItem>
                         </SelectContent>
                     </Select>
                     <p className="text-[10px] text-muted-foreground">
-                        Determines which steps uploader is shown in the Data tab.
+                        {t('settings.step_integration.hint')}
                     </p>
                 </div>
             </CardContent>

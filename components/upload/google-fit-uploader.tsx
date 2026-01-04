@@ -6,10 +6,12 @@ import { Upload, FileSpreadsheet, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { revalidateApp } from '@/app/actions/revalidate'
 import { parseGoogleFitCsv } from '@/lib/data/google-fit-parser'
+import { useLanguage } from '@/components/providers/language-provider'
+import { revalidateApp } from '@/app/actions/revalidate'
 
 export function GoogleFitUploader() {
+    const { t } = useLanguage()
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -20,7 +22,7 @@ export function GoogleFitUploader() {
         if (!file) return
 
         setStatus('parsing')
-        setMessage('Parsing Google Fit CSV...')
+        setMessage(t('upload.messages.parsing_file', { provider: 'Google Fit' }))
 
         const reader = new FileReader()
 
@@ -32,13 +34,13 @@ export function GoogleFitUploader() {
                 const stepData = await parseGoogleFitCsv(text)
 
                 if (stepData.length === 0) {
-                    throw new Error('No step count records found. Ensure you uploaded the correct "Daily activity metrics" CSV.')
+                    throw new Error(t('upload.messages.no_steps_found'))
                 }
 
                 const { data: { user } } = await supabase.auth.getUser()
-                if (!user) throw new Error('User not authenticated')
+                if (!user) throw new Error(t('upload.messages.login_required'))
 
-                setMessage('Checking existing health records...')
+                setMessage(t('upload.messages.checking_existing'))
                 const { data: existingDatesData } = await supabase
                     .from('health_metrics')
                     .select('date')
@@ -50,11 +52,11 @@ export function GoogleFitUploader() {
                 const totalFiltered = filteredStepEntries.length
 
                 if (totalFiltered === 0) {
-                    throw new Error('No matching log dates found. Please upload your Visible CSV first.')
+                    throw new Error(t('upload.messages.no_matching_dates'))
                 }
 
                 setStatus('uploading')
-                setMessage(`Found ${totalFiltered} matching days. Preparing upload...`)
+                setMessage(t('upload.messages.found_matching_days', { count: totalFiltered }))
 
                 const dbRecords = filteredStepEntries.map(entry => ({
                     user_id: user.id,
@@ -95,11 +97,14 @@ export function GoogleFitUploader() {
                         })
 
                     if (error) throw error
-                    setMessage(`Uploading ${Math.min(i + BATCH_SIZE, dbRecords.length)} of ${totalFiltered}...`)
+                    setMessage(t('upload.messages.processed_progress', {
+                        current: Math.min(i + BATCH_SIZE, dbRecords.length),
+                        total: totalFiltered
+                    }))
                 }
 
                 setStatus('success')
-                setMessage(`Successfully updated steps for ${totalFiltered} days!`)
+                setMessage(t('upload.messages.success_steps', { count: totalFiltered }))
 
                 await revalidateApp()
                 window.dispatchEvent(new CustomEvent('health-data-updated'))
@@ -154,17 +159,17 @@ export function GoogleFitUploader() {
 
                 <div className="space-y-2">
                     <h3 className="text-2xl font-bold text-foreground">
-                        {status === 'parsing' ? 'Parsing CSV...' :
-                            status === 'uploading' ? 'Uploading...' :
-                                status === 'success' ? 'Upload Complete!' :
-                                    'Upload Google Fit Export'}
+                        {status === 'parsing' ? t('upload.dropzone.parsing') :
+                            status === 'uploading' ? t('upload.dropzone.uploading') :
+                                status === 'success' ? t('upload.dropzone.success') :
+                                    t('upload.dropzone.title_google')}
                     </h3>
                     <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
                         {status === 'parsing' || status === 'uploading' || status === 'success' || status === 'error' ? message :
-                            'Drag and drop "Daily activity metrics.csv". We only extract steps for days with existing Visible data.'}
+                            t('upload.dropzone.hint_google')}
                     </p>
                     {status === 'idle' && (
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Supports .csv files</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">{t('upload.dropzone.file_type_csv')}</p>
                     )}
                 </div>
 
@@ -180,9 +185,9 @@ export function GoogleFitUploader() {
                             }
                         }}
                     >
-                        {status === 'success' ? 'Upload New File' :
-                            status === 'error' ? 'Try Again' :
-                                'Select File'}
+                        {status === 'success' ? t('upload.dropzone.button_upload') :
+                            status === 'error' ? t('upload.dropzone.button_retry') :
+                                t('upload.dropzone.button_select')}
                     </Button>
                 )}
             </div>

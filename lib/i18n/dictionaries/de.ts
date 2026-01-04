@@ -11,6 +11,37 @@ export const de: Dictionary = {
         success: "Erfolg",
         custom: "Benutzerdefiniert"
     },
+    metrics: {
+        step_count: "Schritte",
+        hrv: "HRV",
+        resting_heart_rate: "Ruhepuls",
+        symptom_score: "Symptom-Score",
+        exertion_score: "Gesamtbelastung",
+        composite_score: "Symptom-Score",
+        adjusted_score: "MEasure-CFS Score",
+        sleep: "Schlaf",
+        fatigue: "Fatigue",
+        anxiety: "Angst",
+        cough: "Husten",
+        depression: "Depression",
+        fever: "Fieber",
+        headaches: "Kopfschmerzen",
+        headache: "Kopfschmerz",
+        lightheadedness: "Benommenheit",
+        "memory/mental": "Konzentrationsstörungen",
+        "muscle weakness": "Muskelschwäche",
+        nausea: "Übelkeit",
+        "physical exertion": "Physische Belastung",
+        "cognitive exertion": "Kognitive Belastung",
+        "emotional exertion": "Emotionale Belastung",
+        "social exertion": "Soziale Belastung",
+        work: "Arbeit",
+        stress: "Stress",
+        palpitations: "Herzklopfen",
+        stability_score: "Stabilitäts-Score",
+        muscle_aches: "Muskelschmerzen",
+        energy: "Energie"
+    },
     navbar: {
         dashboard: "Dashboard",
         insights: "Einblicke",
@@ -136,8 +167,28 @@ export const de: Dictionary = {
             },
             sleep: {
                 label: "Schlafprobleme",
-                description: "Erfasst Schwierigkeiten mit der Schlafqualität und -dauer. Hoher Score = Schlechter Schlaf.",
+                description: "Verfolgt Schwierigkeiten mit Schlafqualität und -dauer. Hoher Score = Schlechter Schlaf.",
                 better: "Niedriger ist besser"
+            },
+            palpitations: {
+                label: "Herzklopfen",
+                description: "Verfolgt Herzrhythmusstörungen.",
+                better: "Niedriger ist besser"
+            },
+            stability_score: {
+                label: "Stabilitäts-Score",
+                description: "Verfolgt die tägliche Energiestabilität.",
+                better: "Höher ist besser"
+            },
+            muscle_aches: {
+                label: "Muskelschmerzen",
+                description: "Verfolgt die Intensität von Muskelschmerzen.",
+                better: "Niedriger ist besser"
+            },
+            energy: {
+                label: "Energie",
+                description: "Selbstberichtetes Energieniveau.",
+                better: "Höher ist besser"
             }
         },
         crash_mode: "PEM Analyse",
@@ -284,6 +335,8 @@ export const de: Dictionary = {
             category: "Kategorie",
             start_date: "Startdatum",
             end_date: "Enddatum (Optional)",
+            name_placeholder: "z.B. Low Dose Naltrexone",
+            dosage_placeholder: "z.B. 0,5mg",
             categories: {
                 lifestyle: "Lebensstil (Pacing, Ruhe)",
                 medication: "Medikament",
@@ -296,18 +349,27 @@ export const de: Dictionary = {
             day: "Aktiv • Tag",
             confidence: "Modell-Konfidenz",
             confidence_hint: "Benötigt ~30 Tage für volle Genauigkeit.",
+            confidence_desc: "Statistische Konfidenz basierend auf dem aktuellen Datenvolumen und der Varianz.",
             impact_title: "Unabhängiger Gesundheits-Einfluss (kontrolliert auf Überlappungen)",
             no_active_title: "Keine aktiven Experimente",
-            no_active_desc: "Starte ein neues Experiment, um zu verfolgen, wie Interventionen deine Gesundheit beeinflussen."
+            no_active_desc: "Starte ein neues Experiment, um zu verfolgen, wie Interventionen deine Gesundheit beeinflussen.",
+            started_at: "Gestartet am {date}"
         },
         history: {
             title: "Historisches Archiv",
             independent_outcome: "Unabhängiges Ergebnis",
+            outcome_positive: "Positiver",
+            outcome_negative: "Negativer",
+            outcome_neutral: "Neutraler",
             influence: "Einfluss",
             no_history: "Keine abgeschlossenen Experimente im Archiv."
         },
         impact: {
             insufficient: "Noch nicht genügend Daten, um unabhängigen Einfluss zu isolieren.",
+            no_significant: "Noch keine statistisch signifikanten Auswirkungen für dieses Experiment erkannt.",
+            high_confidence_desc: "Sehr wahrscheinlich ein realer Effekt (95% Konfidenz).",
+            trend_desc: "Angedeuteter Trend, aber möglicherweise werden mehr Daten benötigt.",
+            not_significant_desc: "Nicht statistisch signifikant.",
             significance: {
                 significant: "Signifikant",
                 trend: "Trend",
@@ -334,14 +396,44 @@ export const de: Dictionary = {
             samsung: "Samsung Health Schritte (CSV)"
         },
         dropzone: {
-            idle: "Ziehe deine Visible-Exportdatei hierher oder klicke unten, um sie auszuwählen.",
+            idle: "Ziehe deinen Export hierher oder klicke unten, um ihn auszuwählen.",
             active: "Datei hier ablegen...",
-            success: "Upload abgeschlossen!",
+            success: "Upload erfolgreich!",
             error: "Upload fehlgeschlagen",
-            uploading: "Wird hochgeladen...",
+            uploading: "Daten werden übertragen...",
+            parsing: "Datei wird analysiert...",
             button_upload: "Neue Datei hochladen",
             button_select: "Datei auswählen",
-            button_retry: "Erneut versuchen"
+            button_retry: "Erneut versuchen",
+            title_visible: "Visible-CSV hochladen",
+            title_apple: "Apple-Health-Export hochladen",
+            title_google: "Google-Fit-Export hochladen",
+            title_samsung: "Samsung-Health-Export hochladen",
+            title_bearable: "Bearable-Export hochladen",
+            hint_visible: "Ziehe deinen Visible-Export hierher, um deine Trends zu sehen.",
+            hint_apple: "Ziehe die export.xml hierher. Wir extrahieren nur Schritte, die zu deinen Visible-Daten passen.",
+            hint_google: "Ziehe deine Google-Fit-CSV für tägliche Aktivitäten hierher.",
+            hint_samsung: "Ziehe deine Samsung-Health-Schritt-CSV hierher.",
+            hint_bearable: "Ziehe deine Bearable-CSV hierher, um deine Gesundheitsdaten zu importieren.",
+            file_type_csv: "Unterstützt .csv Dateien",
+            file_type_xml: "Unterstützt .xml Dateien"
+        },
+        messages: {
+            invalid_file: "Ungültige Datei. Bitte lade die korrekte {provider}-Exportdatei hoch.",
+            parsing_file: "{provider}-Datei wird analysiert...",
+            processing_measurements: "{count} Messwerte werden verarbeitet...",
+            login_required: "Du musst eingeloggt sein, um Daten hochzuladen.",
+            uploading_days: "{count} Tage werden hochgeladen...",
+            checking_existing: "Vorhandene Datensätze werden geprüft...",
+            no_new_data: "Alle Daten in dieser Datei sind bereits in deinem Verlauf vorhanden. Keine neuen Tage zum Hinzufügen.",
+            adding_days: "{count} neue Tage werden hinzugefügt...",
+            processed_progress: "{current} / {total} Tage verarbeitet...",
+            parse_error: "Fehler beim Analysieren der Datei: {error}",
+            no_steps_found: "Keine Schrittzähler-Daten in dieser Datei gefunden.",
+            no_matching_dates: "Keine passenden Protokolldaten gefunden. Bitte lade zuerst deine Symptomdaten hoch.",
+            found_matching_days: "{count} übereinstimmende Tage gefunden. Upload wird vorbereitet...",
+            success_steps: "Schritte für {count} Tage erfolgreich aktualisiert!",
+            requires_data: "Benötigt Gesundheitsdaten"
         },
         data_log: {
             title: "Datenprotokoll",
@@ -361,6 +453,66 @@ export const de: Dictionary = {
                 empty: "Keine aktuellen Einträge gefunden.",
                 recent_hint: "Zeigt die letzten 500 Einträge an."
             }
+        }
+    },
+    settings: {
+        title: "Einstellungen",
+        subtitle: "Verwalte dein Konto.",
+        sidebar: {
+            profile: "Profil",
+            security: "Sicherheit",
+            preferences: "Einstellungen",
+            data_export: "Daten & Export",
+            soon: "Bald"
+        },
+        profile: {
+            title: "Öffentliches Profil",
+            description: "Diese Informationen werden in deinem Profil angezeigt.",
+            first_name: "Vorname",
+            last_name: "Nachname",
+            button_save: "Änderungen speichern",
+            button_saving: "Speichert..."
+        },
+        personal: {
+            title: "Persönliche Details",
+            description: "Verwalte deine Kontaktinformationen.",
+            email: "E-Mail-Adresse"
+        },
+        symptom_integration: {
+            title: "Integration der Symptom-Tracker",
+            description: "Wähle die App aus, mit der du deine täglichen Symptome verfolgst.",
+            provider_label: "Symptom-Anbieter",
+            placeholder: "Symptom-Tracker auswählen",
+            hint: "Dies schaltet den Uploader im Tab 'Daten' um. Bestehende Daten werden niemals überschrieben.",
+            visible: "Visible App",
+            bearable: "Bearable App"
+        },
+        step_integration: {
+            title: "Integration von Gesundheitsdaten",
+            description: "Wähle die App aus, die deine täglichen Schrittdaten bereitstellt.",
+            provider_label: "Schrittdaten-Anbieter",
+            placeholder: "Schritt-Anbieter auswählen",
+            hint: "Bestimmt, welcher Schritt-Uploader im Tab 'Daten' angezeigt wird.",
+            apple: "Apple Health",
+            google: "Google Fit",
+            samsung: "Samsung Health",
+            whoop: "Whoop",
+            garmin: "Garmin",
+            soon: "Bald"
+        },
+        delete_account: {
+            title: "Konto löschen",
+            description: "Unwiderrufliche Aktion. Bitte lies die folgenden Informationen sorgfältig durch.",
+            warning_title: "Warnung",
+            warning_access: "Das Löschen deines Kontos führt zum sofortigen Verlust deines Zugangs.",
+            warning_data: "Dein Analyse-Verlauf wird permanent gelöscht (sichere Löschung).",
+            warning_recovery: "Eine Kontowiederherstellung ist nicht möglich.",
+            confirm_label: "Zur Bestätigung gib bitte unten {keyword} ein",
+            confirm_keyword: "LÖSCHEN",
+            button_delete: "Unwiderruflich löschen",
+            button_deleting: "Daten werden gelöscht...",
+            success_toast: "Konto erfolgreich gelöscht.",
+            error_toast: "Fehler beim Löschen der Kontodaten: {error}"
         }
     },
     legal: {
@@ -429,7 +581,7 @@ export const de: Dictionary = {
             placeholder_email: "name@beispiel.de",
             placeholder_password: "••••••••",
             privacy_guaranteed: "Datenschutz garantiert",
-            privacy_quote: "MEasure-CFS verarbeitet alle deine Daten lokal oder gesichert in deiner privaten Instanz. Es werden keine Gesundheitsdaten mit Dritten geteilt."
+            privacy_quote: "MEasure-CFS speichert deine Gesundheitsdaten sicher bei Supabase, geschützt durch Row Level Security (RLS) und verschlüsselt. Es werden keine Daten geteilt."
         },
         login: {
             title_start: "Willkommen",
@@ -461,8 +613,89 @@ export const de: Dictionary = {
             feature_design_title: "Patientenorientiertes Design",
             feature_design_desc: "Für Menschen mit chronischen Krankheiten entwickelt.",
             error_exists: "Konto existiert bereits. Bitte melde dich an.",
-            success_pending: "Konto erstellt! Bitte prüfe deine E-Mails zur Bestätigung. Danach verarbeiten wir deine hochgeladenen Daten automatisch.",
+            success_pending: "Konto erstellt! Bitte prüfe deine E-Mails zur Bestätigung. Danach kannst du dich anmelden und mit dem Hochladen deiner Daten im Dashboard beginnen.",
             success_confirm: "Prüfe deine E-Mails für den Bestätigungslink."
+        }
+    },
+    insights: {
+        hero: {
+            title: "Einblicke",
+            desc: "Tiefgehende Analyse deiner gesamten Gesundheitsdaten, um versteckte Muster in deiner Genesung zu finden.",
+            all_time: "Gesamtzeitanalyse",
+            last_updated: "Zuletzt aktualisiert: {date}"
+        },
+        empty: {
+            title: "Noch keine Einblicke",
+            desc: "Du musst zuerst Gesundheitsdaten hochladen, bevor wir deine Symptommuster analysieren können.",
+            button: "Erste CSV hochladen"
+        },
+        gathering: {
+            title: "Sammle biologische Daten",
+            desc: "Wir benötigen mindestens 7 Tage Daten, um statistisch signifikante Einblicke zu geben. Tracke weiter!",
+            progress: "Aktueller Fortschritt: {count} / 7 Tage"
+        },
+        patterns: {
+            title: "Handlungsmuster",
+            safe_zones: "Sicherheitszonen",
+            safe_zone_detected: "Sicherheitszone erkannt",
+            same_day: "Effekte am selben Tag",
+            next_day: "Effekte am nächsten Tag",
+            two_day: "2 Tage verzögerte Effekte",
+            insufficient_data: "Tracke deine Symptome weiter, um biologische Einblicke zu erhalten.",
+            cards: {
+                today: "Heute",
+                plus_1_day: "+1 Tag",
+                plus_2_days: "+2 Tage",
+                impact: {
+                    direct: "Direkte Auswirkung",
+                    high_warning: "Warnung vor starker Auswirkung",
+                    helpful_connection: "Hilfreicher Zusammenhang",
+                    helpful_pattern: "Hilfreiches Muster",
+                    direct_connection: "Direkte Verbindung",
+                    hidden_lag: "Verzögerte Warnung"
+                }
+            }
+        },
+        clusters: {
+            title: "Biologische Cluster",
+            heatmap: {
+                title: "Symptom-Korrelations-Heatmap",
+                lag_zero: "(Verzögerung = 0)",
+                desc: "Identifiziert Zusammenhänge zwischen Symptomen am selben Tag. Grün = positive Korrelation, Rot = negative Korrelation.",
+                showing: "Zeige {count} von {total} Metriken",
+                legend: "Legende:",
+                strong_negative: "Stark Negativ",
+                strong_positive: "Stark Positiv",
+                insufficient: "Unzureichende Daten",
+                correlation: "Korrelation",
+                strength: {
+                    strong: "Stark",
+                    moderate: "Mittel",
+                    weak: "Schwach",
+                    very_weak: "Sehr schwach"
+                },
+                relation: {
+                    positive: "Positive",
+                    negative: "Negative",
+                    neutral: "Neutrale",
+                    suffix: "Beziehung"
+                }
+            }
+        },
+        logic: {
+            reduces: "Reduziert",
+            increases: "Erhöht",
+            keep: "Halte",
+            watch: "Beobachte",
+            above: "über",
+            below: "unter",
+            by: "um ~",
+            from: "von",
+            to: "auf",
+            threshold_desc: "Das Einhalten von unter {limit} {metric} hält dein {impact} deutlich niedriger."
+        },
+        footer: {
+            disclaimer: "Statistische Einblicke dienen nur zu Informationszwecken und sind kein medizinischer Rat. Konsultiere immer deinen Arzt."
         }
     }
 }

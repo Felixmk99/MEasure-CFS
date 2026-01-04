@@ -43,7 +43,7 @@ const isValidCategory = (cat: string): cat is ExperimentCategory =>
     ['lifestyle', 'medication', 'supplement', 'other'].includes(cat)
 
 export default function ExperimentsClient({ initialExperiments, history }: { initialExperiments: Experiment[], history: MetricDay[] }) {
-    const { t } = useLanguage()
+    const { t, locale } = useLanguage()
     const [experiments, setExperiments] = useState<Experiment[]>(initialExperiments)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [editingExp, setEditingExp] = useState<Experiment | null>(null)
@@ -253,14 +253,14 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>{editingExp ? t('experiments.actions.edit') : t('experiments.actions.log_new')}</DialogTitle>
-                            <DialogDescription>{t('experiments.active.no_active_desc')}</DialogDescription>
+                            <DialogDescription>{t('experiments.intro.welcome')}</DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>{t('experiments.form.name')}</Label>
                                     <Input
-                                        placeholder="e.g. Nattokinase"
+                                        placeholder={t('experiments.form.name_placeholder')}
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
@@ -268,7 +268,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                 <div className="space-y-2">
                                     <Label>{t('experiments.form.dosage')}</Label>
                                     <Input
-                                        placeholder="e.g. 2000 FU"
+                                        placeholder={t('experiments.form.dosage_placeholder')}
                                         value={formData.dosage}
                                         onChange={e => setFormData({ ...formData, dosage: e.target.value })}
                                     />
@@ -365,7 +365,9 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                     </div>
                                                     <h2 className="text-2xl sm:text-3xl font-serif text-foreground break-words">{exp.name}</h2>
                                                     <p className="text-muted-foreground text-[10px] uppercase tracking-tight font-bold">
-                                                        Started {format(parseISO(exp.start_date), 'MMMM d, yyyy')}
+                                                        {t('experiments.active.started_at', {
+                                                            date: new Date(exp.start_date).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })
+                                                        })}
                                                     </p>
                                                 </div>
 
@@ -379,7 +381,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                     </div>
                                                     <Progress value={overallConfidence * 100} className="h-1" />
                                                     <p className="text-[8px] text-muted-foreground mt-1.5 leading-tight opacity-70">
-                                                        Statistical confidence based on current data volume and variance.
+                                                        {t('experiments.active.confidence_desc')}
                                                     </p>
                                                 </div>
                                             </div>
@@ -474,7 +476,7 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
                                                 overallImpact === 'neutral' && "bg-zinc-500/10 text-zinc-700"
                                             )}>
                                                 {overallImpact === 'positive' ? <ArrowUpRight className="w-3 h-3" /> : overallImpact === 'negative' ? <ArrowDownRight className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                                                {overallImpact} {t('experiments.history.influence')}
+                                                {t(`experiments.history.outcome_${overallImpact}`)} {t('experiments.history.influence')}
                                             </div>
 
                                             {/* Contributing Factors */}

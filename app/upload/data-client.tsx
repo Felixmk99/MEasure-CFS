@@ -42,7 +42,7 @@ interface DataEntry {
 }
 
 export default function DataManagementClient({ initialData, hasData: initialHasData, hasSteps }: { initialData: DataEntry[], hasData: boolean, hasSteps: boolean }) {
-    const { t } = useLanguage()
+    const { t, locale } = useLanguage()
     const [dataLog, setDataLog] = useState<DataEntry[]>(initialData)
     const [hasData, setHasData] = useState(initialHasData)
     const [timeRange, setTimeRange] = useState<string>('all')
@@ -240,7 +240,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                             <TabsList className="grid w-full grid-cols-2 mb-8 h-12 rounded-full p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                                 <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300">
                                     <Activity className="w-4 h-4 mr-2" />
-                                    {profile?.symptom_provider === 'bearable' ? 'Bearable App (CSV)' : t('upload.tabs.visible')}
+                                    {profile?.symptom_provider === 'bearable' ? t('upload.tabs.bearable') : t('upload.tabs.visible')}
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="apple"
@@ -248,8 +248,8 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                     className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Smartphone className="w-4 h-4 mr-2" />
-                                    {stepProvider.charAt(0).toUpperCase() + stepProvider.slice(1)} {t('upload.data_log.table.steps')}
-                                    {!hasData && <span className="ml-2 text-[10px] text-zinc-500">(Requires Health Data)</span>}
+                                    {t(`upload.tabs.${stepProvider}` as any)}
+                                    {!hasData && <span className="ml-2 text-[10px] text-zinc-500">({t('upload.messages.requires_data')})</span>}
                                 </TabsTrigger>
                             </TabsList>
                             <TabsContent value="visible" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
@@ -299,7 +299,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                             <div className="flex items-center gap-3">
                                 <Select value={timeRange} onValueChange={setTimeRange}>
                                     <SelectTrigger className="w-[140px] h-9 text-xs rounded-full bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
-                                        <SelectValue placeholder="Time Range" />
+                                        <SelectValue placeholder={t('dashboard.time_ranges.all')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">{t('dashboard.time_ranges.all')}</SelectItem>
@@ -334,7 +334,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                                 <tr key={entry.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                                                     <td className="px-6 py-4 font-medium flex items-center gap-2">
                                                         <Calendar className="w-3 h-3 text-muted-foreground" />
-                                                        {!mounted ? entry.date : format(parseISO(entry.date), 'MMM d, yyyy')}
+                                                        {!mounted ? entry.date : new Date(entry.date).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.resting_heart_rate ? `${entry.resting_heart_rate} bpm` : '-'}</td>
                                                     <td className="px-6 py-4 text-muted-foreground">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { useLanguage } from '@/components/providers/language-provider'
 
 interface CorrelationMatrixProps {
     correlations: CorrelationResult[]
@@ -29,14 +30,29 @@ function getCorrelationColor(coefficient: number, intensity: number) {
     return 'bg-gray-100 dark:bg-gray-800'
 }
 
-function getStrengthLabel(intensity: number) {
-    if (intensity > 0.7) return 'Strong'
-    if (intensity > 0.5) return 'Moderate'
-    if (intensity > 0.3) return 'Weak'
-    return 'Very Weak'
-}
-
 export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
+    const { t } = useLanguage()
+
+    const tMetric = (key: string) => {
+        const normalizedKey = key.toLowerCase().replaceAll('_', ' ');
+        const dictionaryKey = `metrics.${key.toLowerCase()}` as string;
+        const translated = t(dictionaryKey);
+        if (translated !== dictionaryKey) return translated;
+
+        const normalizedDictionaryKey = `metrics.${normalizedKey}` as string;
+        const normTranslated = t(normalizedDictionaryKey);
+        if (normTranslated !== normalizedDictionaryKey) return normTranslated;
+
+        return normalizedKey;
+    }
+
+    const getStrengthLabel = (intensity: number) => {
+        if (intensity > 0.7) return t('insights.clusters.heatmap.strength.strong')
+        if (intensity > 0.5) return t('insights.clusters.heatmap.strength.moderate')
+        if (intensity > 0.3) return t('insights.clusters.heatmap.strength.weak')
+        return t('insights.clusters.heatmap.strength.very_weak')
+    }
+
     // Extract unique labels and filter to only show metrics with significant correlations
     const allUniqueLabels = Array.from(new Set(correlations.flatMap(c => [c.metricA, c.metricB]))).sort()
 
@@ -72,24 +88,24 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                 <div className="flex justify-between items-start">
                     <div>
                         <CardTitle className="text-xl font-bold bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
-                            Symptom Correlation Heatmap <span className="text-xs font-normal text-muted-foreground ml-2">(Lag = 0)</span>
+                            {t('insights.clusters.heatmap.title')} <span className="text-xs font-normal text-muted-foreground ml-2">{t('insights.clusters.heatmap.lag_zero')}</span>
                         </CardTitle>
                         <CardDescription>
-                            Identifies same-day relationships between symptoms. Green = positive correlation, Red = negative correlation.
+                            {t('insights.clusters.heatmap.desc')}
                         </CardDescription>
                     </div>
                     {isTruncated && (
                         <Badge variant="outline" className="text-[10px] bg-zinc-100/50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-800">
-                            Showing {labels.length} of {significantLabels.length} metrics
+                            {t('insights.clusters.heatmap.showing', { count: labels.length, total: significantLabels.length })}
                         </Badge>
                     )}
                 </div>
 
                 {/* Color Legend */}
                 <div className="mt-4 flex items-center gap-4 text-xs">
-                    <span className="text-muted-foreground font-medium">Legend:</span>
+                    <span className="text-muted-foreground font-medium">{t('insights.clusters.heatmap.legend')}</span>
                     <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">Strong Negative</span>
+                        <span className="text-muted-foreground">{t('insights.clusters.heatmap.strong_negative')}</span>
                         <div className="flex gap-0.5">
                             <div className="w-4 h-4 bg-red-600 rounded-sm" />
                             <div className="w-4 h-4 bg-red-400 rounded-sm" />
@@ -97,7 +113,7 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             <div className="w-4 h-4 bg-green-400 rounded-sm" />
                             <div className="w-4 h-4 bg-green-600 rounded-sm" />
                         </div>
-                        <span className="text-muted-foreground">Strong Positive</span>
+                        <span className="text-muted-foreground">{t('insights.clusters.heatmap.strong_positive')}</span>
                     </div>
                 </div>
             </CardHeader>
@@ -112,7 +128,7 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             <div />
                             {labels.map(l => (
                                 <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-20 flex items-end pb-2 px-1 truncate max-w-20">
-                                    {l.replaceAll('_', ' ')}
+                                    {tMetric(l)}
                                 </div>
                             ))}
 
@@ -120,7 +136,7 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             {labels.map(rowLabel => (
                                 <React.Fragment key={rowLabel}>
                                     <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center pr-2 truncate max-w-24">
-                                        {rowLabel.replaceAll('_', ' ')}
+                                        {tMetric(rowLabel)}
                                     </div>
                                     {labels.map(colLabel => {
                                         const coefficient = corrMap.get(`${rowLabel}:${colLabel}`)
@@ -145,16 +161,16 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                                                     />
                                                 </TooltipTrigger>
                                                 <TooltipContent className="backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 border-zinc-200 dark:border-zinc-800">
-                                                    <p className="text-xs font-medium">{rowLabel.replaceAll('_', ' ')} vs {colLabel.replaceAll('_', ' ')}</p>
+                                                    <p className="text-xs font-medium">{tMetric(rowLabel)} vs {tMetric(colLabel)}</p>
                                                     {isMissing ? (
-                                                        <p className="text-[10px] text-muted-foreground">Insufficient Data</p>
+                                                        <p className="text-[10px] text-muted-foreground">{t('insights.clusters.heatmap.insufficient')}</p>
                                                     ) : (
                                                         <>
                                                             <p className="text-[10px] text-muted-foreground">
-                                                                Correlation: {r.toFixed(2)} ({getStrengthLabel(intensity)})
+                                                                {t('insights.clusters.heatmap.correlation')}: {r.toFixed(2)} ({getStrengthLabel(intensity)})
                                                             </p>
                                                             <p className="text-[10px] text-muted-foreground">
-                                                                {r > 0 ? 'Positive' : r < 0 ? 'Negative' : 'Neutral'} relationship
+                                                                {r > 0 ? t('insights.clusters.heatmap.relation.positive') : r < 0 ? t('insights.clusters.heatmap.relation.negative') : t('insights.clusters.heatmap.relation.neutral')} {t('insights.clusters.heatmap.relation.suffix')}
                                                             </p>
                                                         </>
                                                     )}

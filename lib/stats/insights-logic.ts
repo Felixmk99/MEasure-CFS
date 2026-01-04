@@ -21,6 +21,7 @@ export interface CorrelationResult {
     percentChange: number;  // Percentage change in metric B
     typicalValue: number;  // Typical value of metric B (when A is low)
     improvedValue: number;  // Improved value of metric B (when A is high)
+    isGood: boolean;       // Whether this is a positive health pattern
 }
 
 export interface ThresholdInsight {
@@ -91,7 +92,8 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                             medianB,
                             percentChange: stats.percentChange,
                             typicalValue: stats.typicalValue,
-                            improvedValue: stats.improvedValue
+                            improvedValue: stats.improvedValue,
+                            isGood: isGoodPattern(metricB, coefficient)
                         });
                     }
                 } catch {

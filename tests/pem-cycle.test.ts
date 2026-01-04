@@ -11,9 +11,9 @@ import {
 
 describe('PEM Cycle Analysis', () => {
     const mockBaselineData = [
-        { hrv: 40, step_count: 1000, custom_metrics: { 'Fatigue': 2 } },
-        { hrv: 50, step_count: 2000, custom_metrics: { 'Fatigue': 2 } },
-        { hrv: 60, step_count: 3000, custom_metrics: { 'Fatigue': 2 } }
+        { date: '2026-01-01', hrv: 40, step_count: 1000, custom_metrics: { 'Fatigue': 2 } },
+        { date: '2026-01-02', hrv: 50, step_count: 2000, custom_metrics: { 'Fatigue': 2 } },
+        { date: '2026-01-03', hrv: 60, step_count: 3000, custom_metrics: { 'Fatigue': 2 } }
     ];
     const metrics = ['hrv', 'step_count', 'Fatigue'];
 

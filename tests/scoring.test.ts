@@ -104,7 +104,7 @@ describe('Composite Score Enhancement', () => {
             // Verify polarity: 
             // entry 2 has higher HRV (50 vs 40) and lower Symptoms (2 vs 5)
             // It should have a lower (better) composite score
-            expect(enhanced[1].composite_score).toBeLessThan(enhanced[0].composite_score);
+            expect(enhanced[1].composite_score!).toBeLessThan(enhanced[0].composite_score!);
         });
 
         it('should handle division by zero (identical min/max)', () => {

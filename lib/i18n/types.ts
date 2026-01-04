@@ -11,6 +11,9 @@ export interface Dictionary {
         success: string
         custom: string
     }
+    metrics: {
+        [key: string]: string
+    }
     navbar: {
         dashboard: string
         insights: string
@@ -236,6 +239,26 @@ export interface Dictionary {
                 description: string
                 better: string
             }
+            palpitations: {
+                label: string
+                description: string
+                better: string
+            }
+            stability_score: {
+                label: string
+                description: string
+                better: string
+            }
+            muscle_aches: {
+                label: string
+                description: string
+                better: string
+            }
+            energy: {
+                label: string
+                description: string
+                better: string
+            }
         }
         crash_mode: string
         pem_days: string
@@ -266,6 +289,8 @@ export interface Dictionary {
             category: string
             start_date: string
             end_date: string
+            name_placeholder: string
+            dosage_placeholder: string
             categories: {
                 lifestyle: string
                 medication: string
@@ -278,18 +303,27 @@ export interface Dictionary {
             day: string
             confidence: string
             confidence_hint: string
+            confidence_desc: string
             impact_title: string
             no_active_title: string
             no_active_desc: string
+            started_at: string
         }
         history: {
             title: string
             independent_outcome: string
+            outcome_positive: string
+            outcome_negative: string
+            outcome_neutral: string
             influence: string
             no_history: string
         }
         impact: {
             insufficient: string
+            no_significant: string
+            high_confidence_desc: string
+            trend_desc: string
+            not_significant_desc: string
             significance: {
                 significant: string
                 trend: string
@@ -321,9 +355,39 @@ export interface Dictionary {
             success: string
             error: string
             uploading: string
+            parsing: string
             button_upload: string
             button_select: string
             button_retry: string
+            title_visible: string
+            title_apple: string
+            title_google: string
+            title_samsung: string
+            title_bearable: string
+            hint_visible: string
+            hint_apple: string
+            hint_google: string
+            hint_samsung: string
+            hint_bearable: string
+            file_type_csv: string
+            file_type_xml: string
+        }
+        messages: {
+            invalid_file: string
+            parsing_file: string
+            processing_measurements: string
+            login_required: string
+            uploading_days: string
+            checking_existing: string
+            no_new_data: string
+            adding_days: string
+            processed_progress: string
+            parse_error: string
+            no_steps_found: string
+            no_matching_dates: string
+            found_matching_days: string
+            success_steps: string
+            requires_data: string
         }
         data_log: {
             title: string
@@ -343,6 +407,66 @@ export interface Dictionary {
                 empty: string
                 recent_hint: string
             }
+        }
+    }
+    settings: {
+        title: string
+        subtitle: string
+        sidebar: {
+            profile: string
+            security: string
+            preferences: string
+            data_export: string
+            soon: string
+        }
+        profile: {
+            title: string
+            description: string
+            first_name: string
+            last_name: string
+            button_save: string
+            button_saving: string
+        }
+        personal: {
+            title: string
+            description: string
+            email: string
+        }
+        symptom_integration: {
+            title: string
+            description: string
+            provider_label: string
+            placeholder: string
+            hint: string
+            visible: string
+            bearable: string
+        }
+        step_integration: {
+            title: string
+            description: string
+            provider_label: string
+            placeholder: string
+            hint: string
+            apple: string
+            google: string
+            samsung: string
+            whoop: string
+            garmin: string
+            soon: string
+        }
+        delete_account: {
+            title: string
+            description: string
+            warning_title: string
+            warning_access: string
+            warning_data: string
+            warning_recovery: string
+            confirm_label: string
+            confirm_keyword: string
+            button_delete: string
+            button_deleting: string
+            success_toast: string
+            error_toast: string
         }
     }
     legal: {
@@ -439,6 +563,87 @@ export interface Dictionary {
             error_exists: string
             success_pending: string
             success_confirm: string
+        }
+    }
+    insights: {
+        hero: {
+            title: string
+            desc: string
+            all_time: string
+            last_updated: string
+        }
+        empty: {
+            title: string
+            desc: string
+            button: string
+        }
+        gathering: {
+            title: string
+            desc: string
+            progress: string
+        }
+        patterns: {
+            title: string
+            safe_zones: string
+            safe_zone_detected: string
+            same_day: string
+            next_day: string
+            two_day: string
+            insufficient_data: string
+            cards: {
+                today: string
+                plus_1_day: string
+                plus_2_days: string
+                impact: {
+                    direct: string
+                    high_warning: string
+                    helpful_connection: string
+                    helpful_pattern: string
+                    direct_connection: string
+                    hidden_lag: string
+                }
+            }
+        }
+        clusters: {
+            title: string
+            heatmap: {
+                title: string
+                lag_zero: string
+                desc: string
+                showing: string
+                legend: string
+                strong_negative: string
+                strong_positive: string
+                insufficient: string
+                correlation: string
+                strength: {
+                    strong: string
+                    moderate: string
+                    weak: string
+                    very_weak: string
+                }
+                relation: {
+                    positive: string
+                    negative: string
+                    neutral: string
+                    suffix: string
+                }
+            }
+        }
+        logic: {
+            reduces: string
+            increases: string
+            keep: string
+            watch: string
+            above: string
+            below: string
+            by: string
+            from: string
+            to: string
+            threshold_desc: string
+        }
+        footer: {
+            disclaimer: string
         }
     }
 }

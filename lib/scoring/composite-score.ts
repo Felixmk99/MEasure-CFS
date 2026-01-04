@@ -7,6 +7,8 @@ export interface ScoreComponents {
     normalized_steps: number | null
     normalized_exertion: number | null
     normalized_sleep: number | null
+    symptom_score: number
+    exertion_score: number
 }
 
 export type ScorableEntry = {

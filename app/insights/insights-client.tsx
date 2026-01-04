@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { BrainCircuit, Loader2, Database } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useLanguage } from '@/components/providers/language-provider'
 
 const MIN_DAYS_FOR_INSIGHTS = 7
 
@@ -17,6 +18,7 @@ interface InsightsClientProps {
 }
 
 export default function InsightsClient({ data }: InsightsClientProps) {
+    const { t } = useLanguage()
     const hasData = data && data.length > 0
     const hasInsufficientData = hasData && data.length < MIN_DAYS_FOR_INSIGHTS
     // 1. Enhance Data with Composite Score (Client-Side Calc)
@@ -45,11 +47,11 @@ export default function InsightsClient({ data }: InsightsClientProps) {
                     <Database className="w-12 h-12 text-zinc-400" />
                 </div>
                 <div className="max-w-md space-y-2">
-                    <h2 className="text-2xl font-bold tracking-tight">No Insights Yet</h2>
-                    <p className="text-zinc-500">You need to upload some health data first before we can analyze your symptom patterns.</p>
+                    <h2 className="text-2xl font-bold tracking-tight">{t('insights.empty.title')}</h2>
+                    <p className="text-zinc-500">{t('insights.empty.desc')}</p>
                 </div>
                 <Button asChild className="rounded-full px-8 shadow-lg shadow-primary/20">
-                    <Link href="/upload">Upload your first CSV</Link>
+                    <Link href="/upload">{t('insights.empty.button')}</Link>
                 </Button>
             </div>
         )
@@ -62,11 +64,11 @@ export default function InsightsClient({ data }: InsightsClientProps) {
                     <Loader2 className="w-12 h-12 text-amber-500 animate-spin-slow" />
                 </div>
                 <div className="max-w-md space-y-2">
-                    <h2 className="text-2xl font-bold tracking-tight">Gathering Biological Data</h2>
-                    <p className="text-zinc-500">We need at least 7 days of data to provide statistically significant insights. Keep tracking!</p>
+                    <h2 className="text-2xl font-bold tracking-tight">{t('insights.gathering.title')}</h2>
+                    <p className="text-zinc-500">{t('insights.gathering.desc')}</p>
                 </div>
                 <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50/50">
-                    Current Progress: {data.length} / 7 days
+                    {t('insights.gathering.progress', { count: data.length })}
                 </Badge>
             </div>
         )
@@ -84,20 +86,22 @@ export default function InsightsClient({ data }: InsightsClientProps) {
                                 <div className="p-2 rounded-xl bg-primary/10 text-primary">
                                     <BrainCircuit className="w-6 h-6" />
                                 </div>
-                                <h1 className="text-4xl font-black tracking-tight tracking-tighter sm:text-5xl">Insights</h1>
+                                <h1 className="text-4xl font-black tracking-tight tracking-tighter sm:text-5xl">{t('insights.hero.title')}</h1>
                             </div>
                             <p className="text-zinc-500 max-w-xl text-lg">
-                                Deep analysis of your all-time health data to find the hidden patterns in your recovery.
+                                {t('insights.hero.desc')}
                             </p>
                         </div>
                         <div className="flex flex-col items-end">
                             <Badge variant="secondary" className="px-4 py-1.5 text-sm rounded-lg border-none shadow-sm">
-                                All-Time Analysis
+                                {t('insights.hero.all_time')}
                             </Badge>
                             <span className="text-[10px] text-zinc-400 mt-2">
-                                Last updated: {data.length > 0
-                                    ? new Date(data[data.length - 1].date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-                                    : 'N/A'}
+                                {t('insights.hero.last_updated', {
+                                    date: data.length > 0
+                                        ? new Date(data[data.length - 1].date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                                        : 'N/A'
+                                })}
                             </span>
                         </div>
                     </div>
@@ -107,7 +111,7 @@ export default function InsightsClient({ data }: InsightsClientProps) {
             {/* Smart Insights Grid */}
             <div className="space-y-6">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold tracking-tight px-1">Actionable Patterns</h2>
+                    <h2 className="text-2xl font-bold tracking-tight px-1">{t('insights.patterns.title')}</h2>
                     <div className="h-[2px] flex-1 bg-gradient-to-r from-zinc-200 to-transparent dark:from-zinc-800" />
                 </div>
                 <InsightsCards correlations={correlations} thresholds={thresholds} />
@@ -116,7 +120,7 @@ export default function InsightsClient({ data }: InsightsClientProps) {
             {/* Matrix View */}
             <div className="space-y-6">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold tracking-tight px-1">Biological Clusters</h2>
+                    <h2 className="text-2xl font-bold tracking-tight px-1">{t('insights.clusters.title')}</h2>
                     <div className="h-[2px] flex-1 bg-gradient-to-r from-zinc-200 to-transparent dark:from-zinc-800" />
                 </div>
                 <CorrelationMatrix correlations={correlations} />
@@ -124,7 +128,7 @@ export default function InsightsClient({ data }: InsightsClientProps) {
 
             {/* Footer Note */}
             <p className="text-center text-xs text-zinc-400 pb-10">
-                Statistical insights are for informational purposes only and not medical advice. Always consult your physician.
+                {t('insights.footer.disclaimer')}
             </p>
         </div>
     )

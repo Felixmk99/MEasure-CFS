@@ -3,10 +3,10 @@ import { isWithinInterval, subDays, parseISO } from 'date-fns'
 import { Database } from '@/types/database.types'
 import { enhanceDataWithScore, ScorableEntry } from '@/lib/scoring/composite-score'
 
-type Experiment = Database['public']['Tables']['experiments']['Row']
-type Metric = Database['public']['Tables']['health_metrics']['Row']
+export type Experiment = Database['public']['Tables']['experiments']['Row']
+export type Metric = Database['public']['Tables']['health_metrics']['Row']
 
-interface ExperimentResult {
+export interface ExperimentResult {
     experimentId: string
     metricName: string
     baselineMean: number

@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { revalidateApp } from '@/app/actions/revalidate'
+import { useLanguage } from '@/components/providers/language-provider'
 
 export function XmlUploader() {
+    const { t } = useLanguage()
     const [status, setStatus] = useState<'idle' | 'parsing' | 'uploading' | 'success' | 'error'>('idle')
     const [message, setMessage] = useState('')
     const supabase = useMemo(() => createClient(), [])
@@ -19,7 +21,7 @@ export function XmlUploader() {
         if (!file) return
 
         setStatus('parsing')
-        setMessage('Parsing Apple Health XML (this may take a moment)...')
+        setMessage(t('upload.messages.parsing_file', { provider: 'Apple Health' }))
 
         const reader = new FileReader()
 
@@ -49,15 +51,15 @@ export function XmlUploader() {
                 }
 
                 if (Object.keys(stepData).length === 0) {
-                    throw new Error('No step count records found in this XML file.')
+                    throw new Error(t('upload.messages.no_steps_found'))
                 }
 
                 const { data: { user } } = await supabase.auth.getUser()
-                if (!user) throw new Error('User not authenticated')
+                if (!user) throw new Error(t('upload.messages.login_required'))
 
                 // 1. PRE-FILTERING: Fetch all existing dates for this user
                 // This ensures we only process steps for days the user actually cares about (Visible log days)
-                setMessage('Checking existing health records...')
+                setMessage(t('upload.messages.checking_existing'))
                 const { data: existingDatesData } = await supabase
                     .from('health_metrics')
                     .select('date')
@@ -71,11 +73,11 @@ export function XmlUploader() {
                 const totalFiltered = filteredStepEntries.length
 
                 if (totalFiltered === 0) {
-                    throw new Error('No matching log dates found. Please upload your Visible CSV first.')
+                    throw new Error(t('upload.messages.no_matching_dates'))
                 }
 
                 setStatus('uploading')
-                setMessage(`Found ${totalFiltered} matching days. Preparing upload...`)
+                setMessage(t('upload.messages.found_matching_days', { count: totalFiltered }))
 
                 // 3. Prepare DB Records for existing dates only
                 const dbRecords = filteredStepEntries.map(([date, steps]) => ({
@@ -126,11 +128,14 @@ export function XmlUploader() {
                     }
 
                     // Update UI progress
-                    setMessage(`Uploading ${Math.min(i + BATCH_SIZE, dbRecords.length)} of ${totalFiltered}...`)
+                    setMessage(t('upload.messages.processed_progress', {
+                        current: Math.min(i + BATCH_SIZE, dbRecords.length),
+                        total: totalFiltered
+                    }))
                 }
 
                 setStatus('success')
-                setMessage(`Successfully updated steps for ${totalFiltered} days!`)
+                setMessage(t('upload.messages.success_steps', { count: totalFiltered }))
 
                 await revalidateApp()
                 window.dispatchEvent(new CustomEvent('health-data-updated'))
@@ -187,17 +192,17 @@ export function XmlUploader() {
                 {/* Text Content */}
                 <div className="space-y-2">
                     <h3 className="text-2xl font-bold text-foreground">
-                        {status === 'parsing' ? 'Parsing XML...' :
-                            status === 'uploading' ? 'Uploading...' :
-                                status === 'success' ? 'Upload Complete!' :
-                                    'Upload Apple Health Export'}
+                        {status === 'parsing' ? t('upload.dropzone.parsing') :
+                            status === 'uploading' ? t('upload.dropzone.uploading') :
+                                status === 'success' ? t('upload.dropzone.success') :
+                                    t('upload.dropzone.title_apple')}
                     </h3>
                     <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
                         {status === 'parsing' || status === 'uploading' || status === 'success' || status === 'error' ? message :
-                            'Drag and drop export.xml. We only extract steps for days with existing Visible data.'}
+                            t('upload.dropzone.hint_apple')}
                     </p>
                     {status === 'idle' && (
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">Supports .xml files</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-2 opacity-50">{t('upload.dropzone.file_type_xml')}</p>
                     )}
                 </div>
 
@@ -215,9 +220,9 @@ export function XmlUploader() {
                             }
                         }}
                     >
-                        {status === 'success' ? 'Upload New File' :
-                            status === 'error' ? 'Try Again' :
-                                'Select File'}
+                        {status === 'success' ? t('upload.dropzone.button_upload') :
+                            status === 'error' ? t('upload.dropzone.button_retry') :
+                                t('upload.dropzone.button_select')}
                     </Button>
                 )}
             </div>
