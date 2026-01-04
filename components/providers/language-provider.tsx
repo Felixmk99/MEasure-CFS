@@ -60,7 +60,7 @@ export function LanguageProvider({ children, initialLocale = 'en' }: LanguagePro
         let result = current as string
         if (values) {
             Object.entries(values).forEach(([key, value]) => {
-                result = result.replace(`{${key}}`, String(value))
+                result = result.replaceAll(`{${key}}`, String(value))
             })
         }
         return result

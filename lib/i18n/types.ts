@@ -10,9 +10,10 @@ export interface Dictionary {
         confirm: string
         success: string
         custom: string
-    }
-    metrics: {
-        [key: string]: string
+        unknown: string
+        metric_labels: {
+            [key: string]: string
+        }
     }
     navbar: {
         dashboard: string
@@ -695,6 +696,7 @@ export interface Dictionary {
                 decrease: string
                 onset: string
                 days_before: string
+                day_before: string
                 synergy: string
             }
             classifications: {

@@ -128,11 +128,16 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
         if (key.includes(' + ')) {
             return key.split(' + ').map(k => getFriendlyName(k)).join(' + ')
         }
-        if (key === 'composite_score') return 'Track-Me Score'
-        if (key === 'exertion_score') return 'Exertion'
-        if (key === 'hrv') return 'HRV'
-        if (key === 'resting_heart_rate') return 'Resting HR'
-        if (key === 'step_count') return 'Steps'
+
+        // Try to find in common.metric_labels
+        const label = t(`common.metric_labels.${key}`)
+        if (label !== `common.metric_labels.${key}`) return label
+
+        // Try to find in dashboard.metrics (complex object)
+        const complexLabel = t(`dashboard.metrics.${key}.label`)
+        if (complexLabel !== `dashboard.metrics.${key}.label`) return complexLabel
+
+        // Fallback: Capitalize
         return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
     }
 
@@ -228,7 +233,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                         </span>
                                                         {d.isSynergy && (
                                                             <span className="text-[8px] font-medium text-purple-500 flex items-center gap-0.5 uppercase tracking-tighter">
-                                                                <Target className="w-2 h-2" /> Synergy
+                                                                <Target className="w-2 h-2" /> {t('insights.pem_analysis.discovery.synergy')}
                                                             </span>
                                                         )}
                                                     </div>
@@ -284,9 +289,9 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                                     {d.leadDaysStart === 0 && d.leadDaysEnd === 0 ? (
                                                         <span>{t('insights.pem_analysis.discovery.onset')}</span>
                                                     ) : d.leadDaysStart === d.leadDaysEnd ? (
-                                                        <span>{t('insights.pem_analysis.discovery.days_before').replace('{start}', d.leadDaysStart?.toString() || '0').replace('{end}', d.leadDaysEnd?.toString() || '')}</span>
+                                                        <span>{t('insights.pem_analysis.discovery.day_before', { day: d.leadDaysStart?.toString() || '0' })}</span>
                                                     ) : (
-                                                        <span>{t('insights.pem_analysis.discovery.days_before').replace('{start}', d.leadDaysStart?.toString() || '0').replace('{end}', d.leadDaysEnd?.toString() || '')}</span>
+                                                        <span>{t('insights.pem_analysis.discovery.days_before', { start: d.leadDaysStart?.toString() || '0', end: d.leadDaysEnd?.toString() || '' })}</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -326,11 +331,11 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                             <div className="flex gap-4">
                                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100/50 dark:bg-red-900/20 text-[10px] font-bold uppercase text-red-600 dark:text-red-400 border border-red-200/50 dark:border-red-900/30">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                                    {t('insights.pem_analysis.phase2.logged').replace('{val}', analysis.phase2?.avgLoggedDuration.toFixed(1) || '0')}
+                                    {t('insights.pem_analysis.phase2.logged', { val: analysis.phase2?.avgLoggedDuration.toFixed(1) || '0' })}
                                 </div>
                                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-600/10 dark:bg-red-900/40 text-[10px] font-bold uppercase text-red-700 dark:text-red-400 border border-red-300/50 dark:border-red-900/50" title="Window where biomarkers deviate > 1.0 sigma from normal">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
-                                    {t('insights.pem_analysis.phase2.physiological').replace('{val}', analysis.phase2?.avgPhysiologicalDuration.toFixed(1) || '0')}
+                                    {t('insights.pem_analysis.phase2.physiological', { val: analysis.phase2?.avgPhysiologicalDuration.toFixed(1) || '0' })}
                                 </div>
                             </div>
                         </div>
@@ -340,7 +345,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex flex-col gap-1">
                                     <h3 className="text-2xl font-black text-red-600 dark:text-red-500 leading-none uppercase tracking-tighter">
-                                        {analysis.phase2?.type || 'Unknown'}
+                                        {analysis.phase2?.type || t('common.unknown')}
                                     </h3>
                                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
                                         {t('insights.pem_analysis.phase2.classification')}
@@ -354,7 +359,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                             (analysis.phase2?.avgPhysiologicalDuration ?? 0) > (analysis.phase2?.avgLoggedDuration ?? 0) ? "text-red-600 dark:text-red-400" : "text-emerald-600"
                                         )}>
                                             {(analysis.phase2?.avgPhysiologicalDuration ?? 0) > (analysis.phase2?.avgLoggedDuration ?? 0)
-                                                ? t('insights.pem_analysis.phase2.persists').replace('{val}', ((analysis.phase2?.avgPhysiologicalDuration ?? 0) - (analysis.phase2?.avgLoggedDuration ?? 0)).toFixed(1))
+                                                ? t('insights.pem_analysis.phase2.persists', { val: ((analysis.phase2?.avgPhysiologicalDuration ?? 0) - (analysis.phase2?.avgLoggedDuration ?? 0)).toFixed(1) })
                                                 : t('insights.pem_analysis.phase2.recovered')}
                                         </span>
                                         <TooltipProvider>
@@ -449,11 +454,11 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                             <div className="flex gap-4 text-[10px] font-bold uppercase text-muted-foreground">
                                 <div className="flex items-center gap-1.5" title="The period where you were actively logging a crash.">
                                     <span className="w-2 h-2 rounded-full bg-blue-400 opacity-60" />
-                                    {t('insights.pem_analysis.phase3.subjective').replace('{val}', analysis.phase3?.avgSymptomRecoveryTail.toFixed(1) || '0')}
+                                    {t('insights.pem_analysis.phase3.subjective', { val: analysis.phase3?.avgSymptomRecoveryTail.toFixed(1) || '0' })}
                                 </div>
                                 <div className="flex items-center gap-1.5" title="The period where your body remained in a strained state.">
                                     <span className="w-2 h-2 rounded-full bg-blue-600" />
-                                    {t('insights.pem_analysis.phase3.biological').replace('{val}', analysis.phase3?.avgBiologicalRecoveryTail.toFixed(1) || '0')}
+                                    {t('insights.pem_analysis.phase3.biological', { val: analysis.phase3?.avgBiologicalRecoveryTail.toFixed(1) || '0' })}
                                 </div>
                             </div>
                         </div>
@@ -467,7 +472,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                 <div className="text-right">
                                     <div className="text-xs font-bold text-muted-foreground uppercase flex items-center justify-end gap-1.5">
                                         {(analysis.phase3?.hysteresisGap ?? 0) > 1
-                                            ? t('insights.pem_analysis.phase3.body_lag').replace('{val}', analysis.phase3?.hysteresisGap?.toFixed(1) || '0')
+                                            ? t('insights.pem_analysis.phase3.body_lag', { val: analysis.phase3?.hysteresisGap?.toFixed(1) || '0' })
                                             : t('insights.pem_analysis.phase3.body_reset')}
                                         <TooltipProvider>
                                             <InfoTooltip>
@@ -523,7 +528,9 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
 
             </div>
             <p className="text-xs text-muted-foreground text-center pt-2 max-w-2xl mx-auto">
-                <span dangerouslySetInnerHTML={{ __html: t('insights.pem_analysis.footer').replace('{count}', analysis.episodeCount?.toString() || '0') }} />
+                {t('insights.pem_analysis.footer', { count: analysis.episodeCount?.toString() || '0' })
+                    .split(/\*\*(.*?)\*\*/)
+                    .map((part, i) => i % 2 === 1 ? <strong key={i} className="font-bold">{part}</strong> : part)}
             </p>
         </div>
     )

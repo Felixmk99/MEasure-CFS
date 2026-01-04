@@ -56,8 +56,11 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
     // Extract unique labels and filter to only show metrics with significant correlations
     const allUniqueLabels = Array.from(new Set(correlations.flatMap(c => [c.metricA, c.metricB]))).sort()
 
-    // Filter to only show metrics that have at least one correlation > 0.3
+    // Filter to only show metrics that have at least one correlation > 0.3 OR are key metrics
     const significantLabels = allUniqueLabels.filter(metric => {
+        const isKeyMetric = ['symptom_score', 'exertion_score', 'composite_score'].includes(metric.toLowerCase())
+        if (isKeyMetric) return true
+
         return correlations.some(c =>
             (c.metricA === metric || c.metricB === metric) &&
             c.lag === 0 &&
@@ -65,8 +68,8 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
         )
     })
 
-    const labels = significantLabels.slice(0, 10) // Limit to 10 for readability
-    const isTruncated = significantLabels.length > 10
+    const labels = significantLabels.slice(0, 12) // Limit to 12 for readability
+    const isTruncated = significantLabels.length > 12
 
     // Build lookup map for O(1) access
     const corrMap = React.useMemo(() => {
@@ -127,7 +130,7 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             {/* Header Row */}
                             <div />
                             {labels.map(l => (
-                                <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-20 flex items-end pb-2 px-1 truncate max-w-20">
+                                <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-32 flex items-end pb-2 px-1 truncate w-24 origin-bottom-left translate-x-3">
                                     {tMetric(l)}
                                 </div>
                             ))}
@@ -135,7 +138,7 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             {/* Rows */}
                             {labels.map(rowLabel => (
                                 <React.Fragment key={rowLabel}>
-                                    <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center pr-2 truncate max-w-24">
+                                    <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center justify-end pr-2 truncate max-w-32 text-right">
                                         {tMetric(rowLabel)}
                                     </div>
                                     {labels.map(colLabel => {
