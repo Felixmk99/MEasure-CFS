@@ -91,13 +91,13 @@ export interface Database {
                 },
                 Insert: {
                     id: string
-                    step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | null
+                    step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | 'csv' | null
                     symptom_provider?: 'visible' | 'bearable' | null
                     updated_at?: string
                 },
                 Update: {
                     id?: string
-                    step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | null
+                    step_provider?: 'apple' | 'google' | 'garmin' | 'samsung' | 'whoop' | 'csv' | null
                     symptom_provider?: 'visible' | 'bearable' | null
                     updated_at?: string
                 }

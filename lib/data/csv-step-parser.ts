@@ -76,10 +76,25 @@ export async function parseGenericStepCsv(
                     if (typeof stepsRaw === 'number') {
                         steps = stepsRaw
                     } else if (typeof stepsRaw === 'string') {
-                        // Handle 1.234,56 or 1,234.56
-                        // Simple approach: remove non-numeric except dot/comma, then normalize
-                        // But for now, let's assume standard float or int
-                        steps = parseFloat(stepsRaw.replace(',', '.'))
+                        // Handle European (1.234,56) and US (1,234.56) formats
+                        let normalized = stepsRaw.trim()
+                        // If comma appears after dot, assume European format (e.g. 1.234,56)
+                        if (normalized.includes('.') && normalized.includes(',') && normalized.lastIndexOf(',') > normalized.lastIndexOf('.')) {
+                            normalized = normalized.replace(/\./g, '').replace(',', '.')
+                        } else {
+                            // US format or simple decimal, or German without dots (1234,56)
+                            // If it has only comma and no dots, treat comma as decimal if it looks like a decimal separator
+                            // But actually standard parse float stops at comma.
+                            // Safest generic approach for mixed:
+                            // If comma is present but no dot, replace comma with dot (German simple)
+                            if (normalized.includes(',') && !normalized.includes('.')) {
+                                normalized = normalized.replace(',', '.')
+                            } else {
+                                // Remove commas (thousands separator in US)
+                                normalized = normalized.replace(/,/g, '')
+                            }
+                        }
+                        steps = parseFloat(normalized)
                     }
 
                     if (isNaN(steps)) return

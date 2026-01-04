@@ -381,6 +381,7 @@ export interface Dictionary {
         }
         messages: {
             invalid_file: string
+            file_too_large: string
             parsing_file: string
             processing_measurements: string
             login_required: string

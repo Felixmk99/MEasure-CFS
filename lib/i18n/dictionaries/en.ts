@@ -428,6 +428,7 @@ export const en: Dictionary = {
         },
         messages: {
             invalid_file: "Invalid file. Please upload the correct {provider} export file.",
+            file_too_large: "File is too large. Maximum size is 100MB.",
             parsing_file: "Parsing {provider} file...",
             processing_measurements: "Processing {count} measurements...",
             login_required: "You must be logged in to upload data.",

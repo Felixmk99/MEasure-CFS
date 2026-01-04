@@ -428,6 +428,7 @@ export const de: Dictionary = {
         },
         messages: {
             invalid_file: "Ungültige Datei. Bitte lade die korrekte {provider}-Exportdatei hoch.",
+            file_too_large: "Datei ist zu groß. Maximale Größe ist 100MB.",
             parsing_file: "{provider}-Datei wird analysiert...",
             processing_measurements: "{count} Messwerte werden verarbeitet...",
             login_required: "Du musst eingeloggt sein, um Daten hochzuladen.",

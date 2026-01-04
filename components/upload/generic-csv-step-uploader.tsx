@@ -100,8 +100,8 @@ export function GenericCsvStepUploader() {
 
                         // GAP FILLING LOGIC: Only add steps if no steps exist (or explicit override policy?)
                         // "only to where there is no step data yet" - PER REQUIREMENT
-                        if (existing && existing.step_count > 0) {
-                            return null // Skip if steps exist
+                        if (existing && existing.step_count != null) {
+                            return null // Skip if steps exist (including 0)
                         }
 
                         return {
