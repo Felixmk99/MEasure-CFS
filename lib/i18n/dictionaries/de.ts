@@ -777,7 +777,7 @@ export const de: Dictionary = {
     exertion_preference: {
         modal: {
             title: "Belastungspräferenz",
-            description: "Wie beeinflusst Bewegung Ihre Gesundheitswerte? Diese Einstellung passt die Berechnung Ihres MEasure-CFS Scores an.",
+            description: "Wie beeinflusst Bewegung Ihre Gesundheitswerte? Diese Einstellung passt die Berechnung Ihres MEasure-CFS Scores an. Der MEasure-CFS-Score ist unser individueller Score, der Ihre Symptome, Vitalwerte, Schlaf und Belastung umfasst. Ein niedrigerer Wert bedeutet bessere Gesundheit.",
             option_desirable: {
                 title: "Wünschenswert (Bewegung ist gut)",
                 description: "Schritte und Belastung senken Ihren Symptom-Belastungsscore. Wählen Sie dies, wenn Aktivität hilft oder gute Gesundheit anzeigt."

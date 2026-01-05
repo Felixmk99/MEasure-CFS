@@ -777,7 +777,7 @@ export const en: Dictionary = {
     exertion_preference: {
         modal: {
             title: "Exertion Preference",
-            description: "How does movement and exertion affect your health metrics? This setting adjusts how your MEasure-CFS score is calculated.",
+            description: "How does movement and exertion affect your health metrics? This setting adjusts how your MEasure-CFS score is calculated. The MEasure-CFS score is our custom score encompassing your symptoms, vitals, sleep and exertion. A lower score indicates better health.",
             option_desirable: {
                 title: "Desirable (Movement is Good)",
                 description: "Steps and exertion lower your symptom burden score. Choose this if activity helps or indicates good health."
