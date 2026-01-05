@@ -150,7 +150,8 @@ export const en: Dictionary = {
             metrics: {
                 hrv: "HRV",
                 rhr: "RHR",
-                sleep: "Sleep Quality"
+                sleep: "Sleep Quality",
+                adjusted_score: "MEasure-CFS Score"
             },
             analysis: {
                 buildup: "BUILDUP",
@@ -699,6 +700,11 @@ export const en: Dictionary = {
         logic: {
             reduces: "Reduces",
             increases: "Increases",
+            // Neutral wording
+            recommendation_pattern: "{metric} > {value}",
+            threshold_desc: "{metric} < {limit} keeps {impact} lower.",
+
+            // Legacy keys (kept just in case, can remove if unused)
             keep: "Keep",
             watch: "Watch",
             above: "above",
@@ -706,7 +712,6 @@ export const en: Dictionary = {
             by: "by ~",
             from: "from",
             to: "to",
-            threshold_desc: "Staying below {limit} {metric} keeps your {impact} significantly lower."
         },
         footer: {
             disclaimer: "Statistical insights are for informational purposes only and not medical advice. Always consult your physician."

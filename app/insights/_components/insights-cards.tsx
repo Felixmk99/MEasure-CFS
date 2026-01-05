@@ -19,24 +19,7 @@ function formatNumber(value: number): string {
     return value.toFixed(1);
 }
 
-// Lag badge component
-function LagBadge({ lag }: { lag: number }) {
-    const { t } = useLanguage()
-    const badges = {
-        0: { icon: '⚡', text: t('insights.patterns.cards.today'), color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
-        1: { icon: '📅', text: t('insights.patterns.cards.plus_1_day'), color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
-        2: { icon: '📅', text: t('insights.patterns.cards.plus_2_days'), color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' }
-    }
 
-    const badge = badges[lag as keyof typeof badges] || badges[0]
-
-    return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>
-            <span>{badge.icon}</span>
-            <span>{badge.text}</span>
-        </span>
-    )
-}
 
 export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) {
     const { t } = useLanguage()
@@ -56,15 +39,18 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
 
     const formatDescription = (c: CorrelationResult) => {
         const emoji = c.isGood ? '✅' : '⚠️';
-        const action = c.isGood ? t('insights.logic.keep') : t('insights.logic.watch');
-        const thresholdType = t('insights.logic.above'); // Currently logic always uses 'above' for median
 
         const metricAName = tMetric(c.metricA);
         const metricBName = tMetric(c.metricB);
 
         const direction = c.coefficient < 0 ? t('insights.logic.reduces') : t('insights.logic.increases');
 
-        const recommendation = `${emoji} ${action} ${metricAName} ${thresholdType} ${formatNumber(c.medianA)}`;
+        // Neutral Pattern: "{metric} > {value}" or similar
+        const recommendation = `${emoji} ${t('insights.logic.recommendation_pattern', {
+            metric: metricAName,
+            value: formatNumber(c.medianA)
+        })}`;
+
         const impact = `${direction} ${metricBName} ${t('insights.logic.by')} ${Math.round(c.percentChange)}% (${t('insights.logic.from')} ${formatNumber(c.typicalValue)} ${t('insights.logic.to')} ${formatNumber(c.improvedValue)})`;
 
         return `${recommendation}\n→ ${impact}`;
@@ -147,7 +133,6 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                                             <TrendingDown className={`w-4 h-4 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
                                         )}
                                     </div>
-                                    <LagBadge lag={c.lag} />
                                 </div>
                                 <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed whitespace-pre-line">
                                     {formatDescription(c)}

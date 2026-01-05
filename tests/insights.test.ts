@@ -48,7 +48,7 @@ describe('Insights Logic', () => {
         );
         expect(hrvSymptom).toBeDefined();
         expect(Math.abs(hrvSymptom!.coefficient)).toBeGreaterThan(0.8);
-        expect(hrvSymptom?.description).toContain('Reduces');
+        expect(hrvSymptom?.impactDirection).toBe('negative');
     });
 
     test('should detect lagged correlation (Lag 1)', () => {

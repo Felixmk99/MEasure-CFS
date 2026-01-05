@@ -12,7 +12,6 @@ export interface CorrelationResult {
     metricA: string;
     metricB: string;
     coefficient: number; // -1 to 1
-    description: string;
     lag: number; // Days shift
     impactDirection: 'positive' | 'negative' | 'neutral';
     impactStrength: 'strong' | 'moderate' | 'weak';
@@ -28,7 +27,6 @@ export interface ThresholdInsight {
     metric: string;
     impactMetric: string;
     safeZoneLimit: number;
-    description: string;
 }
 
 /**
@@ -85,7 +83,6 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                             metricB,
                             coefficient,
                             lag,
-                            description: getDescription(metricA, metricB, coefficient, lag, medianA, stats),
                             impactDirection: coefficient > 0.1 ? 'positive' : coefficient < -0.1 ? 'negative' : 'neutral',
                             impactStrength: Math.abs(coefficient) > 0.7 ? 'strong' : Math.abs(coefficient) > 0.5 ? 'moderate' : 'weak',
                             medianA,
@@ -152,8 +149,7 @@ export function detectThresholds(
             insights.push({
                 metric: m,
                 impactMetric,
-                safeZoneLimit: limit,
-                description: `Staying below ${limit.toLocaleString()} ${m.replaceAll('_', ' ')} keeps your ${impactMetric.replaceAll('_', ' ')} significantly lower.`
+                safeZoneLimit: limit
             });
         }
     });
@@ -313,28 +309,5 @@ function isGoodPattern(metricB: string, r: number): boolean {
     }
 }
 
-function getDescription(
-    a: string,
-    b: string,
-    r: number,
-    lag: number,
-    medianA: number,
-    stats: { percentChange: number; typicalValue: number; improvedValue: number }
-): string {
-    const isGood = isGoodPattern(b, r);
-    const direction = r < 0 ? 'Reduces' : 'Increases';
+// Removed getDescription function as it is now handled in the UI for i18n
 
-    // Format metric names
-    const metricAName = formatMetric(a);
-    const metricBName = formatMetric(b);
-
-    // Build recommendation with emoji indicator
-    const emoji = isGood ? '✅' : '⚠️';
-    const action = isGood ? 'Keep' : 'Watch';
-    const recommendation = `${emoji} ${action} ${metricAName} above ${formatNumber(medianA)}`;
-
-    // Build impact with percentage and actual values (lag shown in badge, not text)
-    const impact = `${direction} ${metricBName} by ~${Math.round(stats.percentChange)}% (from ${formatNumber(stats.typicalValue)} to ${formatNumber(stats.improvedValue)})`;
-
-    return `${recommendation}\n→ ${impact}`;
-}

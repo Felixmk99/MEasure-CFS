@@ -104,62 +104,60 @@ export interface Dictionary {
                 hrv: string
                 rhr: string
                 sleep: string
+                adjusted_score: string
             }
             analysis: {
                 buildup: string
                 event: string
                 recovery: string
             }
-            status: {
-                crash_risk: string
-                high: string
-                recovery_status: string
-                impact: string
+        }
+        status: {
+            crash_risk: string
+            high: string
+            recovery_status: string
+            impact: string
+        }
+    }
+    privacy_badge: {
+        title: string
+        desc: string
+    }
+    cta: {
+        title: string
+        desc: string
+        button_signup: string
+        button_demo: string
+    }
+    why: {
+        title: string
+        subtitle: string
+        cards: {
+            privacy: {
+                title: string
+                desc: string
+            }
+            baseline: {
+                title: string
+                desc: string
+            }
+            patients: {
+                title: string
+                desc: string
             }
         }
-        privacy_badge: {
-            title: string
-            desc: string
+    }
+    teaser: {
+        title: string
+        subtitle: string
+        list: {
+            pem: string
+            meds: string
+            symptom: string
+            trends: string
         }
-        cta: {
-            title: string
-            desc: string
-            button_signup: string
-            button_demo: string
-        }
-        why: {
-            title: string
-            subtitle: string
-            cards: {
-                privacy: {
-                    title: string
-                    desc: string
-                }
-                baseline: {
-                    title: string
-                    desc: string
-                }
-                patients: {
-                    title: string
-                    desc: string
-                }
-            }
-        }
-        teaser: {
-            title: string
-            subtitle: string
-            list: {
-                pem: string
-                meds: string
-                symptom: string
-                trends: string
-            }
-            cta: string
-            card_insight: string
-        }
-        footer: {
-            copyright: string
-        }
+        cta: string
+        card_insight: string
     }
     dashboard: {
         title: string
@@ -638,109 +636,108 @@ export interface Dictionary {
                 relation: {
                     positive: string
                     negative: string
-                    neutral: string
-                    suffix: string
                 }
             }
-        }
-        logic: {
-            reduces: string
-            increases: string
-            keep: string
-            watch: string
-            above: string
-            below: string
-            by: string
-            from: string
-            to: string
-            threshold_desc: string
-        }
-        footer: {
-            disclaimer: string
-        }
-        pem_analysis: {
-            title: string
-            no_clusters: {
+            logic: {
+                reduces: string
+                increases: string
+                recommendation_pattern: string
+                keep: string
+                watch: string
+                above: string
+                below: string
+                by: string
+                from: string
+                to: string
+                threshold_desc: string
+            }
+            footer: {
+                disclaimer: string
+            }
+            pem_analysis: {
                 title: string
-                desc: string
-                desc_short: string
+                no_clusters: {
+                    title: string
+                    desc: string
+                    desc_short: string
+                }
+                phase1: {
+                    title: string
+                    cumulative: string
+                    confidence: string
+                    no_pattern: string
+                    no_pattern_desc: string
+                }
+                phase2: {
+                    title: string
+                    logged: string
+                    physiological: string
+                    classification: string
+                    persists: string
+                    recovered: string
+                    bio_stress_title: string
+                    bio_stress_desc: string
+                    extended_by: string
+                    peak_deviation: string
+                }
+                phase3: {
+                    title: string
+                    subjective: string
+                    biological: string
+                    lag: string
+                    fast: string
+                    body_lag: string
+                    body_reset: string
+                    hysteresis_title: string
+                    hysteresis_desc: string
+                    slowest: string
+                    days_tail: string
+                    metric_recovery_time: string
+                }
+                discovery: {
+                    increase: string
+                    decrease: string
+                    onset: string
+                    days_before: string
+                    day_before: string
+                    synergy: string
+                }
+                classifications: {
+                    acute: string
+                    lagged: string
+                    historical: string
+                    cumulative: string
+                    acute_desc: string
+                    lagged_desc: string
+                    historical_desc: string
+                    cumulative_desc: string
+                    onset_desc: string
+                    pre_onset_desc: string
+                }
+                footer: string
             }
-            phase1: {
-                title: string
-                cumulative: string
-                confidence: string
-                no_pattern: string
-                no_pattern_desc: string
-            }
-            phase2: {
-                title: string
-                logged: string
-                physiological: string
-                classification: string
-                persists: string
-                recovered: string
-                bio_stress_title: string
-                bio_stress_desc: string
-                extended_by: string
-                peak_deviation: string
-            }
-            phase3: {
-                title: string
-                subjective: string
-                biological: string
-                lag: string
-                fast: string
-                body_lag: string
-                body_reset: string
-                hysteresis_title: string
-                hysteresis_desc: string
-                slowest: string
-                days_tail: string
-                metric_recovery_time: string
-            }
-            discovery: {
-                increase: string
-                decrease: string
-                onset: string
-                days_before: string
-                day_before: string
-                synergy: string
-            }
-            classifications: {
-                acute: string
-                lagged: string
-                historical: string
-                cumulative: string
-                acute_desc: string
-                lagged_desc: string
-                historical_desc: string
-                cumulative_desc: string
-                onset_desc: string
-                pre_onset_desc: string
-            }
-            footer: string
         }
-    }
-    exertion_preference: {
-        modal: {
-            title: string
-            description: string
-            option_desirable: {
+        exertion_preference: {
+            modal: {
                 title: string
                 description: string
+                option_desirable: {
+                    title: string
+                    description: string
+                }
+                option_undesirable: {
+                    title: string
+                    description: string
+                }
+                submit: string
+                loading: string
+                success_toast: string
             }
-            option_undesirable: {
+            settings: {
                 title: string
                 description: string
+                label: string
             }
-            submit: string
-            loading: string
-            success_toast: string
-        }
-        settings: {
-            title: string
-            description: string
-            label: string
         }
     }
 }

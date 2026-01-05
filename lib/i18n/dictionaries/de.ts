@@ -255,8 +255,9 @@ export const de: Dictionary = {
             },
             metrics: {
                 hrv: "HRV",
-                rhr: "Ruhepuls",
-                sleep: "Schlafqualität"
+                rhr: "RHR",
+                sleep: "Schlafqualität",
+                adjusted_score: "MEasure-CFS Score"
             },
             analysis: {
                 buildup: "AUFBAU",
@@ -699,6 +700,11 @@ export const de: Dictionary = {
         logic: {
             reduces: "Reduziert",
             increases: "Erhöht",
+
+            // Neutral wording (Start with Metric Name)
+            recommendation_pattern: "{metric} > {value}",
+            threshold_desc: "{metric} < {limit} hält {impact} niedriger.",
+
             keep: "Halte",
             watch: "Beobachte",
             above: "über",
@@ -706,7 +712,7 @@ export const de: Dictionary = {
             by: "um ~",
             from: "von",
             to: "auf",
-            threshold_desc: "Das Einhalten von unter {limit} {metric} hält dein {impact} deutlich niedriger."
+            // threshold_desc: "Das Einhalten von unter {limit} {metric} hält dein {impact} deutlich niedriger."
         },
         footer: {
             disclaimer: "Statistische Einblicke dienen nur zu Informationszwecken und sind kein medizinischer Rat. Konsultiere immer deinen Arzt."

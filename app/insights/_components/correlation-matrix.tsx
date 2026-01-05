@@ -58,18 +58,18 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
 
     // Filter to only show metrics that have at least one correlation > 0.3 OR are key metrics
     const significantLabels = allUniqueLabels.filter(metric => {
-        const isKeyMetric = ['symptom_score', 'exertion_score', 'composite_score'].includes(metric.toLowerCase())
+        const isKeyMetric = ['symptom_score', 'exertion_score', 'adjusted_score'].includes(metric.toLowerCase())
         if (isKeyMetric) return true
 
         return correlations.some(c =>
             (c.metricA === metric || c.metricB === metric) &&
             c.lag === 0 &&
-            Math.abs(c.coefficient) > 0.3
+            Math.abs(c.coefficient) > 0.35 // Slightly increased threshold for relevance
         )
     })
 
-    const labels = significantLabels.slice(0, 12) // Limit to 12 for readability
-    const isTruncated = significantLabels.length > 12
+    const labels = significantLabels
+    const isTruncated = false
 
     // Build lookup map for O(1) access
     const corrMap = React.useMemo(() => {
