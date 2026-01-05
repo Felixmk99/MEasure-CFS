@@ -7,7 +7,7 @@ import '@testing-library/jest-dom';
 // Mock Provider
 jest.mock('@/components/providers/language-provider', () => ({
     useLanguage: () => ({
-        t: (key: string) => {
+        t: (key: string, _params?: Record<string, unknown>) => {
             if (key === 'metrics.step_count') return 'Steps';
             if (key === 'metrics.symptom_score') return 'Symptoms';
             if (key === 'insights.clusters.heatmap.title') return 'Correlation Heatmap';
@@ -19,10 +19,10 @@ jest.mock('@/components/providers/language-provider', () => ({
 
 // Mock Tooltip components since they require complex context
 jest.mock('@/components/ui/tooltip', () => ({
-    Tooltip: ({ children }: any) => <div>{children}</div>,
-    TooltipTrigger: ({ children }: any) => <div role="button">{children}</div>,
-    TooltipContent: ({ children }: any) => <div data-testid="tooltip-content">{children}</div>,
-    TooltipProvider: ({ children }: any) => <div>{children}</div>,
+    Tooltip: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    TooltipTrigger: ({ children }: { children: React.ReactNode }) => <div role="button">{children}</div>,
+    TooltipContent: ({ children }: { children: React.ReactNode }) => <div data-testid="tooltip-content">{children}</div>,
+    TooltipProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 // Provide a diverse set of correlations
@@ -35,7 +35,7 @@ const mockCorrelations: CorrelationResult[] = [
         lag: 0,
         impactDirection: 'positive',
         impactStrength: 'strong',
-        medianA: 0, medianB: 0, percentChange: 0, typicalValue: 0, improvedValue: 0, isGood: false
+        medianA: 5000, medianB: 3, percentChange: 25, typicalValue: 2, improvedValue: 4, isGood: false
     },
     // Insignificant correlation -> Should exclude 'irrelevant_metric' unless it connects to key metric
     {

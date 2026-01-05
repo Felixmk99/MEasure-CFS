@@ -68,8 +68,9 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
         )
     })
 
-    const labels = significantLabels
-    const isTruncated = false
+    const MAX_DISPLAY_METRICS = 15
+    const labels = significantLabels.slice(0, MAX_DISPLAY_METRICS)
+    const isTruncated = significantLabels.length > MAX_DISPLAY_METRICS
 
     // Build lookup map for O(1) access
     const corrMap = React.useMemo(() => {

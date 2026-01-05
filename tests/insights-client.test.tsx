@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 // Mock Providers
 jest.mock('@/components/providers/language-provider', () => ({
     useLanguage: () => ({
-        t: (key: string, params?: any) => {
+        t: (key: string, params?: { count?: number }) => {
             if (key === 'insights.gathering.progress') return `Progress: ${params?.count}`;
             return key;
         },
@@ -39,7 +39,9 @@ describe('InsightsClient', () => {
     });
 
     test('renders gathering state when insufficient data (< 7 days)', () => {
-        const smallData = Array(3).fill({ date: '2024-01-01' });
+        const smallData = Array.from({ length: 3 }, (_, i) => ({
+            date: `2024-01-0${i + 1}`
+        }));
         render(<InsightsClient data={smallData} />);
         expect(screen.getByText('insights.gathering.title')).toBeInTheDocument();
         expect(screen.getByText('Progress: 3')).toBeInTheDocument();

@@ -7,16 +7,16 @@ import '@testing-library/jest-dom';
 // Mock Provider
 jest.mock('@/components/providers/language-provider', () => ({
     useLanguage: () => ({
-        t: (key: string, params?: any) => {
+        t: (key: string, params?: { metric?: string; value?: string | number; limit?: string | number; impact?: string }) => {
             if (key === 'metrics.step_count') return 'Steps';
             if (key === 'metrics.symptom_score') return 'Symptoms';
             if (key === 'insights.logic.reduces') return 'Reduces';
             if (key === 'insights.logic.increases') return 'Increases';
-            if (key === 'insights.logic.recommendation_pattern') return `Keep ${params.metric} around ${params.value}`;
+            if (key === 'insights.logic.recommendation_pattern') return `Keep ${params?.metric} around ${params?.value}`;
             if (key === 'insights.logic.by') return 'by';
             if (key === 'insights.logic.from') return 'from';
             if (key === 'insights.logic.to') return 'to';
-            if (key === 'insights.logic.threshold_desc') return `Keep ${params.metric} below ${params.limit} to avoid ${params.impact}`;
+            if (key === 'insights.logic.threshold_desc') return `Keep ${params?.metric} below ${params?.limit} to avoid ${params?.impact}`;
             return key;
         },
     }),

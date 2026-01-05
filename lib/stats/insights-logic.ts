@@ -234,20 +234,7 @@ function calculateMedian(values: number[]): number {
         : sorted[mid];
 }
 
-function formatNumber(value: number): string {
-    // Round to reasonable precision
-    if (value >= 1000) {
-        return Math.round(value).toLocaleString();
-    } else if (value >= 10) {
-        return Math.round(value).toString();
-    } else {
-        return value.toFixed(1);
-    }
-}
 
-function formatMetric(metric: string): string {
-    return metric.replaceAll('_', ' ').toLowerCase();
-}
 
 function average(values: number[]): number {
     if (values.length === 0) return 0;

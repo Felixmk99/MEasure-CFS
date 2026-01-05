@@ -776,7 +776,9 @@ export const en: Dictionary = {
                 onset_desc: "Trigger happened on onset day.",
                 pre_onset_desc: "Trigger happened before onset."
             },
-            footer: "Analysis based on **{count} crash episodes** using Superposed Epoch Analysis (SEA)."
+            footer: {
+                disclaimer: "Analysis based on **{count} crash episodes** using Superposed Epoch Analysis (SEA)."
+            }
         }
     },
     exertion_preference: {
