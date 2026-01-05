@@ -158,6 +158,9 @@ export interface Dictionary {
             cta: string
             card_insight: string
         }
+        footer: {
+            copyright: string
+        }
         dashboard: {
             title: string
             subtitle_prefix: string
