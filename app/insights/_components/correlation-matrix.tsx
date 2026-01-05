@@ -127,13 +127,13 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                 <TooltipProvider delayDuration={200}>
                     <div className="w-full overflow-x-auto p-2 md:p-6 flex justify-center">
                         <div className="grid gap-[1px] w-fit" style={{
-                            gridTemplateColumns: `auto repeat(${labels.length}, minmax(28px, 48px))`,
+                            gridTemplateColumns: `auto repeat(${labels.length}, minmax(40px, 60px))`,
                         }}>
                             {/* Header Row */}
                             <div />
                             {labels.map(l => (
-                                <div key={l} className="relative h-[140px] w-full">
-                                    <div className="absolute bottom-1 left-1/2 origin-bottom-left rotate-45 transform w-[180px]">
+                                <div key={l} className="relative h-[160px] w-full z-10">
+                                    <div className="absolute bottom-3 left-1/2 origin-bottom-left rotate-45 transform w-[200px] pointer-events-none">
                                         <span className="text-xs font-medium text-foreground block w-full px-1 truncate" title={tMetric(l)}>
                                             {tMetric(l)}
                                         </span>
