@@ -44,21 +44,26 @@ interface MetricConfig {
     better: string
 }
 
+import { enhanceDataWithScore, ExertionPreference } from "@/lib/scoring/composite-score"
+
 interface DashboardReviewProps {
     data: ({ date: string, custom_metrics?: Record<string, unknown> } & Record<string, unknown>)[]
+    exertionPreference?: ExertionPreference
 }
-
-
-import { enhanceDataWithScore } from "@/lib/scoring/composite-score"
 
 // ... imports
 
+import { useUser } from "@/components/providers/user-provider"
 import { useLanguage } from "@/components/providers/language-provider"
 import { PEMAnalysis } from "@/components/dashboard/pem-analysis"
 import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 
-export default function DashboardClient({ data: initialData }: DashboardReviewProps) {
+export default function DashboardClient({ data: initialData, exertionPreference: initialPreference }: DashboardReviewProps) {
     const { t } = useLanguage()
+    const { profile } = useUser()
+
+    // Use Context preference if available (reactive), fallback to Server Prop, then default
+    const exertionPreference = profile?.exertion_preference ?? initialPreference ?? 'desirable'
 
     // -- 0a. Source Detection (Check if Visible data exists: HRV or RHR) --
     const hasVisibleData = useMemo(() => {
@@ -99,7 +104,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
         if (!initialData || initialData.length === 0) return []
 
         // Enhance with Centralized Score using all-time history for stable normalization
-        const enhanced = enhanceDataWithScore(initialData)
+        const enhanced = enhanceDataWithScore(initialData, undefined, exertionPreference)
 
         return enhanced.map(d => ({
             ...d,
@@ -108,14 +113,15 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             adjusted_score: Number(d.composite_score) || 0, // Maps MEasure-CFS Score to UI 'Adjusted Score'
             symptom_score: Number(d.symptom_score) || 0,    // Maps DB Symptom Score to UI 'Symptom Score'
             exertion_score: Number(d.exertion_score) || 0,
+            step_count: d.step_count, // Explicitly include steps for checks
             step_factor: d.normalized_steps || 0,
             formattedDate: format(parseISO(d.date), 'MMM d')
         }))
-    }, [initialData])
+    }, [initialData, exertionPreference])
 
     // -- 1b. Time Filtering for Charts --
     const processedData = useMemo(() => {
-        if (enhancedInitialData.length === 0) return generateMockData()
+        if (enhancedInitialData.length === 0) return []
 
         const { start, end } = visibleRange
 
@@ -391,36 +397,20 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
             let periodTrendStatus = 'stable'
 
             if (currentPoints.length >= 2) {
-                // Determine strategy (Sync with Shared Logic)
-                const { strategy, maWindow } = getTrendStrategy(timeRange, visibleRange.start, visibleRange.end)
+                // ALWAYS use Linear Regression for the Trend Badge ("Overall Trend")
+                // This aligns better with user perception (Slope) than comparing Moving Average endpoints.
+                const dataPoints = currentPoints.map(p => [p.t, p.val])
+                const regression = linearRegression(dataPoints)
+                const predict = linearRegressionLine(regression)
+                const startVal = predict(visibleRange.start.getTime())
+                const endVal = predict(visibleRange.end.getTime())
 
-                if (strategy === 'regression') {
-                    // Time-Aware Linear Regression
-                    const dataPoints = currentPoints.map(p => [p.t, p.val])
-                    const regression = linearRegression(dataPoints)
-                    const predict = linearRegressionLine(regression)
-                    const startVal = predict(visibleRange.start.getTime())
-                    const endVal = predict(visibleRange.end.getTime())
-                    const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
-                    const denominator = Math.max(midpoint, 0.5)
-                    periodTrendPct = ((endVal - startVal) / denominator) * 100
-                } else {
-                    // Moving Average Trend: Compare Last Window Avg to First Window Avg
-                    // Use smaller window if insufficient data to avoid overlap (CodeRabbit fix)
-                    const effectiveWindow = Math.min(maWindow, Math.floor(currentPoints.length / 2))
+                // Use midpoint for symmetric percentage change
+                const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
+                const denominator = Math.max(midpoint, 0.5)
+                periodTrendPct = ((endVal - startVal) / denominator) * 100
 
-                    if (effectiveWindow > 0) {
-                        const firstWindow = currentPoints.slice(0, effectiveWindow).map(p => p.val)
-                        const lastWindow = currentPoints.slice(-effectiveWindow).map(p => p.val)
-                        const firstAvg = firstWindow.reduce((a, b) => a + b, 0) / firstWindow.length
-                        const lastAvg = lastWindow.reduce((a, b) => a + b, 0) / lastWindow.length
-                        const midpoint = (Math.abs(firstAvg) + Math.abs(lastAvg)) / 2
-                        const denominator = Math.max(midpoint, 0.5)
-                        periodTrendPct = ((lastAvg - firstAvg) / denominator) * 100
-                    } else {
-                        periodTrendPct = 0
-                    }
-                }
+                // Removed legacy Moving Average endpoint comparison (caused confusion with outliers)
 
                 if (Math.abs(periodTrendPct) < 1) periodTrendStatus = 'stable'
                 else if (periodTrendPct > 0) periodTrendStatus = config.invert ? 'worsening' : 'improving'
@@ -463,7 +453,7 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
                 prevCrashCount
             }
         })
-    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig, getValue, getTrendStrategy])
+    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig, getValue])
 
 
     // ... UI Render ...
@@ -964,20 +954,4 @@ export default function DashboardClient({ data: initialData }: DashboardReviewPr
     )
 }
 
-function generateMockData() {
-    const data = []
-    const now = new Date()
-    for (let i = 30; i >= 0; i--) {
-        const date = subDays(now, i)
-        // Create a gentle curve
-        const base = 50 + Math.sin(i / 5) * 20
-        data.push({
-            date: date.toISOString().split('T')[0],
-            hrv: Math.round(base + Math.random() * 10 - 5),
-            symptom_score: Math.max(0, Math.min(3, 1.5 + Math.cos(i / 4))),
-            resting_heart_rate: 60 + Math.random() * 5,
-            custom_metrics: undefined
-        })
-    }
-    return data as unknown as DashboardReviewProps['data']
-}
+

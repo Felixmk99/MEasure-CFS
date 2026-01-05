@@ -15,10 +15,11 @@ import { Progress } from "@/components/ui/progress"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 // import { Database } from "@/types/database.types"
-import { enhanceDataWithScore } from "@/lib/scoring/composite-score"
+import { enhanceDataWithScore, ExertionPreference } from "@/lib/scoring/composite-score"
 import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
 import { ExperimentImpactResults, getFriendlyName } from "@/components/experiments/experiment-impact"
 import { useLanguage } from "@/components/providers/language-provider"
+import { useUser } from "@/components/providers/user-provider"
 
 // Form State logic moved outside component
 type ExperimentCategory = 'lifestyle' | 'medication' | 'supplement' | 'other'
@@ -42,8 +43,11 @@ const initialFormState: ExperimentFormData = {
 const isValidCategory = (cat: string): cat is ExperimentCategory =>
     ['lifestyle', 'medication', 'supplement', 'other'].includes(cat)
 
-export default function ExperimentsClient({ initialExperiments, history }: { initialExperiments: Experiment[], history: MetricDay[] }) {
+export default function ExperimentsClient({ initialExperiments, history, exertionPreference: initialPreference }: { initialExperiments: Experiment[], history: MetricDay[], exertionPreference?: ExertionPreference }) {
     const { t, locale } = useLanguage()
+    const { profile } = useUser()
+    const exertionPreference = profile?.exertion_preference ?? initialPreference ?? 'desirable'
+
     const [experiments, setExperiments] = useState<Experiment[]>(initialExperiments)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [editingExp, setEditingExp] = useState<Experiment | null>(null)
@@ -55,8 +59,8 @@ export default function ExperimentsClient({ initialExperiments, history }: { ini
 
     // Enhance history with Centralized Composite Score
     const enhancedHistory = useMemo(() => {
-        return enhanceDataWithScore(history)
-    }, [history])
+        return enhanceDataWithScore(history, undefined, exertionPreference)
+    }, [history, exertionPreference])
 
     // Calculate Baseline Stats for Z-Scores
     const baselineStats = useMemo(() => {

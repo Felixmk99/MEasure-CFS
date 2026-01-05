@@ -93,8 +93,8 @@ describe('Composite Score Enhancement', () => {
     });
 
     describe('enhanceDataWithScore', () => {
-        it('should recalculate scores from custom_metrics and apply normalization', () => {
-            const enhanced = enhanceDataWithScore(mockData);
+        it('should recalculate scores from custom_metrics and apply normalization (Default/Desirable)', () => {
+            const enhanced = enhanceDataWithScore(mockData, undefined, 'desirable');
 
             expect(enhanced[0]).toHaveProperty('composite_score');
             expect(enhanced[0]).toHaveProperty('normalized_hrv');
@@ -105,6 +105,39 @@ describe('Composite Score Enhancement', () => {
             // entry 2 has higher HRV (50 vs 40) and lower Symptoms (2 vs 5)
             // It should have a lower (better) composite score
             expect(enhanced[1].composite_score!).toBeLessThan(enhanced[0].composite_score!);
+
+            // Check math for Exertion (Desirable = Subtracts from burden)
+            // Score = Symptoms + Sleep - Exertion + RHR - HRV - Steps
+        });
+
+        it('should handle "undesirable" preference (PEM logic)', () => {
+            // Pass 'undesirable'
+            const enhanced = enhanceDataWithScore(mockData, undefined, 'undesirable');
+
+            // With Undesirable, Exertion ADDS to the burden score.
+            // Entry 2 has high Exertion (8) vs Entry 1 (2).
+            // In Desirable mode, High Exertion helps lower the score.
+            // In Undesirable mode, High Exertion increases the score.
+
+            // Let's verify specific calculation for Entry 0:
+            // Symptoms: 5
+            // Sleep: 7
+            // Exertion: 2 (Norm: ~0.16?)
+            // RHR: 60 (Norm: 1)
+            // HRV: 40 (Norm: 0)
+            // Steps: 1000 (Norm: 0.2)
+
+            // The score logic inside `enhanceDataWithScore` does complex normalization, 
+            // so checking strictly "Higher than Desirable" is a good proxy.
+
+            const enhancedDesirable = enhanceDataWithScore(mockData, undefined, 'desirable');
+
+            // For Entry 0:
+            // Desirable Score = X - Exertion
+            // Undesirable Score = X + Exertion
+            // So Undesirable should be significantly higher.
+
+            expect(enhanced[0].composite_score!).toBeGreaterThan(enhancedDesirable[0].composite_score!);
         });
 
         it('should handle division by zero (identical min/max)', () => {

@@ -721,4 +721,26 @@ export interface Dictionary {
             footer: string
         }
     }
+    exertion_preference: {
+        modal: {
+            title: string
+            description: string
+            option_desirable: {
+                title: string
+                description: string
+            }
+            option_undesirable: {
+                title: string
+                description: string
+            }
+            submit: string
+            loading: string
+            success_toast: string
+        }
+        settings: {
+            title: string
+            description: string
+            label: string
+        }
+    }
 }

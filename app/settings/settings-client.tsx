@@ -189,6 +189,22 @@ export default function SettingsClient({ user }: { user: User }) {
                 {/* Symptom Data Integration Card */}
                 <SymptomProviderCard />
 
+                {/* Exertion Preference */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t('exertion_preference.settings.title')}</CardTitle>
+                        <CardDescription>
+                            {t('exertion_preference.settings.description')}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid gap-2">
+                            <Label htmlFor="exertion-pref">{t('exertion_preference.settings.label')}</Label>
+                            <ExertionSelector />
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* Step Data Integration Card */}
                 <StepProviderCard />
 
@@ -375,5 +391,40 @@ function StepProviderCard() {
                 </div>
             </CardContent>
         </Card>
+    )
+}
+
+function ExertionSelector() {
+    const { t } = useLanguage()
+    const { profile, updateExertionPreference } = useUser()
+    const [updating, setUpdating] = useState(false)
+
+    const handlePreferenceChange = async (val: string) => {
+        setUpdating(true)
+        try {
+            await updateExertionPreference(val as 'desirable' | 'undesirable')
+            toast.success(t('common.success'))
+        } catch (error) {
+            console.error(error)
+            toast.error(t('common.error'))
+        } finally {
+            setUpdating(false)
+        }
+    }
+
+    return (
+        <Select
+            value={profile?.exertion_preference || 'desirable'}
+            onValueChange={handlePreferenceChange}
+            disabled={updating}
+        >
+            <SelectTrigger id="exertion-pref" className="w-[300px]">
+                <SelectValue placeholder={t('exertion_preference.settings.label')} />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="desirable">{t('exertion_preference.modal.option_desirable.title')}</SelectItem>
+                <SelectItem value="undesirable">{t('exertion_preference.modal.option_undesirable.title')}</SelectItem>
+            </SelectContent>
+        </Select>
     )
 }

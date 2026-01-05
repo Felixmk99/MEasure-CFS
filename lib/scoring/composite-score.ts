@@ -1,4 +1,4 @@
-import { calculateSymptomScore, calculateExertionScore, calculateCompositeScore } from "@/lib/scoring/logic";
+import { calculateSymptomScore, calculateExertionScore } from "@/lib/scoring/logic";
 
 export interface ScoreComponents {
     composite_score: number | null
@@ -54,8 +54,13 @@ export function calculateMinMaxStats(data: ScorableEntry[]): NormalizationStats 
 /**
  * Enhances a dataset with the unified Composite Score (MEasure-CFS Score).
  * 
- * Formula (Strain/Risk Index):
- * Score = Symptoms + Sleep - Exertion + RHR - HRV - NormalizedSteps
+ * Formula (Strain/Risk Index) - varies by exertion preference:
+ * 
+ * When exertion is DESIRABLE (beneficial):
+ *   Score = Symptoms + Sleep - Exertion + RHR - HRV - NormalizedSteps
+ * 
+ * When exertion is UNDESIRABLE (harmful):
+ *   Score = Symptoms + Sleep + Exertion + RHR - HRV + NormalizedSteps
  * 
  * Result:
  * - High Score = High Strain/Symptoms (Bad)
@@ -65,7 +70,15 @@ export function calculateMinMaxStats(data: ScorableEntry[]): NormalizationStats 
  * or displays as "Symptom Load" (Lower is Better).
  * Currently Dashboard config matches "Lower is Better" (Invert: True).
  */
-export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedStats?: NormalizationStats): (T & ScoreComponents)[] {
+// Helper to determine if Exertion should be treated as "Good" or "Bad"
+// Default to legacy behavior (Desirable/Good) if preference is missing
+export type ExertionPreference = 'desirable' | 'undesirable' | null
+
+export function enhanceDataWithScore<T extends ScorableEntry>(
+    data: T[],
+    sharedStats?: NormalizationStats,
+    exertionPreference?: ExertionPreference // No default; handle null explicitly below
+): (T & ScoreComponents)[] {
     if (!data || data.length === 0) return []
 
     // 1. Calculate or use shared stats
@@ -93,14 +106,26 @@ export function enhanceDataWithScore<T extends ScorableEntry>(data: T[], sharedS
         const rhr = Number(entry.resting_heart_rate) || 0
         const hrv = Number(entry.hrv) || 0
 
-        const composite = calculateCompositeScore({
-            symptomScore: symptomSum,
-            exertionScore: exertionSum,
-            sleepScore: sleepVal,
-            rhr,
-            hrv,
-            normalizedSteps: normSteps
-        })
+        // Determine Sign for Exertion-related metrics based on Preference
+        // null or undefined: default to 'desirable' (legacy behavior)
+        const preference = exertionPreference ?? 'desirable'
+        const isUndesirable = preference === 'undesirable'
+
+        // Formula: Score = Symptoms + Sleep [+/-] Exertion + RHR - HRV [+/-] NormalizedSteps
+        // Base Burden
+        let score = symptomSum + sleepVal + rhr - hrv
+
+        if (isUndesirable) {
+            // Exertion adds to burden
+            score += exertionSum
+            score += normSteps
+        } else {
+            // Exertion reduces burden (Beneficial) - Legacy Default
+            score -= exertionSum
+            score -= normSteps
+        }
+
+        const composite = Number(score.toFixed(1))
 
         return {
             ...entry,

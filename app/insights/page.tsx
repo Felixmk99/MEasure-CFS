@@ -23,9 +23,24 @@ export default async function InsightsPage() {
         // Fallback to empty array to prevent crash
     }
 
+    // Fetch User Profile
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('exertion_preference')
+        .eq('id', user.id)
+        .single()
+
+    if (profileError) {
+        console.error('Failed to fetch user profile:', profileError)
+    }
+
     return (
         <div className="container mx-auto py-8">
-            <InsightsClient data={healthMetrics || []} />
+            <InsightsClient
+                data={healthMetrics || []}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                exertionPreference={(profile as any)?.exertion_preference}
+            />
         </div>
     )
 }

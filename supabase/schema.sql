@@ -73,6 +73,7 @@ create table if not exists profiles (
   id uuid references auth.users(id) on delete cascade primary key,
   step_provider text check (step_provider in ('apple', 'google', 'garmin', 'samsung', 'whoop', 'csv')),
   symptom_provider text check (symptom_provider in ('visible', 'bearable')) default 'visible',
+  exertion_preference text check (exertion_preference in ('desirable', 'undesirable')),
   updated_at timestamp with time zone default now()
 );
 

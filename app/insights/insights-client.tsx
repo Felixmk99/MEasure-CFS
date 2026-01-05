@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { InsightMetric, calculateAdvancedCorrelations, detectThresholds } from '@/lib/stats/insights-logic'
-import { enhanceDataWithScore } from '@/lib/scoring/composite-score'
+import { enhanceDataWithScore, ExertionPreference } from '@/lib/scoring/composite-score'
 import { CorrelationMatrix } from './_components/correlation-matrix'
 import { InsightsCards } from './_components/insights-cards'
 import { Badge } from '@/components/ui/badge'
@@ -10,22 +10,27 @@ import { BrainCircuit, Loader2, Database } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useLanguage } from '@/components/providers/language-provider'
+import { useUser } from '@/components/providers/user-provider'
 
 const MIN_DAYS_FOR_INSIGHTS = 7
 
 interface InsightsClientProps {
     data: InsightMetric[]
+    exertionPreference?: ExertionPreference
 }
 
-export default function InsightsClient({ data }: InsightsClientProps) {
+export default function InsightsClient({ data, exertionPreference: initialPreference }: InsightsClientProps) {
     const { t } = useLanguage()
+    const { profile } = useUser()
+    const exertionPreference = profile?.exertion_preference ?? initialPreference ?? 'desirable'
+
     const hasData = data && data.length > 0
     const hasInsufficientData = hasData && data.length < MIN_DAYS_FOR_INSIGHTS
     // 1. Enhance Data with Composite Score (Client-Side Calc)
     const enhancedData = useMemo(() => {
         if (!data || data.length === 0) return []
-        return enhanceDataWithScore(data)
-    }, [data])
+        return enhanceDataWithScore(data, undefined, exertionPreference || 'desirable')
+    }, [data, exertionPreference])
 
     // 2. Process all-time analysis
     const { correlations, thresholds } = useMemo(() => {
