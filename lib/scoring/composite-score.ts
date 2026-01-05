@@ -77,7 +77,7 @@ type ExertionPreference = 'desirable' | 'undesirable' | null
 export function enhanceDataWithScore<T extends ScorableEntry>(
     data: T[],
     sharedStats?: NormalizationStats,
-    exertionPreference: ExertionPreference = 'desirable' // Default to Desirable (Good)
+    exertionPreference?: ExertionPreference // No default; handle null explicitly below
 ): (T & ScoreComponents)[] {
     if (!data || data.length === 0) return []
 
@@ -107,9 +107,9 @@ export function enhanceDataWithScore<T extends ScorableEntry>(
         const hrv = Number(entry.hrv) || 0
 
         // Determine Sign for Exertion-related metrics based on Preference
-        // Desirable (Good): - Exertion - Steps (Lowers Burden Score)
-        // Undesirable (Bad): + Exertion + Steps (Increases Burden Score)
-        const isUndesirable = exertionPreference === 'undesirable'
+        // null or undefined: default to 'desirable' (legacy behavior)
+        const preference = exertionPreference ?? 'desirable'
+        const isUndesirable = preference === 'undesirable'
 
         // Formula: Score = Symptoms + Sleep [+/-] Exertion + RHR - HRV [+/-] NormalizedSteps
         // Base Burden

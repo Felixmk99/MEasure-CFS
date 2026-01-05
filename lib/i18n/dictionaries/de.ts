@@ -777,14 +777,14 @@ export const de: Dictionary = {
     exertion_preference: {
         modal: {
             title: "Belastungspräferenz",
-            description: "Wie beeinflusst Bewegung Ihre Gesundheitswerte? Diese Einstellung passt die Berechnung Ihres MEasure-CFS Scores an. Der MEasure-CFS-Score ist unser individueller Score, der Ihre Symptome, Vitalwerte, Schlaf und Belastung umfasst. Ein niedrigerer Wert bedeutet bessere Gesundheit.",
+            description: "Wie beeinflusst Bewegung deine Gesundheitswerte? Diese Einstellung passt die Berechnung deines MEasure-CFS Scores an. Der MEasure-CFS-Score ist unser individueller Score, der deine Symptome, Vitalwerte, Schlaf und Belastung umfasst. Ein niedrigerer Wert bedeutet bessere Gesundheit.",
             option_desirable: {
                 title: "Wünschenswert (Bewegung ist gut)",
-                description: "Schritte und Belastung senken Ihren Symptom-Belastungsscore. Wählen Sie dies, wenn Aktivität hilft oder gute Gesundheit anzeigt."
+                description: "Schritte und Belastung senken deinen Symptom-Belastungsscore. Wähle dies, wenn Aktivität hilft oder gute Gesundheit anzeigt."
             },
             option_undesirable: {
                 title: "Unerwünscht (Belastung vermeiden)",
-                description: "Schritte und Belastung erhöhen Ihren Symptom-Belastungsscore. Wählen Sie dies, wenn Sie unter PEM leiden und Aktivität begrenzen müssen."
+                description: "Schritte und Belastung erhöhen deinen Symptom-Belastungsscore. Wähle dies, wenn du unter PEM leidest und Aktivität begrenzen musst."
             },
             submit: "Präferenz speichern",
             loading: "Speichern...",
@@ -792,7 +792,7 @@ export const de: Dictionary = {
         },
         settings: {
             title: "Belastungspräferenz",
-            description: "Steuern Sie, wie Schritte und Belastung in Ihren Gesamtscore einfließen.",
+            description: "Steuere, wie Schritte und Belastung in deinen Gesamtscore einfließen.",
             label: "Belastungseinfluss"
         }
     }

@@ -109,6 +109,7 @@ export default function DashboardClient({ data: initialData, exertionPreference 
             adjusted_score: Number(d.composite_score) || 0, // Maps MEasure-CFS Score to UI 'Adjusted Score'
             symptom_score: Number(d.symptom_score) || 0,    // Maps DB Symptom Score to UI 'Symptom Score'
             exertion_score: Number(d.exertion_score) || 0,
+            step_count: d.step_count, // Explicitly include steps for checks
             step_factor: d.normalized_steps || 0,
             formattedDate: format(parseISO(d.date), 'MMM d')
         }))
@@ -116,7 +117,7 @@ export default function DashboardClient({ data: initialData, exertionPreference 
 
     // -- 1b. Time Filtering for Charts --
     const processedData = useMemo(() => {
-        if (enhancedInitialData.length === 0) return generateMockData()
+        if (enhancedInitialData.length === 0) return []
 
         const { start, end } = visibleRange
 
@@ -127,6 +128,7 @@ export default function DashboardClient({ data: initialData, exertionPreference 
                 const e = endOfDay(end)
                 return itemDate >= s && (timeRange === 'custom' ? itemDate <= e : true)
             })
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }, [enhancedInitialData, visibleRange, timeRange])
 
@@ -965,20 +967,4 @@ export default function DashboardClient({ data: initialData, exertionPreference 
     )
 }
 
-function generateMockData() {
-    const data = []
-    const now = new Date()
-    for (let i = 30; i >= 0; i--) {
-        const date = subDays(now, i)
-        // Create a gentle curve
-        const base = 50 + Math.sin(i / 5) * 20
-        data.push({
-            date: date.toISOString().split('T')[0],
-            hrv: Math.round(base + Math.random() * 10 - 5),
-            symptom_score: Math.max(0, Math.min(3, 1.5 + Math.cos(i / 4))),
-            resting_heart_rate: 60 + Math.random() * 5,
-            custom_metrics: undefined
-        })
-    }
-    return data as unknown as DashboardReviewProps['data']
-}
+
