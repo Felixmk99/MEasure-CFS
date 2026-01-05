@@ -112,7 +112,7 @@ export default function DashboardClient({ data: initialData, exertionPreference 
             step_factor: d.normalized_steps || 0,
             formattedDate: format(parseISO(d.date), 'MMM d')
         }))
-    }, [initialData])
+    }, [initialData, exertionPreference])
 
     // -- 1b. Time Filtering for Charts --
     const processedData = useMemo(() => {
@@ -340,7 +340,7 @@ export default function DashboardClient({ data: initialData, exertionPreference 
             ...d,
             ...trendsByIndex.get(i)
         }))
-    }, [processedData, showTrend, selectedMetrics, timeRange, getValue, getTrendStrategy, visibleRange, exertionPreference])
+    }, [processedData, showTrend, selectedMetrics, timeRange, getValue, getTrendStrategy, visibleRange])
 
     // -- 3. Calculate Stats for ALL selected metrics --
     const multiStats = useMemo(() => {

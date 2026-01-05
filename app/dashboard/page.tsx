@@ -14,11 +14,15 @@ export default async function DashboardPage() {
     }
 
     // Fetch User Profile for Exertion Preference
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('exertion_preference')
         .eq('id', user.id)
         .single()
+
+    if (profileError) {
+        console.error("Error fetching profile:", profileError)
+    }
 
     // 1. Fetch ALL Data (Server-Side)
     const { data: rawData, error } = await supabase

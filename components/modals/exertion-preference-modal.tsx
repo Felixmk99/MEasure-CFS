@@ -38,11 +38,14 @@ export function ExertionPreferenceModal({ currentPreference }: ExertionPreferenc
         setLoading(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
+            if (!user) {
+                toast.error(t('common.error'))
+                return
+            }
 
             const { error } = await supabase
                 .from('profiles')
-                // @ts-ignore
+                // @ts-expect-error - exertion_preference not yet in generated types
                 .update({ exertion_preference: selected })
                 .eq('id', user.id)
 

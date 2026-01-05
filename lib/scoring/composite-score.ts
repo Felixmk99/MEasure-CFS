@@ -1,4 +1,4 @@
-import { calculateSymptomScore, calculateExertionScore, calculateCompositeScore } from "@/lib/scoring/logic";
+import { calculateSymptomScore, calculateExertionScore } from "@/lib/scoring/logic";
 
 export interface ScoreComponents {
     composite_score: number | null
@@ -54,8 +54,13 @@ export function calculateMinMaxStats(data: ScorableEntry[]): NormalizationStats 
 /**
  * Enhances a dataset with the unified Composite Score (MEasure-CFS Score).
  * 
- * Formula (Strain/Risk Index):
- * Score = Symptoms + Sleep - Exertion + RHR - HRV - NormalizedSteps
+ * Formula (Strain/Risk Index) - varies by exertion preference:
+ * 
+ * When exertion is DESIRABLE (beneficial):
+ *   Score = Symptoms + Sleep - Exertion + RHR - HRV - NormalizedSteps
+ * 
+ * When exertion is UNDESIRABLE (harmful):
+ *   Score = Symptoms + Sleep + Exertion + RHR - HRV + NormalizedSteps
  * 
  * Result:
  * - High Score = High Strain/Symptoms (Bad)

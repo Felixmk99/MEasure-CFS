@@ -35,18 +35,23 @@ export default async function ExperimentsPage() {
         .order('date', { ascending: true });
 
     // 4. Fetch User Profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('exertion_preference')
         .eq('id', user.id)
         .single();
+
+    if (profileError) {
+        console.error('Failed to fetch user profile:', profileError)
+    }
 
     return (
         <div className="container mx-auto py-6">
             <ExperimentsClient
                 initialExperiments={experiments || []}
                 history={history || []}
-                exertionPreference={profile?.exertion_preference}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                exertionPreference={(profile as any)?.exertion_preference}
             />
         </div>
     );

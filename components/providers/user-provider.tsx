@@ -150,13 +150,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         if (!error) {
             setProfile(prev => prev
                 ? { ...prev, exertion_preference: preference }
-                : {
-                    id: user.id,
-                    step_provider: 'apple',
-                    symptom_provider: 'visible',
-                    exertion_preference: preference,
-                    updated_at: new Date().toISOString()
-                }
+                : null // Should not happen as profile must exist to update it
             )
         } else {
             throw error
