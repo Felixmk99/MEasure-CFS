@@ -34,16 +34,17 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
     const { t } = useLanguage()
 
     const tMetric = (key: string) => {
-        const normalizedKey = key.toLowerCase().replaceAll('_', ' ');
-        const dictionaryKey = `metrics.${key.toLowerCase()}` as string;
+        const strictKey = key.toLowerCase();
+        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
         const translated = t(dictionaryKey);
-        if (translated !== dictionaryKey) return translated;
+        if (translated !== dictionaryKey && translated) return translated;
 
-        const normalizedDictionaryKey = `metrics.${normalizedKey}` as string;
-        const normTranslated = t(normalizedDictionaryKey);
-        if (normTranslated !== normalizedDictionaryKey) return normTranslated;
+        const snakeKey = strictKey.replace(/ /g, '_');
+        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
+        const snakeTranslated = t(snakeDictKey);
+        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
 
-        return normalizedKey;
+        return strictKey.replaceAll('_', ' ');
     }
 
     const getStrengthLabel = (intensity: number) => {
@@ -63,6 +64,7 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
 
         return correlations.some(c =>
             (c.metricA === metric || c.metricB === metric) &&
+            c.metricA !== c.metricB && // Exclude self-correlation
             c.lag === 0 &&
             Math.abs(c.coefficient) > 0.35 // Slightly increased threshold for relevance
         )

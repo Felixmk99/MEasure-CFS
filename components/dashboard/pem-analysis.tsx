@@ -553,7 +553,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
 
             </div>
             <p className="text-xs text-muted-foreground text-center pt-2 max-w-2xl mx-auto">
-                {t('insights.pem_analysis.footer.disclaimer', { count: analysis.episodeCount?.toString() || '0' })}
+                {t('insights.pem_analysis.footer.disclaimer', { count: analysis.episodeCount ?? 0 })}
             </p>
         </div>
     )

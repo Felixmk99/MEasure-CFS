@@ -8,8 +8,8 @@ import '@testing-library/jest-dom';
 jest.mock('@/components/providers/language-provider', () => ({
     useLanguage: () => ({
         t: (key: string, params?: { metric?: string; value?: string | number; limit?: string | number; impact?: string }) => {
-            if (key === 'metrics.step_count') return 'Steps';
-            if (key === 'metrics.symptom_score') return 'Symptoms';
+            if (key === 'common.metric_labels.step_count') return 'Steps';
+            if (key === 'common.metric_labels.symptom_score') return 'Symptoms';
             if (key === 'insights.logic.reduces') return 'Reduces';
             if (key === 'insights.logic.increases') return 'Increases';
             if (key === 'insights.logic.recommendation_pattern') return `Keep ${params?.metric} around ${params?.value}`;

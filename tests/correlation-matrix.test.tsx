@@ -8,8 +8,8 @@ import '@testing-library/jest-dom';
 jest.mock('@/components/providers/language-provider', () => ({
     useLanguage: () => ({
         t: (key: string) => {
-            if (key === 'metrics.step_count') return 'Steps';
-            if (key === 'metrics.symptom_score') return 'Symptoms';
+            if (key === 'common.metric_labels.step_count') return 'Steps';
+            if (key === 'common.metric_labels.symptom_score') return 'Symptoms';
             if (key === 'insights.clusters.heatmap.title') return 'Correlation Heatmap';
             if (key === 'insights.clusters.heatmap.legend') return 'Legend';
             return key;

@@ -25,16 +25,29 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
     const { t } = useLanguage()
 
     const tMetric = (key: string) => {
-        const normalizedKey = key.toLowerCase().replaceAll('_', ' ');
-        const dictionaryKey = `metrics.${key.toLowerCase()}` as string;
+        // 1. Try direct lookup (e.g. "step_count")
+        const strictKey = key.toLowerCase();
+        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
         const translated = t(dictionaryKey);
-        if (translated !== dictionaryKey) return translated;
+        if (translated !== dictionaryKey && translated) return translated;
 
-        const normalizedDictionaryKey = `metrics.${normalizedKey}` as string;
-        const normTranslated = t(normalizedDictionaryKey);
-        if (normTranslated !== normalizedDictionaryKey) return normTranslated;
+        // 2. Try normalized lookup (e.g. "Step count" -> "step_count"?? Or "step count")
+        // The dictionary has keys like "step_count", "muscle weakness".
+        // If key is "Step count", strictKey is "step count". Dictionary has "step_count"?
+        // Dictionary keys are mostly snake_case or "spaced string" (e.g. "muscle weakness").
 
-        return normalizedKey;
+        // Let's rely on standard 't' behavior.
+        // If key is "step_count", t("common.metric_labels.step_count") works.
+        // If key is "Step Count", t("common.metric_labels.step count") ??
+
+        // Use a heuristic: replace spaces with underscores?
+        const snakeKey = strictKey.replace(/ /g, '_');
+        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
+        const snakeTranslated = t(snakeDictKey);
+        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
+
+        // Fallback: just return formatted text
+        return strictKey.replaceAll('_', ' ');
     }
 
     const formatDescription = (c: CorrelationResult) => {
