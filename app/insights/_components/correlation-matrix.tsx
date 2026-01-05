@@ -125,30 +125,31 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
             </CardHeader>
             <CardContent>
                 <TooltipProvider delayDuration={200}>
-                    <div className="w-full overflow-x-auto p-2 md:p-4 flex justify-center">
-                        <div className="grid gap-[2px] w-full max-w-4xl" style={{
+                    <div className="w-full overflow-x-auto p-2 md:p-6">
+                        <div className="grid gap-[2px] w-full" style={{
                             gridTemplateColumns: `auto repeat(${labels.length}, 1fr)`,
-                            minWidth: 'min(100%, 600px)'
+                            minWidth: '600px'
                         }}>
                             {/* Header Row */}
                             <div />
                             {labels.map(l => (
-                                <div key={l} className="text-[9px] sm:text-[10px] font-medium text-muted-foreground rotate-45 h-24 sm:h-28 flex items-end pb-1 px-1 truncate w-full origin-bottom-left translate-x-4">
-                                    {tMetric(l)}
+                                <div key={l} className="text-[10px] sm:text-xs font-medium text-muted-foreground rotate-45 h-32 flex items-end pb-2 px-1 w-full origin-bottom-left translate-x-[20%] translate-y-2">
+                                    <span className="truncate w-32 block">{tMetric(l)}</span>
                                 </div>
                             ))}
 
                             {/* Rows */}
                             {labels.map(rowLabel => (
                                 <React.Fragment key={rowLabel}>
-                                    <div className="text-[9px] sm:text-[10px] font-medium text-muted-foreground flex items-center justify-end pr-2 truncate text-right leading-tight">
+                                    <div className="text-[10px] sm:text-xs font-medium text-muted-foreground flex items-center justify-end pr-3 truncate text-right leading-tight py-1">
                                         {tMetric(rowLabel)}
                                     </div>
                                     {labels.map(colLabel => {
                                         const coefficient = corrMap.get(`${rowLabel}:${colLabel}`)
                                         const isDiagonal = rowLabel === colLabel
-                                        const isMissing = coefficient === undefined && !isDiagonal
-                                        const r = coefficient ?? (isDiagonal ? 1 : 0)
+                                        // Hide diagonal (force missing/empty style)
+                                        const isMissing = (coefficient === undefined && !isDiagonal) || isDiagonal
+                                        const r = coefficient ?? 0 // Diagonal is effectively ignored now
                                         const intensity = Math.abs(r)
 
                                         return (
@@ -156,13 +157,14 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                                                 <TooltipTrigger asChild>
                                                     <div
                                                         className={cn(
-                                                            "aspect-square rounded-sm transition-all hover:scale-110 cursor-help",
+                                                            "aspect-square rounded-[1px] transition-all hover:scale-110 relative z-0 hover:z-10",
                                                             isMissing
-                                                                ? "bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/20 dark:border-zinc-700/20"
+                                                                ? "bg-zinc-50 dark:bg-zinc-900"
                                                                 : getCorrelationColor(r, intensity)
                                                         )}
                                                         style={{
-                                                            opacity: isMissing ? 0.3 : (intensity < 0.2 ? 0.5 : 1)
+                                                            opacity: isMissing ? 0.3 : (intensity < 0.2 ? 0.5 : 1),
+                                                            cursor: isMissing ? 'default' : 'help'
                                                         }}
                                                     />
                                                 </TooltipTrigger>
