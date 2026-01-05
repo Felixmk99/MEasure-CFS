@@ -59,7 +59,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
 
     // Enhance history with Centralized Composite Score
     const enhancedHistory = useMemo(() => {
-        return enhanceDataWithScore(history, undefined, exertionPreference || 'desirable')
+        return enhanceDataWithScore(history, undefined, exertionPreference)
     }, [history, exertionPreference])
 
     // Calculate Baseline Stats for Z-Scores

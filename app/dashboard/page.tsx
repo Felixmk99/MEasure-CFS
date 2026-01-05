@@ -38,8 +38,6 @@ export default async function DashboardPage() {
 
     if (error) {
         console.error("Error fetching data:", error)
-    } else {
-        console.log(`Fetched ${rawData?.length} rows for user ${user.id}`)
     }
 
     // 2. Pass Raw Data to Client (Client will handle scoring & filtering)

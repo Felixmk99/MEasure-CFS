@@ -104,7 +104,7 @@ export default function DashboardClient({ data: initialData, exertionPreference:
         if (!initialData || initialData.length === 0) return []
 
         // Enhance with Centralized Score using all-time history for stable normalization
-        const enhanced = enhanceDataWithScore(initialData, undefined, exertionPreference || 'desirable')
+        const enhanced = enhanceDataWithScore(initialData, undefined, exertionPreference)
 
         return enhanced.map(d => ({
             ...d,
@@ -132,7 +132,6 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                 const e = endOfDay(end)
                 return itemDate >= s && (timeRange === 'custom' ? itemDate <= e : true)
             })
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }, [enhancedInitialData, visibleRange, timeRange])
 
@@ -398,22 +397,20 @@ export default function DashboardClient({ data: initialData, exertionPreference:
             let periodTrendStatus = 'stable'
 
             if (currentPoints.length >= 2) {
-                if (currentPoints.length >= 2) {
-                    // ALWAYS use Linear Regression for the Trend Badge ("Overall Trend")
-                    // This aligns better with user perception (Slope) than comparing Moving Average endpoints.
-                    const dataPoints = currentPoints.map(p => [p.t, p.val])
-                    const regression = linearRegression(dataPoints)
-                    const predict = linearRegressionLine(regression)
-                    const startVal = predict(visibleRange.start.getTime())
-                    const endVal = predict(visibleRange.end.getTime())
+                // ALWAYS use Linear Regression for the Trend Badge ("Overall Trend")
+                // This aligns better with user perception (Slope) than comparing Moving Average endpoints.
+                const dataPoints = currentPoints.map(p => [p.t, p.val])
+                const regression = linearRegression(dataPoints)
+                const predict = linearRegressionLine(regression)
+                const startVal = predict(visibleRange.start.getTime())
+                const endVal = predict(visibleRange.end.getTime())
 
-                    // Use midpoint for symmetric percentage change
-                    const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
-                    const denominator = Math.max(midpoint, 0.5)
-                    periodTrendPct = ((endVal - startVal) / denominator) * 100
+                // Use midpoint for symmetric percentage change
+                const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
+                const denominator = Math.max(midpoint, 0.5)
+                periodTrendPct = ((endVal - startVal) / denominator) * 100
 
-                    // Removed legacy Moving Average endpoint comparison (caused confusion with outliers)
-                }
+                // Removed legacy Moving Average endpoint comparison (caused confusion with outliers)
 
                 if (Math.abs(periodTrendPct) < 1) periodTrendStatus = 'stable'
                 else if (periodTrendPct > 0) periodTrendStatus = config.invert ? 'worsening' : 'improving'

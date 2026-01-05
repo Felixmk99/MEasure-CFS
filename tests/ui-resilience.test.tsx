@@ -32,6 +32,15 @@ jest.mock('lucide-react', () => ({
     Footprints: () => <div data-testid="icon-footprints" />,
 }));
 
+// Mock User Provider
+jest.mock('../components/providers/user-provider', () => ({
+    useUser: () => ({
+        profile: { exertion_preference: 'desirable' },
+        updateExertionPreference: jest.fn(),
+    }),
+    UserProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <LanguageProvider initialLocale="en">{children}</LanguageProvider>
 );
