@@ -204,7 +204,7 @@ export const de: Dictionary = {
             badge: "Privacy-First Gesundheitsanalyse",
             title_main: "Verstehe deinen Körper.",
             title_highlight: "Meistere deine Energie.",
-            subtitle: "Ein sicherer Raum für ME/CFS- und Long-Covid-Betroffene, um Daten von \"Visible\" und anderen Symptom-Tagebuch-Apps zu visualisieren und analysieren. Erkenne Crash-Trigger, verfolge die Wirksamkeit von Medikamenten und finde deine Baseline—ohne Kompromisse beim Datenschutz.",
+            subtitle: "Ein sicherer Raum für ME/CFS- und Long-Covid-Betroffene, ihr Symptom-Tagebuch zu visualisieren und analysieren. Erkenne Crash-Trigger, verfolge die Wirksamkeit von Medikamenten und finde deine Baseline.",
             dropzone: {
                 title: "Analysiere deine CSV sofort",
                 subtitle: "Zieh dein Visible-Export hierher, um zu beginnen",

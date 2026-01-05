@@ -125,15 +125,15 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
             </CardHeader>
             <CardContent>
                 <TooltipProvider delayDuration={200}>
-                    <div className="overflow-x-auto p-4">
-                        <div className="inline-grid gap-1" style={{
+                    <div className="w-full overflow-x-auto p-2 md:p-4 flex justify-center">
+                        <div className="grid gap-[2px] w-full max-w-4xl" style={{
                             gridTemplateColumns: `auto repeat(${labels.length}, 1fr)`,
-                            minWidth: '500px'
+                            minWidth: 'min(100%, 600px)'
                         }}>
                             {/* Header Row */}
                             <div />
                             {labels.map(l => (
-                                <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-32 flex items-end pb-2 px-1 truncate w-24 origin-bottom-left translate-x-3">
+                                <div key={l} className="text-[9px] sm:text-[10px] font-medium text-muted-foreground rotate-45 h-24 sm:h-28 flex items-end pb-1 px-1 truncate w-full origin-bottom-left translate-x-4">
                                     {tMetric(l)}
                                 </div>
                             ))}
@@ -141,7 +141,7 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             {/* Rows */}
                             {labels.map(rowLabel => (
                                 <React.Fragment key={rowLabel}>
-                                    <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center justify-end pr-2 truncate max-w-32 text-right">
+                                    <div className="text-[9px] sm:text-[10px] font-medium text-muted-foreground flex items-center justify-end pr-2 truncate text-right leading-tight">
                                         {tMetric(rowLabel)}
                                     </div>
                                     {labels.map(colLabel => {
