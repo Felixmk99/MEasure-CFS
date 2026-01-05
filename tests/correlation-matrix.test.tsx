@@ -7,7 +7,7 @@ import '@testing-library/jest-dom';
 // Mock Provider
 jest.mock('@/components/providers/language-provider', () => ({
     useLanguage: () => ({
-        t: (key: string, _params?: Record<string, unknown>) => {
+        t: (key: string) => {
             if (key === 'metrics.step_count') return 'Steps';
             if (key === 'metrics.symptom_score') return 'Symptoms';
             if (key === 'insights.clusters.heatmap.title') return 'Correlation Heatmap';
