@@ -133,8 +133,8 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             <div />
                             {labels.map(l => (
                                 <div key={l} className="relative h-[160px] w-full z-10">
-                                    <div className="absolute bottom-3 left-1/2 origin-bottom-left rotate-45 transform w-[200px] pointer-events-none">
-                                        <span className="text-xs font-medium text-foreground block w-full px-1 truncate" title={tMetric(l)}>
+                                    <div className="absolute bottom-5 left-1/2 origin-bottom-left rotate-45 transform w-[200px] pointer-events-none">
+                                        <span className="text-xs font-medium text-muted-foreground block w-full px-1 truncate" title={tMetric(l)}>
                                             {tMetric(l)}
                                         </span>
                                     </div>
