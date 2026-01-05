@@ -53,12 +53,17 @@ interface DashboardReviewProps {
 
 // ... imports
 
+import { useUser } from "@/components/providers/user-provider"
 import { useLanguage } from "@/components/providers/language-provider"
 import { PEMAnalysis } from "@/components/dashboard/pem-analysis"
 import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 
-export default function DashboardClient({ data: initialData, exertionPreference }: DashboardReviewProps) {
+export default function DashboardClient({ data: initialData, exertionPreference: initialPreference }: DashboardReviewProps) {
     const { t } = useLanguage()
+    const { profile } = useUser()
+
+    // Use Context preference if available (reactive), fallback to Server Prop, then default
+    const exertionPreference = profile?.exertion_preference ?? initialPreference ?? 'desirable'
 
     // -- 0a. Source Detection (Check if Visible data exists: HRV or RHR) --
     const hasVisibleData = useMemo(() => {
@@ -393,35 +398,21 @@ export default function DashboardClient({ data: initialData, exertionPreference 
             let periodTrendStatus = 'stable'
 
             if (currentPoints.length >= 2) {
-                // Determine strategy (Sync with Shared Logic)
-                const { strategy, maWindow } = getTrendStrategy(timeRange, visibleRange.start, visibleRange.end)
-
-                if (strategy === 'regression') {
-                    // Time-Aware Linear Regression
+                if (currentPoints.length >= 2) {
+                    // ALWAYS use Linear Regression for the Trend Badge ("Overall Trend")
+                    // This aligns better with user perception (Slope) than comparing Moving Average endpoints.
                     const dataPoints = currentPoints.map(p => [p.t, p.val])
                     const regression = linearRegression(dataPoints)
                     const predict = linearRegressionLine(regression)
                     const startVal = predict(visibleRange.start.getTime())
                     const endVal = predict(visibleRange.end.getTime())
+
+                    // Use midpoint for symmetric percentage change
                     const midpoint = (Math.abs(startVal) + Math.abs(endVal)) / 2
                     const denominator = Math.max(midpoint, 0.5)
                     periodTrendPct = ((endVal - startVal) / denominator) * 100
-                } else {
-                    // Moving Average Trend: Compare Last Window Avg to First Window Avg
-                    // Use smaller window if insufficient data to avoid overlap (CodeRabbit fix)
-                    const effectiveWindow = Math.min(maWindow, Math.floor(currentPoints.length / 2))
 
-                    if (effectiveWindow > 0) {
-                        const firstWindow = currentPoints.slice(0, effectiveWindow).map(p => p.val)
-                        const lastWindow = currentPoints.slice(-effectiveWindow).map(p => p.val)
-                        const firstAvg = firstWindow.reduce((a, b) => a + b, 0) / firstWindow.length
-                        const lastAvg = lastWindow.reduce((a, b) => a + b, 0) / lastWindow.length
-                        const midpoint = (Math.abs(firstAvg) + Math.abs(lastAvg)) / 2
-                        const denominator = Math.max(midpoint, 0.5)
-                        periodTrendPct = ((lastAvg - firstAvg) / denominator) * 100
-                    } else {
-                        periodTrendPct = 0
-                    }
+                    // Removed legacy Moving Average endpoint comparison (caused confusion with outliers)
                 }
 
                 if (Math.abs(periodTrendPct) < 1) periodTrendStatus = 'stable'
@@ -465,7 +456,7 @@ export default function DashboardClient({ data: initialData, exertionPreference 
                 prevCrashCount
             }
         })
-    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig, getValue, getTrendStrategy])
+    }, [processedData, enhancedInitialData, initialData, selectedMetrics, timeRange, visibleRange, getMetricConfig, getValue])
 
 
     // ... UI Render ...
