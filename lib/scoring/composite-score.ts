@@ -72,7 +72,7 @@ export function calculateMinMaxStats(data: ScorableEntry[]): NormalizationStats 
  */
 // Helper to determine if Exertion should be treated as "Good" or "Bad"
 // Default to legacy behavior (Desirable/Good) if preference is missing
-type ExertionPreference = 'desirable' | 'undesirable' | null
+export type ExertionPreference = 'desirable' | 'undesirable' | null
 
 export function enhanceDataWithScore<T extends ScorableEntry>(
     data: T[],

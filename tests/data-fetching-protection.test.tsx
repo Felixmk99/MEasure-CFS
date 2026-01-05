@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import DashboardPage from '@/app/dashboard/page'
-import { redirect } from 'next/navigation'
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
@@ -11,14 +10,31 @@ jest.mock('@/lib/supabase/server', () => ({
     createClient: jest.fn()
 }))
 
-// Mock Sub-Components
-jest.mock('@/app/dashboard/dashboard-client', () => () => <div data-testid="dashboard-client" />)
+// Mock Sub-Components with Display Names
+jest.mock('@/app/dashboard/dashboard-client', () => {
+    const MockDashboardClient = () => <div data-testid="dashboard-client" />
+    MockDashboardClient.displayName = 'MockDashboardClient'
+    return MockDashboardClient
+})
+
 jest.mock('@/components/modals/exertion-preference-modal', () => ({
-    ExertionPreferenceModal: () => <div data-testid="modal" />
+    ExertionPreferenceModal: Object.assign(
+        () => <div data-testid="modal" />,
+        { displayName: 'ExertionPreferenceModal' }
+    )
 }))
 
+type MockSupabaseClient = {
+    auth: { getUser: jest.Mock }
+    from: jest.Mock
+    select: jest.Mock
+    eq: jest.Mock
+    single: jest.Mock
+    order: jest.Mock
+}
+
 describe('Critical Data Fetching Protections', () => {
-    let mockSupabase: any
+    let mockSupabase: MockSupabaseClient
 
     beforeEach(() => {
         jest.clearAllMocks()

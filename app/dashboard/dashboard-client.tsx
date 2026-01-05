@@ -44,13 +44,12 @@ interface MetricConfig {
     better: string
 }
 
+import { enhanceDataWithScore, ExertionPreference } from "@/lib/scoring/composite-score"
+
 interface DashboardReviewProps {
     data: ({ date: string, custom_metrics?: Record<string, unknown> } & Record<string, unknown>)[]
-    exertionPreference?: 'desirable' | 'undesirable' | null
+    exertionPreference?: ExertionPreference
 }
-
-
-import { enhanceDataWithScore } from "@/lib/scoring/composite-score"
 
 // ... imports
 

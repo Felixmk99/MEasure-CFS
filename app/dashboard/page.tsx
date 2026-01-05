@@ -17,7 +17,7 @@ export default async function DashboardPage() {
     // Fetch User Profile for Exertion Preference
     const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('exertion_preference')
         .eq('id', user.id)
         .single()
 

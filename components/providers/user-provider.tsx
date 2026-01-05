@@ -152,8 +152,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 ? { ...prev, exertion_preference: preference }
                 : {
                     id: user.id,
-                    step_provider: 'apple', // Default default
-                    symptom_provider: 'visible', // Default default
+                    step_provider: 'apple', // Default
+                    symptom_provider: 'visible', // Default
                     exertion_preference: preference,
                     updated_at: new Date().toISOString()
                 }
