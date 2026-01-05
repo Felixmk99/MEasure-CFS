@@ -132,8 +132,8 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             {/* Header Row */}
                             <div />
                             {labels.map(l => (
-                                <div key={l} className="relative h-[160px] w-full z-10">
-                                    <div className="absolute bottom-5 left-1/2 origin-bottom-left rotate-45 transform w-[200px] pointer-events-none">
+                                <div key={l} className="relative h-[180px] w-full z-10">
+                                    <div className="absolute bottom-8 left-1/2 origin-bottom-left rotate-45 transform w-[200px] pointer-events-none">
                                         <span className="text-xs font-medium text-muted-foreground block w-full px-1 truncate" title={tMetric(l)}>
                                             {tMetric(l)}
                                         </span>
@@ -144,7 +144,7 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                             {/* Rows */}
                             {labels.map(rowLabel => (
                                 <React.Fragment key={rowLabel}>
-                                    <div className="text-[9px] sm:text-[10px] font-medium text-muted-foreground flex items-center justify-end pr-3 truncate text-right leading-tight py-0.5">
+                                    <div className="text-xs font-medium text-muted-foreground flex items-center justify-end pr-3 truncate text-right leading-tight py-0.5">
                                         {tMetric(rowLabel)}
                                     </div>
                                     {labels.map(colLabel => {
