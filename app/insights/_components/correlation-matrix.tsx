@@ -125,31 +125,29 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
             </CardHeader>
             <CardContent>
                 <TooltipProvider delayDuration={200}>
-                    <div className="w-full overflow-x-auto p-2 md:p-6">
-                        <div className="grid gap-[2px] w-full" style={{
-                            gridTemplateColumns: `auto repeat(${labels.length}, 1fr)`,
-                            minWidth: '600px'
+                    <div className="w-full overflow-x-auto p-2 md:p-6 flex justify-center">
+                        <div className="grid gap-[1px] w-fit" style={{
+                            gridTemplateColumns: `auto repeat(${labels.length}, minmax(28px, 48px))`,
                         }}>
                             {/* Header Row */}
                             <div />
                             {labels.map(l => (
-                                <div key={l} className="text-[10px] sm:text-xs font-medium text-muted-foreground rotate-45 h-32 flex items-end pb-2 px-1 w-full origin-bottom-left translate-x-[20%] translate-y-2">
-                                    <span className="truncate w-32 block">{tMetric(l)}</span>
+                                <div key={l} className="text-[9px] sm:text-[10px] font-medium text-muted-foreground rotate-45 h-[100px] flex items-end pb-2 px-1 w-full origin-bottom-left translate-x-3">
+                                    <span className="truncate w-[120px] block">{tMetric(l)}</span>
                                 </div>
                             ))}
 
                             {/* Rows */}
                             {labels.map(rowLabel => (
                                 <React.Fragment key={rowLabel}>
-                                    <div className="text-[10px] sm:text-xs font-medium text-muted-foreground flex items-center justify-end pr-3 truncate text-right leading-tight py-1">
+                                    <div className="text-[9px] sm:text-[10px] font-medium text-muted-foreground flex items-center justify-end pr-3 truncate text-right leading-tight py-0.5">
                                         {tMetric(rowLabel)}
                                     </div>
                                     {labels.map(colLabel => {
                                         const coefficient = corrMap.get(`${rowLabel}:${colLabel}`)
                                         const isDiagonal = rowLabel === colLabel
-                                        // Hide diagonal (force missing/empty style)
                                         const isMissing = (coefficient === undefined && !isDiagonal) || isDiagonal
-                                        const r = coefficient ?? 0 // Diagonal is effectively ignored now
+                                        const r = coefficient ?? 0
                                         const intensity = Math.abs(r)
 
                                         return (
