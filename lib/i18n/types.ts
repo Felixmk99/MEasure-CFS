@@ -104,6 +104,7 @@ export interface Dictionary {
                 hrv: string
                 rhr: string
                 sleep: string
+                adjusted_score: string
             }
             analysis: {
                 buildup: string
@@ -646,6 +647,7 @@ export interface Dictionary {
         logic: {
             reduces: string
             increases: string
+            recommendation_pattern: string
             keep: string
             watch: string
             above: string
@@ -718,7 +720,9 @@ export interface Dictionary {
                 onset_desc: string
                 pre_onset_desc: string
             }
-            footer: string
+            footer: {
+                disclaimer: string
+            }
         }
     }
     exertion_preference: {
@@ -744,3 +748,5 @@ export interface Dictionary {
         }
     }
 }
+
+

@@ -98,10 +98,15 @@ describe('Composite Score Enhancement', () => {
 
             expect(enhanced[0]).toHaveProperty('composite_score');
             expect(enhanced[0]).toHaveProperty('normalized_hrv');
+            // Verify recalculated scores
             expect(enhanced[0].symptom_score).toBe(5); // Fatigue
             expect(enhanced[0].exertion_score).toBe(2); // Physical Exertion
+            expect(enhanced[0].custom_metrics?.['Sleep']).toBe(7);
 
-            // Verify polarity: 
+            // Desirable: Steps (activity) subtracts from symptom burden (good for you)
+            // Score = Symptoms(5) + Sleep(7) - Exertion(2) + NormRHR - NormHRV - NormSteps
+
+            // Verify polarity:
             // entry 2 has higher HRV (50 vs 40) and lower Symptoms (2 vs 5)
             // It should have a lower (better) composite score
             expect(enhanced[1].composite_score!).toBeLessThan(enhanced[0].composite_score!);

@@ -35,6 +35,11 @@ export const en: Dictionary = {
             "cognitive exertion": "Cognitive Exertion",
             "emotional exertion": "Emotional Exertion",
             "social exertion": "Social Exertion",
+            "mentally demanding": "Mentally Demanding",
+            "socially demanding": "Socially Demanding",
+            "physically demanding": "Physically Demanding",
+            "shortness of breath": "Shortness of Breath",
+            "total exertion": "Total Exertion",
             work: "Work",
             stress: "Stress",
             palpitations: "Palpitations",
@@ -150,7 +155,8 @@ export const en: Dictionary = {
             metrics: {
                 hrv: "HRV",
                 rhr: "RHR",
-                sleep: "Sleep Quality"
+                sleep: "Sleep Quality",
+                adjusted_score: "MEasure-CFS Score"
             },
             analysis: {
                 buildup: "BUILDUP",
@@ -699,6 +705,11 @@ export const en: Dictionary = {
         logic: {
             reduces: "Reduces",
             increases: "Increases",
+            // Neutral wording
+            recommendation_pattern: "{metric} > {value}",
+            threshold_desc: "{metric} < {limit} keeps {impact} lower.",
+
+            // Legacy keys (kept just in case, can remove if unused)
             keep: "Keep",
             watch: "Watch",
             above: "above",
@@ -706,7 +717,6 @@ export const en: Dictionary = {
             by: "by ~",
             from: "from",
             to: "to",
-            threshold_desc: "Staying below {limit} {metric} keeps your {impact} significantly lower."
         },
         footer: {
             disclaimer: "Statistical insights are for informational purposes only and not medical advice. Always consult your physician."
@@ -771,7 +781,9 @@ export const en: Dictionary = {
                 onset_desc: "Trigger happened on onset day.",
                 pre_onset_desc: "Trigger happened before onset."
             },
-            footer: "Analysis based on **{count} crash episodes** using Superposed Epoch Analysis (SEA)."
+            footer: {
+                disclaimer: "Analysis based on **{count} crash episodes** using Superposed Epoch Analysis (SEA)."
+            }
         }
     },
     exertion_preference: {

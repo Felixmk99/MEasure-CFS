@@ -34,16 +34,17 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
     const { t } = useLanguage()
 
     const tMetric = (key: string) => {
-        const normalizedKey = key.toLowerCase().replaceAll('_', ' ');
-        const dictionaryKey = `metrics.${key.toLowerCase()}` as string;
+        const strictKey = key.toLowerCase();
+        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
         const translated = t(dictionaryKey);
-        if (translated !== dictionaryKey) return translated;
+        if (translated !== dictionaryKey && translated) return translated;
 
-        const normalizedDictionaryKey = `metrics.${normalizedKey}` as string;
-        const normTranslated = t(normalizedDictionaryKey);
-        if (normTranslated !== normalizedDictionaryKey) return normTranslated;
+        const snakeKey = strictKey.replace(/ /g, '_');
+        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
+        const snakeTranslated = t(snakeDictKey);
+        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
 
-        return normalizedKey;
+        return strictKey.replaceAll('_', ' ');
     }
 
     const getStrengthLabel = (intensity: number) => {
@@ -58,18 +59,20 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
 
     // Filter to only show metrics that have at least one correlation > 0.3 OR are key metrics
     const significantLabels = allUniqueLabels.filter(metric => {
-        const isKeyMetric = ['symptom_score', 'exertion_score', 'composite_score'].includes(metric.toLowerCase())
+        const isKeyMetric = ['symptom_score', 'exertion_score', 'adjusted_score'].includes(metric.toLowerCase())
         if (isKeyMetric) return true
 
         return correlations.some(c =>
             (c.metricA === metric || c.metricB === metric) &&
+            c.metricA !== c.metricB && // Exclude self-correlation
             c.lag === 0 &&
-            Math.abs(c.coefficient) > 0.3
+            Math.abs(c.coefficient) > 0.35 // Slightly increased threshold for relevance
         )
     })
 
-    const labels = significantLabels.slice(0, 12) // Limit to 12 for readability
-    const isTruncated = significantLabels.length > 12
+    const MAX_DISPLAY_METRICS = 15
+    const labels = significantLabels.slice(0, MAX_DISPLAY_METRICS)
+    const isTruncated = significantLabels.length > MAX_DISPLAY_METRICS
 
     // Build lookup map for O(1) access
     const corrMap = React.useMemo(() => {
@@ -122,30 +125,33 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
             </CardHeader>
             <CardContent>
                 <TooltipProvider delayDuration={200}>
-                    <div className="overflow-x-auto p-4">
-                        <div className="inline-grid gap-1" style={{
-                            gridTemplateColumns: `auto repeat(${labels.length}, 1fr)`,
-                            minWidth: '500px'
+                    <div className="w-full overflow-x-auto p-2 md:p-6 flex justify-center">
+                        <div className="grid gap-[1px] w-fit" style={{
+                            gridTemplateColumns: `auto repeat(${labels.length}, minmax(40px, 60px))`,
                         }}>
                             {/* Header Row */}
                             <div />
                             {labels.map(l => (
-                                <div key={l} className="text-[10px] md:text-xs font-medium text-muted-foreground rotate-45 h-32 flex items-end pb-2 px-1 truncate w-24 origin-bottom-left translate-x-3">
-                                    {tMetric(l)}
+                                <div key={l} className="relative h-[180px] w-full z-10">
+                                    <div className="absolute bottom-8 left-1/2 origin-bottom-left rotate-45 transform w-[200px] pointer-events-none">
+                                        <span className="text-xs font-medium text-muted-foreground block w-full px-1 truncate" title={tMetric(l)}>
+                                            {tMetric(l)}
+                                        </span>
+                                    </div>
                                 </div>
                             ))}
 
                             {/* Rows */}
                             {labels.map(rowLabel => (
                                 <React.Fragment key={rowLabel}>
-                                    <div className="text-[10px] md:text-xs font-medium text-muted-foreground flex items-center justify-end pr-2 truncate max-w-32 text-right">
+                                    <div className="text-xs font-medium text-muted-foreground flex items-center justify-end pr-3 truncate text-right leading-tight py-0.5">
                                         {tMetric(rowLabel)}
                                     </div>
                                     {labels.map(colLabel => {
                                         const coefficient = corrMap.get(`${rowLabel}:${colLabel}`)
                                         const isDiagonal = rowLabel === colLabel
-                                        const isMissing = coefficient === undefined && !isDiagonal
-                                        const r = coefficient ?? (isDiagonal ? 1 : 0)
+                                        const isMissing = (coefficient === undefined && !isDiagonal) || isDiagonal
+                                        const r = coefficient ?? 0
                                         const intensity = Math.abs(r)
 
                                         return (
@@ -153,13 +159,14 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                                                 <TooltipTrigger asChild>
                                                     <div
                                                         className={cn(
-                                                            "aspect-square rounded-sm transition-all hover:scale-110 cursor-help",
+                                                            "aspect-square rounded-[1px] transition-all hover:scale-110 relative z-0 hover:z-10",
                                                             isMissing
-                                                                ? "bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/20 dark:border-zinc-700/20"
+                                                                ? "bg-zinc-50 dark:bg-zinc-900"
                                                                 : getCorrelationColor(r, intensity)
                                                         )}
                                                         style={{
-                                                            opacity: isMissing ? 0.3 : (intensity < 0.2 ? 0.5 : 1)
+                                                            opacity: isMissing ? 0.3 : (intensity < 0.2 ? 0.5 : 1),
+                                                            cursor: isMissing ? 'default' : 'help'
                                                         }}
                                                     />
                                                 </TooltipTrigger>

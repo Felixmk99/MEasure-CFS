@@ -35,6 +35,11 @@ export const de: Dictionary = {
             "cognitive exertion": "Kognitive Belastung",
             "emotional exertion": "Emotionale Belastung",
             "social exertion": "Soziale Belastung",
+            "mentally demanding": "Kognitiv fordernd",
+            "socially demanding": "Sozial fordernd",
+            "physically demanding": "Körperlich fordernd",
+            "shortness of breath": "Atemnot",
+            "total exertion": "Gesamtbelastung",
             work: "Arbeit",
             stress: "Stress",
             palpitations: "Herzklopfen",
@@ -204,7 +209,7 @@ export const de: Dictionary = {
             badge: "Privacy-First Gesundheitsanalyse",
             title_main: "Verstehe deinen Körper.",
             title_highlight: "Meistere deine Energie.",
-            subtitle: "Ein sicherer Raum für ME/CFS- und Long-Covid-Betroffene, um Daten von \"Visible\" und anderen Symptom-Tagebuch-Apps zu visualisieren und analysieren. Erkenne Crash-Trigger, verfolge die Wirksamkeit von Medikamenten und finde deine Baseline—ohne Kompromisse beim Datenschutz.",
+            subtitle: "Ein sicherer Raum für ME/CFS- und Long-Covid-Betroffene, ihr Symptom-Tagebuch zu visualisieren und analysieren. Erkenne Crash-Trigger, verfolge die Wirksamkeit von Medikamenten und finde deine Baseline.",
             dropzone: {
                 title: "Analysiere deine CSV sofort",
                 subtitle: "Zieh dein Visible-Export hierher, um zu beginnen",
@@ -255,8 +260,9 @@ export const de: Dictionary = {
             },
             metrics: {
                 hrv: "HRV",
-                rhr: "Ruhepuls",
-                sleep: "Schlafqualität"
+                rhr: "RHR",
+                sleep: "Schlafqualität",
+                adjusted_score: "MEasure-CFS Score"
             },
             analysis: {
                 buildup: "AUFBAU",
@@ -699,6 +705,11 @@ export const de: Dictionary = {
         logic: {
             reduces: "Reduziert",
             increases: "Erhöht",
+
+            // Neutral wording (Start with Metric Name)
+            recommendation_pattern: "{metric} > {value}",
+            threshold_desc: "{metric} < {limit} hält {impact} niedriger.",
+
             keep: "Halte",
             watch: "Beobachte",
             above: "über",
@@ -706,7 +717,7 @@ export const de: Dictionary = {
             by: "um ~",
             from: "von",
             to: "auf",
-            threshold_desc: "Das Einhalten von unter {limit} {metric} hält dein {impact} deutlich niedriger."
+            // threshold_desc: "Das Einhalten von unter {limit} {metric} hält dein {impact} deutlich niedriger."
         },
         footer: {
             disclaimer: "Statistische Einblicke dienen nur zu Informationszwecken und sind kein medizinischer Rat. Konsultiere immer deinen Arzt."
@@ -771,7 +782,9 @@ export const de: Dictionary = {
                 onset_desc: "Trigger trat am Tag des Beginns auf.",
                 pre_onset_desc: "Trigger trat vor dem Beginn auf."
             },
-            footer: "Analyse basierend auf **{count} Crash-Episoden** mittels Superposed Epoch Analysis (SEA)."
+            footer: {
+                disclaimer: "Analyse basierend auf **{count} Crash-Episoden** mittels Superposed Epoch Analysis (SEA)."
+            }
         }
     },
     exertion_preference: {
