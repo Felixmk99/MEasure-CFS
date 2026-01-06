@@ -41,6 +41,7 @@ export const de: Dictionary = {
             "shortness of breath": "Atemnot",
             "total exertion": "Gesamtbelastung",
             work: "Arbeit",
+            crash: "Crash",
             step_factor: "Schritte (normiert)",
             normalized_steps: "Schritte (normiert)",
             steps: "Schritte",
