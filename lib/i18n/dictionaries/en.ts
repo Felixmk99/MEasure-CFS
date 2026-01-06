@@ -815,5 +815,11 @@ export const en: Dictionary = {
             description: "Control how steps and exertion factor into your composite score.",
             label: "Exertion Impact"
         }
+    },
+    donation: {
+        button_label: "Support Research",
+        dialog_title: "Support ME/CFS Research",
+        dialog_desc: "Track-ME is and will always be free. If you'd like to support our work, you can donate to this PayPal pool. All collected funds are forwarded to the ME/CFS Research Foundation.",
+        open_paypal: "Donate via PayPal"
     }
 }
