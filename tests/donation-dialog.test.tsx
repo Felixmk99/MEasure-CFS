@@ -22,7 +22,7 @@ jest.mock('@/components/providers/language-provider', () => ({
 // Mock Next/Image
 jest.mock('next/image', () => ({
     __esModule: true,
-    default: (props: any) => {
+    default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
         // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
         return <img {...props} />
     },

@@ -818,9 +818,9 @@ export const de: Dictionary = {
         }
     },
     donation: {
-        button_label: "FORSCHUNG UNTERSTÜTZEN",
+        button_label: "Forschung Unterstützen",
         dialog_title: "ME/CFS Forschung Unterstützen",
-        dialog_desc: "Track-ME ist und bleibt kostenlos. Wenn du unsere Arbeit unterstützen möchtest, kannst du in diesen PayPal Pool spenden. Alle gesammelten Gelder werden an die ME/CFS Research Foundation weitergeleitet.",
+        dialog_desc: "MEasure-CFS ist und bleibt kostenlos. Wenn du dich beim Ersteller bedanken möchtest, kannst du in diesen PayPal Pool spenden. Alle gesammelten Gelder werden an die ME/CFS Research Foundation weitergeleitet.",
         open_paypal: "Über PayPal Spenden"
     }
 }

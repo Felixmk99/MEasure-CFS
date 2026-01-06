@@ -7,6 +7,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogDescription,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Heart } from "lucide-react"
@@ -34,11 +35,11 @@ export function DonationDialog() {
                     <DialogTitle>{t('donation.dialog_title')}</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col items-center space-y-6 py-4">
-                    <p className="text-center text-muted-foreground">
+                    <DialogDescription className="text-center text-muted-foreground">
                         {t('donation.dialog_desc')}
-                    </p>
+                    </DialogDescription>
 
-                    <div className="bg-white p-4 rounded-xl shadow-sm border">
+                    <div className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700">
                         <Image
                             src="/QR_code_paypal_pool.png"
                             alt="PayPal Pool QR Code"

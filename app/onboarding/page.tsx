@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/user-provider'
 import { useUpload } from '@/components/providers/upload-provider'
 import { Button } from '@/components/ui/button'
-import { Smartphone, Activity, Laptop, Watch, Heart, ClipboardList, FileSpreadsheet } from 'lucide-react'
+import { Smartphone, Activity, Laptop, ClipboardList, FileSpreadsheet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const SYMPTOM_PROVIDERS = [
