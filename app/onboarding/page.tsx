@@ -45,28 +45,12 @@ const STEP_PROVIDERS = [
         description: 'Android and Google ecosystem'
     },
     {
-        id: 'garmin',
-        name: 'Garmin Connect',
-        icon: Watch,
-        color: 'bg-slate-100 dark:bg-slate-900',
-        textColor: 'text-slate-900 dark:text-slate-100',
-        description: 'Garmin wearables (Coming Soon)'
-    },
-    {
         id: 'samsung',
         name: 'Samsung Health',
         icon: Laptop,
         color: 'bg-indigo-50 dark:bg-indigo-900/20',
         textColor: 'text-indigo-600 dark:text-indigo-400',
         description: 'Samsung Galaxy devices'
-    },
-    {
-        id: 'whoop',
-        name: 'Whoop',
-        icon: Heart,
-        color: 'bg-red-50 dark:bg-red-900/20',
-        textColor: 'text-red-600 dark:text-red-400',
-        description: 'Whoop fitness trackers (Coming Soon)'
     },
     {
         id: 'csv',
