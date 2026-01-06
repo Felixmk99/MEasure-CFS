@@ -226,18 +226,18 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                     <div className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-4">
                         <Tabs defaultValue={initialTab} className="w-full max-w-3xl mx-auto">
                             <TabsList className="grid w-full grid-cols-2 mb-8 h-12 rounded-full p-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                                <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300">
-                                    <Activity className="w-4 h-4 mr-2" />
-                                    {profile?.symptom_provider === 'bearable' ? t('upload.tabs.bearable') : t('upload.tabs.visible')}
+                                <TabsTrigger value="visible" className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 truncate min-w-0">
+                                    <Activity className="w-4 h-4 mr-2 shrink-0" />
+                                    <span className="truncate">{profile?.symptom_provider === 'bearable' ? t('upload.tabs.bearable') : t('upload.tabs.visible')}</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="apple"
                                     disabled={!hasData}
-                                    className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-[#3B82F6] data-[state=active]:shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed truncate min-w-0"
                                 >
-                                    <Smartphone className="w-4 h-4 mr-2" />
-                                    {t(`upload.tabs.${stepProvider as 'apple' | 'google' | 'samsung'}`)}
-                                    {!hasData && <span className="ml-2 text-[10px] text-zinc-500">({t('upload.messages.requires_data')})</span>}
+                                    <Smartphone className="w-4 h-4 mr-2 shrink-0" />
+                                    <span className="truncate">{t(`upload.tabs.${stepProvider as 'apple' | 'google' | 'samsung'}`)}</span>
+                                    {!hasData && <span className="hidden sm:inline ml-2 text-[10px] text-zinc-500 truncate">({t('upload.messages.requires_data')})</span>}
                                 </TabsTrigger>
                             </TabsList>
                             <TabsContent value="visible" className="mt-0 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
