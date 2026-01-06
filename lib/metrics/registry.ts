@@ -19,9 +19,7 @@ export interface MetricConfig {
 const REGISTRY: Record<string, Omit<MetricConfig, 'key'>> = {
     // Biometrics: Higher is Better
     'hrv': { direction: 'higher', unit: 'ms', color: '#3B82F6' },
-    'steps': { direction: 'higher', unit: '', color: '#06B6D4' },
     'step_count': { direction: 'higher', unit: '', color: '#06B6D4' },
-    'normalized_steps': { direction: 'higher', unit: '', color: '#06B6D4' },
 
     // Biometrics: Lower is Better
     'resting_heart_rate': { direction: 'lower', unit: 'bpm', color: '#F59E0B' },

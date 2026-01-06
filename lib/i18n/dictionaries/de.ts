@@ -43,8 +43,6 @@ export const de: Dictionary = {
             work: "Arbeit",
             crash: "Crash",
             step_factor: "Schritte (normiert)",
-            normalized_steps: "Schritte (normiert)",
-            steps: "Schritte",
             chest_pain: "Brustschmerzen",
             diarrhea: "Durchfall",
             emotionally_stressful: "Emotional belastend",
