@@ -14,7 +14,7 @@ import {
   Cpu,
   BarChart3,
   FileUp,
-  Shield
+  Download,
 } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -158,7 +158,7 @@ export default function LandingPage() {
             </div>
           </motion.div>
           {/* Three Pillars Cards */}
-          <section className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-slate-50 py-20 mb-20 overflow-hidden">
+          <section className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-slate-50 py-10 mb-12 overflow-hidden">
             <div className="max-w-6xl mx-auto px-4">
               <div className="grid md:grid-cols-3 gap-8">
                 {[
@@ -255,17 +255,17 @@ export default function LandingPage() {
               <div className="order-2 lg:order-1 p-8 md:p-10 rounded-2xl bg-gradient-to-br from-white/50 to-primary/5 border border-primary/20 relative flex flex-col items-center">
                 <div className="flex items-center justify-between w-full mb-6 px-4">
                   <div className="text-center">
-                    <div className="text-xl font-bold text-slate-900 font-mono">-2.4σ</div>
+                    <div className="text-xl font-bold text-slate-900 font-mono">+24%</div>
                     <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.buildup')}</div>
                   </div>
                   <div className="w-px h-8 bg-primary/20" />
                   <div className="text-center">
-                    <div className="text-xl font-bold text-rose-500 font-mono">-4.1σ</div>
+                    <div className="text-xl font-bold text-rose-500 font-mono">-41%</div>
                     <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.event')}</div>
                   </div>
                   <div className="w-px h-8 bg-primary/20" />
                   <div className="text-center">
-                    <div className="text-xl font-bold text-accent font-mono">+1.8σ</div>
+                    <div className="text-xl font-bold text-accent font-mono">+18%</div>
                     <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.recovery')}</div>
                   </div>
                 </div>
@@ -331,57 +331,43 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <section className="py-20 mt-12">
-            {/* Privacy Badge */}
-            <div className="max-w-2xl mx-auto mb-20 text-center">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="p-10 rounded-2xl bg-white border border-slate-200 shadow-sm"
-              >
-                <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('landing.privacy_badge.title')}</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t('landing.privacy_badge.desc')}
+          {/* CTA Section */}
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="p-12 md:p-16 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-[100px] opacity-20 -mr-32 -mt-32" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent rounded-full blur-[100px] opacity-10 -ml-32 -mb-32" />
+
+              <div className="relative z-10">
+                <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
+                  {t('landing.cta.title')}
+                </h2>
+                <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                  {t('landing.cta.desc')}
                 </p>
-              </motion.div>
-            </div>
-
-            {/* CTA Section */}
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="p-12 md:p-16 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-[100px] opacity-20 -mr-32 -mt-32" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent rounded-full blur-[100px] opacity-10 -ml-32 -mb-32" />
-
-                <div className="relative z-10">
-                  <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
-                    {t('landing.cta.title')}
-                  </h2>
-                  <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-                    {t('landing.cta.desc')}
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <Button
-                      size="lg"
-                      className="rounded-full px-10 h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-105"
-                      asChild
-                    >
-                      <Link href="/signup">{t('landing.cta.button_signup')}</Link>
-                    </Button>
-                    <Button
-                      size="lg"
-                      className="rounded-full px-10 h-14 text-lg font-bold bg-white text-slate-950 hover:bg-slate-100 transition-all hover:scale-105 shadow-xl"
-                      asChild
-                    >
-                      <Link href="/login">{t('landing.cta.button_demo')}</Link>
-                    </Button>
-                  </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <Button
+                    size="lg"
+                    className="rounded-full px-10 h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-105"
+                    asChild
+                  >
+                    <Link href="/signup">{t('landing.cta.button_signup')}</Link>
+                  </Button>
+                  <Button
+                    size="lg"
+                    className="rounded-full px-10 h-14 text-lg font-bold bg-white text-slate-950 hover:bg-slate-100 transition-all hover:scale-105 shadow-xl"
+                    asChild
+                  >
+                    <a href="/DEMO Data Visible for MEasure-CFS.csv" download>
+                      <Download className="mr-2 h-5 w-5" />
+                      {t('landing.cta.button_demo')}
+                    </a>
+                  </Button>
                 </div>
               </div>
             </div>
-          </section>
+          </div>
         </div>
       </section>
     </div>
   )
 }
-

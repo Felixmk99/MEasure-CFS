@@ -41,6 +41,12 @@ export const de: Dictionary = {
             "shortness of breath": "Atemnot",
             "total exertion": "Gesamtbelastung",
             work: "Arbeit",
+            crash: "Crash",
+            step_factor: "Schritte (normiert)",
+            chest_pain: "Brustschmerzen",
+            diarrhea: "Durchfall",
+            emotionally_stressful: "Emotional belastend",
+            physically_active: "Körperlich aktiv",
             stress: "Stress",
             palpitations: "Herzklopfen",
             stability_score: "Stabilitäts-Score",
@@ -96,7 +102,8 @@ export const de: Dictionary = {
     },
     footer: {
         built_by: "Entwickelt von Felix Kania",
-        contact: "Kontakt & Ideen: felixmkania@gmail.com"
+        contact: "Kontakt & Ideen: felixmkania@gmail.com",
+        github: "GitHub Repository"
     },
     dashboard: {
         title: "Gesundheitstrends",
@@ -107,7 +114,8 @@ export const de: Dictionary = {
         pem_mode: "PEM",
         select_placeholder: "Metrik auswählen",
         metrics_dropdown: "Metriken (Max 2)",
-        metrics_selected: "Ausgewählt",
+        metrics_selected: "Metriken ausgewählt",
+        pem_insights_title: "PEM Analyse",
         charts: {
             synced: "Synchronisiert mit Visible App",
             encrypted: "Daten auf Gerät verschlüsselt • Gradeben aktualisiert"
@@ -222,8 +230,8 @@ export const de: Dictionary = {
             },
             transform_title: "Verstehe deinen Körper",
             predictive_insights: "durch datenbasierte Einblicke",
-            drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
-            drop_title_generic: "Zieh deine Visible App Daten hierher, um zu beginnen",
+            drop_title: "Symptomtagebuch hochladen",
+            drop_title_generic: "Symptomtagebuch hochladen",
             drop_desc: "Lade CSV-Dateien von deiner Visible oder Bearable App hoch (weitere Apps folgen in Kürze).",
             create_account_hint: "Neu hier? Erstelle zuerst ein Konto →"
         },
@@ -284,7 +292,7 @@ export const de: Dictionary = {
             title: "Bereit, deine Erkrankung besser zu verstehen?",
             desc: "Schließe dich Patienten an, die Daten in Erkenntnisse verwandeln. Beginne noch heute mit der Analyse deiner Krankheitsdaten.",
             button_signup: "Kostenloses Konto erstellen",
-            button_demo: "Demo ansehen"
+            button_demo: "Demo-Daten runterladen"
         },
         why: {
             title: "Warum deine Trends analysieren?",
