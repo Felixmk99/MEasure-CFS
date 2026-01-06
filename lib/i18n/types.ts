@@ -749,6 +749,12 @@ export interface Dictionary {
             label: string
         }
     }
+    donation: {
+        button_label: string
+        dialog_title: string
+        dialog_desc: string
+        open_paypal: string
+    }
 }
 
 

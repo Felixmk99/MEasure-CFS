@@ -816,5 +816,11 @@ export const de: Dictionary = {
             description: "Steuere, wie Schritte und Belastung in deinen Gesamtscore einfließen.",
             label: "Belastungseinfluss"
         }
+    },
+    donation: {
+        button_label: "Forschung Unterstützen",
+        dialog_title: "ME/CFS Forschung Unterstützen",
+        dialog_desc: "MEasure-CFS ist und bleibt kostenlos. Wenn du dich beim Ersteller bedanken möchtest, kannst du in diesen PayPal Pool spenden. Alle gesammelten Gelder werden an die ME/CFS Research Foundation weitergeleitet.",
+        open_paypal: "Über PayPal Spenden"
     }
 }

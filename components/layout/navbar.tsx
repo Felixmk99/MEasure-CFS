@@ -28,6 +28,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { PemStatusIndicator } from "@/components/dashboard/pem-status-indicator"
+import { DonationDialog } from "@/components/donation/donation-dialog"
 
 export default function Navbar() {
     const supabase = useMemo(() => createClient(), [])
@@ -213,6 +214,7 @@ export default function Navbar() {
                 </div>
 
                 <div className="ml-auto flex items-center space-x-4">
+                    <DonationDialog />
                     <LanguageSwitcher />
                     {!mounted ? (
                         <div className="w-16 h-8" />
