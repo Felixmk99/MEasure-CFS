@@ -63,6 +63,7 @@ export interface Dictionary {
     footer: {
         built_by: string
         contact: string
+        github: string // Added for footer icon aria-label
     }
     landing: {
         hero: {

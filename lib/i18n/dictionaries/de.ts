@@ -42,10 +42,12 @@ export const de: Dictionary = {
             "total exertion": "Gesamtbelastung",
             work: "Arbeit",
             step_factor: "Schritte (normiert)",
-            "chest pain": "Brustschmerzen",
+            normalized_steps: "Schritte (normiert)",
+            steps: "Schritte",
+            chest_pain: "Brustschmerzen",
             diarrhea: "Durchfall",
-            "emotionally stressful": "Emotional belastend",
-            "physically active": "Körperlich aktiv",
+            emotionally_stressful: "Emotional belastend",
+            physically_active: "Körperlich aktiv",
             stress: "Stress",
             palpitations: "Herzklopfen",
             stability_score: "Stabilitäts-Score",
@@ -101,7 +103,8 @@ export const de: Dictionary = {
     },
     footer: {
         built_by: "Entwickelt von Felix Kania",
-        contact: "Kontakt & Ideen: felixmkania@gmail.com"
+        contact: "Kontakt & Ideen: felixmkania@gmail.com",
+        github: "GitHub Repository"
     },
     dashboard: {
         title: "Gesundheitstrends",
@@ -228,8 +231,8 @@ export const de: Dictionary = {
             },
             transform_title: "Verstehe deinen Körper",
             predictive_insights: "durch datenbasierte Einblicke",
-            drop_title: "Zieh deine Visible App Daten hierher, um zu beginnen",
-            drop_title_generic: "Zieh deine Visible App Daten hierher, um zu beginnen",
+            drop_title: "Symptomtagebuch hochladen",
+            drop_title_generic: "Symptomtagebuch hochladen",
             drop_desc: "Lade CSV-Dateien von deiner Visible oder Bearable App hoch (weitere Apps folgen in Kürze).",
             create_account_hint: "Neu hier? Erstelle zuerst ein Konto →"
         },

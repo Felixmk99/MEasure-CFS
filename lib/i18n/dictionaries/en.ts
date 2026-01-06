@@ -42,10 +42,12 @@ export const en: Dictionary = {
             "total exertion": "Total Exertion",
             work: "Work",
             step_factor: "Steps Normalized",
-            "chest pain": "Chest Pain",
+            normalized_steps: "Steps Normalized",
+            steps: "Steps",
+            chest_pain: "Chest Pain",
             diarrhea: "Diarrhea",
-            "emotionally stressful": "Emotionally Stressful",
-            "physically active": "Physically Active",
+            emotionally_stressful: "Emotionally Stressful",
+            physically_active: "Physically Active",
             stress: "Stress",
             palpitations: "Palpitations",
             stability_score: "Stability Score",
@@ -101,7 +103,8 @@ export const en: Dictionary = {
     },
     footer: {
         built_by: "Built by Felix Kania",
-        contact: "Questions & Feature Ideas"
+        contact: "Questions & Feature Ideas",
+        github: "GitHub Repository"
     },
     landing: {
         hero: {

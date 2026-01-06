@@ -35,7 +35,7 @@ export function Footer() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="hover:text-foreground transition-colors ml-2"
-                            aria-label="GitHub Repository"
+                            aria-label={t('footer.github')}
                         >
                             <Github className="h-4 w-4" />
                         </a>
