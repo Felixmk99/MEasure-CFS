@@ -41,6 +41,11 @@ export const en: Dictionary = {
             "shortness of breath": "Shortness of Breath",
             "total exertion": "Total Exertion",
             work: "Work",
+            step_factor: "Steps Normalized",
+            "chest pain": "Chest Pain",
+            diarrhea: "Diarrhea",
+            "emotionally stressful": "Emotionally Stressful",
+            "physically active": "Physically Active",
             stress: "Stress",
             palpitations: "Palpitations",
             stability_score: "Stability Score",
@@ -178,7 +183,7 @@ export const en: Dictionary = {
             title: "Ready to take control of your health?",
             desc: "Join patients who are turning data into recovery. Start analyzing your biomarkers today.",
             button_signup: "Create free account",
-            button_demo: "View demo"
+            button_demo: "Download Demo Data"
         },
         why: {
             title: "Why analyze your trends?",
@@ -223,7 +228,8 @@ export const en: Dictionary = {
         pem_mode: "PEM",
         select_placeholder: "Select Metric",
         metrics_dropdown: "Metrics (Max 2)",
-        metrics_selected: "Selected",
+        metrics_selected: "metrics selected",
+        pem_insights_title: "PEM Insights",
         charts: {
             synced: "Synced with Visible App",
             encrypted: "Data encrypted on device • Last updated just now"

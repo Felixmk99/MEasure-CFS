@@ -169,9 +169,10 @@ export interface Dictionary {
         trend_mode: string
         compare_mode: string
         pem_mode: string
-        metrics_dropdown: string
         select_placeholder: string
+        metrics_dropdown: string
         metrics_selected: string
+        pem_insights_title: string
         charts: {
             synced: string
             encrypted: string

@@ -135,6 +135,24 @@ export default function DashboardClient({ data: initialData, exertionPreference:
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }, [enhancedInitialData, visibleRange, timeRange])
 
+    // -- Helper for Metric Translations (Matches Insights Logic) --
+    const tMetric = useCallback((key: string) => {
+        // 1. Try direct lookup (e.g. "step_count")
+        const strictKey = key.toLowerCase();
+        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
+        const translated = t(dictionaryKey);
+        if (translated !== dictionaryKey && translated) return translated;
+
+        // 2. Try normalized lookup (e.g. "Step count" -> "step_count")
+        const snakeKey = strictKey.replace(/ /g, '_');
+        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
+        const snakeTranslated = t(snakeDictKey);
+        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
+
+        // Fallback: just return formatted text
+        return strictKey.replaceAll('_', ' ');
+    }, [t])
+
     // -- 2a. Extract Dynamic Metrics --
     const availableMetrics = useMemo(() => {
         const dynamicKeys = new Set<string>()
@@ -146,23 +164,23 @@ export default function DashboardClient({ data: initialData, exertionPreference:
 
         const dynamicOptions = Array.from(dynamicKeys).sort()
         const defaults = [
-            ...(hasVisibleData ? [{ value: 'adjusted_score', label: 'MEasure-CFS Score' }] : []),
-            { value: 'symptom_score', label: 'Symptom Score' },
-            { value: 'exertion_score', label: 'Exertion Score' },
-            { value: 'step_factor', label: 'Steps normalized' },
-            ...(hasVisibleData ? [{ value: 'hrv', label: 'Heart Rate Variability' }] : []),
-            ...(hasVisibleData ? [{ value: 'resting_heart_rate', label: 'Resting HR' }] : []),
-            { value: 'step_count', label: 'Steps' }
+            ...(hasVisibleData ? [{ value: 'adjusted_score', label: tMetric('adjusted_score') }] : []),
+            { value: 'symptom_score', label: tMetric('symptom_score') },
+            { value: 'exertion_score', label: tMetric('exertion_score') },
+            { value: 'step_factor', label: tMetric('step_factor') },
+            ...(hasVisibleData ? [{ value: 'hrv', label: tMetric('hrv') }] : []),
+            ...(hasVisibleData ? [{ value: 'resting_heart_rate', label: tMetric('resting_heart_rate') }] : []),
+            { value: 'step_count', label: tMetric('step_count') }
         ]
         const allOptions = [...defaults]
         dynamicOptions.forEach(key => {
             if (key === 'Crash') return // Skip Crash, use toggle instead
             if (!allOptions.find(o => o.value === key)) {
-                allOptions.push({ value: key, label: key })
+                allOptions.push({ value: key, label: tMetric(key) })
             }
         })
         return allOptions
-    }, [processedData, hasVisibleData])
+    }, [processedData, hasVisibleData, tMetric])
 
     // -- 2b. Helper to get Config for ANY metric --
     const getValue = useCallback((d: Record<string, unknown>, key: string): number | null => {
@@ -191,13 +209,20 @@ export default function DashboardClient({ data: initialData, exertionPreference:
         return { strategy: 'regression' as const, maWindow: 3 }
     }, [])
 
+
+
     const getMetricConfig = useCallback((key: string): MetricConfig => {
         const registry = getMetricRegistryConfig(key);
         const invert = registry.direction === 'lower';
 
+        // Use tMetric for the label to ensure consistency
+        // If registry provides a label, try to translate it, otherwise translate the key
+        const labelKey = registry.label || key;
+        const localizedLabel = tMetric(labelKey);
+
         // Base config from registry
         const config: MetricConfig = {
-            label: registry.label || registry.key,
+            label: localizedLabel,
             color: registry.color || '#8b5cf6',
             domain: (key.includes('score') || key.includes('hrv') || key.includes('heart')) ? ['auto', 'dataMax'] : [0, 'dataMax'],
             unit: registry.unit || '',
@@ -206,35 +231,29 @@ export default function DashboardClient({ data: initialData, exertionPreference:
             better: invert ? t('dashboard.metrics.composite_score.better') : t('dashboard.metrics.hrv.better')
         };
 
-        // Specific overrides / Translations
+        // Specific overrides for descriptions/better text (keeping keys stable)
         switch (key) {
             case 'adjusted_score':
-                config.label = t('dashboard.metrics.adjusted_score.label');
                 config.description = t('dashboard.metrics.adjusted_score.description');
                 config.better = t('dashboard.metrics.adjusted_score.better');
                 break;
             case 'symptom_score':
-                config.label = t('dashboard.metrics.composite_score.label');
                 config.description = t('dashboard.metrics.composite_score.description');
                 config.better = t('dashboard.metrics.composite_score.better');
                 break;
             case 'hrv':
-                config.label = t('dashboard.metrics.hrv.label');
                 config.description = t('dashboard.metrics.hrv.description');
                 config.better = t('dashboard.metrics.hrv.better');
                 break;
             case 'resting_heart_rate':
-                config.label = t('dashboard.metrics.resting_heart_rate.label');
                 config.description = t('dashboard.metrics.resting_heart_rate.description');
                 config.better = t('dashboard.metrics.resting_heart_rate.better');
                 break;
             case 'step_count':
-                config.label = t('dashboard.metrics.step_count.label');
                 config.description = t('dashboard.metrics.step_count.description');
                 config.better = t('dashboard.metrics.step_count.better');
                 break;
             case 'exertion_score':
-                config.label = t('dashboard.metrics.exertion_score.label');
                 config.description = t('dashboard.metrics.exertion_score.description');
                 config.better = t('dashboard.metrics.exertion_score.better');
                 break;
@@ -242,14 +261,13 @@ export default function DashboardClient({ data: initialData, exertionPreference:
             case 'sleep':
             case 'Sleep Score':
             case 'Sleep Quality':
-                config.label = t('dashboard.metrics.sleep.label');
                 config.description = t('dashboard.metrics.sleep.description');
                 config.better = t('dashboard.metrics.sleep.better');
                 break;
         }
 
         return config;
-    }, [t])
+    }, [t, tMetric])
 
     // -- 1b. Enhanced Chart Data (Trend Line) --
     // Only calculate trend for the PRIMARY metric to avoid clutter
@@ -940,7 +958,7 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                 <div className="flex items-center gap-3 border-b border-border/50 pb-3">
                     <Activity className="w-6 h-6 text-rose-600 dark:text-rose-500" />
                     <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
-                        PEM Insights
+                        {t('dashboard.pem_insights_title')}
                     </h3>
                 </div>
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

@@ -159,9 +159,17 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
             return key.split(' + ').map(k => getFriendlyName(k)).join(' + ')
         }
 
-        // Try to find in common.metric_labels
-        const label = t(`common.metric_labels.${key}`)
-        if (label !== `common.metric_labels.${key}`) return label
+        // 1. Try direct lookup (normalized to lowercase)
+        const strictKey = key.toLowerCase();
+        const dictionaryKey = `common.metric_labels.${strictKey}`;
+        const translated = t(dictionaryKey);
+        if (translated !== dictionaryKey && translated) return translated;
+
+        // 2. Try normalized lookup (e.g. "Step count" -> "step_count")
+        const snakeKey = strictKey.replace(/ /g, '_');
+        const snakeDictKey = `common.metric_labels.${snakeKey}`;
+        const snakeTranslated = t(snakeDictKey);
+        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
 
         // Try to find in dashboard.metrics (complex object)
         const complexLabel = t(`dashboard.metrics.${key}.label`)

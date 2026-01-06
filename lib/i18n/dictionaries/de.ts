@@ -41,6 +41,11 @@ export const de: Dictionary = {
             "shortness of breath": "Atemnot",
             "total exertion": "Gesamtbelastung",
             work: "Arbeit",
+            step_factor: "Schritte (normiert)",
+            "chest pain": "Brustschmerzen",
+            diarrhea: "Durchfall",
+            "emotionally stressful": "Emotional belastend",
+            "physically active": "Körperlich aktiv",
             stress: "Stress",
             palpitations: "Herzklopfen",
             stability_score: "Stabilitäts-Score",
@@ -107,7 +112,8 @@ export const de: Dictionary = {
         pem_mode: "PEM",
         select_placeholder: "Metrik auswählen",
         metrics_dropdown: "Metriken (Max 2)",
-        metrics_selected: "Ausgewählt",
+        metrics_selected: "Metriken ausgewählt",
+        pem_insights_title: "PEM Analyse",
         charts: {
             synced: "Synchronisiert mit Visible App",
             encrypted: "Daten auf Gerät verschlüsselt • Gradeben aktualisiert"
@@ -284,7 +290,7 @@ export const de: Dictionary = {
             title: "Bereit, deine Erkrankung besser zu verstehen?",
             desc: "Schließe dich Patienten an, die Daten in Erkenntnisse verwandeln. Beginne noch heute mit der Analyse deiner Krankheitsdaten.",
             button_signup: "Kostenloses Konto erstellen",
-            button_demo: "Demo ansehen"
+            button_demo: "Demo-Daten runterladen"
         },
         why: {
             title: "Warum deine Trends analysieren?",

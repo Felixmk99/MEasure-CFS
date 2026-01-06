@@ -28,14 +28,14 @@ const REGISTRY: Record<string, Omit<MetricConfig, 'key'>> = {
     'rhr': { direction: 'lower', unit: 'bpm', color: '#F59E0B', label: 'Resting HR' },
 
     // Combined Scores: Lower is Better
-    'composite_score': { direction: 'lower', unit: '', color: '#3B82F6', label: 'MEasure-CFS Score' },
-    'adjusted_score': { direction: 'lower', unit: '', color: '#3B82F6', label: 'MEasure-CFS Score' },
-    'symptom_score': { direction: 'lower', unit: '', color: '#F59E0B', label: 'Symptom Score' },
-    'exertion_score': { direction: 'lower', unit: '', color: '#10B981', label: 'Exertion' },
+    'composite_score': { direction: 'lower', unit: '', color: '#3B82F6' },
+    'adjusted_score': { direction: 'lower', unit: '', color: '#3B82F6' },
+    'symptom_score': { direction: 'lower', unit: '', color: '#F59E0B' },
+    'exertion_score': { direction: 'lower', unit: '', color: '#10B981' },
 
     // Specific Symptoms: Lower is Better
-    'sleep': { direction: 'lower', unit: '', color: '#6366F1', label: 'Sleep problems' },
-    'crash': { direction: 'lower', unit: '', color: '#EF4444', label: 'Crash' },
+    'sleep': { direction: 'lower', unit: '', color: '#6366F1' },
+    'crash': { direction: 'lower', unit: '', color: '#EF4444' },
 };
 
 /**

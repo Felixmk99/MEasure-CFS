@@ -14,7 +14,7 @@ import {
   Cpu,
   BarChart3,
   FileUp,
-  Shield
+  Download,
 } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -332,19 +332,7 @@ export default function LandingPage() {
           </div>
 
           <section className="py-20 mt-12">
-            {/* Privacy Badge */}
-            <div className="max-w-2xl mx-auto mb-20 text-center">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="p-10 rounded-2xl bg-white border border-slate-200 shadow-sm"
-              >
-                <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('landing.privacy_badge.title')}</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t('landing.privacy_badge.desc')}
-                </p>
-              </motion.div>
-            </div>
+
 
             {/* CTA Section */}
             <div className="max-w-4xl mx-auto text-center">
@@ -372,7 +360,10 @@ export default function LandingPage() {
                       className="rounded-full px-10 h-14 text-lg font-bold bg-white text-slate-950 hover:bg-slate-100 transition-all hover:scale-105 shadow-xl"
                       asChild
                     >
-                      <Link href="/login">{t('landing.cta.button_demo')}</Link>
+                      <a href="/DEMO Data Visible for MEasure-CFS.csv" download>
+                        <Download className="mr-2 h-5 w-5" />
+                        {t('landing.cta.button_demo')}
+                      </a>
                     </Button>
                   </div>
                 </div>

@@ -1,0 +1,782 @@
+observation_date;tracker_name;tracker_category;observation_value 
+2025-12-31;Mentally demanding;Cognitive;1
+2025-12-31;Fever;General;3
+2025-12-31;Chest pain;Pain;0
+2025-12-31;Lightheadedness;Brain;0
+2025-12-31;Headache;Brain;3
+2025-12-31;Muscle weakness;Muscles;0
+2025-12-31;Shortness of breath;Heart and Lungs;1
+2025-12-31;Diarrhea;Gastrointestinal;0
+2025-12-31;Socially demanding;Social;3
+2025-12-31;Anxiety;Brain;0
+2025-12-31;Sleep;Sleep;2
+2025-12-31;Palpitations;Heart and Lungs;0
+2025-12-31;Nausea;Gastrointestinal;0
+2025-12-31;Cough;Heart and Lungs;1
+2025-12-31;Crash;Experience;0
+2025-12-31;Emotionally stressful;Emotional;0
+2025-12-31;Depression;Brain;0
+2025-12-31;Physically active;Physical;1
+2025-12-31;Infection;Experience;0
+2025-12-31;Muscle aches;Muscles;1
+2025-12-31;Fatigue;General;2
+2025-12-31;Runny Nose;Custom;0
+2025-12-31;HRV;Measurement;57
+2025-12-31;Resting HR;Measurement;52
+2025-12-31;Stability Score;Measurement;5
+2025-12-30;Mentally demanding;Cognitive;3
+2025-12-30;Fever;General;2
+2025-12-30;Chest pain;Pain;0
+2025-12-30;Lightheadedness;Brain;0
+2025-12-30;Headache;Brain;1
+2025-12-30;Muscle weakness;Muscles;0
+2025-12-30;Shortness of breath;Heart and Lungs;2
+2025-12-30;Diarrhea;Gastrointestinal;0
+2025-12-30;Socially demanding;Social;3
+2025-12-30;Anxiety;Brain;0
+2025-12-30;Sleep;Sleep;2
+2025-12-30;Palpitations;Heart and Lungs;1
+2025-12-30;Nausea;Gastrointestinal;0
+2025-12-30;Cough;Heart and Lungs;1
+2025-12-30;Crash;Experience;0
+2025-12-30;Emotionally stressful;Emotional;1
+2025-12-30;Depression;Brain;2
+2025-12-30;Physically active;Physical;2
+2025-12-30;Infection;Experience;1
+2025-12-30;Muscle aches;Muscles;1
+2025-12-30;Fatigue;General;3
+2025-12-30;Runny Nose;Custom;2
+2025-12-30;HRV;Measurement;56
+2025-12-30;Resting HR;Measurement;52
+2025-12-30;Stability Score;Measurement;3
+2025-12-29;Mentally demanding;Cognitive;2
+2025-12-29;Fever;General;2
+2025-12-29;Chest pain;Pain;0
+2025-12-29;Lightheadedness;Brain;1
+2025-12-29;Headache;Brain;0
+2025-12-29;Muscle weakness;Muscles;0
+2025-12-29;Shortness of breath;Heart and Lungs;2
+2025-12-29;Diarrhea;Gastrointestinal;0
+2025-12-29;Socially demanding;Social;2
+2025-12-29;Anxiety;Brain;1
+2025-12-29;Sleep;Sleep;2
+2025-12-29;Palpitations;Heart and Lungs;2
+2025-12-29;Nausea;Gastrointestinal;0
+2025-12-29;Cough;Heart and Lungs;0
+2025-12-29;Crash;Experience;0
+2025-12-29;Emotionally stressful;Emotional;1
+2025-12-29;Depression;Brain;0
+2025-12-29;Physically active;Physical;1
+2025-12-29;Infection;Experience;0
+2025-12-29;Muscle aches;Muscles;1
+2025-12-29;Fatigue;General;2
+2025-12-29;Runny Nose;Custom;1
+2025-12-29;HRV;Measurement;58
+2025-12-29;Resting HR;Measurement;52
+2025-12-29;Stability Score;Measurement;2
+2025-12-28;Mentally demanding;Cognitive;2
+2025-12-28;Fever;General;2
+2025-12-28;Chest pain;Pain;2
+2025-12-28;Lightheadedness;Brain;2
+2025-12-28;Headache;Brain;2
+2025-12-28;Muscle weakness;Muscles;1
+2025-12-28;Shortness of breath;Heart and Lungs;1
+2025-12-28;Diarrhea;Gastrointestinal;1
+2025-12-28;Socially demanding;Social;2
+2025-12-28;Anxiety;Brain;0
+2025-12-28;Sleep;Sleep;2
+2025-12-28;Palpitations;Heart and Lungs;1
+2025-12-28;Nausea;Gastrointestinal;0
+2025-12-28;Cough;Heart and Lungs;0
+2025-12-28;Crash;Experience;1
+2025-12-28;Emotionally stressful;Emotional;1
+2025-12-28;Depression;Brain;0
+2025-12-28;Physically active;Physical;1
+2025-12-28;Infection;Experience;0
+2025-12-28;Muscle aches;Muscles;0
+2025-12-28;Fatigue;General;2
+2025-12-28;Runny Nose;Custom;3
+2025-12-28;HRV;Measurement;58
+2025-12-28;Resting HR;Measurement;49
+2025-12-28;Stability Score;Measurement;2
+2025-12-27;Mentally demanding;Cognitive;2
+2025-12-27;Fever;General;3
+2025-12-27;Chest pain;Pain;1
+2025-12-27;Lightheadedness;Brain;1
+2025-12-27;Headache;Brain;1
+2025-12-27;Muscle weakness;Muscles;0
+2025-12-27;Shortness of breath;Heart and Lungs;2
+2025-12-27;Diarrhea;Gastrointestinal;2
+2025-12-27;Socially demanding;Social;1
+2025-12-27;Anxiety;Brain;0
+2025-12-27;Sleep;Sleep;2
+2025-12-27;Palpitations;Heart and Lungs;1
+2025-12-27;Nausea;Gastrointestinal;1
+2025-12-27;Cough;Heart and Lungs;0
+2025-12-27;Crash;Experience;0
+2025-12-27;Emotionally stressful;Emotional;1
+2025-12-27;Depression;Brain;2
+2025-12-27;Physically active;Physical;2
+2025-12-27;Infection;Experience;0
+2025-12-27;Muscle aches;Muscles;1
+2025-12-27;Fatigue;General;2
+2025-12-27;Runny Nose;Custom;1
+2025-12-27;HRV;Measurement;58
+2025-12-27;Resting HR;Measurement;53
+2025-12-27;Stability Score;Measurement;3
+2025-12-26;Mentally demanding;Cognitive;2
+2025-12-26;Fever;General;3
+2025-12-26;Chest pain;Pain;0
+2025-12-26;Lightheadedness;Brain;2
+2025-12-26;Headache;Brain;1
+2025-12-26;Muscle weakness;Muscles;1
+2025-12-26;Shortness of breath;Heart and Lungs;1
+2025-12-26;Diarrhea;Gastrointestinal;1
+2025-12-26;Socially demanding;Social;1
+2025-12-26;Anxiety;Brain;0
+2025-12-26;Sleep;Sleep;0
+2025-12-26;Palpitations;Heart and Lungs;2
+2025-12-26;Nausea;Gastrointestinal;0
+2025-12-26;Cough;Heart and Lungs;1
+2025-12-26;Crash;Experience;0
+2025-12-26;Emotionally stressful;Emotional;0
+2025-12-26;Depression;Brain;0
+2025-12-26;Physically active;Physical;0
+2025-12-26;Infection;Experience;0
+2025-12-26;Muscle aches;Muscles;3
+2025-12-26;Fatigue;General;2
+2025-12-26;Runny Nose;Custom;2
+2025-12-26;HRV;Measurement;55
+2025-12-26;Resting HR;Measurement;49
+2025-12-26;Stability Score;Measurement;3
+2025-12-25;Mentally demanding;Cognitive;2
+2025-12-25;Fever;General;2
+2025-12-25;Chest pain;Pain;2
+2025-12-25;Lightheadedness;Brain;1
+2025-12-25;Headache;Brain;2
+2025-12-25;Muscle weakness;Muscles;0
+2025-12-25;Shortness of breath;Heart and Lungs;2
+2025-12-25;Diarrhea;Gastrointestinal;2
+2025-12-25;Socially demanding;Social;1
+2025-12-25;Anxiety;Brain;0
+2025-12-25;Sleep;Sleep;0
+2025-12-25;Palpitations;Heart and Lungs;0
+2025-12-25;Nausea;Gastrointestinal;0
+2025-12-25;Cough;Heart and Lungs;1
+2025-12-25;Crash;Experience;0
+2025-12-25;Emotionally stressful;Emotional;0
+2025-12-25;Depression;Brain;2
+2025-12-25;Physically active;Physical;1
+2025-12-25;Infection;Experience;0
+2025-12-25;Muscle aches;Muscles;2
+2025-12-25;Fatigue;General;1
+2025-12-25;Runny Nose;Custom;2
+2025-12-25;HRV;Measurement;58
+2025-12-25;Resting HR;Measurement;59
+2025-12-25;Stability Score;Measurement;2
+2025-12-24;Mentally demanding;Cognitive;2
+2025-12-24;Fever;General;1
+2025-12-24;Chest pain;Pain;1
+2025-12-24;Lightheadedness;Brain;2
+2025-12-24;Headache;Brain;2
+2025-12-24;Muscle weakness;Muscles;1
+2025-12-24;Shortness of breath;Heart and Lungs;2
+2025-12-24;Diarrhea;Gastrointestinal;2
+2025-12-24;Socially demanding;Social;1
+2025-12-24;Anxiety;Brain;1
+2025-12-24;Sleep;Sleep;2
+2025-12-24;Palpitations;Heart and Lungs;0
+2025-12-24;Nausea;Gastrointestinal;1
+2025-12-24;Cough;Heart and Lungs;2
+2025-12-24;Crash;Experience;0
+2025-12-24;Emotionally stressful;Emotional;1
+2025-12-24;Depression;Brain;1
+2025-12-24;Physically active;Physical;1
+2025-12-24;Infection;Experience;1
+2025-12-24;Muscle aches;Muscles;1
+2025-12-24;Fatigue;General;1
+2025-12-24;Runny Nose;Custom;3
+2025-12-24;HRV;Measurement;64
+2025-12-24;Resting HR;Measurement;55
+2025-12-24;Stability Score;Measurement;4
+2025-12-23;Mentally demanding;Cognitive;2
+2025-12-23;Fever;General;2
+2025-12-23;Chest pain;Pain;0
+2025-12-23;Lightheadedness;Brain;2
+2025-12-23;Headache;Brain;1
+2025-12-23;Muscle weakness;Muscles;1
+2025-12-23;Shortness of breath;Heart and Lungs;2
+2025-12-23;Diarrhea;Gastrointestinal;1
+2025-12-23;Socially demanding;Social;0
+2025-12-23;Anxiety;Brain;0
+2025-12-23;Sleep;Sleep;1
+2025-12-23;Palpitations;Heart and Lungs;1
+2025-12-23;Nausea;Gastrointestinal;0
+2025-12-23;Cough;Heart and Lungs;0
+2025-12-23;Crash;Experience;0
+2025-12-23;Emotionally stressful;Emotional;1
+2025-12-23;Depression;Brain;0
+2025-12-23;Physically active;Physical;2
+2025-12-23;Infection;Experience;0
+2025-12-23;Muscle aches;Muscles;0
+2025-12-23;Fatigue;General;2
+2025-12-23;Runny Nose;Custom;2
+2025-12-23;HRV;Measurement;59
+2025-12-23;Resting HR;Measurement;51
+2025-12-23;Stability Score;Measurement;3
+2025-12-22;Mentally demanding;Cognitive;3
+2025-12-22;Fever;General;1
+2025-12-22;Chest pain;Pain;0
+2025-12-22;Lightheadedness;Brain;2
+2025-12-22;Headache;Brain;0
+2025-12-22;Muscle weakness;Muscles;0
+2025-12-22;Shortness of breath;Heart and Lungs;0
+2025-12-22;Diarrhea;Gastrointestinal;0
+2025-12-22;Socially demanding;Social;1
+2025-12-22;Anxiety;Brain;1
+2025-12-22;Sleep;Sleep;2
+2025-12-22;Palpitations;Heart and Lungs;2
+2025-12-22;Nausea;Gastrointestinal;0
+2025-12-22;Cough;Heart and Lungs;2
+2025-12-22;Crash;Experience;0
+2025-12-22;Emotionally stressful;Emotional;1
+2025-12-22;Depression;Brain;0
+2025-12-22;Physically active;Physical;0
+2025-12-22;Infection;Experience;0
+2025-12-22;Muscle aches;Muscles;0
+2025-12-22;Fatigue;General;3
+2025-12-22;Runny Nose;Custom;0
+2025-12-22;HRV;Measurement;60
+2025-12-22;Resting HR;Measurement;50
+2025-12-22;Stability Score;Measurement;2
+2025-12-21;Mentally demanding;Cognitive;1
+2025-12-21;Fever;General;1
+2025-12-21;Chest pain;Pain;2
+2025-12-21;Lightheadedness;Brain;1
+2025-12-21;Headache;Brain;2
+2025-12-21;Muscle weakness;Muscles;0
+2025-12-21;Shortness of breath;Heart and Lungs;0
+2025-12-21;Diarrhea;Gastrointestinal;1
+2025-12-21;Socially demanding;Social;0
+2025-12-21;Anxiety;Brain;0
+2025-12-21;Sleep;Sleep;0
+2025-12-21;Palpitations;Heart and Lungs;0
+2025-12-21;Nausea;Gastrointestinal;0
+2025-12-21;Cough;Heart and Lungs;1
+2025-12-21;Crash;Experience;0
+2025-12-21;Emotionally stressful;Emotional;0
+2025-12-21;Depression;Brain;2
+2025-12-21;Physically active;Physical;2
+2025-12-21;Infection;Experience;0
+2025-12-21;Muscle aches;Muscles;1
+2025-12-21;Fatigue;General;3
+2025-12-21;Runny Nose;Custom;0
+2025-12-21;HRV;Measurement;60
+2025-12-21;Resting HR;Measurement;52
+2025-12-21;Stability Score;Measurement;4
+2025-12-20;Mentally demanding;Cognitive;2
+2025-12-20;Fever;General;2
+2025-12-20;Chest pain;Pain;2
+2025-12-20;Lightheadedness;Brain;2
+2025-12-20;Headache;Brain;1
+2025-12-20;Muscle weakness;Muscles;0
+2025-12-20;Shortness of breath;Heart and Lungs;0
+2025-12-20;Diarrhea;Gastrointestinal;0
+2025-12-20;Socially demanding;Social;2
+2025-12-20;Anxiety;Brain;1
+2025-12-20;Sleep;Sleep;0
+2025-12-20;Palpitations;Heart and Lungs;0
+2025-12-20;Nausea;Gastrointestinal;0
+2025-12-20;Cough;Heart and Lungs;1
+2025-12-20;Crash;Experience;0
+2025-12-20;Emotionally stressful;Emotional;0
+2025-12-20;Depression;Brain;0
+2025-12-20;Physically active;Physical;1
+2025-12-20;Infection;Experience;0
+2025-12-20;Muscle aches;Muscles;1
+2025-12-20;Fatigue;General;3
+2025-12-20;Runny Nose;Custom;2
+2025-12-20;HRV;Measurement;56
+2025-12-20;Resting HR;Measurement;53
+2025-12-20;Stability Score;Measurement;4
+2025-12-19;Mentally demanding;Cognitive;0
+2025-12-19;Fever;General;1
+2025-12-19;Chest pain;Pain;1
+2025-12-19;Lightheadedness;Brain;1
+2025-12-19;Headache;Brain;1
+2025-12-19;Muscle weakness;Muscles;0
+2025-12-19;Shortness of breath;Heart and Lungs;1
+2025-12-19;Diarrhea;Gastrointestinal;0
+2025-12-19;Socially demanding;Social;2
+2025-12-19;Anxiety;Brain;1
+2025-12-19;Sleep;Sleep;1
+2025-12-19;Palpitations;Heart and Lungs;1
+2025-12-19;Nausea;Gastrointestinal;0
+2025-12-19;Cough;Heart and Lungs;2
+2025-12-19;Crash;Experience;0
+2025-12-19;Emotionally stressful;Emotional;0
+2025-12-19;Depression;Brain;0
+2025-12-19;Physically active;Physical;1
+2025-12-19;Infection;Experience;1
+2025-12-19;Muscle aches;Muscles;2
+2025-12-19;Fatigue;General;1
+2025-12-19;Runny Nose;Custom;0
+2025-12-19;HRV;Measurement;63
+2025-12-19;Resting HR;Measurement;48
+2025-12-19;Stability Score;Measurement;3
+2025-12-18;Mentally demanding;Cognitive;1
+2025-12-18;Fever;General;3
+2025-12-18;Chest pain;Pain;2
+2025-12-18;Lightheadedness;Brain;0
+2025-12-18;Headache;Brain;2
+2025-12-18;Muscle weakness;Muscles;0
+2025-12-18;Shortness of breath;Heart and Lungs;0
+2025-12-18;Diarrhea;Gastrointestinal;2
+2025-12-18;Socially demanding;Social;2
+2025-12-18;Anxiety;Brain;0
+2025-12-18;Sleep;Sleep;1
+2025-12-18;Palpitations;Heart and Lungs;0
+2025-12-18;Nausea;Gastrointestinal;0
+2025-12-18;Cough;Heart and Lungs;1
+2025-12-18;Crash;Experience;0
+2025-12-18;Emotionally stressful;Emotional;0
+2025-12-18;Depression;Brain;2
+2025-12-18;Physically active;Physical;0
+2025-12-18;Infection;Experience;0
+2025-12-18;Muscle aches;Muscles;2
+2025-12-18;Fatigue;General;3
+2025-12-18;Runny Nose;Custom;0
+2025-12-18;HRV;Measurement;63
+2025-12-18;Resting HR;Measurement;56
+2025-12-18;Stability Score;Measurement;3
+2025-12-17;Mentally demanding;Cognitive;0
+2025-12-17;Fever;General;3
+2025-12-17;Chest pain;Pain;1
+2025-12-17;Lightheadedness;Brain;1
+2025-12-17;Headache;Brain;0
+2025-12-17;Muscle weakness;Muscles;0
+2025-12-17;Shortness of breath;Heart and Lungs;2
+2025-12-17;Diarrhea;Gastrointestinal;1
+2025-12-17;Socially demanding;Social;2
+2025-12-17;Anxiety;Brain;1
+2025-12-17;Sleep;Sleep;1
+2025-12-17;Palpitations;Heart and Lungs;2
+2025-12-17;Nausea;Gastrointestinal;0
+2025-12-17;Cough;Heart and Lungs;2
+2025-12-17;Crash;Experience;1
+2025-12-17;Emotionally stressful;Emotional;1
+2025-12-17;Depression;Brain;0
+2025-12-17;Physically active;Physical;1
+2025-12-17;Infection;Experience;0
+2025-12-17;Muscle aches;Muscles;1
+2025-12-17;Fatigue;General;2
+2025-12-17;Runny Nose;Custom;2
+2025-12-17;HRV;Measurement;58
+2025-12-17;Resting HR;Measurement;53
+2025-12-17;Stability Score;Measurement;4
+2025-12-16;Mentally demanding;Cognitive;1
+2025-12-16;Fever;General;2
+2025-12-16;Chest pain;Pain;0
+2025-12-16;Lightheadedness;Brain;1
+2025-12-16;Headache;Brain;1
+2025-12-16;Muscle weakness;Muscles;1
+2025-12-16;Shortness of breath;Heart and Lungs;0
+2025-12-16;Diarrhea;Gastrointestinal;2
+2025-12-16;Socially demanding;Social;3
+2025-12-16;Anxiety;Brain;1
+2025-12-16;Sleep;Sleep;1
+2025-12-16;Palpitations;Heart and Lungs;1
+2025-12-16;Nausea;Gastrointestinal;1
+2025-12-16;Cough;Heart and Lungs;0
+2025-12-16;Crash;Experience;1
+2025-12-16;Emotionally stressful;Emotional;1
+2025-12-16;Depression;Brain;0
+2025-12-16;Physically active;Physical;2
+2025-12-16;Infection;Experience;0
+2025-12-16;Muscle aches;Muscles;2
+2025-12-16;Fatigue;General;2
+2025-12-16;Runny Nose;Custom;2
+2025-12-16;HRV;Measurement;52
+2025-12-16;Resting HR;Measurement;53
+2025-12-16;Stability Score;Measurement;2
+2025-12-15;Mentally demanding;Cognitive;2
+2025-12-15;Fever;General;1
+2025-12-15;Chest pain;Pain;0
+2025-12-15;Lightheadedness;Brain;0
+2025-12-15;Headache;Brain;0
+2025-12-15;Muscle weakness;Muscles;0
+2025-12-15;Shortness of breath;Heart and Lungs;2
+2025-12-15;Diarrhea;Gastrointestinal;2
+2025-12-15;Socially demanding;Social;0
+2025-12-15;Anxiety;Brain;0
+2025-12-15;Sleep;Sleep;0
+2025-12-15;Palpitations;Heart and Lungs;1
+2025-12-15;Nausea;Gastrointestinal;0
+2025-12-15;Cough;Heart and Lungs;2
+2025-12-15;Crash;Experience;0
+2025-12-15;Emotionally stressful;Emotional;0
+2025-12-15;Depression;Brain;2
+2025-12-15;Physically active;Physical;1
+2025-12-15;Infection;Experience;1
+2025-12-15;Muscle aches;Muscles;3
+2025-12-15;Fatigue;General;3
+2025-12-15;Runny Nose;Custom;0
+2025-12-15;HRV;Measurement;54
+2025-12-15;Resting HR;Measurement;71
+2025-12-15;Stability Score;Measurement;3
+2025-12-14;Mentally demanding;Cognitive;1
+2025-12-14;Fever;General;3
+2025-12-14;Chest pain;Pain;2
+2025-12-14;Lightheadedness;Brain;1
+2025-12-14;Headache;Brain;0
+2025-12-14;Muscle weakness;Muscles;1
+2025-12-14;Shortness of breath;Heart and Lungs;2
+2025-12-14;Diarrhea;Gastrointestinal;3
+2025-12-14;Socially demanding;Social;1
+2025-12-14;Anxiety;Brain;1
+2025-12-14;Sleep;Sleep;0
+2025-12-14;Palpitations;Heart and Lungs;1
+2025-12-14;Nausea;Gastrointestinal;0
+2025-12-14;Cough;Heart and Lungs;2
+2025-12-14;Crash;Experience;0
+2025-12-14;Emotionally stressful;Emotional;0
+2025-12-14;Depression;Brain;1
+2025-12-14;Physically active;Physical;1
+2025-12-14;Infection;Experience;0
+2025-12-14;Muscle aches;Muscles;0
+2025-12-14;Fatigue;General;3
+2025-12-14;Runny Nose;Custom;0
+2025-12-14;HRV;Measurement;61
+2025-12-14;Resting HR;Measurement;54
+2025-12-14;Stability Score;Measurement;3
+2025-12-13;Sleep;Sleep;1
+2025-12-13;HRV;Measurement;52
+2025-12-13;Resting HR;Measurement;64
+2025-12-13;Stability Score;Measurement;2
+2025-12-12;Mentally demanding;Cognitive;2
+2025-12-12;Fever;General;1
+2025-12-12;Chest pain;Pain;1
+2025-12-12;Lightheadedness;Brain;2
+2025-12-12;Headache;Brain;1
+2025-12-12;Muscle weakness;Muscles;0
+2025-12-12;Shortness of breath;Heart and Lungs;2
+2025-12-12;Diarrhea;Gastrointestinal;3
+2025-12-12;Socially demanding;Social;3
+2025-12-12;Anxiety;Brain;1
+2025-12-12;Sleep;Sleep;0
+2025-12-12;Palpitations;Heart and Lungs;0
+2025-12-12;Nausea;Gastrointestinal;1
+2025-12-12;Cough;Heart and Lungs;1
+2025-12-12;Crash;Experience;0
+2025-12-12;Emotionally stressful;Emotional;1
+2025-12-12;Depression;Brain;0
+2025-12-12;Physically active;Physical;2
+2025-12-12;Infection;Experience;0
+2025-12-12;Muscle aches;Muscles;3
+2025-12-12;Fatigue;General;3
+2025-12-12;Runny Nose;Custom;2
+2025-12-12;HRV;Measurement;56
+2025-12-12;Resting HR;Measurement;51
+2025-12-12;Stability Score;Measurement;2
+2025-12-11;Mentally demanding;Cognitive;1
+2025-12-11;Fever;General;3
+2025-12-11;Chest pain;Pain;1
+2025-12-11;Lightheadedness;Brain;0
+2025-12-11;Headache;Brain;0
+2025-12-11;Muscle weakness;Muscles;0
+2025-12-11;Shortness of breath;Heart and Lungs;1
+2025-12-11;Diarrhea;Gastrointestinal;2
+2025-12-11;Socially demanding;Social;1
+2025-12-11;Anxiety;Brain;1
+2025-12-11;Sleep;Sleep;0
+2025-12-11;Palpitations;Heart and Lungs;0
+2025-12-11;Nausea;Gastrointestinal;0
+2025-12-11;Cough;Heart and Lungs;1
+2025-12-11;Crash;Experience;1
+2025-12-11;Emotionally stressful;Emotional;0
+2025-12-11;Depression;Brain;1
+2025-12-11;Physically active;Physical;0
+2025-12-11;Infection;Experience;1
+2025-12-11;Muscle aches;Muscles;3
+2025-12-11;Fatigue;General;2
+2025-12-11;Runny Nose;Custom;1
+2025-12-11;HRV;Measurement;63
+2025-12-11;Resting HR;Measurement;60
+2025-12-11;Stability Score;Measurement;1
+2025-12-10;Mentally demanding;Cognitive;1
+2025-12-10;Fever;General;2
+2025-12-10;Chest pain;Pain;1
+2025-12-10;Lightheadedness;Brain;0
+2025-12-10;Headache;Brain;1
+2025-12-10;Muscle weakness;Muscles;0
+2025-12-10;Shortness of breath;Heart and Lungs;0
+2025-12-10;Diarrhea;Gastrointestinal;2
+2025-12-10;Socially demanding;Social;1
+2025-12-10;Anxiety;Brain;0
+2025-12-10;Sleep;Sleep;1
+2025-12-10;Palpitations;Heart and Lungs;2
+2025-12-10;Nausea;Gastrointestinal;1
+2025-12-10;Cough;Heart and Lungs;1
+2025-12-10;Crash;Experience;1
+2025-12-10;Emotionally stressful;Emotional;0
+2025-12-10;Depression;Brain;0
+2025-12-10;Physically active;Physical;0
+2025-12-10;Infection;Experience;1
+2025-12-10;Muscle aches;Muscles;2
+2025-12-10;Fatigue;General;2
+2025-12-10;Runny Nose;Custom;0
+2025-12-10;HRV;Measurement;58
+2025-12-10;Resting HR;Measurement;50
+2025-12-10;Stability Score;Measurement;3
+2025-12-09;Mentally demanding;Cognitive;3
+2025-12-09;Fever;General;2
+2025-12-09;Chest pain;Pain;2
+2025-12-09;Lightheadedness;Brain;0
+2025-12-09;Headache;Brain;0
+2025-12-09;Muscle weakness;Muscles;1
+2025-12-09;Shortness of breath;Heart and Lungs;1
+2025-12-09;Diarrhea;Gastrointestinal;3
+2025-12-09;Socially demanding;Social;2
+2025-12-09;Anxiety;Brain;0
+2025-12-09;Sleep;Sleep;0
+2025-12-09;Palpitations;Heart and Lungs;2
+2025-12-09;Nausea;Gastrointestinal;1
+2025-12-09;Cough;Heart and Lungs;0
+2025-12-09;Crash;Experience;0
+2025-12-09;Emotionally stressful;Emotional;0
+2025-12-09;Depression;Brain;1
+2025-12-09;Physically active;Physical;2
+2025-12-09;Infection;Experience;1
+2025-12-09;Muscle aches;Muscles;0
+2025-12-09;Fatigue;General;2
+2025-12-09;Runny Nose;Custom;0
+2025-12-09;HRV;Measurement;63
+2025-12-09;Resting HR;Measurement;53
+2025-12-09;Stability Score;Measurement;3
+2025-12-08;Mentally demanding;Cognitive;3
+2025-12-08;Fever;General;3
+2025-12-08;Chest pain;Pain;0
+2025-12-08;Lightheadedness;Brain;1
+2025-12-08;Headache;Brain;0
+2025-12-08;Muscle weakness;Muscles;0
+2025-12-08;Shortness of breath;Heart and Lungs;0
+2025-12-08;Diarrhea;Gastrointestinal;1
+2025-12-08;Socially demanding;Social;1
+2025-12-08;Anxiety;Brain;0
+2025-12-08;Sleep;Sleep;0
+2025-12-08;Palpitations;Heart and Lungs;0
+2025-12-08;Nausea;Gastrointestinal;1
+2025-12-08;Cough;Heart and Lungs;0
+2025-12-08;Crash;Experience;0
+2025-12-08;Emotionally stressful;Emotional;0
+2025-12-08;Depression;Brain;0
+2025-12-08;Physically active;Physical;2
+2025-12-08;Infection;Experience;0
+2025-12-08;Muscle aches;Muscles;2
+2025-12-08;Fatigue;General;3
+2025-12-08;Runny Nose;Custom;0
+2025-12-08;HRV;Measurement;50
+2025-12-08;Resting HR;Measurement;54
+2025-12-08;Stability Score;Measurement;3
+2025-12-07;Mentally demanding;Cognitive;1
+2025-12-07;Reading a short text such as a mobile phone text message;Funcap_concentration;5
+2025-12-07;Fever;General;1
+2025-12-07;Standing up for approx. 5 minutes e.g. while queuing or while cooking;Funcap_upright;5
+2025-12-07;Using the toilet (not bedpan or bedside commode);Funcap_hygiene;6
+2025-12-07;Going to a shop for groceries;Funcap_outside;0
+2025-12-07;Chest pain;Pain;2
+2025-12-07;Focusing on a task for approx. 2 hours continuously;Funcap_concentration;5
+2025-12-07;Lightheadedness;Brain;1
+2025-12-07;Physical activity with increased heart rate for approx. 15 min;Funcap_walking;3
+2025-12-07;Headache;Brain;3
+2025-12-07;Staying in a noisy environment (shopping mall café or open plan office) for approx. 1 hour;Funcap_light;5
+2025-12-07;Muscle weakness;Muscles;0
+2025-12-07;Shortness of breath;Heart and Lungs;0
+2025-12-07;Diarrhea;Gastrointestinal;1
+2025-12-07;Socially demanding;Social;2
+2025-12-07;Anxiety;Brain;1
+2025-12-07;Managing a full working day (non-physical work such as office work classes or lectures);Funcap_concentration;1
+2025-12-07;Walking a short distance indoors from one room to another;Funcap_walking;5
+2025-12-07;Stepping right outside your home;Funcap_outside;5
+2025-12-07;Sleep;Sleep;2
+2025-12-07;Using public transport (bus or train);Funcap_outside;0
+2025-12-07;Showering standing up;Funcap_hygiene;5
+2025-12-07;Participating in organized leisure activities such as classes sports etc.;Funcap_outside;1
+2025-12-07;Palpitations;Heart and Lungs;2
+2025-12-07;Having a conversation for approx. 5 minutes;Funcap_communication;7
+2025-12-07;Participating in a dinner party party or family event;Funcap_communication;2
+2025-12-07;Staying in a room with normal lighting without sunglasses for approx. 1 hour;Funcap_light;5
+2025-12-07;Heavier housework (washing floors vacuuming etc.) for approx. ½ hour continuously;Funcap_home;0
+2025-12-07;Nausea;Gastrointestinal;0
+2025-12-07;Cough;Heart and Lungs;2
+2025-12-07;Crash;Experience;0
+2025-12-07;Emotionally stressful;Emotional;0
+2025-12-07;Sitting in bed for approx. ½ hour;Funcap_upright;7
+2025-12-07;Depression;Brain;1
+2025-12-07;Physically active;Physical;0
+2025-12-07;Infection;Experience;0
+2025-12-07;Walking between approx. 100m and 1km on level ground (length of 1 to 10 football fields);Funcap_walking;3
+2025-12-07;Sitting in an upright chair (dining chair) with feet on floor for approx. 2 hours;Funcap_upright;4
+2025-12-07;Muscle aches;Muscles;1
+2025-12-07;Reading and understanding a non-fiction text such as an official document one page long;Funcap_concentration;6
+2025-12-07;Fatigue;General;3
+2025-12-07;Runny Nose;Custom;1
+2025-12-07;Participating in a conversation with three people for approx. ½ hour;Funcap_communication;5
+2025-12-07;Staying outdoors in daylight without sunglasses for approx. 2 hours;Funcap_light;6
+2025-12-07;Focusing on a task for approx. 10 minutes continuously;Funcap_concentration;7
+2025-12-07;HRV;Measurement;50
+2025-12-07;Resting HR;Measurement;65
+2025-12-07;Cooking a complicated meal from scratch approx. 1 hour of preparation;Funcap_home;0
+2025-12-07;Using social media to stay in touch with others;Funcap_concentration;5
+2025-12-07;Getting dressed in regular clothes;Funcap_hygiene;7
+2025-12-07;Stability Score;Measurement;3
+2025-12-06;Mentally demanding;Cognitive;1
+2025-12-06;Fever;General;2
+2025-12-06;Chest pain;Pain;0
+2025-12-06;Lightheadedness;Brain;2
+2025-12-06;Headache;Brain;0
+2025-12-06;Muscle weakness;Muscles;0
+2025-12-06;Shortness of breath;Heart and Lungs;1
+2025-12-06;Diarrhea;Gastrointestinal;1
+2025-12-06;Socially demanding;Social;0
+2025-12-06;Anxiety;Brain;0
+2025-12-06;Sleep;Sleep;2
+2025-12-06;Palpitations;Heart and Lungs;0
+2025-12-06;Nausea;Gastrointestinal;0
+2025-12-06;Cough;Heart and Lungs;1
+2025-12-06;Crash;Experience;0
+2025-12-06;Emotionally stressful;Emotional;1
+2025-12-06;Depression;Brain;0
+2025-12-06;Physically active;Physical;1
+2025-12-06;Infection;Experience;0
+2025-12-06;Muscle aches;Muscles;2
+2025-12-06;Fatigue;General;1
+2025-12-06;Runny Nose;Custom;1
+2025-12-06;HRV;Measurement;58
+2025-12-06;Resting HR;Measurement;56
+2025-12-06;Stability Score;Measurement;3
+2025-12-05;Mentally demanding;Cognitive;0
+2025-12-05;Fever;General;1
+2025-12-05;Chest pain;Pain;1
+2025-12-05;Lightheadedness;Brain;3
+2025-12-05;Headache;Brain;0
+2025-12-05;Muscle weakness;Muscles;0
+2025-12-05;Shortness of breath;Heart and Lungs;2
+2025-12-05;Diarrhea;Gastrointestinal;1
+2025-12-05;Socially demanding;Social;0
+2025-12-05;Anxiety;Brain;0
+2025-12-05;Sleep;Sleep;1
+2025-12-05;Palpitations;Heart and Lungs;1
+2025-12-05;Nausea;Gastrointestinal;0
+2025-12-05;Cough;Heart and Lungs;2
+2025-12-05;Crash;Experience;0
+2025-12-05;Emotionally stressful;Emotional;0
+2025-12-05;Depression;Brain;0
+2025-12-05;Physically active;Physical;2
+2025-12-05;Infection;Experience;1
+2025-12-05;Muscle aches;Muscles;2
+2025-12-05;Fatigue;General;1
+2025-12-05;Runny Nose;Custom;2
+2025-12-05;HRV;Measurement;61
+2025-12-05;Resting HR;Measurement;53
+2025-12-05;Stability Score;Measurement;2
+2025-12-04;Mentally demanding;Cognitive;0
+2025-12-04;Fever;General;3
+2025-12-04;Chest pain;Pain;0
+2025-12-04;Lightheadedness;Brain;2
+2025-12-04;Headache;Brain;0
+2025-12-04;Muscle weakness;Muscles;1
+2025-12-04;Shortness of breath;Heart and Lungs;2
+2025-12-04;Diarrhea;Gastrointestinal;2
+2025-12-04;Socially demanding;Social;1
+2025-12-04;Anxiety;Brain;2
+2025-12-04;Sleep;Sleep;2
+2025-12-04;Palpitations;Heart and Lungs;2
+2025-12-04;Nausea;Gastrointestinal;0
+2025-12-04;Cough;Heart and Lungs;2
+2025-12-04;Crash;Experience;0
+2025-12-04;Emotionally stressful;Emotional;0
+2025-12-04;Depression;Brain;2
+2025-12-04;Physically active;Physical;2
+2025-12-04;Infection;Experience;0
+2025-12-04;Muscle aches;Muscles;2
+2025-12-04;Fatigue;General;3
+2025-12-04;Runny Nose;Custom;2
+2025-12-04;HRV;Measurement;62
+2025-12-04;Resting HR;Measurement;58
+2025-12-04;Stability Score;Measurement;3
+2025-12-03;Mentally demanding;Cognitive;0
+2025-12-03;Fever;General;2
+2025-12-03;Chest pain;Pain;2
+2025-12-03;Lightheadedness;Brain;2
+2025-12-03;Headache;Brain;1
+2025-12-03;Muscle weakness;Muscles;0
+2025-12-03;Shortness of breath;Heart and Lungs;0
+2025-12-03;Diarrhea;Gastrointestinal;2
+2025-12-03;Socially demanding;Social;0
+2025-12-03;Anxiety;Brain;0
+2025-12-03;Sleep;Sleep;1
+2025-12-03;Palpitations;Heart and Lungs;2
+2025-12-03;Nausea;Gastrointestinal;0
+2025-12-03;Cough;Heart and Lungs;2
+2025-12-03;Crash;Experience;0
+2025-12-03;Emotionally stressful;Emotional;1
+2025-12-03;Depression;Brain;1
+2025-12-03;Physically active;Physical;0
+2025-12-03;Infection;Experience;0
+2025-12-03;Muscle aches;Muscles;1
+2025-12-03;Fatigue;General;1
+2025-12-03;Runny Nose;Custom;0
+2025-12-03;HRV;Measurement;56
+2025-12-03;Resting HR;Measurement;55
+2025-12-03;Stability Score;Measurement;3
+2025-12-02;Mentally demanding;Cognitive;2
+2025-12-02;Fever;General;3
+2025-12-02;Chest pain;Pain;0
+2025-12-02;Lightheadedness;Brain;1
+2025-12-02;Headache;Brain;3
+2025-12-02;Muscle weakness;Muscles;1
+2025-12-02;Shortness of breath;Heart and Lungs;2
+2025-12-02;Diarrhea;Gastrointestinal;2
+2025-12-02;Socially demanding;Social;2
+2025-12-02;Anxiety;Brain;0
+2025-12-02;Sleep;Sleep;2
+2025-12-02;Palpitations;Heart and Lungs;0
+2025-12-02;Nausea;Gastrointestinal;0
+2025-12-02;Cough;Heart and Lungs;1
+2025-12-02;Crash;Experience;0
+2025-12-02;Emotionally stressful;Emotional;1
+2025-12-02;Depression;Brain;0
+2025-12-02;Physically active;Physical;1
+2025-12-02;Infection;Experience;0
+2025-12-02;Muscle aches;Muscles;1
+2025-12-02;Fatigue;General;1
+2025-12-02;Runny Nose;Custom;2
+2025-12-02;HRV;Measurement;55
+2025-12-02;Resting HR;Measurement;50
+2025-12-02;Stability Score;Measurement;2
+2025-12-01;Mentally demanding;Cognitive;1
+2025-12-01;Fever;General;2
+2025-12-01;Chest pain;Pain;0
+2025-12-01;Lightheadedness;Brain;0
+2025-12-01;Headache;Brain;2
+2025-12-01;Muscle weakness;Muscles;0
+2025-12-01;Shortness of breath;Heart and Lungs;1
+2025-12-01;Diarrhea;Gastrointestinal;1
+2025-12-01;Socially demanding;Social;2
+2025-12-01;Anxiety;Brain;2
+2025-12-01;Sleep;Sleep;0
+2025-12-01;Palpitations;Heart and Lungs;1
+2025-12-01;Nausea;Gastrointestinal;1
+2025-12-01;Cough;Heart and Lungs;2
+2025-12-01;Crash;Experience;0
+2025-12-01;Emotionally stressful;Emotional;0
+2025-12-01;Depression;Brain;2
+2025-12-01;Physically active;Physical;0
+2025-12-01;Infection;Experience;0
+2025-12-01;Muscle aches;Muscles;1
+2025-12-01;Fatigue;General;3
+2025-12-01;Runny Nose;Custom;2
+2025-12-01;HRV;Measurement;56
+2025-12-01;Resting HR;Measurement;58
+2025-12-01;Stability Score;Measurement;3
