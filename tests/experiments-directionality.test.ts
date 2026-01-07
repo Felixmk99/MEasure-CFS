@@ -1,5 +1,5 @@
 import { analyzeExperiments, Experiment, MetricDay } from '../lib/statistics/experiment-analysis';
-import { getMetricRegistryConfig } from '../lib/metrics/registry';
+
 
 describe('Experiments Logic - Metric Directionality', () => {
     // 30 days of data
@@ -41,7 +41,7 @@ describe('Experiments Logic - Metric Directionality', () => {
         expect(impact).toBeDefined();
         expect(impact?.coefficient).toBeGreaterThan(0); // It went up
 
-        // This is expected to FAIL currently because default is "lower is better"
+        // Energy is classified as "higher is better" via the registry heuristic
         expect(impact?.significance).toBe('positive'); // Increasing Energy is GOOD
     });
 });

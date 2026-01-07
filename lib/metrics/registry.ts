@@ -55,7 +55,11 @@ export function getMetricRegistryConfig(metric: string): MetricConfig {
     // Default Behavior: 
     // Heuristic Check for Positive Valence words
     const positiveKeywords = ['energy', 'mood', 'wellness', 'quality', 'health', 'fitness', 'happiness', 'calm', 'relax', 'focus', 'clarity', 'libido', 'strength'];
-    const isLikelyPositive = positiveKeywords.some(kw => key.includes(kw));
+    // Use word boundaries to avoid false positives (e.g., "unhealthy" shouldn't match "health")
+    const isLikelyPositive = positiveKeywords.some(kw => {
+        const regex = new RegExp(`\\b${kw}\\b`, 'i');
+        return regex.test(key); // Check against lowercased key
+    });
 
     if (isLikelyPositive) {
         return {
