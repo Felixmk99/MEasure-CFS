@@ -12,54 +12,42 @@ import { cn } from '@/lib/utils'
 const SYMPTOM_PROVIDERS = [
     {
         id: 'visible',
-        name: 'Visible App',
         icon: Activity,
         color: 'bg-rose-50 dark:bg-rose-900/20',
         textColor: 'text-rose-600 dark:text-rose-400',
-        description: 'Morning stability and daily check-ins'
     },
     {
         id: 'bearable',
-        name: 'Bearable App',
         icon: ClipboardList,
         color: 'bg-orange-50 dark:bg-orange-900/20',
         textColor: 'text-orange-600 dark:text-orange-400',
-        description: 'Extensive symptom and factor tracking'
     }
 ] as const
 
 const STEP_PROVIDERS = [
     {
         id: 'apple',
-        name: 'Apple Health',
         icon: Smartphone,
         color: 'bg-zinc-100 dark:bg-zinc-900',
         textColor: 'text-zinc-900 dark:text-zinc-100',
-        description: 'iPhone and Apple Watch users'
     },
     {
         id: 'google',
-        name: 'Google Fit',
         icon: Activity,
         color: 'bg-blue-50 dark:bg-blue-900/20',
         textColor: 'text-blue-600 dark:text-blue-400',
-        description: 'Android and Google ecosystem'
     },
     {
         id: 'samsung',
-        name: 'Samsung Health',
         icon: Laptop,
         color: 'bg-indigo-50 dark:bg-indigo-900/20',
         textColor: 'text-indigo-600 dark:text-indigo-400',
-        description: 'Samsung Galaxy devices'
     },
     {
         id: 'csv',
-        name: 'CSV File',
         icon: FileSpreadsheet,
         color: 'bg-stone-50 dark:bg-stone-900',
         textColor: 'text-stone-600 dark:text-stone-400',
-        description: 'Upload generic CSV file'
     }
 ] as const
 

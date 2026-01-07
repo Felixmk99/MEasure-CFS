@@ -22,6 +22,10 @@ jest.mock('../components/providers/upload-provider', () => ({
     useUpload: jest.fn(),
 }));
 
+jest.mock('../components/providers/language-provider', () => ({
+    useLanguage: () => ({ t: (key: string) => key }),
+}));
+
 jest.mock('../lib/supabase/client', () => ({
     createClient: jest.fn().mockReturnValue({
         auth: {
@@ -160,9 +164,9 @@ describe('Persistence & Onboarding Logic', () => {
 
             // Step 2 features "Choose your Step Provider"
             await waitFor(() => {
-                expect(screen.getByText(/Step Provider/i)).toBeInTheDocument();
+                expect(screen.getByText('onboarding.step_provider_title')).toBeInTheDocument();
                 // Check that its not step 1
-                expect(screen.queryByText(/Symptom Tracking?/i)).not.toBeInTheDocument();
+                expect(screen.queryByText('onboarding.symptom_tracking_title')).not.toBeInTheDocument();
             });
         });
     });
