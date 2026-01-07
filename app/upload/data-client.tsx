@@ -279,14 +279,14 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                 {/* Data Log Section - Only if Has Data */}
                 {hasData && (
                     <div className="space-y-6 pt-8 border-t">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <h3 className="text-lg font-semibold flex items-center gap-2">
                                 <FileText className="w-4 h-4 text-muted-foreground" />
                                 {t('upload.data_log.title')}
                             </h3>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                 <Select value={timeRange} onValueChange={setTimeRange}>
-                                    <SelectTrigger className="w-[140px] h-9 text-xs rounded-full bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+                                    <SelectTrigger className="w-full sm:w-[140px] h-9 text-xs rounded-full bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
                                         <SelectValue placeholder={t('dashboard.time_ranges.all')} />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -297,7 +297,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                         <SelectItem value="6m">{t('dashboard.time_ranges.m6')}</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Button variant="destructive" size="sm" onClick={handleDeleteAll} className="h-9 px-4 rounded-full text-xs font-semibold">
+                                <Button variant="destructive" size="sm" onClick={handleDeleteAll} className="h-9 px-4 rounded-full text-xs font-semibold flex-1 sm:flex-none whitespace-nowrap">
                                     {t('upload.data_log.delete_all')}
                                 </Button>
                             </div>
@@ -308,33 +308,33 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                 <table className="w-full text-sm text-left">
                                     <thead className="text-xs text-muted-foreground uppercase bg-zinc-50 dark:bg-zinc-950 border-b">
                                         <tr>
-                                            <th className="px-6 py-3 font-medium">{t('upload.data_log.table.date')}</th>
-                                            <th className="px-6 py-3 font-medium">{t('upload.data_log.table.rhr')}</th>
-                                            <th className="px-6 py-3 font-medium">{t('upload.data_log.table.hrv')}</th>
-                                            <th className="px-6 py-3 font-medium">{t('upload.data_log.table.steps')}</th>
-                                            <th className="px-6 py-3 font-medium">{t('upload.data_log.table.symptoms')}</th>
-                                            <th className="px-6 py-3 font-medium text-right">{t('upload.data_log.table.action')}</th>
+                                            <th className="px-3 py-3 sm:px-6 font-medium whitespace-nowrap">{t('upload.data_log.table.date')}</th>
+                                            <th className="px-3 py-3 sm:px-6 font-medium whitespace-nowrap">{t('upload.data_log.table.rhr')}</th>
+                                            <th className="px-3 py-3 sm:px-6 font-medium whitespace-nowrap">{t('upload.data_log.table.hrv')}</th>
+                                            <th className="px-3 py-3 sm:px-6 font-medium whitespace-nowrap">{t('upload.data_log.table.steps')}</th>
+                                            <th className="px-3 py-3 sm:px-6 font-medium whitespace-nowrap">{t('upload.data_log.table.symptoms')}</th>
+                                            <th className="px-3 py-3 sm:px-6 font-medium text-right whitespace-nowrap">{t('upload.data_log.table.action')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                                         {filteredData.length > 0 ? (
                                             filteredData.map((entry) => (
                                                 <tr key={entry.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                                                    <td className="px-6 py-4 font-medium flex items-center gap-2">
-                                                        <Calendar className="w-3 h-3 text-muted-foreground" />
+                                                    <td className="px-3 py-3 sm:px-6 sm:py-4 font-medium flex items-center gap-2 whitespace-nowrap">
+                                                        <Calendar className="w-3 h-3 text-muted-foreground shrink-0" />
                                                         {!mounted ? entry.date : new Date(entry.date).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </td>
-                                                    <td className="px-6 py-4 text-muted-foreground">{entry.resting_heart_rate ? `${entry.resting_heart_rate} bpm` : '-'}</td>
-                                                    <td className="px-6 py-4 text-muted-foreground">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>
-                                                    <td className="px-6 py-4 text-muted-foreground">
+                                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-muted-foreground whitespace-nowrap">{entry.resting_heart_rate ? `${entry.resting_heart_rate} bpm` : '-'}</td>
+                                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-muted-foreground whitespace-nowrap">{entry.hrv ? `${entry.hrv} ms` : '-'}</td>
+                                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-muted-foreground whitespace-nowrap">
                                                         {entry.step_count
                                                             ? (!mounted ? entry.step_count : entry.step_count.toLocaleString())
                                                             : '-'}
                                                     </td>
-                                                    <td className="px-6 py-4 text-muted-foreground font-medium text-[#F59E0B]">
+                                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-muted-foreground font-medium text-[#F59E0B] whitespace-nowrap">
                                                         {entry.symptom_score ?? '-'}
                                                     </td>
-                                                    <td className="px-6 py-4 text-right flex justify-end gap-1">
+                                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-right flex justify-end gap-1 whitespace-nowrap">
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"

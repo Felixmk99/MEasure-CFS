@@ -755,6 +755,11 @@ export interface Dictionary {
         dialog_desc: string
         open_paypal: string
     }
+    mobile_popup: {
+        title: string
+        description: string
+        close: string
+    }
 }
 
 

@@ -14,7 +14,7 @@ import { Heart } from "lucide-react"
 import { useLanguage } from "@/components/providers/language-provider"
 import Image from "next/image"
 
-export function DonationDialog() {
+export function DonationDialog({ variant = 'default' }: { variant?: 'default' | 'mobile' }) {
     const { t } = useLanguage()
     const [open, setOpen] = useState(false)
 
@@ -23,11 +23,16 @@ export function DonationDialog() {
             <DialogTrigger asChild>
                 <Button
                     variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 mr-2"
+                    size={variant === 'mobile' ? 'default' : 'sm'}
+                    className={variant === 'mobile'
+                        ? "w-full justify-start text-base font-medium px-2 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20"
+                        : "text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 mr-2"
+                    }
                 >
-                    <Heart className="w-4 h-4 mr-2" />
-                    <span className="hidden lg:inline">{t('donation.button_label')}</span>
+                    <Heart className={variant === 'mobile' ? "w-4 h-4 mr-2 text-red-500" : "w-4 h-4 mr-2"} />
+                    <span className={variant === 'mobile' ? "" : "hidden lg:inline"}>
+                        {t('donation.button_label')}
+                    </span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">

@@ -15,7 +15,15 @@ import {
   BarChart3,
   FileUp,
   Download,
+  ArrowRight,
+  BarChart2,
+  Shield,
+  Share2,
+  FileText,
+  Activity,
+  BrainCircuit,
 } from "lucide-react"
+import { MobileExperiencePopup } from '@/components/layout/mobile-experience-popup'
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
@@ -228,7 +236,7 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-              <div className="order-2 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-[#60A5FA]/5 to-white/50 border border-[#60A5FA]/20 relative overflow-hidden bg-gradient-radial from-[#60A5FA]/10 via-transparent to-transparent z-10">
+              <div className="hidden md:block order-2 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-[#60A5FA]/5 to-white/50 border border-[#60A5FA]/20 relative overflow-hidden bg-gradient-radial from-[#60A5FA]/10 via-transparent to-transparent z-10">
                 <div className="space-y-3 relative z-10">
                   {[
                     { label: t('landing.steps.metrics.hrv'), value: "62.4", unit: "ms", bar: "75%" },
@@ -252,7 +260,7 @@ export default function LandingPage() {
             {/* Step 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-16 lg:mb-24 relative">
               <div className="absolute left-1/2 top-12 w-3 h-3 bg-primary rounded-full -translate-x-1/2 hidden lg:block border-2 border-white shadow-lg" />
-              <div className="order-2 lg:order-1 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-white/50 to-primary/5 border border-primary/20 relative flex flex-col items-center z-10">
+              <div className="hidden md:block order-2 lg:order-1 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-white/50 to-primary/5 border border-primary/20 relative flex flex-col items-center z-10">
                 <div className="flex items-center justify-between w-full mb-6 px-2 sm:px-4 gap-2">
                   <div className="text-center">
                     <div className="text-lg sm:text-xl font-bold text-slate-900 font-mono">+24%</div>
@@ -306,7 +314,7 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-              <div className="order-2 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-primary/5 to-white/50 border border-primary/20 relative bg-gradient-radial from-accent/10 via-transparent to-transparent z-10">
+              <div className="hidden md:block order-2 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-primary/5 to-white/50 border border-primary/20 relative bg-gradient-radial from-accent/10 via-transparent to-transparent z-10">
                 <div className="space-y-3 relative z-10">
                   <div className="p-3 rounded-lg bg-rose-50/80 border border-rose-200">
                     <div className="flex items-center justify-between mb-1">
@@ -367,6 +375,7 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+        <MobileExperiencePopup />
       </section>
     </div>
   )

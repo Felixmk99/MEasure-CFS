@@ -129,25 +129,25 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                 transition={{ delay: baseDelay + i * 0.1 }}
             >
                 <Card className={`h-full border-none shadow-lg bg-gradient-to-br ${bgGradient} border-l-4`}>
-                    <CardContent className="pt-6">
-                        <div className="flex items-start gap-4">
-                            <div className={`p-2 rounded-lg ${iconBg}`}>
-                                <Icon className="w-5 h-5" />
+                    <CardContent className="p-4 sm:pt-6">
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className={`p-1.5 sm:p-2 rounded-lg ${iconBg} shrink-0`}>
+                                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-bold text-zinc-900 dark:text-zinc-100">
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100 truncate">
                                             {t(titleKey as string)}
                                         </h3>
                                         {c.coefficient > 0 ? (
-                                            <TrendingUp className={`w-4 h-4 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
+                                            <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
                                         ) : (
-                                            <TrendingDown className={`w-4 h-4 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
+                                            <TrendingDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
                                         )}
                                     </div>
                                 </div>
-                                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed whitespace-pre-line">
+                                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed whitespace-pre-line break-words">
                                     {formatDescription(c)}
                                 </p>
                             </div>
@@ -207,7 +207,7 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                         <Zap className="w-5 h-5 text-indigo-600" />
                         {t('insights.patterns.same_day')}
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                         {lag0.map((c, i) => renderCorrelationCard(c, i, currentDelay))}
                     </div>
                 </section>
@@ -222,7 +222,7 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                         <Calendar className="w-5 h-5 text-purple-600" />
                         {t('insights.patterns.next_day')}
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                         {lag1.map((c, i) => renderCorrelationCard(c, i, currentDelay))}
                     </div>
                 </section>
@@ -237,7 +237,7 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                         <Calendar className="w-5 h-5 text-indigo-600" />
                         {t('insights.patterns.two_day')}
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                         {lag2.map((c, i) => renderCorrelationCard(c, i, currentDelay))}
                     </div>
                 </section>

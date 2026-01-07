@@ -313,7 +313,7 @@ export default function Navbar() {
                                 ) : (
                                     <>
                                         <DropdownMenuItem asChild>
-                                            <Link href="/login" className="w-full text-base font-medium py-2">{t('navbar.login')}</Link>
+                                            <Link href="/login" className="w-full text-base font-medium py-2 px-2">{t('navbar.login')}</Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild>
                                             <Link href="/signup" className="w-full text-base font-medium py-2 bg-primary text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground rounded-md text-center justify-center">
@@ -326,12 +326,12 @@ export default function Navbar() {
                                 <DropdownMenuSeparator />
 
                                 {/* Universal Actions (Donation & Language) */}
-                                <div className="pt-2 flex flex-col gap-3">
-                                    <div className="flex justify-center w-full">
-                                        <DonationDialog />
+                                <div className="pt-2 flex flex-col gap-1">
+                                    <div className="w-full">
+                                        <DonationDialog variant="mobile" />
                                     </div>
-                                    <div className="flex justify-center w-full">
-                                        <LanguageSwitcher />
+                                    <div className="w-full">
+                                        <LanguageSwitcher variant="mobile" />
                                     </div>
                                 </div>
                             </div>

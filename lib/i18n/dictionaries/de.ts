@@ -822,5 +822,10 @@ export const de: Dictionary = {
         dialog_title: "ME/CFS Forschung Unterstützen",
         dialog_desc: "MEasure-CFS ist und bleibt kostenlos. Wenn du dich beim Ersteller bedanken möchtest, kannst du in diesen PayPal Pool spenden. Alle gesammelten Gelder werden an die ME/CFS Research Foundation weitergeleitet.",
         open_paypal: "Über PayPal Spenden"
+    },
+    mobile_popup: {
+        title: "Schön, dass du da bist!",
+        description: "Kurzer Hinweis: MEasure-CFS wurde für detaillierte Datenanalysen entwickelt und funktioniert am besten auf einem PC oder Laptop.",
+        close: "Verstanden"
     }
 }
