@@ -666,7 +666,7 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                     checked={showCrashes}
                                     onCheckedChange={setShowCrashes}
                                 />
-                                <Label htmlFor="pem-mode" className="text-[10px] sm:text-xs text-muted-foreground">{t('dashboard.pem_mode')}</Label>
+                                <Label htmlFor="pem-mode" className="text-xs text-muted-foreground">{t('dashboard.pem_mode')}</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Switch
@@ -680,11 +680,11 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                         }
                                     }}
                                 />
-                                <Label htmlFor="compare-mode" className="text-[10px] sm:text-xs text-muted-foreground">{t('dashboard.compare_mode')}</Label>
+                                <Label htmlFor="compare-mode" className="text-xs text-muted-foreground">{t('dashboard.compare_mode')}</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Switch id="trend-mode" checked={showTrend} onCheckedChange={setShowTrend} />
-                                <Label htmlFor="trend-mode" className="text-[10px] sm:text-xs text-muted-foreground">{t('dashboard.trend_mode')}</Label>
+                                <Label htmlFor="trend-mode" className="text-xs text-muted-foreground">{t('dashboard.trend_mode')}</Label>
                             </div>
                         </div>
 

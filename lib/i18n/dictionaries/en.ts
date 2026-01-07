@@ -50,7 +50,6 @@ export const en: Dictionary = {
             stress: "Stress",
             palpitations: "Palpitations",
             stability_score: "Stability Score",
-            "stability score": "Stability Score",
             muscle_aches: "Muscle Aches",
             energy: "Energy"
         }

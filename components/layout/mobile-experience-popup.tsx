@@ -26,7 +26,7 @@ export function MobileExperiencePopup() {
                     // Mark as seen immediately so it doesn't show again on refresh even if they don't close it explicitly
                     try {
                         localStorage.setItem('hasSeenDesktopHint', 'true')
-                    } catch (e) {
+                    } catch {
                         // Ignore write errors (e.g. quota exceeded)
                     }
                 }, 4000)

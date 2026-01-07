@@ -284,7 +284,7 @@ export default function Navbar() {
                                             </Link>
                                         </DropdownMenuItem>
 
-                                        {hasMissingSteps && (
+                                        {hasData && hasMissingSteps && (
                                             <DropdownMenuItem asChild className="text-blue-500 focus:text-blue-600">
                                                 <Link href="/upload?tab=apple" className="flex items-center gap-2 py-2">
                                                     <Footprints className="w-4 h-4" />
