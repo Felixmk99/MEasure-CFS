@@ -71,8 +71,6 @@ describe('Funcap Calculation Logic', () => {
         const result = normalizeLongFormatData(rows);
         expect(result[0].custom_metrics['Funcap Score']).toBe(15);
     });
-});
-
     it('should calculate the simple average and round to 1 decimal place', () => {
         const rows = [
             { 'date': '2026-01-01', 'name': 'Item1', 'value': '1', 'category': 'Funcap_A' },
@@ -87,3 +85,39 @@ describe('Funcap Calculation Logic', () => {
         const result = normalizeLongFormatData(rows);
         expect(result[0].custom_metrics['Funcap Score']).toBe(0.3);
     });
+
+    // Edge Cases
+
+    it('should NOT create Funcap Score if no funcap items exist', () => {
+        const rows = [
+            { 'date': '2026-01-01', 'name': 'Steps', 'value': '5000', 'category': 'Activity' }
+        ];
+
+        const result = normalizeLongFormatData(rows);
+        expect(result[0].custom_metrics['Funcap Score']).toBeUndefined();
+    });
+
+    it('should handle all zero values correctly', () => {
+        const rows = [
+            { 'date': '2026-01-01', 'name': 'Item1', 'value': '0', 'category': 'Funcap_A' },
+            { 'date': '2026-01-01', 'name': 'Item2', 'value': '0', 'category': 'Funcap_B' },
+        ];
+
+        const result = normalizeLongFormatData(rows);
+        expect(result[0].custom_metrics['Funcap Score']).toBe(0);
+    });
+
+    it('should ignore invalid (non-numeric) values', () => {
+        const rows = [
+            { 'date': '2026-01-01', 'name': 'Item1', 'value': '10', 'category': 'Funcap_A' },
+            { 'date': '2026-01-01', 'name': 'Item2', 'value': 'NaN', 'category': 'Funcap_B' }, // Should be ignored or treated as 0 depending on parser?
+            // Current parser uses parseFloat. 'NaN' becomes NaN.
+            // normalizer.ts: const val = parseFloat(...) -> if !isNaN(val) -> push
+        ];
+
+        const result = normalizeLongFormatData(rows);
+        // If 'NaN' is parsed as NaN, the check in normalizer (if !isNaN) should skip it.
+        // So Average should be 10 / 1 = 10.
+        expect(result[0].custom_metrics['Funcap Score']).toBe(10);
+    });
+});
