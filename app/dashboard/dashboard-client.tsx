@@ -860,6 +860,8 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                             {/* Render Metrics */}
                             {selectedMetrics.map((metric, index) => {
                                 const config = getMetricConfig(metric)
+                                const isSparse = metric === 'Funcap Score' // Only show dots for sparse/single-point metrics
+
                                 // Primary = Area. Others = Line.
                                 if (index === 0) {
                                     return (
@@ -873,7 +875,9 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                             strokeOpacity={showTrend ? 0.2 : 1}
                                             fillOpacity={showTrend ? 0.3 : 0.6}
                                             activeDot={{ r: 6 }}
+                                            dot={isSparse ? { r: 3, fill: config.color, strokeWidth: 0 } : false}
                                             yAxisId={metric}
+                                            connectNulls
                                         />
                                     )
                                 } else {
@@ -885,9 +889,10 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                             stroke={config.color}
                                             strokeWidth={2}
                                             strokeOpacity={showTrend ? 0.2 : 1}
-                                            dot={false}
+                                            dot={isSparse ? { r: 3, fill: config.color, strokeWidth: 0 } : false}
                                             activeDot={{ r: 6 }}
                                             yAxisId={metric}
+                                            connectNulls
                                         />
                                     )
                                 }

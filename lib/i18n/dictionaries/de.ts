@@ -51,6 +51,7 @@ export const de: Dictionary = {
             palpitations: "Herzklopfen",
             stability_score: "Stabilitäts-Score",
             "stability score": "Stabilitäts-Score",
+            "funcap score": "Funcap Score",
             muscle_aches: "Muskelschmerzen",
             energy: "Energie"
         }

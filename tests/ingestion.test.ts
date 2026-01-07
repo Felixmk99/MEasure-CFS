@@ -64,14 +64,18 @@ describe('Data Ingestion Normalizers', () => {
             expect(result[0].custom_metrics['Brain Fog']).toBe(4);
         });
 
-        it('should exclude Infection and funcap_ categories', () => {
+        it('should exclude Infection but aggregate funcap_ categories', () => {
             const rows = [
                 { 'date': '2026-01-01', 'name': 'Infection', 'value': '1' },
-                { 'date': '2026-01-01', 'name': 'Any Name', 'value': '5', 'category': 'funcap_walking' }
+                { 'date': '2026-01-01', 'name': 'Walking', 'value': '5', 'category': 'funcap_walking' },
+                { 'date': '2026-01-01', 'name': 'Concentration', 'value': '3', 'category': 'funcap_concentration' }
             ];
             const result = normalizeLongFormatData(rows);
             expect(result[0].custom_metrics['Infection']).toBeUndefined();
-            expect(result[0].custom_metrics['Any Name']).toBeUndefined();
+            // Individual items should be discarded
+            expect(result[0].custom_metrics['Walking']).toBeUndefined();
+            // Aggregated score should exist (Average of 5 and 3 = 4)
+            expect(result[0].custom_metrics['Funcap Score']).toBe(4);
         });
     });
 });

@@ -51,6 +51,7 @@ export const en: Dictionary = {
             palpitations: "Palpitations",
             stability_score: "Stability Score",
             "stability score": "Stability Score",
+            "funcap score": "Funcap Score",
             muscle_aches: "Muscle Aches",
             energy: "Energy"
         }

@@ -179,6 +179,7 @@ function extractAvailableMetrics(data: InsightMetric[]): string[] {
             // Exclude normalized metrics, date, and custom_metrics container
             if (k !== 'date' &&
                 k !== 'custom_metrics' &&
+                k !== 'Funcap Score' &&
                 !k.toLowerCase().includes('normalized') &&
                 typeof d[k] === 'number') {
                 keys.add(k);
@@ -188,6 +189,7 @@ function extractAvailableMetrics(data: InsightMetric[]): string[] {
             Object.keys(d.custom_metrics).forEach(k => {
                 // Exclude normalized custom metrics
                 if (!k.toLowerCase().includes('normalized') &&
+                    k !== 'Funcap Score' &&
                     typeof d.custom_metrics?.[k] === 'number') { // Redundant !isNaN removed
                     keys.add(k);
                 }
