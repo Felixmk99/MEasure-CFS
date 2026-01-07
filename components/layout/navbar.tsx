@@ -45,7 +45,6 @@ export default function Navbar() {
         try {
             await supabase.auth.signOut()
             router.replace('/')
-            router.refresh()
         } catch (error) {
             console.error('Logout failed:', error)
             window.location.href = '/'

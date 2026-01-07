@@ -13,16 +13,16 @@ interface InsightsCardsProps {
 }
 
 // Helper for rounding/formatting numbers
-function formatNumber(value: number): string {
-    if (value >= 1000) return Math.round(value).toLocaleString();
+function formatNumber(value: number, locale: string): string {
+    if (value >= 1000) return Math.round(value).toLocaleString(locale);
     if (value >= 10) return Math.round(value).toString();
-    return value.toFixed(1);
+    return value.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 }
 
 
 
 export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) {
-    const { t } = useLanguage()
+    const { t, locale } = useLanguage()
 
     const tMetric = (key: string) => {
         // 1. Try direct lookup (e.g. "step_count")
@@ -61,17 +61,17 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
         // Neutral Pattern: "{metric} > {value}" or similar
         const recommendation = `${emoji} ${t('insights.logic.recommendation_pattern', {
             metric: metricAName,
-            value: formatNumber(c.medianA)
+            value: formatNumber(c.medianA, locale)
         })}`;
 
-        const impact = `${direction} ${metricBName} ${t('insights.logic.by')} ${Math.round(c.percentChange)}% (${t('insights.logic.from')} ${formatNumber(c.typicalValue)} ${t('insights.logic.to')} ${formatNumber(c.improvedValue)})`;
+        const impact = `${direction} ${metricBName} ${t('insights.logic.by')} ${Math.round(c.percentChange)}% (${t('insights.logic.from')} ${formatNumber(c.typicalValue, locale)} ${t('insights.logic.to')} ${formatNumber(c.improvedValue, locale)})`;
 
         return `${recommendation}\n→ ${impact}`;
     }
 
     const formatThresholdDescription = (ti: ThresholdInsight) => {
         return t('insights.logic.threshold_desc', {
-            limit: formatNumber(ti.safeZoneLimit),
+            limit: formatNumber(ti.safeZoneLimit, locale),
             metric: tMetric(ti.metric),
             impact: tMetric(ti.impactMetric)
         });
