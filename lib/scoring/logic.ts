@@ -27,7 +27,7 @@ export const SYMPTOM_EXCLUSIONS = [
     'exertion_score',
     'symptom_score',
     'HRV', 'Resting HR', 'Steps', 'Step Count', 'Infection', // Standard metrics
-    'Mood', 'Energy', 'Caffeine', 'Weather',
+    'Mood', 'Energy', 'Caffeine', 'Weather', 'Funcap Score',
 
     // Lowercase variants safe-guard
     'hrv', 'resting_heart_rate', 'step_count', 'sleep', 'note', 'tag', 'infection',

@@ -47,7 +47,7 @@ export function analyzeExperiments(
         'date', 'id', 'user_id', 'created_at', 'custom_metrics',
         'normalized_hrv', 'normalized_rhr', 'normalized_steps',
         'normalized_sleep', 'normalized_exertion',
-        'Crash', 'Infection', 'exertion_score',
+        'Crash', 'Infection', 'exertion_score', 'Funcap Score',
         ...EXERTION_METRICS
     ];
 

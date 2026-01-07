@@ -873,7 +873,9 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                             strokeOpacity={showTrend ? 0.2 : 1}
                                             fillOpacity={showTrend ? 0.3 : 0.6}
                                             activeDot={{ r: 6 }}
+                                            dot={{ r: 3, fill: config.color, strokeWidth: 0 }}
                                             yAxisId={metric}
+                                            connectNulls
                                         />
                                     )
                                 } else {
@@ -885,9 +887,10 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                             stroke={config.color}
                                             strokeWidth={2}
                                             strokeOpacity={showTrend ? 0.2 : 1}
-                                            dot={false}
+                                            dot={{ r: 3, fill: config.color, strokeWidth: 0 }}
                                             activeDot={{ r: 6 }}
                                             yAxisId={metric}
+                                            connectNulls
                                         />
                                     )
                                 }

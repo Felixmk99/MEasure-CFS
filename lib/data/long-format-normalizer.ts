@@ -14,6 +14,7 @@ interface DailyRecord {
     exertion_score?: number;
     composite_score?: number;
     _has_trackers?: boolean;
+    _funcap_values?: number[];
 }
 
 /**
@@ -76,10 +77,16 @@ export function normalizeLongFormatData(rows: RawRecord[]) {
             default:
                 // Everything else goes into Custom Metrics
                 if (name && value !== undefined && !isNaN(value)) {
-                    // Filter out Funcap values or 'Infection' from custom_metrics (requested by user)
-                    if ((category && category.toLowerCase().startsWith('funcap_')) || name === 'Infection') {
-                        // Skip
-                    } else {
+                    // Check for Funcap data
+                    if (category && category.toLowerCase().startsWith('funcap_')) {
+                        // Store in a temporary array for this day to be aggregated later
+                        // We use a non-exported property key to hold these values temporarily
+                        if (!record._funcap_values) {
+                            record._funcap_values = [];
+                        }
+                        record._funcap_values.push(value);
+                    } else if (name !== 'Infection') {
+                        // Standard Custom Metric
                         record.custom_metrics[name] = value;
                         record._has_trackers = true;
                     }
@@ -90,6 +97,15 @@ export function normalizeLongFormatData(rows: RawRecord[]) {
 
     // Final pass: Collapse dailyRecords into array
     return Object.values(dailyRecords).map(record => {
+        // Aggregate FUNCAP values if present
+        if (record._funcap_values && record._funcap_values.length > 0) {
+            const sum = record._funcap_values.reduce((a, b) => a + b, 0);
+            const avg = sum / record._funcap_values.length;
+            record.custom_metrics['Funcap Score'] = Number(avg.toFixed(1));
+            record._has_trackers = true; // Ensure it counts as data
+        }
+        delete record._funcap_values;
+
         // Only calculate/update scores if tracker data was actually found in this CSV for this date.
         // This prevents overwriting existing scores with 0 if processing a partial CSV (e.g. only Wellness data).
         if (record._has_trackers) {
