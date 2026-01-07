@@ -110,7 +110,46 @@ export function analyzeExperiments(
 
         if (y.length < 10) return;
 
-        const regression = solveOLS(X, y);
+        // 3. Matrix Cleaning: Remove Constant and Collinear Columns
+        // Identify valid columns (experiments) to include in the regression
+        const validExperimentIndices: number[] = [];
+        const seenVectors = new Set<string>();
+
+        // Check each experiment's column in X
+        // X[i][j] where j=0 is intercept, j>0 is experiment
+        const numExperiments = experiments.length;
+
+        for (let j = 0; j < numExperiments; j++) {
+            const colIndex = j + 1; // Skip intercept
+            const colVector = X.map(row => row[colIndex]);
+
+            // Check Variance: Must have both 0s and 1s
+            const hasZeros = colVector.includes(0);
+            const hasOnes = colVector.includes(1);
+
+            if (!hasZeros || !hasOnes) {
+                // Constant column (all 0s or all 1s) -> Exclude
+                // (All 1s is collinear with intercept, All 0s has no effect)
+                continue;
+            }
+
+            // Check Collinearity: Duplicate vectors
+            const vectorKey = colVector.join('');
+            if (seenVectors.has(vectorKey)) {
+                // Perfectly collinear with a previous experiment -> Exclude
+                continue;
+            }
+            seenVectors.add(vectorKey);
+
+            validExperimentIndices.push(j);
+        }
+
+        // Rebuild X with only valid columns + Intercept
+        const XCommon = X.map(row => {
+            return [1, ...validExperimentIndices.map(expIdx => row[expIdx + 1])];
+        });
+
+        const regression = solveOLS(XCommon, y);
         if (!regression) return;
 
         const { betas, XTXInv, rss } = regression;
@@ -123,11 +162,16 @@ export function analyzeExperiments(
         // Variance of residuals: sigma^2 = RSS / (n - k)
         const sigmaSq = rss / df;
 
-        experiments.forEach((exp, idx) => {
-            const coeff = betas[idx + 1]; // idx+1 because index 0 is intercept
+        // Map results back to ORIGINAL Experiment IDs
+        validExperimentIndices.forEach((originalExpIndex, mappedIndex) => {
+            const exp = experiments[originalExpIndex];
+
+            // mappedIndex corresponds to betas[mappedIndex + 1] (skipping intercept)
+            const betaIndex = mappedIndex + 1;
+            const coeff = betas[betaIndex];
 
             // Standard Error: sqrt(sigma^2 * XTXInv[j][j])
-            const se = Math.sqrt(sigmaSq * XTXInv[idx + 1][idx + 1]);
+            const se = Math.sqrt(sigmaSq * XTXInv[betaIndex][betaIndex]);
 
             // T-Statistic (or Z-score for large n)
             const tStat = coeff / (se || 1e-10);
