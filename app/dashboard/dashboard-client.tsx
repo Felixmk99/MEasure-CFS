@@ -603,35 +603,35 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                         <div className="flex items-center gap-2 mt-1 sm:mt-0">
                                             {/* Badge 1: Period Trend (Visible Range) */}
                                             <Badge variant="outline" className={cn(
-                                                "px-1.5 py-0 md:px-2.5 md:py-0.5",
+                                                "px-1.5 py-0 md:px-2.5 md:py-0.5 min-h-[22px]",
                                                 stat.periodTrendStatus === 'improving' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30",
                                                 stat.periodTrendStatus === 'worsening' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30",
                                                 stat.periodTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800"
                                             )}>
-                                                <span className="hidden sm:inline text-[10px] mr-1 opacity-70">Trend:</span>
-                                                {stat.periodTrendStatus === 'stable' && <Minus className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                {stat.periodTrendStatus !== 'stable' && stat.periodTrendPct > 0 && <TrendingUp className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                {stat.periodTrendStatus !== 'stable' && stat.periodTrendPct < 0 && <TrendingDown className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                <span className="text-[10px] md:text-xs">{Math.abs(stat.periodTrendPct).toFixed(0)}%</span>
+                                                <span className="hidden sm:inline text-xs mr-1 opacity-70">Trend:</span>
+                                                {stat.periodTrendStatus === 'stable' && <Minus className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                {stat.periodTrendStatus !== 'stable' && stat.periodTrendPct > 0 && <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                {stat.periodTrendStatus !== 'stable' && stat.periodTrendPct < 0 && <TrendingDown className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                <span className="text-xs font-medium">{Math.abs(stat.periodTrendPct).toFixed(0)}%</span>
                                             </Badge>
 
                                             {/* Badge 2: Comparison Trend (vs Previous) */}
                                             <Badge variant="outline" className={cn(
-                                                "px-1.5 py-0 md:px-2.5 md:py-0.5",
+                                                "px-1.5 py-0 md:px-2.5 md:py-0.5 min-h-[22px]",
                                                 stat.compareTrendStatus === 'improving' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30",
                                                 stat.compareTrendStatus === 'worsening' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30",
                                                 stat.compareTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800",
                                                 stat.compareTrendStatus === 'insufficient_data' && "bg-zinc-100 text-zinc-400 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-500"
                                             )}>
-                                                <span className="hidden sm:inline text-[10px] mr-1 opacity-70">vs Prev:</span>
+                                                <span className="hidden sm:inline text-xs mr-1 opacity-70">vs Prev:</span>
                                                 {stat.compareTrendStatus === 'insufficient_data' ? (
-                                                    <span className="text-[8px] md:text-[10px]">N/A</span>
+                                                    <span className="text-xs">N/A</span>
                                                 ) : (
                                                     <>
-                                                        {stat.compareTrendStatus === 'stable' && <Minus className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                        {stat.compareTrendStatus !== 'stable' && stat.compareTrendPct > 0 && <TrendingUp className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                        {stat.compareTrendStatus !== 'stable' && stat.compareTrendPct < 0 && <TrendingDown className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                        <span className="text-[10px] md:text-xs">{Math.abs(stat.compareTrendPct).toFixed(0)}%</span>
+                                                        {stat.compareTrendStatus === 'stable' && <Minus className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                        {stat.compareTrendStatus !== 'stable' && stat.compareTrendPct > 0 && <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                        {stat.compareTrendStatus !== 'stable' && stat.compareTrendPct < 0 && <TrendingDown className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                        <span className="text-xs font-medium">{Math.abs(stat.compareTrendPct).toFixed(0)}%</span>
                                                     </>
                                                 )}
                                             </Badge>

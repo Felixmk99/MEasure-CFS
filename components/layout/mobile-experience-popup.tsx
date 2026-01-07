@@ -12,21 +12,30 @@ export function MobileExperiencePopup() {
     const { t } = useLanguage()
 
     useEffect(() => {
-        // 1. Check if we are on mobile (< 768px matches our 'md' breakpoint typically, or use a specific mobile width)
-        const isMobile = window.innerWidth < 768
+        try {
+            // 1. Check if we are on mobile (< 768px matches our 'md' breakpoint typically)
+            const isMobile = window.innerWidth < 768
 
-        // 2. Check if user has seen this before
-        const hasSeenHint = localStorage.getItem('hasSeenDesktopHint')
+            // 2. Check if user has seen this before
+            const hasSeenHint = localStorage.getItem('hasSeenDesktopHint')
 
-        if (isMobile && !hasSeenHint) {
-            // 3. Wait 4 seconds before showing
-            const timer = setTimeout(() => {
-                setIsOpen(true)
-                // Mark as seen immediately so it doesn't show again on refresh even if they don't close it explicitly
-                localStorage.setItem('hasSeenDesktopHint', 'true')
-            }, 4000)
+            if (isMobile && !hasSeenHint) {
+                // 3. Wait 4 seconds before showing
+                const timer = setTimeout(() => {
+                    setIsOpen(true)
+                    // Mark as seen immediately so it doesn't show again on refresh even if they don't close it explicitly
+                    try {
+                        localStorage.setItem('hasSeenDesktopHint', 'true')
+                    } catch (e) {
+                        // Ignore write errors (e.g. quota exceeded)
+                    }
+                }, 4000)
 
-            return () => clearTimeout(timer)
+                return () => clearTimeout(timer)
+            }
+        } catch (error) {
+            // Silently fail if localStorage is not available (e.g., private browsing)
+            console.warn('localStorage not available:', error)
         }
     }, [])
 

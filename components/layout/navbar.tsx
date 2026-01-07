@@ -35,10 +35,22 @@ export default function Navbar() {
     const [user, setUser] = useState<User | null>(null)
     const [hasData, setHasData] = useState<boolean>(false)
     const [hasMissingSteps, setHasMissingSteps] = useState<boolean>(false)
+
     const [mounted, setMounted] = useState(false)
     const { t } = useLanguage()
     const pathname = usePathname()
     const router = useRouter()
+
+    const handleLogout = useCallback(async () => {
+        try {
+            await supabase.auth.signOut()
+            router.replace('/')
+            router.refresh()
+        } catch (error) {
+            console.error('Logout failed:', error)
+            window.location.href = '/'
+        }
+    }, [supabase, router])
 
     const checkUserAndData = useCallback(async () => {
         const { data: { user } } = await supabase.auth.getUser()
@@ -201,16 +213,7 @@ export default function Navbar() {
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={async () => {
-                                        try {
-                                            await supabase.auth.signOut()
-                                            router.replace('/')
-                                            router.refresh()
-                                        } catch (error) {
-                                            console.error('Logout failed:', error)
-                                            window.location.href = '/'
-                                        }
-                                    }}>
+                                    <DropdownMenuItem onClick={handleLogout}>
                                         {t('navbar.logout')}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -296,16 +299,7 @@ export default function Navbar() {
                                             <DropdownMenuItem asChild>
                                                 <Link href="/settings" className="w-full text-base py-2">{t('navbar.settings')}</Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className="w-full text-base py-2 text-red-500 focus:text-red-500" onClick={async () => {
-                                                try {
-                                                    await supabase.auth.signOut()
-                                                    router.replace('/')
-                                                    router.refresh()
-                                                } catch (error) {
-                                                    console.error('Logout failed:', error)
-                                                    window.location.href = '/'
-                                                }
-                                            }}>
+                                            <DropdownMenuItem className="w-full text-base py-2 text-red-500 focus:text-red-500" onClick={handleLogout}>
                                                 {t('navbar.logout')}
                                             </DropdownMenuItem>
                                         </div>

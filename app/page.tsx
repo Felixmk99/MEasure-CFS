@@ -15,13 +15,6 @@ import {
   BarChart3,
   FileUp,
   Download,
-  ArrowRight,
-  BarChart2,
-  Shield,
-  Share2,
-  FileText,
-  Activity,
-  BrainCircuit,
 } from "lucide-react"
 import { MobileExperiencePopup } from '@/components/layout/mobile-experience-popup'
 import Link from "next/link"

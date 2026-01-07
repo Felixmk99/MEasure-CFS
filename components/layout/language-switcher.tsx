@@ -22,7 +22,7 @@ export function LanguageSwitcher({ variant = 'default' }: { variant?: 'default' 
                     size={variant === 'mobile' ? 'default' : 'icon'}
                     className={variant === 'mobile' ? "w-full justify-start px-2" : "h-9 w-9"}
                 >
-                    <span className="text-lg leading-none mr-2">
+                    <span className={`text-lg leading-none ${variant === 'mobile' ? 'mr-2' : ''}`}>
                         {locale === 'en' ? '🇺🇸' : '🇩🇪'}
                     </span>
                     {variant === 'mobile' && (
