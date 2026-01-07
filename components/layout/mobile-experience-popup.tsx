@@ -72,7 +72,7 @@ export function MobileExperiencePopup() {
                                 {/* Logo / Icon */}
                                 <div className="w-16 h-16 relative bg-white dark:bg-zinc-950 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800 flex items-center justify-center mb-1">
                                     <Image
-                                        src="/branding/icon-only.png"
+                                        src="/favicon.svg"
                                         alt="MEasure-CFS"
                                         width={40}
                                         height={40}
