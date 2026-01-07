@@ -210,25 +210,25 @@ export default function LandingPage() {
           </section>
 
           {/* How It Works */}
-          <div className="max-w-5xl mx-auto relative px-4 md:px-0">
+          <div className="max-w-5xl mx-auto relative px-4 md:px-0 overflow-hidden sm:overflow-visible">
             <div className="absolute left-1/2 top-0 bottom-0 w-px border-l-2 border-dashed border-[#60A5FA]/20 hidden lg:block" />
 
             {/* Step 1 */}
-            <div className="grid lg:grid-cols-2 gap-12 items-center mb-24 relative">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-16 lg:mb-24 relative">
               <div className="absolute left-1/2 top-12 w-3 h-3 bg-primary rounded-full -translate-x-1/2 hidden lg:block border-2 border-white shadow-lg" />
-              <div className="order-1 p-8 md:p-10 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="order-1 p-6 sm:p-8 md:p-10 rounded-2xl bg-white border border-slate-200 shadow-sm z-10 relative">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-primary bg-gradient-to-br from-white to-primary/5 flex items-center justify-center shadow-md">
-                    <FileSpreadsheet className="h-7 w-7 text-primary" />
+                  <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 border-primary bg-gradient-to-br from-white to-primary/5 flex items-center justify-center shadow-md">
+                    <FileSpreadsheet className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_01')}</div>
-                    <h3 className="text-2xl font-bold mb-3 text-[#1E293B]">{t('landing.steps.01.title')}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{t('landing.steps.01.desc')}</p>
+                    <h3 className="text-xl sm:text-2xl font-bold mb-3 text-[#1E293B] break-words">{t('landing.steps.01.title')}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{t('landing.steps.01.desc')}</p>
                   </div>
                 </div>
               </div>
-              <div className="order-2 p-8 md:p-10 rounded-2xl bg-gradient-to-br from-[#60A5FA]/5 to-white/50 border border-[#60A5FA]/20 relative overflow-hidden bg-gradient-radial from-[#60A5FA]/10 via-transparent to-transparent">
+              <div className="order-2 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-[#60A5FA]/5 to-white/50 border border-[#60A5FA]/20 relative overflow-hidden bg-gradient-radial from-[#60A5FA]/10 via-transparent to-transparent z-10">
                 <div className="space-y-3 relative z-10">
                   {[
                     { label: t('landing.steps.metrics.hrv'), value: "62.4", unit: "ms", bar: "75%" },
@@ -238,10 +238,10 @@ export default function LandingPage() {
                     <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-white/90 border border-[#60A5FA]/10">
                       <span className="text-xs font-medium text-[#1E293B]">{metric.label}</span>
                       <div className="flex items-center gap-3">
-                        <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="w-16 sm:w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div className="h-full bg-gradient-to-r from-[#60A5FA] to-[#FDBA74] rounded-full" style={{ width: metric.bar }} />
                         </div>
-                        <span className="text-xs font-bold text-[#60A5FA]">{metric.value} {metric.unit}</span>
+                        <span className="text-xs font-bold text-[#60A5FA] whitespace-nowrap">{metric.value} {metric.unit}</span>
                       </div>
                     </div>
                   ))}
@@ -250,26 +250,26 @@ export default function LandingPage() {
             </div>
 
             {/* Step 2 */}
-            <div className="grid lg:grid-cols-2 gap-12 items-center mb-24 relative">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-16 lg:mb-24 relative">
               <div className="absolute left-1/2 top-12 w-3 h-3 bg-primary rounded-full -translate-x-1/2 hidden lg:block border-2 border-white shadow-lg" />
-              <div className="order-2 lg:order-1 p-8 md:p-10 rounded-2xl bg-gradient-to-br from-white/50 to-primary/5 border border-primary/20 relative flex flex-col items-center">
-                <div className="flex items-center justify-between w-full mb-6 px-4">
+              <div className="order-2 lg:order-1 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-white/50 to-primary/5 border border-primary/20 relative flex flex-col items-center z-10">
+                <div className="flex items-center justify-between w-full mb-6 px-2 sm:px-4 gap-2">
                   <div className="text-center">
-                    <div className="text-xl font-bold text-slate-900 font-mono">+24%</div>
+                    <div className="text-lg sm:text-xl font-bold text-slate-900 font-mono">+24%</div>
                     <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.buildup')}</div>
                   </div>
-                  <div className="w-px h-8 bg-primary/20" />
+                  <div className="w-px h-8 bg-primary/20 flex-shrink-0" />
                   <div className="text-center">
-                    <div className="text-xl font-bold text-rose-500 font-mono">-41%</div>
+                    <div className="text-lg sm:text-xl font-bold text-rose-500 font-mono">-41%</div>
                     <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.event')}</div>
                   </div>
-                  <div className="w-px h-8 bg-primary/20" />
+                  <div className="w-px h-8 bg-primary/20 flex-shrink-0" />
                   <div className="text-center">
-                    <div className="text-xl font-bold text-accent font-mono">+18%</div>
+                    <div className="text-lg sm:text-xl font-bold text-accent font-mono">+18%</div>
                     <div className="text-[9px] text-muted-foreground uppercase font-mono">{t('landing.steps.analysis.recovery')}</div>
                   </div>
                 </div>
-                <div className="w-full h-24 relative">
+                <div className="w-full h-20 sm:h-24 relative">
                   <svg width="100%" height="100%" viewBox="0 0 100 60" preserveAspectRatio="none" className="text-primary">
                     <path d="M 0 30 L 10 25 L 20 35 L 30 28 L 40 32 L 50 30 C 55 30 55 30 60 30 C 70 15 80 45 90 30 S 100 15 105 30"
                       fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
@@ -277,36 +277,36 @@ export default function LandingPage() {
                   </svg>
                 </div>
               </div>
-              <div className="order-1 lg:order-2 p-8 md:p-10 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="order-1 lg:order-2 p-6 sm:p-8 md:p-10 rounded-2xl bg-white border border-slate-200 shadow-sm z-10 relative">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-primary bg-gradient-to-br from-white to-primary/5 flex items-center justify-center shadow-md">
-                    <Cpu className="h-7 w-7 text-primary" />
+                  <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 border-primary bg-gradient-to-br from-white to-primary/5 flex items-center justify-center shadow-md">
+                    <Cpu className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_02')}</div>
-                    <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('landing.steps.02.title')}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{t('landing.steps.02.desc')}</p>
+                    <h3 className="text-xl sm:text-2xl font-bold mb-3 text-slate-900 break-words">{t('landing.steps.02.title')}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{t('landing.steps.02.desc')}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Step 3 */}
-            <div className="grid lg:grid-cols-2 gap-12 items-center mb-12 relative">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-12 relative">
               <div className="absolute left-1/2 top-12 w-3 h-3 bg-primary rounded-full -translate-x-1/2 hidden lg:block border-2 border-white shadow-lg" />
-              <div className="order-1 p-8 md:p-10 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="order-1 p-6 sm:p-8 md:p-10 rounded-2xl bg-white border border-slate-200 shadow-sm z-10 relative">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-primary bg-gradient-to-br from-white to-primary/5 flex items-center justify-center shadow-md">
-                    <BarChart3 className="h-7 w-7 text-primary" />
+                  <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 border-primary bg-gradient-to-br from-white to-primary/5 flex items-center justify-center shadow-md">
+                    <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase font-mono">{t('landing.steps.label_03')}</div>
-                    <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('landing.steps.03.title')}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{t('landing.steps.03.desc')}</p>
+                    <h3 className="text-xl sm:text-2xl font-bold mb-3 text-slate-900 break-words">{t('landing.steps.03.title')}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{t('landing.steps.03.desc')}</p>
                   </div>
                 </div>
               </div>
-              <div className="order-2 p-8 md:p-10 rounded-2xl bg-gradient-to-br from-primary/5 to-white/50 border border-primary/20 relative bg-gradient-radial from-accent/10 via-transparent to-transparent">
+              <div className="order-2 p-6 sm:p-8 md:p-10 rounded-2xl bg-gradient-to-br from-primary/5 to-white/50 border border-primary/20 relative bg-gradient-radial from-accent/10 via-transparent to-transparent z-10">
                 <div className="space-y-3 relative z-10">
                   <div className="p-3 rounded-lg bg-rose-50/80 border border-rose-200">
                     <div className="flex items-center justify-between mb-1">
@@ -332,29 +332,29 @@ export default function LandingPage() {
           </div>
 
           {/* CTA Section */}
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="p-12 md:p-16 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl relative overflow-hidden">
+          <div className="max-w-4xl mx-auto text-center px-4 md:px-0">
+            <div className="p-10 sm:p-12 md:p-16 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-[100px] opacity-20 -mr-32 -mt-32" />
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent rounded-full blur-[100px] opacity-10 -ml-32 -mb-32" />
 
               <div className="relative z-10">
-                <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
                   {t('landing.cta.title')}
                 </h2>
-                <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-base sm:text-lg text-slate-300 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed">
                   {t('landing.cta.desc')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <Button
                     size="lg"
-                    className="rounded-full px-10 h-14 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-105"
+                    className="w-full sm:w-auto rounded-full px-10 h-10 sm:h-14 text-base sm:text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-105"
                     asChild
                   >
                     <Link href="/signup">{t('landing.cta.button_signup')}</Link>
                   </Button>
                   <Button
                     size="lg"
-                    className="rounded-full px-10 h-14 text-lg font-bold bg-white text-slate-950 hover:bg-slate-100 transition-all hover:scale-105 shadow-xl"
+                    className="w-full sm:w-auto rounded-full px-10 h-10 sm:h-14 text-base sm:text-lg font-bold bg-white text-slate-950 hover:bg-slate-100 transition-all hover:scale-105 shadow-xl"
                     asChild
                   >
                     <a href="/DEMO Data Visible for MEasure-CFS.csv" download>
