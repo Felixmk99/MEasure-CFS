@@ -629,7 +629,7 @@ export const en: Dictionary = {
         signup: {
             title_start: "Start your",
             title_highlight: "clarity journey",
-            subtitle: "Create a secure space to analyze your symptom data.",
+
             first_name: "First Name",
             last_name: "Last Name",
             placeholder_first_name: "Jane",

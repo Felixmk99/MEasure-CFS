@@ -563,7 +563,6 @@ export interface Dictionary {
         signup: {
             title_start: string
             title_highlight: string
-            subtitle: string
             first_name: string
             last_name: string
             placeholder_first_name: string

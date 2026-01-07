@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/user-provider'
 import { useUpload } from '@/components/providers/upload-provider'
+import { useLanguage } from '@/components/providers/language-provider'
 import { Button } from '@/components/ui/button'
 import { Smartphone, Activity, Laptop, ClipboardList, FileSpreadsheet } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -73,6 +74,7 @@ export default function OnboardingPage() {
     const [error, setError] = useState<string | null>(null)
     const { profile, updateStepProvider, updateSymptomProvider } = useUser()
     const { pendingUpload } = useUpload()
+    const { t } = useLanguage()
     const router = useRouter()
 
     useEffect(() => {
@@ -133,12 +135,12 @@ export default function OnboardingPage() {
             <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
                 <div className="text-center">
                     <h2 className="text-3xl font-bold text-slate-900">
-                        {step === 1 ? 'Symptom Tracking?' : 'Step Provider?'}
+                        {step === 1 ? t('onboarding.symptom_tracking_title') : t('onboarding.step_provider_title')}
                     </h2>
                     <p className="mt-2 text-slate-600">
                         {step === 1
-                            ? 'Which app do you use for symptoms?'
-                            : 'Which device tracks your movement?'}
+                            ? t('onboarding.symptom_tracking_desc')
+                            : t('onboarding.step_provider_desc')}
                     </p>
                 </div>
 
@@ -159,10 +161,10 @@ export default function OnboardingPage() {
                             </div>
                             <div>
                                 <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors">
-                                    {p.name}
+                                    {t(`onboarding.providers.${p.id}.name`)}
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                                    {p.description}
+                                    {t(`onboarding.providers.${p.id}.desc`)}
                                 </p>
                             </div>
                         </button>
@@ -180,7 +182,7 @@ export default function OnboardingPage() {
                     onClick={handleContinue}
                     disabled={loading}
                 >
-                    {loading ? 'Saving...' : 'Continue'}
+                    {loading ? t('onboarding.saving') : t('onboarding.continue')}
                 </Button>
             </div>
         </div>

@@ -91,9 +91,6 @@ export default function SignupPage() {
                             </span>
                         </h1>
                         <p className="text-muted-foreground italic mb-4">&quot;{t('auth.login.testimonial.quote')}&quot;</p>
-                        <p className="text-muted-foreground text-sm">
-                            {t('auth.signup.subtitle')}
-                        </p>
                     </div>
 
                     <div className="space-y-2.5">
