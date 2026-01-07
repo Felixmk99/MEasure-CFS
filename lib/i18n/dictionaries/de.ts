@@ -629,7 +629,7 @@ export const de: Dictionary = {
         signup: {
             title_start: "Beginne deine",
             title_highlight: "Krankheit zu verstehen",
-            subtitle: "Erstelle eine sichere Umgebung, um deine Symptome zu analysieren.",
+
             first_name: "Vorname",
             last_name: "Nachname",
             placeholder_first_name: "Max",
@@ -820,8 +820,8 @@ export const de: Dictionary = {
         }
     },
     donation: {
-        button_label: "Forschung Unterstützen",
-        dialog_title: "ME/CFS Forschung Unterstützen",
+        button_label: "Forschung unterstützen",
+        dialog_title: "ME/CFS Forschung unterstützen",
 
         dialog_desc_pre: "MEasure-CFS ist und bleibt kostenlos. Wenn du dich beim Ersteller bedanken möchtest, kannst du in diesen PayPal Pool spenden. Alle gesammelten Gelder werden an die ",
         dialog_desc_post: " weitergeleitet.",

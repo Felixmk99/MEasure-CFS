@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/user-provider'
 import { useUpload } from '@/components/providers/upload-provider'
+import { useLanguage } from '@/components/providers/language-provider'
 import { Button } from '@/components/ui/button'
 import { Smartphone, Activity, Laptop, ClipboardList, FileSpreadsheet } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -11,54 +12,42 @@ import { cn } from '@/lib/utils'
 const SYMPTOM_PROVIDERS = [
     {
         id: 'visible',
-        name: 'Visible App',
         icon: Activity,
         color: 'bg-rose-50 dark:bg-rose-900/20',
         textColor: 'text-rose-600 dark:text-rose-400',
-        description: 'Morning stability and daily check-ins'
     },
     {
         id: 'bearable',
-        name: 'Bearable App',
         icon: ClipboardList,
         color: 'bg-orange-50 dark:bg-orange-900/20',
         textColor: 'text-orange-600 dark:text-orange-400',
-        description: 'Extensive symptom and factor tracking'
     }
 ] as const
 
 const STEP_PROVIDERS = [
     {
         id: 'apple',
-        name: 'Apple Health',
         icon: Smartphone,
         color: 'bg-zinc-100 dark:bg-zinc-900',
         textColor: 'text-zinc-900 dark:text-zinc-100',
-        description: 'iPhone and Apple Watch users'
     },
     {
         id: 'google',
-        name: 'Google Fit',
         icon: Activity,
         color: 'bg-blue-50 dark:bg-blue-900/20',
         textColor: 'text-blue-600 dark:text-blue-400',
-        description: 'Android and Google ecosystem'
     },
     {
         id: 'samsung',
-        name: 'Samsung Health',
         icon: Laptop,
         color: 'bg-indigo-50 dark:bg-indigo-900/20',
         textColor: 'text-indigo-600 dark:text-indigo-400',
-        description: 'Samsung Galaxy devices'
     },
     {
         id: 'csv',
-        name: 'CSV File',
         icon: FileSpreadsheet,
         color: 'bg-stone-50 dark:bg-stone-900',
         textColor: 'text-stone-600 dark:text-stone-400',
-        description: 'Upload generic CSV file'
     }
 ] as const
 
@@ -73,6 +62,7 @@ export default function OnboardingPage() {
     const [error, setError] = useState<string | null>(null)
     const { profile, updateStepProvider, updateSymptomProvider } = useUser()
     const { pendingUpload } = useUpload()
+    const { t } = useLanguage()
     const router = useRouter()
 
     useEffect(() => {
@@ -133,12 +123,12 @@ export default function OnboardingPage() {
             <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
                 <div className="text-center">
                     <h2 className="text-3xl font-bold text-slate-900">
-                        {step === 1 ? 'Symptom Tracking?' : 'Step Provider?'}
+                        {step === 1 ? t('onboarding.symptom_tracking_title') : t('onboarding.step_provider_title')}
                     </h2>
                     <p className="mt-2 text-slate-600">
                         {step === 1
-                            ? 'Which app do you use for symptoms?'
-                            : 'Which device tracks your movement?'}
+                            ? t('onboarding.symptom_tracking_desc')
+                            : t('onboarding.step_provider_desc')}
                     </p>
                 </div>
 
@@ -159,10 +149,10 @@ export default function OnboardingPage() {
                             </div>
                             <div>
                                 <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors">
-                                    {p.name}
+                                    {t(`onboarding.providers.${p.id}.name`)}
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                                    {p.description}
+                                    {t(`onboarding.providers.${p.id}.desc`)}
                                 </p>
                             </div>
                         </button>
@@ -180,7 +170,7 @@ export default function OnboardingPage() {
                     onClick={handleContinue}
                     disabled={loading}
                 >
-                    {loading ? 'Saving...' : 'Continue'}
+                    {loading ? t('onboarding.saving') : t('onboarding.continue')}
                 </Button>
             </div>
         </div>
