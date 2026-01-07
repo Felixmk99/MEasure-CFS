@@ -53,6 +53,20 @@ export function getMetricRegistryConfig(metric: string): MetricConfig {
     }
 
     // Default Behavior: 
+    // Heuristic Check for Positive Valence words
+    const positiveKeywords = ['energy', 'mood', 'wellness', 'quality', 'health', 'fitness', 'happiness', 'calm', 'relax', 'focus', 'clarity', 'libido', 'strength'];
+    const isLikelyPositive = positiveKeywords.some(kw => key.includes(kw));
+
+    if (isLikelyPositive) {
+        return {
+            key: metric,
+            label: metric,
+            direction: 'higher',
+            unit: '',
+            color: '#10B981' // Green for positive
+        };
+    }
+
     // All other custom metrics/symptoms are assumed "Lower is Better" (undesirable to increase).
     return {
         key: metric,
