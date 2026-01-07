@@ -752,8 +752,14 @@ export interface Dictionary {
     donation: {
         button_label: string
         dialog_title: string
-        dialog_desc: string
+        dialog_desc_pre: string
+        dialog_desc_post: string
         open_paypal: string
+    }
+    mobile_popup: {
+        title: string
+        description: string
+        close: string
     }
 }
 

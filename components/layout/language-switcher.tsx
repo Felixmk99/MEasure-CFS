@@ -11,16 +11,25 @@ import {
 import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ variant = 'default' }: { variant?: 'default' | 'mobile' }) {
     const { locale, setLocale } = useLanguage()
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <span className="text-lg leading-none">
+                <Button
+                    variant="ghost"
+                    size={variant === 'mobile' ? 'default' : 'icon'}
+                    className={variant === 'mobile' ? "w-full justify-start px-2" : "h-9 w-9"}
+                >
+                    <span className={`text-lg leading-none ${variant === 'mobile' ? 'mr-2' : ''}`}>
                         {locale === 'en' ? '🇺🇸' : '🇩🇪'}
                     </span>
+                    {variant === 'mobile' && (
+                        <span className="text-base font-medium">
+                            {locale === 'en' ? 'English' : 'Deutsch'}
+                        </span>
+                    )}
                     <span className="sr-only">Toggle language</span>
                 </Button>
             </DropdownMenuTrigger>

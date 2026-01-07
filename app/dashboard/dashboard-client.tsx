@@ -563,9 +563,9 @@ export default function DashboardClient({ data: initialData, exertionPreference:
 
             {/* Main Chart Card */}
             <Card className="border-border/50 shadow-sm relative overflow-hidden">
-                <CardHeader className="flex flex-row items-start justify-between pb-2">
+                <CardHeader className="flex flex-col sm:flex-row items-start justify-between pb-2 gap-4 sm:gap-0">
                     <div className="flex flex-col gap-4 w-full">
-                        <div className="flex flex-wrap items-center gap-6">
+                        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                             {multiStats.map((stat, index) => (
                                 <div key={stat.key} className="space-y-1">
                                     <div className="text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: getMetricConfig(stat.key).color }}>
@@ -588,7 +588,7 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                     <div className="flex flex-wrap items-center gap-2">
                                         {stat.periodTrendStatus !== 'stable' && stat.periodTrendStatus !== 'insufficient_data' && (
                                             <span className={cn(
-                                                "text-xl md:text-2xl font-black uppercase tracking-tight mr-2 transition-all animate-in fade-in slide-in-from-left-4 duration-700",
+                                                "text-lg sm:text-lg md:text-2xl font-black uppercase tracking-tight mr-2 transition-all animate-in fade-in slide-in-from-left-4 duration-700",
                                                 stat.periodTrendStatus === 'improving'
                                                     ? "text-emerald-600 dark:text-emerald-400"
                                                     : "text-rose-600 dark:text-rose-400"
@@ -600,59 +600,57 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                                             {stat.avg.toFixed(1)}
                                         </span>
 
-                                        {/* Badge 1: Period Trend (Visible Range) */}
-                                        <Badge variant="outline" className={cn(
-                                            "px-1.5 py-0 md:px-2.5 md:py-0.5",
-                                            stat.periodTrendStatus === 'improving' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30",
-                                            stat.periodTrendStatus === 'worsening' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30",
-                                            stat.periodTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800"
-                                        )}>
-                                            <span className="text-[8px] md:text-[10px] mr-1 opacity-70">Trend:</span>
-                                            {stat.periodTrendStatus === 'stable' && <Minus className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                            {stat.periodTrendStatus !== 'stable' && stat.periodTrendPct > 0 && <TrendingUp className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                            {stat.periodTrendStatus !== 'stable' && stat.periodTrendPct < 0 && <TrendingDown className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                            <span className="text-[10px] md:text-xs">{Math.abs(stat.periodTrendPct).toFixed(0)}%</span>
-                                        </Badge>
+                                        <div className="flex items-center gap-2 mt-1 sm:mt-0">
+                                            {/* Badge 1: Period Trend (Visible Range) */}
+                                            <Badge variant="outline" className={cn(
+                                                "px-1.5 py-0 md:px-2.5 md:py-0.5 min-h-[22px]",
+                                                stat.periodTrendStatus === 'improving' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30",
+                                                stat.periodTrendStatus === 'worsening' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30",
+                                                stat.periodTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800"
+                                            )}>
+                                                <span className="hidden sm:inline text-xs mr-1 opacity-70">Trend:</span>
+                                                {stat.periodTrendStatus === 'stable' && <Minus className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                {stat.periodTrendStatus !== 'stable' && stat.periodTrendPct > 0 && <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                {stat.periodTrendStatus !== 'stable' && stat.periodTrendPct < 0 && <TrendingDown className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                <span className="text-xs font-medium">{Math.abs(stat.periodTrendPct).toFixed(0)}%</span>
+                                            </Badge>
 
-                                        {/* Badge 2: Comparison Trend (vs Previous) */}
-                                        <Badge variant="outline" className={cn(
-                                            "px-1.5 py-0 md:px-2.5 md:py-0.5",
-                                            stat.compareTrendStatus === 'improving' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30",
-                                            stat.compareTrendStatus === 'worsening' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30",
-                                            stat.compareTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800",
-                                            stat.compareTrendStatus === 'insufficient_data' && "bg-zinc-100 text-zinc-400 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-500"
-                                        )}>
-                                            <span className="text-[8px] md:text-[10px] mr-1 opacity-70">vs Prev:</span>
-                                            {stat.compareTrendStatus === 'insufficient_data' ? (
-                                                <span className="text-[8px] md:text-[10px]">N/A</span>
-                                            ) : (
+                                            {/* Badge 2: Comparison Trend (vs Previous) */}
+                                            <Badge variant="outline" className={cn(
+                                                "px-1.5 py-0 md:px-2.5 md:py-0.5 min-h-[22px]",
+                                                stat.compareTrendStatus === 'improving' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30",
+                                                stat.compareTrendStatus === 'worsening' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30",
+                                                stat.compareTrendStatus === 'stable' && "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800",
+                                                stat.compareTrendStatus === 'insufficient_data' && "bg-zinc-100 text-zinc-400 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-500"
+                                            )}>
+                                                <span className="hidden sm:inline text-xs mr-1 opacity-70">vs Prev:</span>
+                                                {stat.compareTrendStatus === 'insufficient_data' ? (
+                                                    <span className="text-xs">N/A</span>
+                                                ) : (
+                                                    <>
+                                                        {stat.compareTrendStatus === 'stable' && <Minus className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                        {stat.compareTrendStatus !== 'stable' && stat.compareTrendPct > 0 && <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                        {stat.compareTrendStatus !== 'stable' && stat.compareTrendPct < 0 && <TrendingDown className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1" />}
+                                                        <span className="text-xs font-medium">{Math.abs(stat.compareTrendPct).toFixed(0)}%</span>
+                                                    </>
+                                                )}
+                                            </Badge>
+
+                                            {/* PEM STATS - ADDED ALONGSIDE */}
+                                            {showCrashes && index === 0 && (
                                                 <>
-                                                    {stat.compareTrendStatus === 'stable' && <Minus className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                    {stat.compareTrendStatus !== 'stable' && stat.compareTrendPct > 0 && <TrendingUp className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                    {stat.compareTrendStatus !== 'stable' && stat.compareTrendPct < 0 && <TrendingDown className="w-2 h-2 md:w-3 md:h-3 mr-1" />}
-                                                    <span className="text-[10px] md:text-xs">{Math.abs(stat.compareTrendPct).toFixed(0)}%</span>
+                                                    <div className="hidden sm:block w-px h-6 bg-border mx-1" /> {/* Divider */}
+
+                                                    <Badge variant="outline" className={cn(
+                                                        "border-zinc-300 bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-700",
+                                                        stat.crashCount > 0 && "border-zinc-950 bg-zinc-900 text-white dark:bg-white dark:text-black dark:border-white"
+                                                    )}>
+                                                        <Activity className="w-3 h-3 mr-1" />
+                                                        {stat.crashCount} PEM
+                                                    </Badge>
                                                 </>
                                             )}
-                                        </Badge>
-
-                                        {/* PEM STATS - ADDED ALONGSIDE */}
-                                        {showCrashes && index === 0 && (
-                                            <>
-                                                <div className="w-px h-6 bg-border mx-1" /> {/* Divider */}
-
-                                                <Badge variant="outline" className={cn(
-                                                    "border-zinc-300 bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-700",
-                                                    stat.crashCount > 0 && "border-zinc-950 bg-zinc-900 text-white dark:bg-white dark:text-black dark:border-white"
-                                                )}>
-                                                    <Activity className="w-3 h-3 mr-1" />
-                                                    {stat.crashCount} PEM Days
-                                                </Badge>
-
-                                                <Badge variant="outline" className="text-muted-foreground border-dashed">
-                                                    vs Prev: {stat.prevCrashCount}
-                                                </Badge>
-                                            </>
-                                        )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -660,45 +658,46 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                     </div>
 
 
-                    <div className="flex items-center gap-4 self-start">
-                        <div className="flex items-center space-x-2">
-                            <Switch
-                                id="pem-mode"
-                                checked={showCrashes}
-                                onCheckedChange={setShowCrashes}
-                            />
-                            <Label htmlFor="pem-mode" className="text-xs text-muted-foreground hidden md:block">{t('dashboard.pem_mode')}</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Switch
-                                id="compare-mode"
-                                checked={isCompareMode}
-                                onCheckedChange={(checked) => {
-                                    setIsCompareMode(checked)
-                                    // If turning off compare mode, enforce single selection
-                                    if (!checked && selectedMetrics.length > 1) {
-                                        setSelectedMetrics([selectedMetrics[0]])
-                                    }
-                                }}
-                            />
-                            <Label htmlFor="compare-mode" className="text-xs text-muted-foreground hidden md:block">{t('dashboard.compare_mode')}</Label>
-                        </div>
-
-
-
-                        <div className="flex items-center space-x-2">
-                            <Switch id="trend-mode" checked={showTrend} onCheckedChange={setShowTrend} />
-                            <Label htmlFor="trend-mode" className="text-xs text-muted-foreground hidden md:block">{t('dashboard.trend_mode')}</Label>
+                    <div className="flex flex-wrap items-center gap-y-2 gap-x-4 w-full sm:w-auto justify-between sm:justify-end">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center space-x-2">
+                                <Switch
+                                    id="pem-mode"
+                                    checked={showCrashes}
+                                    onCheckedChange={setShowCrashes}
+                                />
+                                <Label htmlFor="pem-mode" className="text-xs text-muted-foreground">{t('dashboard.pem_mode')}</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Switch
+                                    id="compare-mode"
+                                    checked={isCompareMode}
+                                    onCheckedChange={(checked) => {
+                                        setIsCompareMode(checked)
+                                        // If turning off compare mode, enforce single selection
+                                        if (!checked && selectedMetrics.length > 1) {
+                                            setSelectedMetrics([selectedMetrics[0]])
+                                        }
+                                    }}
+                                />
+                                <Label htmlFor="compare-mode" className="text-xs text-muted-foreground">{t('dashboard.compare_mode')}</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Switch id="trend-mode" checked={showTrend} onCheckedChange={setShowTrend} />
+                                <Label htmlFor="trend-mode" className="text-xs text-muted-foreground">{t('dashboard.trend_mode')}</Label>
+                            </div>
                         </div>
 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-8 text-xs w-[200px] justify-between">
-                                    {selectedMetrics.length === 1
-                                        ? getMetricConfig(selectedMetrics[0]).label
-                                        : (selectedMetrics.length + " " + t('dashboard.metrics_selected'))
-                                    }
-                                    <ChevronDown className="h-3 w-3 opacity-50" />
+                                <Button variant="outline" size="sm" className="h-8 text-xs w-[140px] sm:w-[200px] justify-between">
+                                    <span className="truncate">
+                                        {selectedMetrics.length === 1
+                                            ? getMetricConfig(selectedMetrics[0]).label
+                                            : (selectedMetrics.length + " " + t('dashboard.metrics_selected'))
+                                        }
+                                    </span>
+                                    <ChevronDown className="h-3 w-3 opacity-50 flex-shrink-0" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-[200px] max-h-[300px] overflow-y-auto">

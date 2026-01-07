@@ -216,12 +216,12 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
             <div className="flex flex-col gap-6">
                 <Card className="border-l-4 border-l-orange-500 bg-card/50 overflow-hidden">
                     <CardHeader className="py-4 pb-2 border-b border-orange-500/10">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                             <div className="flex items-center gap-2 text-sm font-semibold text-orange-500 uppercase tracking-widest">
-                                <TrendingUp className="w-4 h-4" />
+                                <TrendingUp className="w-4 h-4 shrink-0" />
                                 {t('insights.pem_analysis.phase1.title')}
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 self-end sm:self-auto">
                                 {analysis.phase1?.cumulativeLoadDetected && (
                                     <Badge variant="outline" className="text-[10px] bg-orange-500/10 border-orange-500/20 text-orange-600">
                                         {t('insights.pem_analysis.phase1.cumulative')}
@@ -356,12 +356,12 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                 {/* PHASE 2: THE EVENT (Impact Profile) */}
                 <Card className="border-l-4 border-l-red-500 bg-card/50 overflow-hidden">
                     <CardHeader className="py-3 pb-2 border-b border-red-500/10">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                             <div className="flex items-center gap-2 text-sm font-semibold text-red-500 uppercase tracking-widest">
-                                <Target className="w-4 h-4" />
+                                <Target className="w-4 h-4 shrink-0" />
                                 {t('insights.pem_analysis.phase2.title')}
                             </div>
-                            <div className="flex gap-4">
+                            <div className="flex gap-4 self-end sm:self-auto">
                                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100/50 dark:bg-red-900/20 text-[10px] font-bold uppercase text-red-600 dark:text-red-400 border border-red-200/50 dark:border-red-900/30">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
                                     {t('insights.pem_analysis.phase2.logged', { val: analysis.phase2?.avgLoggedDuration.toFixed(1) || '0' })}
@@ -375,7 +375,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                     </CardHeader>
                     <CardContent className="pt-4">
                         <div className="space-y-4">
-                            <div className="flex items-start justify-between gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                                 <div className="flex flex-col gap-1">
                                     <h3 className="text-2xl font-black text-red-600 dark:text-red-500 leading-none uppercase tracking-tighter">
                                         {analysis.phase2?.type || t('common.unknown')}
@@ -385,7 +385,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                     </p>
                                 </div>
 
-                                <div className="flex flex-col items-end text-right min-w-[200px]">
+                                <div className="flex flex-col items-start sm:items-end text-left sm:text-right w-full sm:w-auto sm:min-w-[200px]">
                                     <div className="flex items-center gap-2 mb-1">
                                         <span className={cn(
                                             "text-xs font-black uppercase tracking-tight",
@@ -409,7 +409,7 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                                     </div>
 
                                     {(analysis.phase2?.extendingMetrics?.length ?? 0) > 0 && (
-                                        <div className="flex flex-wrap justify-end gap-1">
+                                        <div className="flex flex-wrap sm:justify-end gap-1">
                                             <span className="text-[9px] font-bold text-muted-foreground uppercase mr-1 mt-0.5">{t('insights.pem_analysis.phase2.extended_by')}</span>
                                             {analysis.phase2?.extendingMetrics?.map((m: string) => (
                                                 <Badge
@@ -479,12 +479,12 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                 {/* PHASE 3: THE RECOVERY TAIL */}
                 <Card className="border-l-4 border-l-blue-500 bg-card/50 overflow-hidden">
                     <CardHeader className="py-3 pb-2 border-b border-blue-500/10">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                             <div className="flex items-center gap-2 text-sm font-semibold text-blue-500 uppercase tracking-widest">
-                                <TrendingUp className="w-4 h-4" />
+                                <TrendingUp className="w-4 h-4 shrink-0" />
                                 {t('insights.pem_analysis.phase3.title')}
                             </div>
-                            <div className="flex gap-4 text-[10px] font-bold uppercase text-muted-foreground">
+                            <div className="flex gap-4 text-[10px] font-bold uppercase text-muted-foreground self-end sm:self-auto">
                                 <div className="flex items-center gap-1.5" title="The period where you were actively logging a crash.">
                                     <span className="w-2 h-2 rounded-full bg-blue-400 opacity-60" />
                                     {t('insights.pem_analysis.phase3.subjective', { val: analysis.phase3?.avgSymptomRecoveryTail.toFixed(1) || '0' })}
@@ -498,12 +498,12 @@ export function PEMAnalysis({ data, filterRange }: PEMAnalysisProps) {
                     </CardHeader>
                     <CardContent className="pt-4">
                         <div className="space-y-4">
-                            <div className="flex items-baseline justify-between mb-2">
+                            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between mb-2 gap-2 sm:gap-0">
                                 <h3 className="text-xl font-black text-blue-600 dark:text-blue-400 leading-none uppercase tracking-tighter">
                                     {(analysis.phase3?.avgBiologicalRecoveryTail ?? 0) > (analysis.phase3?.avgSymptomRecoveryTail ?? 0) ? t('insights.pem_analysis.phase3.lag') : t('insights.pem_analysis.phase3.fast')}
                                 </h3>
-                                <div className="text-right">
-                                    <div className="text-xs font-bold text-muted-foreground uppercase flex items-center justify-end gap-1.5">
+                                <div className="text-left sm:text-right">
+                                    <div className="text-xs font-bold text-muted-foreground uppercase flex items-center sm:justify-end gap-1.5">
                                         {(analysis.phase3?.hysteresisGap ?? 0) > 1
                                             ? t('insights.pem_analysis.phase3.body_lag', { val: analysis.phase3?.hysteresisGap?.toFixed(1) || '0' })
                                             : t('insights.pem_analysis.phase3.body_reset')}

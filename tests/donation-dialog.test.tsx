@@ -10,7 +10,8 @@ jest.mock('@/components/providers/language-provider', () => ({
             const translations: Record<string, string> = {
                 'donation.button_label': 'Support Research',
                 'donation.dialog_title': 'Support ME/CFS Research',
-                'donation.dialog_desc': 'Description text',
+                'donation.dialog_desc_pre': 'Support the ',
+                'donation.dialog_desc_post': ' directly.',
                 'donation.open_paypal': 'Donate via PayPal'
             }
             return translations[key] || key
@@ -40,7 +41,9 @@ describe('DonationDialog', () => {
         fireEvent.click(button)
 
         expect(screen.getByText('Support ME/CFS Research')).toBeInTheDocument()
-        expect(screen.getByText('Description text')).toBeInTheDocument()
+        expect(screen.getByText(/Support the/)).toBeInTheDocument()
+        expect(screen.getByText('ME/CFS Research Foundation')).toBeInTheDocument()
+        expect(screen.getByText(/directly./)).toBeInTheDocument()
         expect(screen.getByText('Donate via PayPal')).toBeInTheDocument()
     })
 

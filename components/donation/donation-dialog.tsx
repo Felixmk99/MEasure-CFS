@@ -14,7 +14,7 @@ import { Heart } from "lucide-react"
 import { useLanguage } from "@/components/providers/language-provider"
 import Image from "next/image"
 
-export function DonationDialog() {
+export function DonationDialog({ variant = 'default' }: { variant?: 'default' | 'mobile' }) {
     const { t } = useLanguage()
     const [open, setOpen] = useState(false)
 
@@ -23,20 +23,29 @@ export function DonationDialog() {
             <DialogTrigger asChild>
                 <Button
                     variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 mr-2"
+                    size={variant === 'mobile' ? 'default' : 'sm'}
+                    className={variant === 'mobile'
+                        ? "w-full justify-start text-base font-medium px-2 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20"
+                        : "text-red-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 mr-2"
+                    }
                 >
-                    <Heart className="w-4 h-4 mr-2" />
-                    <span className="hidden lg:inline">{t('donation.button_label')}</span>
+
+                    <Heart className="w-4 h-4 mr-2 text-red-500" />
+                    <span className={variant === 'mobile' ? "flex-1 text-left" : "hidden lg:inline"}>
+                        {t('donation.button_label')}
+                    </span>
+                    <Heart className={`w-4 h-4 ml-2 text-red-500 ${variant === 'mobile' ? '' : 'hidden lg:inline'}`} />
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
-                <DialogHeader>
+                <DialogHeader className="flex flex-col items-center text-center">
                     <DialogTitle>{t('donation.dialog_title')}</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col items-center space-y-6 py-4">
                     <DialogDescription className="text-center text-muted-foreground">
-                        {t('donation.dialog_desc')}
+                        {t('donation.dialog_desc_pre')}
+                        <span className="font-bold text-foreground">ME/CFS Research Foundation</span>
+                        {t('donation.dialog_desc_post')}
                     </DialogDescription>
 
                     <div className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700">

@@ -101,7 +101,7 @@ export default function InsightsClient({ data, exertionPreference: initialPrefer
                             <Badge variant="secondary" className="px-4 py-1.5 text-sm rounded-lg border-none shadow-sm">
                                 {t('insights.hero.all_time')}
                             </Badge>
-                            <span className="text-[10px] text-zinc-400 mt-2">
+                            <span className="text-[10px] text-zinc-400 mt-2" suppressHydrationWarning>
                                 {t('insights.hero.last_updated', {
                                     date: data.length > 0
                                         ? new Date(data[data.length - 1].date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })

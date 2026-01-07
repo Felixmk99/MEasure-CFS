@@ -125,16 +125,16 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
             </CardHeader>
             <CardContent>
                 <TooltipProvider delayDuration={200}>
-                    <div className="w-full overflow-x-auto p-2 md:p-6 flex justify-center">
-                        <div className="grid gap-[1px] w-fit" style={{
-                            gridTemplateColumns: `auto repeat(${labels.length}, minmax(40px, 60px))`,
+                    <div className="w-full overflow-x-auto p-2 md:p-6 flex justify-start md:justify-center">
+                        <div className="grid gap-[1px] w-fit min-w-full" style={{
+                            gridTemplateColumns: `auto repeat(${labels.length}, minmax(32px, 60px))`,
                         }}>
                             {/* Header Row */}
                             <div />
                             {labels.map(l => (
-                                <div key={l} className="relative h-[180px] w-full z-10">
-                                    <div className="absolute bottom-8 left-1/2 origin-bottom-left rotate-45 transform w-[200px] pointer-events-none">
-                                        <span className="text-xs font-medium text-muted-foreground block w-full px-1 truncate" title={tMetric(l)}>
+                                <div key={l} className="relative h-[120px] sm:h-[180px] w-full z-10">
+                                    <div className="absolute bottom-2 sm:bottom-8 left-1/2 origin-bottom-left rotate-45 transform w-[120px] sm:w-[200px] pointer-events-none">
+                                        <span className="text-[10px] sm:text-xs font-medium text-muted-foreground block w-full px-1 truncate" title={tMetric(l)}>
                                             {tMetric(l)}
                                         </span>
                                     </div>
