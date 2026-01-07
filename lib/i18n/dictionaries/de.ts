@@ -50,6 +50,7 @@ export const de: Dictionary = {
             stress: "Stress",
             palpitations: "Herzklopfen",
             stability_score: "Stabilitäts-Score",
+            "stability score": "Stabilitäts-Score",
             muscle_aches: "Muskelschmerzen",
             energy: "Energie"
         }
@@ -820,7 +821,9 @@ export const de: Dictionary = {
     donation: {
         button_label: "Forschung Unterstützen",
         dialog_title: "ME/CFS Forschung Unterstützen",
-        dialog_desc: "MEasure-CFS ist und bleibt kostenlos. Wenn du dich beim Ersteller bedanken möchtest, kannst du in diesen PayPal Pool spenden. Alle gesammelten Gelder werden an die ME/CFS Research Foundation weitergeleitet.",
+
+        dialog_desc_pre: "MEasure-CFS ist und bleibt kostenlos. Wenn du dich beim Ersteller bedanken möchtest, kannst du in diesen PayPal Pool spenden. Alle gesammelten Gelder werden an die ",
+        dialog_desc_post: " weitergeleitet.",
         open_paypal: "Über PayPal Spenden"
     },
     mobile_popup: {
