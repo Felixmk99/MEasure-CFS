@@ -863,5 +863,21 @@ export const en: Dictionary = {
         title: "Great to have you here!",
         description: "Just a heads up: MEasure-CFS is designed for detailed data analysis and works best on a desktop or laptop screen.",
         close: "Got it"
+    },
+    onboarding: {
+        symptom_tracking_title: "How do you track your symptoms?",
+        symptom_tracking_desc: "We connect directly with your existing tracking apps to visualize your trends.",
+        step_provider_title: "Where do you track your steps?",
+        step_provider_desc: "Activity data helps us calculate your exertion and energy envelope.",
+        saving: "Saving...",
+        continue: "Continue",
+        providers: {
+            visible: { name: "Visible", desc: "For ME/CFS & Long Covid. Tracks HRV & Symptoms." },
+            bearable: { name: "Bearable", desc: "Comprehensive symptom & mood tracker." },
+            apple: { name: "Apple Health", desc: "Syncs steps from your iPhone or Apple Watch." },
+            google: { name: "Google Fit", desc: "Syncs activity from Android devices." },
+            samsung: { name: "Samsung Health", desc: "Syncs steps from Samsung Galaxy devices." },
+            csv: { name: "Manual CSV", desc: "Upload a custom spreadsheet." }
+        }
     }
 }
