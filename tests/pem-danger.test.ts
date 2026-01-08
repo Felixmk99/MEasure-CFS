@@ -13,7 +13,7 @@ describe('PEM Danger Logic', () => {
                 exertion_score: 2,
                 symptom_score: 5,
                 crash: 0,
-                custom_metrics: {}
+                custom_metrics: { stress_score: 2 } // Baseline stress
             }
         })
 
@@ -118,13 +118,14 @@ describe('PEM Danger Logic', () => {
     it('should correctly match composite (synergistic) triggers', () => {
         const data = createMockData(-1, 0, false) // Generic base
         // Create a historical synergistic crash
+        // Use Exertion (High=Bad) and Stress (High=Bad) to ensure constructive interference
         data[5].crash = 1
-        data[3].exertion_score = 8
-        data[3].step_count = 5000
+        data[3].exertion_score = 10
+        data[3].custom_metrics = { stress_score: 10 }
 
         // Today has same synergy
-        data[38].exertion_score = 8
-        data[38].step_count = 5000
+        data[38].exertion_score = 10
+        data[38].custom_metrics = { stress_score: 10 }
 
         const result = calculateCurrentPEMDanger(data as any)
         expect(result.status).toBe('danger')
