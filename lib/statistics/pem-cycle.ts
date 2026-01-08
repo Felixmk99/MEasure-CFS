@@ -1,4 +1,5 @@
 import { mean, standardDeviation } from 'simple-statistics'
+import { getMetricRegistryConfig } from '@/lib/metrics/registry'
 
 export interface HealthEntry {
     date: string;
@@ -154,8 +155,20 @@ export function calculateZScores(
                     if (bStd > 0) {
                         zScores[key] = (val - bMean) / bStd
                     } else {
-                        // Any increase from a zero-variance baseline is 2 sigma
-                        zScores[key] = val > bMean ? 2 : 0
+                        // Handle Zero-Variance Baseline:
+                        // If metric is perfectly stable, ANY deviation is infinitely significant.
+                        // We cap at +/- 2.0 to be safe but impactful.
+                        const config = getMetricRegistryConfig(key);
+                        if (val !== bMean) {
+                            // Check direction: Higher is Better (HRV) or Lower is Better (Symptoms)
+                            if (config.direction === 'higher') {
+                                zScores[key] = val < bMean ? -2 : 2; // Drop is bad (-2), Rise is good (2)
+                            } else {
+                                zScores[key] = val > bMean ? 2 : -2; // Rise is bad (2), Drop is good (-2)
+                            }
+                        } else {
+                            zScores[key] = 0;
+                        }
                     }
                 } else {
                     zScores[key] = 0
@@ -297,10 +310,24 @@ export function analyzePreCrashPhase(aggregatedProfile: { dayOffset: number, met
                 .map(d => {
                     const z1 = d.metrics[m1]?.mean || 0
                     const z2 = d.metrics[m2]?.mean || 0
+
+                    // ALIGN POLARITY: Convert both to "Strain Scores" (Higher = Worse)
+                    const c1 = getMetricRegistryConfig(m1);
+                    const c2 = getMetricRegistryConfig(m2);
+
+                    // If "Higher is Better" (HRV), a negative Z-score is Strain. -> Flip sign.
+                    // If "Lower is Better" (Symptoms), a positive Z-score is Strain. -> Keep sign.
+                    const s1 = c1.direction === 'higher' ? -z1 : z1;
+                    const s2 = c2.direction === 'higher' ? -z2 : z2;
+
+                    // Now s1 and s2 represent "Badness". 
+                    // s > 0 means "Strained/Worse". s < 0 means "Recovered/Better".
+
                     return {
                         offset: d.dayOffset,
                         z1, z2,
-                        jointZ: (z1 + z2) / Math.sqrt(2)
+                        // Sum the "Strain" to find synergistic "Badness"
+                        jointZ: (s1 + s2) / Math.sqrt(2)
                     }
                 })
 
@@ -491,18 +518,14 @@ export function analyzeRecoveryPhase(epochs: CycleEpoch[], baselineStats: Record
  * (vs just random variance or a "good" shift like high HRV).
  */
 function isStrainingDeviation(metric: string, z: number, threshold: number = 1.0): boolean {
-    const lower = metric.toLowerCase();
-
-    // HRV: Lower is stressed (< -threshold)
-    if (lower === 'hrv') return z < -threshold;
-
-    // RHR, Symptoms, Exertion, Composite: Higher is stressed (> threshold)
-    if (lower.includes('heart_rate') || lower.includes('score') || lower.includes('exertion')) {
+    const config = getMetricRegistryConfig(metric);
+    if (config.direction === 'higher') {
+        // Higher is Better (HRV): Strain is when it's LOWER than normal
+        return z < -threshold;
+    } else {
+        // Lower is Better (Symptoms): Strain is when it's HIGHER than normal
         return z > threshold;
     }
-
-    // Default for custom symptoms: Higher is usually worse
-    return z > threshold;
 }
 
 /**
