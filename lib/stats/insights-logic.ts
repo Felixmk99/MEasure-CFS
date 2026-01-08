@@ -90,8 +90,8 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                         const medianB = calculateMedian(pair.b);
                         const stats = calculatePercentageChange(sortedData, metricA, metricB, medianA, lag);
 
-                        // Exertion Check
-                        const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase().includes(e.toLowerCase()));
+                        // Exertion Check: Match exact metric names (case-insensitive) to avoid false positives like "Physical_recovery_score"
+                        const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase() === e.toLowerCase());
                         if (isExertionEffect) return;
 
                         results.push({

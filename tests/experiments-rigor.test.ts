@@ -100,9 +100,9 @@ describe('Experiments Logic - Scientific Rigor', () => {
             expect(impact).toBeDefined();
             expect(impact?.df).toBe(19); // 21 days - 2 coefficients (intercept + exp)
 
-            // With small N, significance is harder to reach than Z-test
+            // With large shift and df=19, expect high significance (p < 0.001)
             expect(impact?.pValue).toBeGreaterThan(0);
-            expect(impact?.pValue).toBeLessThan(0.01); // Still significant because +2 sigma is massive
+            expect(impact?.pValue).toBeLessThan(0.001);
         });
 
         it('should correctly classify Effect Sizes (Cohen d equivalent)', () => {

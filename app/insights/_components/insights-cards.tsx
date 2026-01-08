@@ -138,11 +138,14 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                                                     {t('experiments.impact.high_confidence')}
                                                 </div>
                                             )}
-                                            {c.coefficient > 0 ? (
-                                                <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
-                                            ) : (
-                                                <TrendingDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
-                                            )}
+                                            {(() => {
+                                                const trendColor = isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500';
+                                                return c.coefficient > 0 ? (
+                                                    <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${trendColor}`} />
+                                                ) : (
+                                                    <TrendingDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${trendColor}`} />
+                                                );
+                                            })()}
                                         </div>
                                     </div>
                                 </div>
