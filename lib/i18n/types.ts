@@ -338,6 +338,8 @@ export interface Dictionary {
                 negative: string
                 neutral: string
             }
+            high_confidence: string
+            trend: string
             statistical_profile: string
             p_value: string
             z_score_label: string

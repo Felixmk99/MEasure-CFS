@@ -58,7 +58,7 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
 
         const direction = c.coefficient < 0 ? t('insights.logic.reduces') : t('insights.logic.increases');
 
-        // Neutral Pattern: "{metric} > {value}" or similar
+        // Neutral Pattern: "{metric} > {value}"
         const recommendation = `${emoji} ${t('insights.logic.recommendation_pattern', {
             metric: metricAName,
             value: formatNumber(c.medianA, locale)
@@ -66,7 +66,9 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
 
         const impact = `${direction} ${metricBName} ${t('insights.logic.by')} ${Math.round(c.percentChange)}% (${t('insights.logic.from')} ${formatNumber(c.typicalValue, locale)} ${t('insights.logic.to')} ${formatNumber(c.improvedValue, locale)})`;
 
-        return `${recommendation}\n→ ${impact}`;
+        const stats = `(${t('experiments.impact.p_value')}: ${c.pValue.toFixed(3)}, N=${c.sampleSize})`;
+
+        return `${recommendation}\n→ ${impact}\n${stats}`;
     }
 
     const formatThresholdDescription = (ti: ThresholdInsight) => {
@@ -135,16 +137,23 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                                 <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1 sm:mb-2">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100 truncate">
+                                <div className="flex items-start justify-between gap-4 mb-2">
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
+                                        <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
                                             {t(titleKey as string)}
                                         </h3>
-                                        {c.coefficient > 0 ? (
-                                            <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
-                                        ) : (
-                                            <TrendingDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
-                                        )}
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            {c.pValue < 0.05 && (
+                                                <div className="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-bold uppercase tracking-wider">
+                                                    {t('experiments.impact.high_confidence')}
+                                                </div>
+                                            )}
+                                            {c.coefficient > 0 ? (
+                                                <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
+                                            ) : (
+                                                <TrendingDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed whitespace-pre-line break-words">

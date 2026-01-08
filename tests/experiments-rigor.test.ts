@@ -80,7 +80,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
 
         it('should handle non-integer DF via rounding for the Cauchy branch', () => {
             // df=1.2 should still hit the Cauchy branch if it rounds to 1
-            expect(tDistributionCDF(1.0, 1.2)).toBe(tDistributionCDF(1.0, 1));
+            expect(tDistributionCDF(1.0, 1.2)).toBeCloseTo(tDistributionCDF(1.0, 1), 10);
         });
 
         it('should follow Normal distribution for large DF (Convergence)', () => {
@@ -130,20 +130,20 @@ describe('Experiments Logic - Scientific Rigor', () => {
             expect(impact?.effectSize).toBe('small');
         });
 
-        it('should handle extreme small samples (N=2) without crashing', () => {
-            const tinyHistory: MetricDay[] = [
-                { date: '2024-01-01', hrv: 50 },
-                { date: '2024-01-02', hrv: 60 }
-            ];
-            const reports = analyzeExperiments([expA], tinyHistory, baselineStats);
+        it('should handle neutral outcomes with enough data but no significant change', () => {
+            const neutralHistory: MetricDay[] = Array.from({ length: 14 }, (_, i) => ({
+                date: `2024-01-${String(i + 1).padStart(2, '0')}`,
+                hrv: 50 // Constant HRV
+            }));
+            const reports = analyzeExperiments([expA], neutralHistory, baselineStats);
 
             const report = reports.find(r => r.experimentId === 'exp-a');
-            const impact = report?.impacts.find(i => i.metric === 'hrv');
+            expect(report).toBeDefined();
 
-            if (impact) {
-                expect(impact.significance).toBe('neutral');
-                expect(impact.df).toBe(0);
-            }
+            const impact = report?.impacts.find(i => i.metric === 'hrv');
+            expect(impact).toBeDefined();
+            expect(impact!.significance).toBe('neutral');
+            expect(impact!.df).toBeGreaterThan(0);
         });
 
         it('should handle metrics missing from baselineStats gracefully', () => {

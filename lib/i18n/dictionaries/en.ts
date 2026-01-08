@@ -398,6 +398,8 @@ export const en: Dictionary = {
                 negative: "Negative",
                 neutral: "Neutral"
             },
+            high_confidence: "High Confidence",
+            trend: "Trend",
             statistical_profile: "Statistical Profile",
             p_value: "P-Value",
             z_score_label: "Z-Score",

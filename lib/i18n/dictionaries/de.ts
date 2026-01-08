@@ -398,6 +398,8 @@ export const de: Dictionary = {
                 negative: "Negativ",
                 neutral: "Neutral"
             },
+            high_confidence: "Hohe Konfidenz",
+            trend: "Trend",
             statistical_profile: "Statistisches Profil",
             p_value: "P-Value",
             z_score_label: "Z-Score",
@@ -689,7 +691,7 @@ export const de: Dictionary = {
                 impact: {
                     direct: "Direkte Auswirkung",
                     high_warning: "Warnung vor starker Auswirkung",
-                    helpful_connection: "Hilfreicher Zusammenhang",
+                    helpful_connection: "Zusammenhang",
                     helpful_pattern: "Hilfreiches Muster",
                     direct_connection: "Direkte Verbindung",
                     hidden_lag: "Verzögerte Warnung"
