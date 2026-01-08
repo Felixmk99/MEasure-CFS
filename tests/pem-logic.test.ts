@@ -1,14 +1,14 @@
-import { calculateZScores, aggregateEpochs, analyzePreCrashPhase, CycleEpoch, HealthEntry } from '../lib/statistics/pem-cycle';
+import { calculateZScores, analyzePreCrashPhase, CycleEpoch } from '../lib/statistics/pem-cycle';
 import { getMetricRegistryConfig } from '../lib/metrics/registry';
 
 // Mock registry to ensure deterministic tests
 jest.mock('../lib/metrics/registry', () => ({
     getMetricRegistryConfig: (metric: string) => {
         const lower = metric.toLowerCase();
-        if (lower === 'hrv') return { direction: 'higher', label: 'HRV' }; // Higher is Better
-        if (lower === 'symptoms') return { direction: 'lower', label: 'Symptoms' }; // Lower is Better
-        if (lower === 'exertion') return { direction: 'lower', label: 'Exertion' }; // Lower is Better
-        return { direction: 'lower', label: metric }; // Default
+        if (lower === 'hrv') return { key: 'hrv', direction: 'higher', label: 'HRV', unit: 'ms', color: '#10B981' };
+        if (lower === 'symptoms') return { key: 'symptoms', direction: 'lower', label: 'Symptoms', unit: '', color: '#8B5CF6' };
+        if (lower === 'exertion') return { key: 'exertion', direction: 'lower', label: 'Exertion', unit: '', color: '#8B5CF6' };
+        return { key: metric, direction: 'lower', label: metric, unit: '', color: '#8B5CF6' };
     }
 }));
 
