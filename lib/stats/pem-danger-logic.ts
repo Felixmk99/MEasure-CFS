@@ -1,4 +1,5 @@
 import { HealthEntry, calculateBaselineStats, extractEpochs, calculateZScores, aggregateEpochs, analyzePreCrashPhase } from '@/lib/statistics/pem-cycle'
+import { getMetricRegistryConfig } from '@/lib/metrics/registry'
 import { subDays, addDays, isAfter, startOfDay, parseISO, isWithinInterval } from 'date-fns'
 
 export interface PEMDangerStatus {
@@ -102,7 +103,14 @@ export function calculateCurrentPEMDanger(data: HealthEntry[]): PEMDangerStatus 
                 // Synergistic trigger
                 const z1 = getZScore(day, subMetrics[0], baselineStats)
                 const z2 = getZScore(day, subMetrics[1], baselineStats)
-                currentZ = (z1 + z2) / Math.sqrt(2)
+
+                // ALIGN POLARITY (Same logic as pem-cycle.ts)
+                const c1 = getMetricRegistryConfig(subMetrics[0]);
+                const c2 = getMetricRegistryConfig(subMetrics[1]);
+                const s1 = c1.direction === 'higher' ? -z1 : z1;
+                const s2 = c2.direction === 'higher' ? -z2 : z2;
+
+                currentZ = (s1 + s2) / Math.sqrt(2)
             } else {
                 currentZ = getZScore(day, tr.metric, baselineStats)
             }
@@ -210,5 +218,16 @@ function getZScore(entry: HealthEntry, key: string, baselineStats: Record<string
     if (num === null || isNaN(num) || !baselineStats[key]) return 0
 
     const { mean, std } = baselineStats[key]
-    return std > 0 ? (num - mean) / std : (num > mean ? 2 : 0)
+    if (std > 0) return (num - mean) / std;
+
+    // Zero-Variance Fallback (Matches pem-cycle.ts)
+    const config = getMetricRegistryConfig(key);
+    if (num !== mean) {
+        if (config.direction === 'higher') {
+            return num < mean ? -2 : 2;
+        } else {
+            return num > mean ? 2 : -2;
+        }
+    }
+    return 0;
 }
