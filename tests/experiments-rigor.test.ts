@@ -4,7 +4,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
     // 21 days of data (Correctly exceeds the 14-day engine guardrail)
     const history: MetricDay[] = Array.from({ length: 21 }, (_, i) => ({
         date: `2024-01-${String(i + 1).padStart(2, '0')}`,
-        hrv: i < 11 ? 50 : 60 // Small increase at day 11
+        hrv: i < 11 ? 50 : 60 // Increase starts at Day 12 (Simulating 1-day delayed effect)
     }));
 
     const baselineStats = { hrv: { mean: 55, std: 5 } };

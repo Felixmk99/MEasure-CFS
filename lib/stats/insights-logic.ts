@@ -175,12 +175,18 @@ export function detectThresholds(
     return insights;
 }
 
+const RECOVERY_MIN_DAYS = 14;
+const RECOVERY_SPIKE_THRESHOLD = 1.5;
+const RECOVERY_WINDOW_DAYS = 7;
+const RECOVERY_MAX_CAP = 8;
+const RECOVERY_MIN_SAMPLES = 2;
+
 /**
  * Calculates typical recovery velocity from exertion spikes.
  * @experimental Analyzes how many days it takes for symptoms to return to baseline after an exertion spike.
  */
 export function calculateRecoveryVelocity(data: InsightMetric[]): { exertionMetric: string, outcomeMetric: string, recoveryDays: number, confidence: number }[] {
-    if (data.length < 14) return [];
+    if (data.length < RECOVERY_MIN_DAYS) return [];
 
     const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     const exertionMetrics = extractAvailableMetrics(data).filter(m => EXERTION_METRICS.some(e => m.toLowerCase().includes(e.toLowerCase())) || m === 'step_count');
@@ -194,12 +200,12 @@ export function calculateRecoveryVelocity(data: InsightMetric[]): { exertionMetr
 
         const mean = ss.mean(values);
         const stdDev = ss.standardDeviation(values);
-        const spikeThreshold = mean + 1.5 * stdDev;
+        const spikeThreshold = mean + RECOVERY_SPIKE_THRESHOLD * stdDev;
 
         outcomeMetrics.forEach(outM => {
             const recoveryTimes: number[] = [];
 
-            for (let i = 1; i < sortedData.length - 7; i++) {
+            for (let i = 1; i < sortedData.length - RECOVERY_WINDOW_DAYS; i++) {
                 const currentEx = getValue(sortedData[i], exM);
                 const prevOut = getValue(sortedData[i - 1], outM);
 
@@ -207,7 +213,7 @@ export function calculateRecoveryVelocity(data: InsightMetric[]): { exertionMetr
                     // We found a spike! Now track recovery.
                     // Baseline is the outcome value the day BEFORE the spike.
                     let recovered = false;
-                    for (let day = 1; day <= 7; day++) {
+                    for (let day = 1; day <= RECOVERY_WINDOW_DAYS; day++) {
                         const futureOut = getValue(sortedData[i + day], outM);
                         if (futureOut === null) continue;
 
@@ -222,11 +228,11 @@ export function calculateRecoveryVelocity(data: InsightMetric[]): { exertionMetr
                             break;
                         }
                     }
-                    if (!recovered) recoveryTimes.push(8); // Cap at 8 for "more than a week"
+                    if (!recovered) recoveryTimes.push(RECOVERY_MAX_CAP); // Cap for "more than a week"
                 }
             }
 
-            if (recoveryTimes.length >= 2) {
+            if (recoveryTimes.length >= RECOVERY_MIN_SAMPLES) {
                 results.push({
                     exertionMetric: exM,
                     outcomeMetric: outM,

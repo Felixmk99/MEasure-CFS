@@ -33,7 +33,7 @@ export default function InsightsClient({ data, exertionPreference: initialPrefer
     }, [data, exertionPreference])
 
     // 2. Process all-time analysis
-    const { correlations, thresholds, recovery } = useMemo(() => {
+    const { correlations, thresholds, recovery: _recovery } = useMemo(() => {
         if (!enhancedData || enhancedData.length < MIN_DAYS_FOR_INSIGHTS) return { correlations: [], thresholds: [], recovery: [] }
 
         // 1. Calculate Correlations
