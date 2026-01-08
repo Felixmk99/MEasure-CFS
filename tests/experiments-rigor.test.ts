@@ -1,4 +1,4 @@
-import { analyzeExperiments, Experiment, MetricDay, tDistributionCDF } from '../lib/statistics/experiment-analysis';
+import { analyzeExperiments, Experiment, MetricDay, tDistributionCDF, normalCDF } from '../lib/statistics/experiment-analysis';
 
 describe('Experiments Logic - Scientific Rigor', () => {
     // 21 days of data (Correctly exceeds the 14-day engine guardrail)
@@ -18,92 +18,141 @@ describe('Experiments Logic - Scientific Rigor', () => {
         category: 'medication'
     };
 
-    it('should calculate more conservative P-values with small N (T-Distribution)', () => {
-        const reports = analyzeExperiments([expA], history, baselineStats);
-        const report = reports.find(r => r.experimentId === 'exp-a');
-        const impact = report?.impacts.find(i => i.metric === 'hrv');
+    describe('Direct Math: normalCDF', () => {
+        it('should match Z-Table reference values', () => {
+            expect(normalCDF(0.0)).toBeCloseTo(0.5, 6);
+            expect(normalCDF(1.645)).toBeCloseTo(0.95, 2);
+            expect(normalCDF(1.96)).toBeCloseTo(0.975, 3);
+        });
 
-        expect(impact).toBeDefined();
-        expect(impact?.df).toBe(19); // 21 days - 2 coefficients (intercept + exp)
+        it('should maintain symmetry Φ(-z) = 1 - Φ(z)', () => {
+            const z = 1.0;
+            expect(normalCDF(-z)).toBeCloseTo(1 - normalCDF(z), 10);
+        });
 
-        // With small N, significance is harder to reach than Z-test
-        // An increase from 50 to 60 with std 5 is 2 sigma (Large effect), 
-        // but with N=21, the P-value should reflect the T-distribution
-        expect(impact?.pValue).toBeGreaterThan(0);
-        expect(impact?.pValue).toBeLessThan(0.01); // Still significant because +2 sigma is massive
+        it('should clamp values to [0, 1] for extreme magnitudes', () => {
+            expect(normalCDF(50)).toBe(1);
+            expect(normalCDF(-50)).toBe(0);
+        });
     });
 
-    it('should correctly classify Effect Sizes (Cohen d equivalent)', () => {
-        const reports = analyzeExperiments([expA], history, baselineStats);
-        const report = reports.find(r => r.experimentId === 'exp-a');
-        const impact = report?.impacts.find(i => i.metric === 'hrv');
+    describe('Direct Math: tDistributionCDF', () => {
+        it('should correctly calculate P-value for df=1 (Cauchy distribution)', () => {
+            // With df=1, t-dist is Cauchy. 
+            // For t=1.0, CDF should be 0.5 + Math.atan(1.0)/Math.PI = 0.5 + 0.25 = 0.75
+            const cdf = tDistributionCDF(1.0, 1);
+            expect(cdf).toBeCloseTo(0.75, 5);
 
-        // (60-55)/5 = 1.0 (Z-shift)
-        // Magnitude 1.0 is > 0.8, so it should be 'large'
-        expect(impact?.effectSize).toBe('large');
+            // For t=0.0, CDF should be 0.5
+            expect(tDistributionCDF(0.0, 1)).toBe(0.5);
+
+            // For t=-1.0, CDF should be 0.25
+            expect(tDistributionCDF(-1.0, 1)).toBeCloseTo(0.25, 5);
+        });
+
+        it('should match T-Table reference values for small-to-medium DF', () => {
+            // df=5, t=2.015 -> CDF approx 0.95
+            expect(tDistributionCDF(2.015, 5)).toBeCloseTo(0.95, 2);
+
+            // df=10, t=1.812 -> CDF approx 0.95
+            expect(tDistributionCDF(1.812, 10)).toBeCloseTo(0.95, 2);
+
+            // df=30, t=2.042 -> CDF approx 0.975
+            expect(tDistributionCDF(2.042, 30)).toBeCloseTo(0.975, 3);
+        });
+
+        it('should maintain symmetry for any df', () => {
+            [2, 5, 10, 30].forEach(df => {
+                const t = 1.5;
+                expect(tDistributionCDF(-t, df)).toBeCloseTo(1 - tDistributionCDF(t, df), 10);
+            });
+        });
+
+        it('should clamp extreme t values gracefully', () => {
+            expect(tDistributionCDF(1000, 10)).toBe(1);
+            expect(tDistributionCDF(-1000, 10)).toBe(0);
+        });
+
+        it('should handle df <= 0 gracefully (fallback to 0.5)', () => {
+            expect(tDistributionCDF(1.96, 0)).toBe(0.5);
+            expect(tDistributionCDF(1.96, -5)).toBe(0.5);
+        });
+
+        it('should handle non-integer DF via rounding for the Cauchy branch', () => {
+            // df=1.2 should still hit the Cauchy branch if it rounds to 1
+            expect(tDistributionCDF(1.0, 1.2)).toBe(tDistributionCDF(1.0, 1));
+        });
+
+        it('should follow Normal distribution for large DF (Convergence)', () => {
+            // For large df (e.g. 200), t-dist is approx Normal
+            // Normal CDF at 1.96 is approx 0.975 (two-tailed 0.05)
+            const cdf = tDistributionCDF(1.96, 200);
+            expect(cdf).toBeCloseTo(0.975, 2);
+        });
     });
 
-    it('should classify a smaller shift as "small" or "medium"', () => {
-        const smallHistory: MetricDay[] = Array.from({ length: 21 }, (_, i) => ({
-            date: `2024-01-${String(i + 1).padStart(2, '0')}`,
-            hrv: i < 11 ? 55 : 57 // Very small increase (2 units, std 5 = 0.4 sigma)
-        }));
+    describe('Engine Integration Tasks', () => {
+        it('should calculate more conservative P-values with small N (T-Distribution)', () => {
+            const reports = analyzeExperiments([expA], history, baselineStats);
+            const report = reports.find(r => r.experimentId === 'exp-a');
+            const impact = report?.impacts.find(i => i.metric === 'hrv');
 
-        const reports = analyzeExperiments([expA], smallHistory, { hrv: { mean: 55, std: 5 } });
-        const report = reports.find(r => r.experimentId === 'exp-a');
-        const impact = report?.impacts.find(i => i.metric === 'hrv');
+            expect(impact).toBeDefined();
+            expect(impact?.df).toBe(19); // 21 days - 2 coefficients (intercept + exp)
 
-        // Shift is roughly 2/5 = 0.4.
-        // 0.4 is between 0.2 and 0.5, so 'small'
-        expect(impact?.effectSize).toBe('small');
-    });
+            // With small N, significance is harder to reach than Z-test
+            expect(impact?.pValue).toBeGreaterThan(0);
+            expect(impact?.pValue).toBeLessThan(0.01); // Still significant because +2 sigma is massive
+        });
 
-    it('should handle extreme small samples (N=2) without crashing', () => {
-        const tinyHistory: MetricDay[] = [
-            { date: '2024-01-01', hrv: 50 },
-            { date: '2024-01-02', hrv: 60 }
-        ];
-        const reports = analyzeExperiments([expA], tinyHistory, baselineStats);
+        it('should correctly classify Effect Sizes (Cohen d equivalent)', () => {
+            const reports = analyzeExperiments([expA], history, baselineStats);
+            const report = reports.find(r => r.experimentId === 'exp-a');
+            const impact = report?.impacts.find(i => i.metric === 'hrv');
 
-        // With only 2 data points and 2 coefficients, DF is 0. 
-        // OLS might return singular matrix or zero standard error.
-        // The engine handles this by ensuring we don't divide by zero and returns neutral.
-        const report = reports.find(r => r.experimentId === 'exp-a');
-        const impact = report?.impacts.find(i => i.metric === 'hrv');
+            // (60-55)/5 = 1.0 (Z-shift)
+            // Magnitude 1.0 is > 0.8, so it should be 'large'
+            expect(impact?.effectSize).toBe('large');
+        });
 
-        // Should either be neutral or undefined depending on collinearity filter
-        if (impact) {
-            expect(impact.significance).toBe('neutral');
-            expect(impact.df).toBe(0);
-        }
-    });
+        it('should classify a smaller shift as "small" or "medium"', () => {
+            const smallHistory: MetricDay[] = Array.from({ length: 21 }, (_, i) => ({
+                date: `2024-01-${String(i + 1).padStart(2, '0')}`,
+                hrv: i < 11 ? 55 : 57 // Very small increase (2 units, std 5 = 0.4 sigma)
+            }));
 
-    it('should handle metrics missing from baselineStats gracefully', () => {
-        const reports = analyzeExperiments([expA], history, {}); // Empty baselineStats
-        const report = reports.find(r => r.experimentId === 'exp-a');
-        const impact = report?.impacts.find(i => i.metric === 'hrv');
+            const reports = analyzeExperiments([expA], smallHistory, { hrv: { mean: 55, std: 5 } });
+            const report = reports.find(r => r.experimentId === 'exp-a');
+            const impact = report?.impacts.find(i => i.metric === 'hrv');
 
-        expect(impact).toBeDefined();
-        expect(impact?.zScoreShift).toBeDefined(); // Should use default std=1
-    });
+            // Shift is roughly 2/5 = 0.4.
+            // 0.4 is between 0.2 and 0.5, so 'small'
+            expect(impact?.effectSize).toBe('small');
+        });
 
-    it('should correctly calculate P-value for df=1 (Cauchy distribution)', () => {
-        // With df=1, t-dist is Cauchy. 
-        // For t=1.0, CDF should be 0.5 + Math.atan(1.0)/Math.PI = 0.5 + 0.25 = 0.75
-        const cdf = tDistributionCDF(1.0, 1);
-        expect(cdf).toBeCloseTo(0.75, 5);
+        it('should handle extreme small samples (N=2) without crashing', () => {
+            const tinyHistory: MetricDay[] = [
+                { date: '2024-01-01', hrv: 50 },
+                { date: '2024-01-02', hrv: 60 }
+            ];
+            const reports = analyzeExperiments([expA], tinyHistory, baselineStats);
 
-        // For t=0.0, CDF should be 0.5
-        expect(tDistributionCDF(0.0, 1)).toBe(0.5);
+            const report = reports.find(r => r.experimentId === 'exp-a');
+            const impact = report?.impacts.find(i => i.metric === 'hrv');
 
-        // For t=-1.0, CDF should be 0.25
-        expect(tDistributionCDF(-1.0, 1)).toBeCloseTo(0.25, 5);
-    });
+            if (impact) {
+                expect(impact.significance).toBe('neutral');
+                expect(impact.df).toBe(0);
+            }
+        });
 
-    it('should follow Normal distribution for large DF', () => {
-        // For large df (e.g. 200), t-dist is approx Normal
-        // Normal CDF at 1.96 is approx 0.975 (two-tailed 0.05)
-        const cdf = tDistributionCDF(1.96, 200);
-        expect(cdf).toBeCloseTo(0.975, 2);
+        it('should handle metrics missing from baselineStats gracefully', () => {
+            const reports = analyzeExperiments([expA], history, {}); // Empty baselineStats
+            const report = reports.find(r => r.experimentId === 'exp-a');
+            const impact = report?.impacts.find(i => i.metric === 'hrv');
+
+            expect(impact).toBeDefined();
+            expect(impact?.zScoreShift).toBeDefined(); // Should use default std=1
+        });
     });
 });
