@@ -99,28 +99,28 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
         .slice(0, 6)
 
     const renderCorrelationCard = (c: CorrelationResult, i: number, baseDelay: number) => {
-        const isNegativeImpact = c.coefficient > 0 && (c.metricB.toLowerCase().includes('symptom') || c.metricB.toLowerCase().includes('fatigue'));
-        const isPositiveImpact = c.coefficient < 0 && (c.metricB.toLowerCase().includes('symptom') || c.metricB.toLowerCase().includes('fatigue'));
-        const bgGradient = isNegativeImpact
-            ? 'from-red-50 to-white dark:from-red-950/20 dark:to-zinc-900 border-l-red-500'
-            : isPositiveImpact
-                ? 'from-green-50 to-white dark:from-green-950/20 dark:to-zinc-900 border-l-green-500'
+        const isNegativeImpact = !c.isGood;
+        const isPositiveImpact = c.isGood;
+        const bgGradient = isPositiveImpact
+            ? 'from-green-50 to-white dark:from-green-950/20 dark:to-zinc-900 border-l-green-500'
+            : isNegativeImpact
+                ? 'from-red-50 to-white dark:from-red-950/20 dark:to-zinc-900 border-l-red-500'
                 : c.lag === 0
                     ? 'from-indigo-50 to-white dark:from-indigo-950/20 dark:to-zinc-900 border-l-indigo-500'
                     : 'from-blue-50 to-white dark:from-blue-950/20 dark:to-zinc-900 border-l-blue-500';
-        const iconBg = isNegativeImpact
-            ? 'bg-red-100 dark:bg-red-900/30 text-red-600'
-            : isPositiveImpact
-                ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+        const iconBg = isPositiveImpact
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+            : isNegativeImpact
+                ? 'bg-red-100 dark:bg-red-900/30 text-red-600'
                 : c.lag === 0
                     ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600'
                     : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600';
 
         const Icon = c.lag === 0 ? Zap : Timer;
-        const titleKey = isNegativeImpact
-            ? (c.lag === 0 ? 'insights.patterns.cards.impact.direct' : 'insights.patterns.cards.impact.high_warning')
-            : isPositiveImpact
-                ? (c.lag === 0 ? 'insights.patterns.cards.impact.helpful_connection' : 'insights.patterns.cards.impact.helpful_pattern')
+        const titleKey = isPositiveImpact
+            ? (c.lag === 0 ? 'insights.patterns.cards.impact.helpful_connection' : 'insights.patterns.cards.impact.helpful_pattern')
+            : isNegativeImpact
+                ? (c.lag === 0 ? 'insights.patterns.cards.impact.direct' : 'insights.patterns.cards.impact.high_warning')
                 : (c.lag === 0 ? 'insights.patterns.cards.impact.direct_connection' : 'insights.patterns.cards.impact.hidden_lag');
 
         return (
