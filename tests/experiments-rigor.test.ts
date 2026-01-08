@@ -131,11 +131,12 @@ describe('Experiments Logic - Scientific Rigor', () => {
         });
 
         it('should handle neutral outcomes with enough data but no significant change', () => {
+            const neutralExp: Experiment = { ...expA, start_date: '2024-01-08', end_date: '2024-01-14' };
             const neutralHistory: MetricDay[] = Array.from({ length: 14 }, (_, i) => ({
                 date: `2024-01-${String(i + 1).padStart(2, '0')}`,
                 hrv: 50 // Constant HRV
             }));
-            const reports = analyzeExperiments([expA], neutralHistory, baselineStats);
+            const reports = analyzeExperiments([neutralExp], neutralHistory, baselineStats);
 
             const report = reports.find(r => r.experimentId === 'exp-a');
             expect(report).toBeDefined();

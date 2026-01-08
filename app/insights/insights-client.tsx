@@ -39,6 +39,7 @@ export default function InsightsClient({ data, exertionPreference: initialPrefer
         // 1. Calculate Correlations
         const corrs = calculateAdvancedCorrelations(enhancedData)
         const thres = detectThresholds(enhancedData)
+        // TODO: UI implementation for Recovery Velocity display in a future iteration
         const recov = calculateRecoveryVelocity(enhancedData)
         return {
             correlations: corrs,

@@ -74,8 +74,13 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
 
                     if (df > 0) {
                         // Formula: t = r * sqrt( (n-2) / (1-r^2) )
-                        const tStat = coefficient * Math.sqrt(df / (1 - coefficient * coefficient));
-                        pValue = 2 * (1 - tDistributionCDF(Math.abs(tStat), df));
+                        const rSquared = coefficient * coefficient;
+                        if (rSquared >= 1) {
+                            pValue = 0; // Perfect correlation
+                        } else {
+                            const tStat = coefficient * Math.sqrt(df / (1 - rSquared));
+                            pValue = 2 * (1 - tDistributionCDF(Math.abs(tStat), df));
+                        }
                     }
 
                     // --- FILTERING ---
@@ -347,11 +352,6 @@ function calculatePercentageChange(
     };
 }
 
-// Metrics where lower values are better (symptoms, pain, fatigue, etc.)
-const NEGATIVE_METRIC_KEYWORDS = [
-    'symptom', 'fatigue', 'pain', 'weakness', 'nausea',
-    'headache', 'dizziness', 'crash', 'ache'
-] as const;
 
 function isGoodPattern(metricB: string, r: number): boolean {
     const config = getMetricRegistryConfig(metricB);

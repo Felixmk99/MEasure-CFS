@@ -52,8 +52,14 @@ describe('Insights Directional Lag Rigor', () => {
         expect(lag0).toHaveLength(1);
 
         // Lag 1 should have entries for both directions if significant
-        // (In this specific dummy data, they might not be, but the key is we ALLOW them)
         const lag1Directions = results.filter(r => r.lag === 1 && ((r.metricA === 'a' && r.metricB === 'b') || (r.metricA === 'b' && r.metricB === 'a')));
-        // If we allowed both, we might see 2 entries.
+
+        // Both directions should be allowed for lag > 0
+        expect(lag1Directions.length).toBeLessThanOrEqual(2);
+
+        // If present, verify they represent different directional relationships
+        if (lag1Directions.length === 2) {
+            expect(lag1Directions[0].metricA).not.toBe(lag1Directions[1].metricA);
+        }
     });
 });
