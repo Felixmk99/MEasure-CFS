@@ -146,7 +146,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] bg-zinc-50/50 dark:bg-zinc-900/50 p-2 rounded-lg border border-zinc-100 dark:border-zinc-800">
                                                     <span className="text-muted-foreground font-medium">{t('experiments.impact.p_value')}:</span>
                                                     <span className="font-mono font-bold text-right">{impact.pValue.toFixed(4)}</span>
-                                                    <span className="text-muted-foreground font-medium">{t('experiments.impact.effect_size_label')}:</span>
+                                                    <span className="text-muted-foreground font-medium">{t('experiments.impact.z_score_label')}:</span>
                                                     <span className="font-mono font-bold text-right">{impact.zScoreShift.toFixed(2)}</span>
                                                     <span className="text-muted-foreground font-medium">{t('experiments.impact.deg_freedom')}:</span>
                                                     <span className="font-mono font-bold text-right">{impact.df || 'N/A'}</span>
@@ -158,15 +158,10 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                                         <div className="w-1 h-auto bg-green-500 rounded-full" />
                                                         <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">{t('experiments.impact.high_confidence_desc')}</p>
                                                     </div>
-                                                ) : impact.pValue < 0.15 ? (
+                                                ) : (
                                                     <div className="flex gap-2">
                                                         <div className="w-1 h-auto bg-amber-500 rounded-full" />
                                                         <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">{t('experiments.impact.trend_desc')}</p>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex gap-2">
-                                                        <div className="w-1 h-auto bg-zinc-300 rounded-full" />
-                                                        <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">{t('experiments.impact.not_significant_desc')}</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -198,9 +193,9 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                 {isPositive ? <TrendingUp className="w-3 h-3" /> : isNegative ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
                             </div>
                         </CardContent>
-                    </Card >
+                    </Card>
                 )
             })}
-        </div >
+        </div>
     )
 }

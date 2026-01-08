@@ -400,6 +400,7 @@ export const en: Dictionary = {
             },
             statistical_profile: "Statistical Profile",
             p_value: "P-Value",
+            z_score_label: "Z-Score",
             effect_size_label: "Effect Size (d)",
             deg_freedom: "Deg. Freedom",
             effect_sizes: {

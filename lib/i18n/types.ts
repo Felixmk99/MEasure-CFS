@@ -340,6 +340,7 @@ export interface Dictionary {
             }
             statistical_profile: string
             p_value: string
+            z_score_label: string
             effect_size_label: string
             deg_freedom: string
             effect_sizes: {

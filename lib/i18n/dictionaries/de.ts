@@ -400,8 +400,9 @@ export const de: Dictionary = {
             },
             statistical_profile: "Statistisches Profil",
             p_value: "P-Value",
+            z_score_label: "Z-Score",
             effect_size_label: "Effektstärke (d)",
-            deg_freedom: "Frh.-Grade",
+            deg_freedom: "Freiheitsgrade",
             effect_sizes: {
                 small: "Kleiner",
                 medium: "Mittlerer",

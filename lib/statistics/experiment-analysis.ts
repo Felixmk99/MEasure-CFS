@@ -204,7 +204,8 @@ export function analyzeExperiments(
                 significance = isGood ? 'positive' : 'negative';
             }
 
-            // Effect Size (Cohen's d equivalent)
+            // Effect Size classification using standardized coefficient (z-score shift)
+            // Thresholds follow Cohen's conventions: 0.2 (small), 0.5 (medium), 0.8 (large)
             let effectSize: 'not_significant' | 'small' | 'medium' | 'large' = 'not_significant';
             if (pValue < 0.15) {
                 const absZ = Math.abs(zShift);
@@ -350,6 +351,11 @@ export function tDistributionCDF(t: number, df: number): number {
 
     // For large df, T-distribution is identical to Normal distribution
     if (df > 100) return normalCDF(t);
+
+    // Special case: df=1 is Cauchy distribution
+    if (Math.round(df) === 1) {
+        return 0.5 + Math.atan(t) / Math.PI;
+    }
 
     // Practical approximation for T-distribution CDF
     const x = t;

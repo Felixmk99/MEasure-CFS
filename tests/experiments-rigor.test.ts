@@ -1,7 +1,7 @@
-import { analyzeExperiments, Experiment, MetricDay } from '../lib/statistics/experiment-analysis';
+import { analyzeExperiments, Experiment, MetricDay, tDistributionCDF } from '../lib/statistics/experiment-analysis';
 
 describe('Experiments Logic - Scientific Rigor', () => {
-    // 21 days of data (Small N, should use T-Distribution)
+    // 21 days of data (Correctly exceeds the 14-day engine guardrail)
     const history: MetricDay[] = Array.from({ length: 21 }, (_, i) => ({
         date: `2024-01-${String(i + 1).padStart(2, '0')}`,
         hrv: i < 11 ? 50 : 60 // Small increase at day 11
@@ -85,5 +85,25 @@ describe('Experiments Logic - Scientific Rigor', () => {
 
         expect(impact).toBeDefined();
         expect(impact?.zScoreShift).toBeDefined(); // Should use default std=1
+    });
+
+    it('should correctly calculate P-value for df=1 (Cauchy distribution)', () => {
+        // With df=1, t-dist is Cauchy. 
+        // For t=1.0, CDF should be 0.5 + Math.atan(1.0)/Math.PI = 0.5 + 0.25 = 0.75
+        const cdf = tDistributionCDF(1.0, 1);
+        expect(cdf).toBeCloseTo(0.75, 5);
+
+        // For t=0.0, CDF should be 0.5
+        expect(tDistributionCDF(0.0, 1)).toBe(0.5);
+
+        // For t=-1.0, CDF should be 0.25
+        expect(tDistributionCDF(-1.0, 1)).toBeCloseTo(0.25, 5);
+    });
+
+    it('should follow Normal distribution for large DF', () => {
+        // For large df (e.g. 200), t-dist is approx Normal
+        // Normal CDF at 1.96 is approx 0.975 (two-tailed 0.05)
+        const cdf = tDistributionCDF(1.96, 200);
+        expect(cdf).toBeCloseTo(0.975, 2);
     });
 });
