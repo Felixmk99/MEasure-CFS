@@ -57,4 +57,33 @@ describe('Experiments Logic - Scientific Rigor', () => {
         // 0.4 is between 0.2 and 0.5, so 'small'
         expect(impact?.effectSize).toBe('small');
     });
+
+    it('should handle extreme small samples (N=2) without crashing', () => {
+        const tinyHistory: MetricDay[] = [
+            { date: '2024-01-01', hrv: 50 },
+            { date: '2024-01-02', hrv: 60 }
+        ];
+        const reports = analyzeExperiments([expA], tinyHistory, baselineStats);
+
+        // With only 2 data points and 2 coefficients, DF is 0. 
+        // OLS might return singular matrix or zero standard error.
+        // The engine handles this by ensuring we don't divide by zero and returns neutral.
+        const report = reports.find(r => r.experimentId === 'exp-a');
+        const impact = report?.impacts.find(i => i.metric === 'hrv');
+
+        // Should either be neutral or undefined depending on collinearity filter
+        if (impact) {
+            expect(impact.significance).toBe('neutral');
+            expect(impact.df).toBe(0);
+        }
+    });
+
+    it('should handle metrics missing from baselineStats gracefully', () => {
+        const reports = analyzeExperiments([expA], history, {}); // Empty baselineStats
+        const report = reports.find(r => r.experimentId === 'exp-a');
+        const impact = report?.impacts.find(i => i.metric === 'hrv');
+
+        expect(impact).toBeDefined();
+        expect(impact?.zScoreShift).toBeDefined(); // Should use default std=1
+    });
 });

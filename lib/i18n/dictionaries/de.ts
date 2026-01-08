@@ -397,6 +397,15 @@ export const de: Dictionary = {
                 positive: "Positiv",
                 negative: "Negativ",
                 neutral: "Neutral"
+            },
+            statistical_profile: "Statistisches Profil",
+            p_value: "P-Value",
+            effect_size_label: "Effektstärke (d)",
+            deg_freedom: "Frh.-Grade",
+            effect_sizes: {
+                small: "Kleiner",
+                medium: "Mittlerer",
+                large: "Großer"
             }
         }
     },

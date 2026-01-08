@@ -116,7 +116,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                         <TooltipTrigger asChild>
                                             <div className="flex flex-col items-end gap-1">
                                                 <Badge variant="outline" className={cn(
-                                                    "text-[9px] font-bold uppercase py-0 px-1.5 h-4 border-transparent",
+                                                    "text-[9px] font-bold uppercase py-0 px-1.5 h-4 border-transparent shadow-sm",
                                                     isPositive && "bg-green-500/10 text-green-600",
                                                     isNegative && "bg-red-500/10 text-red-600",
                                                     isNeutral && "bg-zinc-500/10 text-zinc-500",
@@ -125,31 +125,49 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                                     {sigLabel}
                                                 </Badge>
                                                 {impact.effectSize && impact.effectSize !== 'not_significant' && (
-                                                    <span className="text-[7px] font-black uppercase text-muted-foreground/50 tracking-tighter">
-                                                        {impact.effectSize} Effect
-                                                    </span>
+                                                    <div className="flex items-center gap-1 group/effect cursor-help mt-1">
+                                                        <span className={cn(
+                                                            "text-[8px] font-black uppercase tracking-tighter transition-all px-1.5 py-0.5 rounded-md",
+                                                            "bg-zinc-100/50 dark:bg-zinc-800/50 text-muted-foreground group-hover/effect:bg-primary/10 group-hover/effect:text-primary"
+                                                        )}>
+                                                            {t(`experiments.impact.effect_sizes.${impact.effectSize}`)} {t('experiments.history.influence')}
+                                                        </span>
+                                                        <Info className="w-2.5 h-2.5 text-muted-foreground/40 group-hover/effect:text-primary transition-colors" />
+                                                    </div>
                                                 )}
                                             </div>
                                         </TooltipTrigger>
-                                        <TooltipContent side="top" className="p-3 space-y-2">
-                                            <div className="space-y-1">
-                                                <p className="text-xs font-bold">Statistical Profile</p>
-                                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
-                                                    <span className="text-muted-foreground">P-Value:</span>
-                                                    <span className="font-mono">{impact.pValue.toFixed(4)}</span>
-                                                    <span className="text-muted-foreground">Effect Size (d):</span>
-                                                    <span className="font-mono">{impact.zScoreShift.toFixed(2)}</span>
-                                                    <span className="text-muted-foreground">Deg. Freedom:</span>
-                                                    <span className="font-mono">{impact.df || 'N/A'}</span>
+                                        <TooltipContent side="top" className="p-4 w-56 space-y-3 bg-white/95 dark:bg-zinc-950 backdrop-blur-md border shadow-xl">
+                                            <div className="space-y-1.5">
+                                                <p className="text-xs font-bold flex items-center gap-1.5 text-foreground">
+                                                    <Target className="w-3.5 h-3.5 text-primary" />
+                                                    {t('experiments.impact.statistical_profile')}
+                                                </p>
+                                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] bg-zinc-50/50 dark:bg-zinc-900/50 p-2 rounded-lg border border-zinc-100 dark:border-zinc-800">
+                                                    <span className="text-muted-foreground font-medium">{t('experiments.impact.p_value')}:</span>
+                                                    <span className="font-mono font-bold text-right">{impact.pValue.toFixed(4)}</span>
+                                                    <span className="text-muted-foreground font-medium">{t('experiments.impact.effect_size_label')}:</span>
+                                                    <span className="font-mono font-bold text-right">{impact.zScoreShift.toFixed(2)}</span>
+                                                    <span className="text-muted-foreground font-medium">{t('experiments.impact.deg_freedom')}:</span>
+                                                    <span className="font-mono font-bold text-right">{impact.df || 'N/A'}</span>
                                                 </div>
                                             </div>
-                                            <div className="border-t pt-2 mt-2">
+                                            <div className="border-t border-zinc-100 dark:border-zinc-800 pt-2.5">
                                                 {impact.pValue < 0.05 ? (
-                                                    <p className="text-[10px] opacity-70 leading-relaxed font-medium">{t('experiments.impact.high_confidence_desc')}</p>
+                                                    <div className="flex gap-2">
+                                                        <div className="w-1 h-auto bg-green-500 rounded-full" />
+                                                        <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">{t('experiments.impact.high_confidence_desc')}</p>
+                                                    </div>
                                                 ) : impact.pValue < 0.15 ? (
-                                                    <p className="text-[10px] opacity-70 leading-relaxed font-medium">{t('experiments.impact.trend_desc')}</p>
+                                                    <div className="flex gap-2">
+                                                        <div className="w-1 h-auto bg-amber-500 rounded-full" />
+                                                        <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">{t('experiments.impact.trend_desc')}</p>
+                                                    </div>
                                                 ) : (
-                                                    <p className="text-[10px] opacity-70 leading-relaxed font-medium">{t('experiments.impact.not_significant_desc')}</p>
+                                                    <div className="flex gap-2">
+                                                        <div className="w-1 h-auto bg-zinc-300 rounded-full" />
+                                                        <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">{t('experiments.impact.not_significant_desc')}</p>
+                                                    </div>
                                                 )}
                                             </div>
                                         </TooltipContent>
@@ -180,9 +198,9 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                 {isPositive ? <TrendingUp className="w-3 h-3" /> : isNegative ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
                             </div>
                         </CardContent>
-                    </Card>
+                    </Card >
                 )
             })}
-        </div>
+        </div >
     )
 }

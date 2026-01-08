@@ -338,6 +338,15 @@ export interface Dictionary {
                 negative: string
                 neutral: string
             }
+            statistical_profile: string
+            p_value: string
+            effect_size_label: string
+            deg_freedom: string
+            effect_sizes: {
+                small: string
+                medium: string
+                large: string
+            }
         }
     }
     upload: {
