@@ -26,6 +26,8 @@ export interface ExperimentImpact {
     pValue: number; // Statistical significance
     significance: 'positive' | 'negative' | 'neutral';
     confidence: number; // Statistical confidence (e.g. 1 - pValue)
+    effectSize?: 'not_significant' | 'small' | 'medium' | 'large';
+    df?: number;
 }
 
 export interface ExperimentReport {
@@ -173,12 +175,12 @@ export function analyzeExperiments(
             // Standard Error: sqrt(sigma^2 * XTXInv[j][j])
             const se = Math.sqrt(sigmaSq * XTXInv[betaIndex][betaIndex]);
 
-            // T-Statistic (or Z-score for large n)
+            // T-Statistic
             const tStat = coeff / (se || 1e-10);
 
-            // P-Value Approximation (Two-tailed Z-test logic)
-            // For health tracking (N > 30 usually), Z is a good proxy.
-            const pValue = 2 * (1 - normalCDF(Math.abs(tStat)));
+            // P-Value: Use T-Distribution for more accuracy with small samples
+            // Two-tailed test: 2 * (1 - tCDF(|t|, df))
+            const pValue = 2 * (1 - tDistributionCDF(Math.abs(tStat), df));
 
             const stats = baselineStats[metric];
             const std = stats?.std || 1;
@@ -195,11 +197,20 @@ export function analyzeExperiments(
                 ? coeff < 0 // Decrease is desirable
                 : coeff > 0; // Increase is desirable
 
-            // Significance Thresholds: Scientific Rigor
-            // Significant: p < 0.05
-            // Trend: p < 0.20
-            if (pValue < 0.20) {
+            // Aligned Significance Thresholds:
+            // High Confidence: p < 0.05
+            // Likely Trend: p < 0.15
+            if (pValue < 0.15) {
                 significance = isGood ? 'positive' : 'negative';
+            }
+
+            // Effect Size (Cohen's d equivalent)
+            let effectSize: 'not_significant' | 'small' | 'medium' | 'large' = 'not_significant';
+            if (pValue < 0.15) {
+                const absZ = Math.abs(zShift);
+                if (absZ >= 0.8) effectSize = 'large';
+                else if (absZ >= 0.5) effectSize = 'medium';
+                else if (absZ >= 0.2) effectSize = 'small';
             }
 
             const report = reports.find(r => r.experimentId === exp.id);
@@ -212,7 +223,9 @@ export function analyzeExperiments(
                     standardError: se,
                     pValue,
                     significance,
-                    confidence: 1 - pValue
+                    confidence: 1 - pValue,
+                    effectSize,
+                    df
                 });
             }
         });
@@ -320,9 +333,48 @@ function invert(M: number[][]): number[][] | null {
  * Normal Cumulative Distribution Function (CDF) approximation.
  * Used for P-Value calculation from Z-scores.
  */
-function normalCDF(x: number): number {
+export function normalCDF(x: number): number {
     const t = 1 / (1 + 0.2316419 * Math.abs(x));
     const d = 0.3989423 * Math.exp(-x * x / 2);
     const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
     return x > 0 ? 1 - p : p;
+}
+
+/**
+ * Student's T-Distribution CDF approximation.
+ * Used for more accurate P-values when sample size is small (N < 30).
+ * Based on the relationship: Z is the limit of T as df -> infinity.
+ */
+export function tDistributionCDF(t: number, df: number): number {
+    if (df <= 0) return 0.5;
+
+    // For large df, T-distribution is identical to Normal distribution
+    if (df > 100) return normalCDF(t);
+
+    // Practical approximation for T-distribution CDF
+    const x = t;
+    const absX = Math.abs(x);
+    const a = df / (df + x * x);
+    let p = 0;
+
+    if (df % 2 === 0) {
+        let term = Math.sqrt(1 - a);
+        p = term;
+        for (let i = 2; i < df; i += 2) {
+            term = term * a * (i - 1) / i;
+            p += term;
+        }
+    } else {
+        const theta = Math.atan(absX / Math.sqrt(df));
+        let term = Math.sin(theta);
+        p = (theta + term * Math.cos(theta));
+        for (let i = 3; i < df; i += 2) {
+            term = term * a * (i - 1) / i;
+            p += term * Math.cos(theta);
+        }
+        p = 2 * p / Math.PI;
+    }
+
+    const cdf = 0.5 + (x > 0 ? 0.5 : -0.5) * p;
+    return Math.max(0, Math.min(1, cdf));
 }

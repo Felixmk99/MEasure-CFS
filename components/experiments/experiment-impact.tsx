@@ -60,8 +60,8 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
         )
     }
 
-    // 1. Filter: Only show significant (p < 0.05)
-    const relevantImpacts = impacts.filter(i => i.pValue < 0.05);
+    // 1. Filter: Only show significant or likely trends (p < 0.15)
+    const relevantImpacts = impacts.filter(i => i.pValue < 0.15);
 
     if (relevantImpacts.length === 0) {
         return (
@@ -88,7 +88,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                 let sigLabel = t(`experiments.impact.significance.neutral`)
                 if (impact.pValue < 0.05) {
                     sigLabel = t(`experiments.impact.significance.significant`) || "Significant"
-                } else if (impact.pValue < 0.20) {
+                } else if (impact.pValue < 0.15) {
                     sigLabel = t(`experiments.impact.significance.trend`) || "Trend"
                 }
 
@@ -114,25 +114,44 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Badge variant="outline" className={cn(
-                                                "text-[9px] font-bold uppercase",
-                                                isPositive && "border-green-500/20 text-green-600",
-                                                isNegative && "border-red-500/20 text-red-600",
-                                                isNeutral && "border-zinc-500/20 text-zinc-500",
-                                                sigColor
-                                            )}>
-                                                {sigLabel}
-                                            </Badge>
+                                            <div className="flex flex-col items-end gap-1">
+                                                <Badge variant="outline" className={cn(
+                                                    "text-[9px] font-bold uppercase py-0 px-1.5 h-4 border-transparent",
+                                                    isPositive && "bg-green-500/10 text-green-600",
+                                                    isNegative && "bg-red-500/10 text-red-600",
+                                                    isNeutral && "bg-zinc-500/10 text-zinc-500",
+                                                    sigColor
+                                                )}>
+                                                    {sigLabel}
+                                                </Badge>
+                                                {impact.effectSize && impact.effectSize !== 'not_significant' && (
+                                                    <span className="text-[7px] font-black uppercase text-muted-foreground/50 tracking-tighter">
+                                                        {impact.effectSize} Effect
+                                                    </span>
+                                                )}
+                                            </div>
                                         </TooltipTrigger>
-                                        <TooltipContent side="top">
-                                            <p className="text-xs">p-value: {impact.pValue.toFixed(3)}</p>
-                                            {impact.pValue < 0.05 ? (
-                                                <p className="text-[10px] opacity-70">{t('experiments.impact.high_confidence_desc')}</p>
-                                            ) : impact.pValue < 0.20 ? (
-                                                <p className="text-[10px] opacity-70">{t('experiments.impact.trend_desc')}</p>
-                                            ) : (
-                                                <p className="text-[10px] opacity-70">{t('experiments.impact.not_significant_desc')}</p>
-                                            )}
+                                        <TooltipContent side="top" className="p-3 space-y-2">
+                                            <div className="space-y-1">
+                                                <p className="text-xs font-bold">Statistical Profile</p>
+                                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
+                                                    <span className="text-muted-foreground">P-Value:</span>
+                                                    <span className="font-mono">{impact.pValue.toFixed(4)}</span>
+                                                    <span className="text-muted-foreground">Effect Size (d):</span>
+                                                    <span className="font-mono">{impact.zScoreShift.toFixed(2)}</span>
+                                                    <span className="text-muted-foreground">Deg. Freedom:</span>
+                                                    <span className="font-mono">{impact.df || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                            <div className="border-t pt-2 mt-2">
+                                                {impact.pValue < 0.05 ? (
+                                                    <p className="text-[10px] opacity-70 leading-relaxed font-medium">{t('experiments.impact.high_confidence_desc')}</p>
+                                                ) : impact.pValue < 0.15 ? (
+                                                    <p className="text-[10px] opacity-70 leading-relaxed font-medium">{t('experiments.impact.trend_desc')}</p>
+                                                ) : (
+                                                    <p className="text-[10px] opacity-70 leading-relaxed font-medium">{t('experiments.impact.not_significant_desc')}</p>
+                                                )}
+                                            </div>
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
