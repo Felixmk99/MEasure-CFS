@@ -788,6 +788,22 @@ export interface Dictionary {
         description: string
         close: string
     }
+    onboarding: {
+        symptom_tracking_title: string
+        symptom_tracking_desc: string
+        step_provider_title: string
+        step_provider_desc: string
+        saving: string
+        continue: string
+        providers: {
+            visible: { name: string; desc: string }
+            bearable: { name: string; desc: string }
+            apple: { name: string; desc: string }
+            google: { name: string; desc: string }
+            samsung: { name: string; desc: string }
+            csv: { name: string; desc: string }
+        }
+    }
 }
 
 
