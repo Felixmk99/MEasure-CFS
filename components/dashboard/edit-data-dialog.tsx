@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { format, parseISO } from "date-fns"
 import { calculateExertionScore, calculateSymptomScore } from "@/lib/scoring/logic";
 import { useLanguage } from "@/components/providers/language-provider"
-import { useCallback } from 'react'
+import { useMetricTranslation } from "@/lib/i18n/helpers"
 import { ScorableEntry } from '@/lib/scoring/composite-score'
 
 interface EditableEntry extends ScorableEntry {
@@ -31,23 +31,9 @@ interface EditDataDialogProps {
 
 export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDialogProps) {
     const { t } = useLanguage()
+    const tMetric = useMetricTranslation()
     const [formData, setFormData] = useState<Partial<ScorableEntry> | null>(null)
     const [submitting, setSubmitting] = useState(false)
-
-    // Helper for Metric Translations
-    const tMetric = useCallback((key: string) => {
-        const strictKey = key.toLowerCase();
-        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
-        const translated = t(dictionaryKey);
-        if (translated !== dictionaryKey && translated) return translated;
-
-        const snakeKey = strictKey.replace(/ /g, '_');
-        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
-        const snakeTranslated = t(snakeDictKey);
-        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
-
-        return strictKey.replaceAll('_', ' ');
-    }, [t])
 
     useEffect(() => {
         if (entry) {

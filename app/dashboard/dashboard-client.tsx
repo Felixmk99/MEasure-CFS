@@ -57,6 +57,7 @@ import { useUser } from "@/components/providers/user-provider"
 import { useLanguage } from "@/components/providers/language-provider"
 import { PEMAnalysis } from "@/components/dashboard/pem-analysis"
 import { getMetricRegistryConfig } from "@/lib/metrics/registry"
+import { useMetricTranslation } from "@/lib/i18n/helpers"
 
 export default function DashboardClient({ data: initialData, exertionPreference: initialPreference }: DashboardReviewProps) {
     const { t } = useLanguage()
@@ -135,23 +136,7 @@ export default function DashboardClient({ data: initialData, exertionPreference:
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }, [enhancedInitialData, visibleRange, timeRange])
 
-    // -- Helper for Metric Translations (Matches Insights Logic) --
-    const tMetric = useCallback((key: string) => {
-        // 1. Try direct lookup (e.g. "step_count")
-        const strictKey = key.toLowerCase();
-        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
-        const translated = t(dictionaryKey);
-        if (translated !== dictionaryKey && translated) return translated;
-
-        // 2. Try normalized lookup (e.g. "Step count" -> "step_count")
-        const snakeKey = strictKey.replace(/ /g, '_');
-        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
-        const snakeTranslated = t(snakeDictKey);
-        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
-
-        // Fallback: just return formatted text
-        return strictKey.replaceAll('_', ' ');
-    }, [t])
+    const tMetric = useMetricTranslation()
 
     // -- 2a. Extract Dynamic Metrics --
     const availableMetrics = useMemo(() => {

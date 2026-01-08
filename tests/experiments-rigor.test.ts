@@ -110,8 +110,8 @@ describe('Experiments Logic - Scientific Rigor', () => {
             const report = reports.find(r => r.experimentId === 'exp-a');
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
-            // (60-55)/5 = 1.0 (Z-shift)
-            // Magnitude 1.0 is > 0.8, so it should be 'large'
+            // Shift: 10 points (50→60), std: 5 → Z-shift = 10/5 = 2.0
+            // Magnitude 2.0 > 0.8, so it should be 'large'
             expect(impact?.effectSize).toBe('large');
         });
 
@@ -186,6 +186,37 @@ describe('Experiments Logic - Scientific Rigor', () => {
 
             expect(impact).toBeDefined();
             expect(impact?.percentChange).toBeLessThan(0); // Lowering is improvement for symptoms
+        });
+
+        it('should classify as not_significant when pValue >= 0.15', () => {
+            const tinyHistory: MetricDay[] = Array.from({ length: 21 }, (_, i) => ({
+                date: `2024-01-${String(i + 1).padStart(2, '0')}`,
+                // Add significant noise but small mean difference
+                hrv: (i < 11 ? 55 : 55.2) + (Math.sin(i) * 2)
+            }));
+
+            const reports = analyzeExperiments([expA], tinyHistory, { hrv: { mean: 55, std: 5 } });
+            const impact = reports[0].impacts.find(i => i.metric === 'hrv');
+
+            expect(impact?.effectSize).toBe('not_significant');
+            expect(impact?.pValue).toBeGreaterThanOrEqual(0.15);
+        });
+
+        it('should early return an empty array if history.length < 14', () => {
+            const shortHistory = history.slice(0, 10);
+            const reports = analyzeExperiments([expA], shortHistory, baselineStats);
+            expect(reports).toHaveLength(0);
+        });
+
+        it('should handle collinear experiments via matrix cleaning', () => {
+            const expDuplicate: Experiment = { ...expA, id: 'exp-duplicate' };
+            // analyzeExperiments usually filters or cleans duplicate patterns to prevent SINGULAR matrix errors
+            const reports = analyzeExperiments([expA, expDuplicate], history, baselineStats);
+
+            // It should still return reports but likely one of them is ignored or marked neutral/error in older logic, 
+            // but the engine is designed to not crash.
+            expect(reports).toBeDefined();
+            expect(reports.length).toBeLessThanOrEqual(2);
         });
     });
 });

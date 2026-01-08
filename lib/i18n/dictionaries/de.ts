@@ -427,9 +427,9 @@ export const de: Dictionary = {
             effect_size_label: "Effektstärke (d)",
             deg_freedom: "Freiheitsgrade",
             effect_sizes: {
-                small: "Kleiner",
-                medium: "Mittlerer",
-                large: "Großer"
+                small: "klein",
+                medium: "mittel",
+                large: "groß"
             }
         }
     },

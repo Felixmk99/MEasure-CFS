@@ -7,6 +7,8 @@ import { motion } from 'framer-motion'
 import { Zap, Info, ShieldCheck, Timer, TrendingUp, TrendingDown, Calendar } from 'lucide-react'
 import { useLanguage } from '@/components/providers/language-provider'
 
+import { useMetricTranslation } from '@/lib/i18n/helpers'
+
 interface InsightsCardsProps {
     correlations: CorrelationResult[]
     thresholds: ThresholdInsight[]
@@ -23,32 +25,7 @@ function formatNumber(value: number, locale: string): string {
 
 export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) {
     const { t, locale } = useLanguage()
-
-    const tMetric = (key: string) => {
-        // 1. Try direct lookup (e.g. "step_count")
-        const strictKey = key.toLowerCase();
-        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
-        const translated = t(dictionaryKey);
-        if (translated !== dictionaryKey && translated) return translated;
-
-        // 2. Try normalized lookup (e.g. "Step count" -> "step_count"?? Or "step count")
-        // The dictionary has keys like "step_count", "muscle weakness".
-        // If key is "Step count", strictKey is "step count". Dictionary has "step_count"?
-        // Dictionary keys are mostly snake_case or "spaced string" (e.g. "muscle weakness").
-
-        // Let's rely on standard 't' behavior.
-        // If key is "step_count", t("common.metric_labels.step_count") works.
-        // If key is "Step Count", t("common.metric_labels.step count") ??
-
-        // Use a heuristic: replace spaces with underscores?
-        const snakeKey = strictKey.replace(/ /g, '_');
-        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
-        const snakeTranslated = t(snakeDictKey);
-        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
-
-        // Fallback: just return formatted text
-        return strictKey.replaceAll('_', ' ');
-    }
+    const tMetric = useMetricTranslation()
 
     const formatDescription = (c: CorrelationResult) => {
         const emoji = c.isGood ? '✅' : '⚠️';

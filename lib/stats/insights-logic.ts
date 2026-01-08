@@ -39,6 +39,7 @@ export interface ThresholdInsight {
  */
 // Minimum data points required for statistical significance
 const MIN_DATA_POINTS = 10;
+const EPS = 1e-12; // Epsilon for numerical stability
 
 export function calculateAdvancedCorrelations(data: InsightMetric[]): CorrelationResult[] {
     if (data.length < MIN_DATA_POINTS) return [];
@@ -187,7 +188,6 @@ const RECOVERY_WINDOW_DAYS = 7;
 const RECOVERY_MAX_CAP = 8;
 const RECOVERY_MIN_SAMPLES = 2;
 const RECOVERY_CONFIDENCE_SAMPLE_COUNT = 5; // 5 samples = 100% confidence
-const EPS = 1e-12; // Epsilon for numerical stability
 
 /**
  * Calculates typical recovery velocity from exertion spikes.
