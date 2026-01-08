@@ -99,17 +99,15 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
         .slice(0, 6)
 
     const renderCorrelationCard = (c: CorrelationResult, i: number, baseDelay: number) => {
-        const isNegativeImpact = !c.isGood;
-        const isPositiveImpact = c.isGood;
-        const bgGradient = isPositiveImpact
+        const bgGradient = c.isGood
             ? 'from-green-50 to-white dark:from-green-950/20 dark:to-zinc-900 border-l-green-500'
             : 'from-red-50 to-white dark:from-red-950/20 dark:to-zinc-900 border-l-red-500';
-        const iconBg = isPositiveImpact
+        const iconBg = c.isGood
             ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
             : 'bg-red-100 dark:bg-red-900/30 text-red-600';
 
         const Icon = c.lag === 0 ? Zap : Timer;
-        const titleKey = isPositiveImpact
+        const titleKey = c.isGood
             ? (c.lag === 0 ? 'insights.patterns.cards.impact.helpful_connection' : 'insights.patterns.cards.impact.helpful_pattern')
             : (c.lag === 0 ? 'insights.patterns.cards.impact.direct' : 'insights.patterns.cards.impact.high_warning');
 
@@ -139,7 +137,7 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                                                 </div>
                                             )}
                                             {(() => {
-                                                const trendColor = isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500';
+                                                const trendColor = c.isGood ? 'text-green-500' : 'text-red-500';
                                                 return c.coefficient > 0 ? (
                                                     <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${trendColor}`} />
                                                 ) : (

@@ -174,6 +174,22 @@ export interface Dictionary {
         metrics_dropdown: string
         metrics_selected: string
         pem_insights_title: string
+        edit_log: {
+            title: string
+            description: string
+            vitals: string
+            hrv: string
+            rhr: string
+            steps: string
+            exertion_title: string
+            trackers_title: string
+            symptoms_title: string
+            button_cancel: string
+            button_save: string
+            status_saving: string
+            error_update: string
+            error_save: string
+        }
         charts: {
             synced: string
             encrypted: string

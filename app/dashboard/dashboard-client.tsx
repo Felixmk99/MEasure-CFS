@@ -563,8 +563,8 @@ export default function DashboardClient({ data: initialData, exertionPreference:
 
             {/* Main Chart Card */}
             <Card className="border-border/50 shadow-sm relative overflow-hidden">
-                <CardHeader className="flex flex-col sm:flex-row items-start justify-between pb-2 gap-4 sm:gap-0">
-                    <div className="flex flex-col gap-4 w-full">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4 sm:gap-0">
+                    <div className="flex flex-col gap-4 w-full sm:w-auto sm:flex-1">
                         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                             {multiStats.map((stat, index) => (
                                 <div key={stat.key} className="space-y-1">
@@ -658,8 +658,8 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                     </div>
 
 
-                    <div className="flex flex-wrap items-center gap-y-2 gap-x-4 w-full sm:w-auto justify-between sm:justify-end">
-                        <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-6 w-full sm:w-auto justify-end">
+                        <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar">
                             <div className="flex items-center space-x-2">
                                 <Switch
                                     id="pem-mode"

@@ -75,24 +75,30 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                     if (df > 0) {
                         // Formula: t = r * sqrt( (n-2) / (1-r^2) )
                         const rSquared = coefficient * coefficient;
-                        if (rSquared >= 1) {
-                            pValue = 0; // Perfect correlation
+                        const invRSquared = 1 - rSquared;
+
+                        if (invRSquared <= EPS) {
+                            pValue = 0; // Perfect or near-perfect correlation (r=1 or r=-1)
                         } else {
-                            const tStat = coefficient * Math.sqrt(df / (1 - rSquared));
-                            pValue = 2 * (1 - tDistributionCDF(Math.abs(tStat), df));
+                            // Clamp denominator to EPS and verify finiteness
+                            const tStat = coefficient * Math.sqrt(df / Math.max(invRSquared, EPS));
+                            if (isFinite(tStat)) {
+                                pValue = 2 * (1 - tDistributionCDF(Math.abs(tStat), df));
+                            } else {
+                                pValue = 0; // Treat as perfect if t is infinite
+                            }
                         }
                     }
 
-                    // --- FILTERING ---
+                    // Exertion Check: Match exact metric names (case-insensitive) to avoid false positives like "Physical_recovery_score"
+                    const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase() === e.toLowerCase());
+                    if (isExertionEffect) return;
+
                     // matrix needs lag=0. insights need p < 0.15 (likely trend)
                     if (lag === 0 || pValue < 0.15) {
                         const medianA = calculateMedian(pair.a);
                         const medianB = calculateMedian(pair.b);
                         const stats = calculatePercentageChange(sortedData, metricA, metricB, medianA, lag);
-
-                        // Exertion Check: Match exact metric names (case-insensitive) to avoid false positives like "Physical_recovery_score"
-                        const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase() === e.toLowerCase());
-                        if (isExertionEffect) return;
 
                         results.push({
                             metricA,
@@ -180,6 +186,8 @@ const RECOVERY_SPIKE_THRESHOLD = 1.5;
 const RECOVERY_WINDOW_DAYS = 7;
 const RECOVERY_MAX_CAP = 8;
 const RECOVERY_MIN_SAMPLES = 2;
+const RECOVERY_CONFIDENCE_SAMPLE_COUNT = 5; // 5 samples = 100% confidence
+const EPS = 1e-12; // Epsilon for numerical stability
 
 /**
  * Calculates typical recovery velocity from exertion spikes.
@@ -189,7 +197,9 @@ export function calculateRecoveryVelocity(data: InsightMetric[]): { exertionMetr
     if (data.length < RECOVERY_MIN_DAYS) return [];
 
     const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    const exertionMetrics = extractAvailableMetrics(data).filter(m => EXERTION_METRICS.some(e => m.toLowerCase().includes(e.toLowerCase())) || m === 'step_count');
+    const exertionMetrics = extractAvailableMetrics(data).filter(m =>
+        EXERTION_METRICS.some(e => m.toLowerCase() === e.toLowerCase()) || m === 'step_count'
+    );
     const outcomeMetrics = ['symptom_score', 'hrv', 'adjusted_score'].filter(m => extractAvailableMetrics(data).includes(m));
 
     const results: { exertionMetric: string, outcomeMetric: string, recoveryDays: number, confidence: number }[] = [];
@@ -213,14 +223,15 @@ export function calculateRecoveryVelocity(data: InsightMetric[]): { exertionMetr
                     // We found a spike! Now track recovery.
                     // Baseline is the outcome value the day BEFORE the spike.
                     let recovered = false;
+                    const registry = getMetricRegistryConfig(outM);
+                    const higherIsBetter = registry.direction === 'higher';
+
                     for (let day = 1; day <= RECOVERY_WINDOW_DAYS; day++) {
                         const futureOut = getValue(sortedData[i + day], outM);
                         if (futureOut === null) continue;
 
-                        const isGood = isGoodPattern(outM, 1); // 1 = positive corr (higher is better)
-                        // If higher is better (HRV), recovery is when future >= baseline
-                        // If lower is better (Symptoms), recovery is when future <= baseline
-                        const hasRecovered = isGood ? futureOut >= prevOut : futureOut <= prevOut;
+                        // Use registry direction to decide recovery
+                        const hasRecovered = higherIsBetter ? futureOut >= prevOut : futureOut <= prevOut;
 
                         if (hasRecovered) {
                             recoveryTimes.push(day);
@@ -237,7 +248,7 @@ export function calculateRecoveryVelocity(data: InsightMetric[]): { exertionMetr
                     exertionMetric: exM,
                     outcomeMetric: outM,
                     recoveryDays: ss.mean(recoveryTimes),
-                    confidence: Math.min(recoveryTimes.length / 5, 1) // Simple confidence based on sample size
+                    confidence: Math.min(recoveryTimes.length / RECOVERY_CONFIDENCE_SAMPLE_COUNT, 1) // Confidence based on sample size
                 });
             }
         });
