@@ -35,7 +35,9 @@ const mockCorrelations: CorrelationResult[] = [
         percentChange: 50,
         typicalValue: 2,
         improvedValue: 8,
-        isGood: false
+        isGood: false,
+        pValue: 0.01,
+        sampleSize: 20
     },
     {
         metricA: 'step_count',
@@ -49,7 +51,9 @@ const mockCorrelations: CorrelationResult[] = [
         percentChange: 30,
         typicalValue: 3,
         improvedValue: 6,
-        isGood: false
+        isGood: false,
+        pValue: 0.06,
+        sampleSize: 15
     }
 ];
 

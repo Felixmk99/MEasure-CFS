@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { InsightMetric, calculateAdvancedCorrelations, detectThresholds } from '@/lib/stats/insights-logic'
+import { InsightMetric, calculateAdvancedCorrelations, detectThresholds, calculateRecoveryVelocity } from '@/lib/stats/insights-logic'
 import { enhanceDataWithScore, ExertionPreference } from '@/lib/scoring/composite-score'
 import { CorrelationMatrix } from './_components/correlation-matrix'
 import { InsightsCards } from './_components/insights-cards'
@@ -33,15 +33,18 @@ export default function InsightsClient({ data, exertionPreference: initialPrefer
     }, [data, exertionPreference])
 
     // 2. Process all-time analysis
-    const { correlations, thresholds } = useMemo(() => {
-        if (!enhancedData || enhancedData.length < MIN_DAYS_FOR_INSIGHTS) return { correlations: [], thresholds: [] }
+    const { correlations, thresholds, recovery: _recovery } = useMemo(() => {
+        if (!enhancedData || enhancedData.length < MIN_DAYS_FOR_INSIGHTS) return { correlations: [], thresholds: [], recovery: [] }
 
         // 1. Calculate Correlations
         const corrs = calculateAdvancedCorrelations(enhancedData)
         const thres = detectThresholds(enhancedData)
+        // TODO: UI implementation for Recovery Velocity display in a future iteration
+        const recov = calculateRecoveryVelocity(enhancedData)
         return {
             correlations: corrs,
-            thresholds: thres
+            thresholds: thres,
+            recovery: recov
         }
     }, [enhancedData])
 

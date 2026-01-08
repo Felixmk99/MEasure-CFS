@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { format, parseISO } from "date-fns"
 import { calculateExertionScore, calculateSymptomScore } from "@/lib/scoring/logic";
-
+import { useLanguage } from "@/components/providers/language-provider"
+import { useMetricTranslation } from "@/lib/i18n/helpers"
 import { ScorableEntry } from '@/lib/scoring/composite-score'
 
 interface EditableEntry extends ScorableEntry {
@@ -29,6 +30,8 @@ interface EditDataDialogProps {
 }
 
 export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDialogProps) {
+    const { t } = useLanguage()
+    const tMetric = useMetricTranslation()
     const [formData, setFormData] = useState<Partial<ScorableEntry> | null>(null)
     const [submitting, setSubmitting] = useState(false)
 
@@ -94,9 +97,9 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
             await onSave(entry.id, formData)
             onOpenChange(false)
         } catch (error) {
-            console.error("Failed to update entry:", error)
+            console.error(t('dashboard.edit_log.error_update'), error)
             const message = error instanceof Error ? error.message : 'Unknown error'
-            alert(`Failed to save changes: ${message}`)
+            alert(t('dashboard.edit_log.error_save', { message }))
         } finally {
             setSubmitting(false)
         }
@@ -106,9 +109,9 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Edit Health Log</DialogTitle>
+                    <DialogTitle>{t('dashboard.edit_log.title')}</DialogTitle>
                     <DialogDescription>
-                        Visualizing data for {format(parseISO(entry.date), 'PPPP')}
+                        {t('dashboard.edit_log.description', { date: format(parseISO(entry.date), 'PPPP') })}
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
@@ -117,11 +120,11 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                         <div className="space-y-4">
                             <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                Vitals
+                                {t('dashboard.edit_log.vitals')}
                             </h4>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="hrv">HRV (ms)</Label>
+                                    <Label htmlFor="hrv">{t('dashboard.edit_log.hrv')}</Label>
                                     <Input
                                         id="hrv"
                                         type="number"
@@ -131,7 +134,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="rhr">Resting HR (bpm)</Label>
+                                    <Label htmlFor="rhr">{t('dashboard.edit_log.rhr')}</Label>
                                     <Input
                                         id="rhr"
                                         type="number"
@@ -141,7 +144,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="steps">Steps</Label>
+                                    <Label htmlFor="steps">{t('dashboard.edit_log.steps')}</Label>
                                     <Input
                                         id="steps"
                                         type="number"
@@ -158,13 +161,13 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                             <div className="space-y-4 pt-2 border-t border-dashed">
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                    Daily Exertion (0-4)
+                                    {t('dashboard.edit_log.exertion_title')}
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     {['Cognitive', 'Emotional', 'Physical', 'Social'].map(key => (
                                         formData.custom_metrics?.[key] !== undefined && (
                                             <div key={key} className="space-y-2">
-                                                <Label htmlFor={`exertion-${key}`}>{key}</Label>
+                                                <Label htmlFor={`exertion-${key}`}>{tMetric(key)}</Label>
                                                 <Input
                                                     id={`exertion-${key}`}
                                                     type="number"
@@ -186,13 +189,13 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                             <div className="space-y-4 pt-2 border-t border-dashed">
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                    Daily Trackers
+                                    {t('dashboard.edit_log.trackers_title')}
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     {['Sleep', 'Coffee', 'Crash', 'Stability Score'].map(key => (
                                         formData.custom_metrics?.[key] !== undefined && (
                                             <div key={key} className="space-y-2">
-                                                <Label htmlFor={`special-${key}`}>{key}</Label>
+                                                <Label htmlFor={`special-${key}`}>{tMetric(key)}</Label>
                                                 <Input
                                                     id={`special-${key}`}
                                                     type="number"
@@ -215,7 +218,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                 <div className="space-y-4 pt-2 border-t border-dashed">
                                     <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                                        Symptoms
+                                        {t('dashboard.edit_log.symptoms_title')}
                                     </h4>
                                     <div className="grid grid-cols-2 gap-4">
                                         {Object.keys(formData.custom_metrics || {})
@@ -223,7 +226,7 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
                                             .map((key) => (
                                                 <div key={key} className="space-y-2">
                                                     <Label htmlFor={`custom-${key}`} className="capitalize">
-                                                        {key.replace(/_/g, ' ')}
+                                                        {tMetric(key)}
                                                     </Label>
                                                     <Input
                                                         id={`custom-${key}`}
@@ -241,10 +244,10 @@ export function EditDataDialog({ open, onOpenChange, entry, onSave }: EditDataDi
 
                     <DialogFooter className="pt-4 border-t mt-2">
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                            Cancel
+                            {t('dashboard.edit_log.button_cancel')}
                         </Button>
                         <Button type="submit" disabled={submitting}>
-                            {submitting ? "Saving..." : "Save Changes"}
+                            {submitting ? t('dashboard.edit_log.status_saving') : t('dashboard.edit_log.button_save')}
                         </Button>
                     </DialogFooter>
                 </form>

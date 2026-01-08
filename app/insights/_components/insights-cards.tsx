@@ -7,6 +7,8 @@ import { motion } from 'framer-motion'
 import { Zap, Info, ShieldCheck, Timer, TrendingUp, TrendingDown, Calendar } from 'lucide-react'
 import { useLanguage } from '@/components/providers/language-provider'
 
+import { useMetricTranslation } from '@/lib/i18n/helpers'
+
 interface InsightsCardsProps {
     correlations: CorrelationResult[]
     thresholds: ThresholdInsight[]
@@ -23,32 +25,7 @@ function formatNumber(value: number, locale: string): string {
 
 export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) {
     const { t, locale } = useLanguage()
-
-    const tMetric = (key: string) => {
-        // 1. Try direct lookup (e.g. "step_count")
-        const strictKey = key.toLowerCase();
-        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
-        const translated = t(dictionaryKey);
-        if (translated !== dictionaryKey && translated) return translated;
-
-        // 2. Try normalized lookup (e.g. "Step count" -> "step_count"?? Or "step count")
-        // The dictionary has keys like "step_count", "muscle weakness".
-        // If key is "Step count", strictKey is "step count". Dictionary has "step_count"?
-        // Dictionary keys are mostly snake_case or "spaced string" (e.g. "muscle weakness").
-
-        // Let's rely on standard 't' behavior.
-        // If key is "step_count", t("common.metric_labels.step_count") works.
-        // If key is "Step Count", t("common.metric_labels.step count") ??
-
-        // Use a heuristic: replace spaces with underscores?
-        const snakeKey = strictKey.replace(/ /g, '_');
-        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
-        const snakeTranslated = t(snakeDictKey);
-        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
-
-        // Fallback: just return formatted text
-        return strictKey.replaceAll('_', ' ');
-    }
+    const tMetric = useMetricTranslation()
 
     const formatDescription = (c: CorrelationResult) => {
         const emoji = c.isGood ? '✅' : '⚠️';
@@ -58,7 +35,7 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
 
         const direction = c.coefficient < 0 ? t('insights.logic.reduces') : t('insights.logic.increases');
 
-        // Neutral Pattern: "{metric} > {value}" or similar
+        // Recommendation: "{metric} > {value}"
         const recommendation = `${emoji} ${t('insights.logic.recommendation_pattern', {
             metric: metricAName,
             value: formatNumber(c.medianA, locale)
@@ -66,7 +43,9 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
 
         const impact = `${direction} ${metricBName} ${t('insights.logic.by')} ${Math.round(c.percentChange)}% (${t('insights.logic.from')} ${formatNumber(c.typicalValue, locale)} ${t('insights.logic.to')} ${formatNumber(c.improvedValue, locale)})`;
 
-        return `${recommendation}\n→ ${impact}`;
+        const stats = `(${t('experiments.impact.p_value')}: ${c.pValue.toFixed(3)}, N=${c.sampleSize})`;
+
+        return `${recommendation}\n→ ${impact}\n${stats}`;
     }
 
     const formatThresholdDescription = (ti: ThresholdInsight) => {
@@ -97,29 +76,17 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
         .slice(0, 6)
 
     const renderCorrelationCard = (c: CorrelationResult, i: number, baseDelay: number) => {
-        const isNegativeImpact = c.coefficient > 0 && (c.metricB.toLowerCase().includes('symptom') || c.metricB.toLowerCase().includes('fatigue'));
-        const isPositiveImpact = c.coefficient < 0 && (c.metricB.toLowerCase().includes('symptom') || c.metricB.toLowerCase().includes('fatigue'));
-        const bgGradient = isNegativeImpact
-            ? 'from-red-50 to-white dark:from-red-950/20 dark:to-zinc-900 border-l-red-500'
-            : isPositiveImpact
-                ? 'from-green-50 to-white dark:from-green-950/20 dark:to-zinc-900 border-l-green-500'
-                : c.lag === 0
-                    ? 'from-indigo-50 to-white dark:from-indigo-950/20 dark:to-zinc-900 border-l-indigo-500'
-                    : 'from-blue-50 to-white dark:from-blue-950/20 dark:to-zinc-900 border-l-blue-500';
-        const iconBg = isNegativeImpact
-            ? 'bg-red-100 dark:bg-red-900/30 text-red-600'
-            : isPositiveImpact
-                ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
-                : c.lag === 0
-                    ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600'
-                    : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600';
+        const bgGradient = c.isGood
+            ? 'from-green-50 to-white dark:from-green-950/20 dark:to-zinc-900 border-l-green-500'
+            : 'from-red-50 to-white dark:from-red-950/20 dark:to-zinc-900 border-l-red-500';
+        const iconBg = c.isGood
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+            : 'bg-red-100 dark:bg-red-900/30 text-red-600';
 
         const Icon = c.lag === 0 ? Zap : Timer;
-        const titleKey = isNegativeImpact
-            ? (c.lag === 0 ? 'insights.patterns.cards.impact.direct' : 'insights.patterns.cards.impact.high_warning')
-            : isPositiveImpact
-                ? (c.lag === 0 ? 'insights.patterns.cards.impact.helpful_connection' : 'insights.patterns.cards.impact.helpful_pattern')
-                : (c.lag === 0 ? 'insights.patterns.cards.impact.direct_connection' : 'insights.patterns.cards.impact.hidden_lag');
+        const titleKey = c.isGood
+            ? (c.lag === 0 ? 'insights.patterns.cards.impact.helpful_connection' : 'insights.patterns.cards.impact.helpful_pattern')
+            : (c.lag === 0 ? 'insights.patterns.cards.impact.direct' : 'insights.patterns.cards.impact.high_warning');
 
         return (
             <motion.div
@@ -135,16 +102,26 @@ export function InsightsCards({ correlations, thresholds }: InsightsCardsProps) 
                                 <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1 sm:mb-2">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100 truncate">
+                                <div className="flex items-start justify-between gap-4 mb-2">
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
+                                        <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
                                             {t(titleKey as string)}
                                         </h3>
-                                        {c.coefficient > 0 ? (
-                                            <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
-                                        ) : (
-                                            <TrendingDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isNegativeImpact ? 'text-red-500' : isPositiveImpact ? 'text-green-500' : 'text-blue-500'}`} />
-                                        )}
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            {c.pValue < 0.05 && (
+                                                <div className="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-bold uppercase tracking-wider">
+                                                    {t('experiments.impact.high_confidence')}
+                                                </div>
+                                            )}
+                                            {(() => {
+                                                const trendColor = c.isGood ? 'text-green-500' : 'text-red-500';
+                                                return c.coefficient > 0 ? (
+                                                    <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${trendColor}`} />
+                                                ) : (
+                                                    <TrendingDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${trendColor}`} />
+                                                );
+                                            })()}
+                                        </div>
                                     </div>
                                 </div>
                                 <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed whitespace-pre-line break-words">

@@ -22,6 +22,11 @@ export const de: Dictionary = {
             sleep: "Schlaf",
             fatigue: "Fatigue",
             anxiety: "Angst",
+            cognitive: "Kognitiv",
+            emotional: "Emotional",
+            physical: "Physisch",
+            social: "Sozial",
+            coffee: "Kaffee",
             cough: "Husten",
             depression: "Depression",
             fever: "Fieber",
@@ -118,6 +123,22 @@ export const de: Dictionary = {
         metrics_dropdown: "Metriken (Max 2)",
         metrics_selected: "Metriken ausgewählt",
         pem_insights_title: "PEM Analyse",
+        edit_log: {
+            title: "Gesundheitsprotokoll bearbeiten",
+            description: "Eintrag für {date} anzeigen",
+            vitals: "Vitalwerte",
+            hrv: "HRV (ms)",
+            rhr: "Ruhepuls (bpm)",
+            steps: "Schritte",
+            exertion_title: "Tägliche Belastung (0-4)",
+            trackers_title: "Tägliche Tracker",
+            symptoms_title: "Symptome",
+            button_cancel: "Abbrechen",
+            button_save: "Änderungen speichern",
+            status_saving: "Speichert...",
+            error_update: "Eintrag konnte nicht aktualisiert werden:",
+            error_save: "Änderungen konnten nicht gespeichert werden: {message}"
+        },
         charts: {
             synced: "Synchronisiert mit Visible App",
             encrypted: "Daten auf Gerät verschlüsselt • Gradeben aktualisiert"
@@ -397,6 +418,18 @@ export const de: Dictionary = {
                 positive: "Positiv",
                 negative: "Negativ",
                 neutral: "Neutral"
+            },
+            high_confidence: "Hohe Konfidenz",
+            trend: "Trend",
+            statistical_profile: "Statistisches Profil",
+            p_value: "P-Value",
+            z_score_label: "Z-Score",
+            effect_size_label: "Effektstärke (d)",
+            deg_freedom: "Freiheitsgrade",
+            effect_sizes: {
+                small: "klein",
+                medium: "mittel",
+                large: "groß"
             }
         }
     },
@@ -679,7 +712,7 @@ export const de: Dictionary = {
                 impact: {
                     direct: "Direkte Auswirkung",
                     high_warning: "Warnung vor starker Auswirkung",
-                    helpful_connection: "Hilfreicher Zusammenhang",
+                    helpful_connection: "Zusammenhang",
                     helpful_pattern: "Hilfreiches Muster",
                     direct_connection: "Direkte Verbindung",
                     hidden_lag: "Verzögerte Warnung"

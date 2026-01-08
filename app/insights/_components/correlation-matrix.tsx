@@ -54,10 +54,10 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
         return t('insights.clusters.heatmap.strength.very_weak')
     }
 
-    // Extract unique labels and filter to only show metrics with significant correlations
+    // Extract unique labels
     const allUniqueLabels = Array.from(new Set(correlations.flatMap(c => [c.metricA, c.metricB]))).sort()
 
-    // Filter to only show metrics that have at least one correlation > 0.3 OR are key metrics
+    // Filter to significant metrics
     const significantLabels = allUniqueLabels.filter(metric => {
         const isKeyMetric = ['symptom_score', 'exertion_score', 'adjusted_score'].includes(metric.toLowerCase())
         if (isKeyMetric) return true
@@ -70,21 +70,67 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
         )
     })
 
-    const MAX_DISPLAY_METRICS = 15
-    const labels = significantLabels.slice(0, MAX_DISPLAY_METRICS)
-    const isTruncated = significantLabels.length > MAX_DISPLAY_METRICS
-
     // Build lookup map for O(1) access
     const corrMap = React.useMemo(() => {
         const map = new Map<string, number>()
         correlations.forEach(c => {
             if (c.lag === 0) {
-                map.set(`${c.metricA}:${c.metricB}`, c.coefficient)
-                map.set(`${c.metricB}:${c.metricA}`, c.coefficient)
+                const key1 = `${c.metricA}:${c.metricB}`
+                const key2 = `${c.metricB}:${c.metricA}`
+                map.set(key1, c.coefficient)
+                map.set(`${key1}:p`, c.pValue)
+                map.set(`${key1}:n`, c.sampleSize)
+
+                map.set(key2, c.coefficient)
+                map.set(`${key2}:p`, c.pValue)
+                map.set(`${key2}:n`, c.sampleSize)
             }
         })
         return map
     }, [correlations])
+
+    // --- ADVANCED: Correlation-Based Clustering (Seriation) ---
+    const sortedLabels = React.useMemo(() => {
+        if (significantLabels.length <= 2) return significantLabels;
+
+        const result: string[] = [];
+        const remaining = new Set(significantLabels);
+
+        // 1. Start with the most "central" or "interesting" metric
+        const seed = significantLabels.includes('symptom_score') ? 'symptom_score' : significantLabels[0];
+        result.push(seed);
+        remaining.delete(seed);
+
+        // 2. Greedy search: find the metric most correlated with the last one added
+        while (remaining.size > 0) {
+            const last = result[result.length - 1];
+            let bestMetric = '';
+            let maxCorr = -1;
+
+            remaining.forEach(m => {
+                const r = Math.abs(corrMap.get(`${last}:${m}`) || 0);
+                if (r > maxCorr) {
+                    maxCorr = r;
+                    bestMetric = m;
+                }
+            });
+
+            if (bestMetric) {
+                result.push(bestMetric);
+                remaining.delete(bestMetric);
+            } else {
+                // Fallback
+                const fallback = Array.from(remaining)[0];
+                result.push(fallback);
+                remaining.delete(fallback);
+            }
+        }
+        return result;
+    }, [significantLabels, corrMap]);
+
+    const MAX_DISPLAY_METRICS = 16
+    const labels = sortedLabels.slice(0, MAX_DISPLAY_METRICS)
+    const isTruncated = significantLabels.length > MAX_DISPLAY_METRICS
 
     if (labels.length === 0) return null
 
@@ -179,7 +225,10 @@ export function CorrelationMatrix({ correlations }: CorrelationMatrixProps) {
                                                             <p className="text-[10px] text-muted-foreground">
                                                                 {t('insights.clusters.heatmap.correlation')}: {r.toFixed(2)} ({getStrengthLabel(intensity)})
                                                             </p>
-                                                            <p className="text-[10px] text-muted-foreground">
+                                                            <p className="text-[10px] font-mono text-primary/80 mt-1" style={{ fontSize: '9px' }}>
+                                                                {t('experiments.impact.p_value')}: {corrMap.get(`${rowLabel}:${colLabel}:p`)?.toFixed(4) ?? 'N/A'} (N={corrMap.get(`${rowLabel}:${colLabel}:n`) ?? '?'})
+                                                            </p>
+                                                            <p className="text-[10px] text-muted-foreground mt-1">
                                                                 {r > 0 ? t('insights.clusters.heatmap.relation.positive') : r < 0 ? t('insights.clusters.heatmap.relation.negative') : t('insights.clusters.heatmap.relation.neutral')} {t('insights.clusters.heatmap.relation.suffix')}
                                                             </p>
                                                         </>

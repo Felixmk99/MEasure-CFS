@@ -57,6 +57,7 @@ import { useUser } from "@/components/providers/user-provider"
 import { useLanguage } from "@/components/providers/language-provider"
 import { PEMAnalysis } from "@/components/dashboard/pem-analysis"
 import { getMetricRegistryConfig } from "@/lib/metrics/registry"
+import { useMetricTranslation } from "@/lib/i18n/helpers"
 
 export default function DashboardClient({ data: initialData, exertionPreference: initialPreference }: DashboardReviewProps) {
     const { t } = useLanguage()
@@ -135,23 +136,7 @@ export default function DashboardClient({ data: initialData, exertionPreference:
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }, [enhancedInitialData, visibleRange, timeRange])
 
-    // -- Helper for Metric Translations (Matches Insights Logic) --
-    const tMetric = useCallback((key: string) => {
-        // 1. Try direct lookup (e.g. "step_count")
-        const strictKey = key.toLowerCase();
-        const dictionaryKey = `common.metric_labels.${strictKey}` as string;
-        const translated = t(dictionaryKey);
-        if (translated !== dictionaryKey && translated) return translated;
-
-        // 2. Try normalized lookup (e.g. "Step count" -> "step_count")
-        const snakeKey = strictKey.replace(/ /g, '_');
-        const snakeDictKey = `common.metric_labels.${snakeKey}` as string;
-        const snakeTranslated = t(snakeDictKey);
-        if (snakeTranslated !== snakeDictKey && snakeTranslated) return snakeTranslated;
-
-        // Fallback: just return formatted text
-        return strictKey.replaceAll('_', ' ');
-    }, [t])
+    const tMetric = useMetricTranslation()
 
     // -- 2a. Extract Dynamic Metrics --
     const availableMetrics = useMemo(() => {
@@ -563,8 +548,8 @@ export default function DashboardClient({ data: initialData, exertionPreference:
 
             {/* Main Chart Card */}
             <Card className="border-border/50 shadow-sm relative overflow-hidden">
-                <CardHeader className="flex flex-col sm:flex-row items-start justify-between pb-2 gap-4 sm:gap-0">
-                    <div className="flex flex-col gap-4 w-full">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4 sm:gap-0">
+                    <div className="flex flex-col gap-4 w-full sm:w-auto sm:flex-1">
                         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                             {multiStats.map((stat, index) => (
                                 <div key={stat.key} className="space-y-1">
@@ -658,8 +643,8 @@ export default function DashboardClient({ data: initialData, exertionPreference:
                     </div>
 
 
-                    <div className="flex flex-wrap items-center gap-y-2 gap-x-4 w-full sm:w-auto justify-between sm:justify-end">
-                        <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-6 w-full sm:w-auto justify-end">
+                        <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar">
                             <div className="flex items-center space-x-2">
                                 <Switch
                                     id="pem-mode"

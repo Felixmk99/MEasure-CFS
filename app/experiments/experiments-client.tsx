@@ -429,8 +429,8 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                 let lifestyleScore = 0
 
                                 analysis.impacts.forEach(i => {
-                                    // Only consider significant results (p < 0.05)
-                                    if (i.pValue >= 0.05) return;
+                                    // Only consider significant results or likely trends (p < 0.15)
+                                    if (i.pValue >= 0.15) return;
 
                                     const val = i.significance === 'positive' ? 1 : i.significance === 'negative' ? -1 : 0
                                     if (bioMetrics.includes(i.metric)) {
@@ -487,7 +487,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                             {(overallImpact === 'positive' || overallImpact === 'negative') && (
                                                 <div className="mt-3 space-y-1.5">
                                                     {analysis?.impacts
-                                                        .filter(i => i.pValue < 0.05)
+                                                        .filter(i => i.pValue < 0.15)
                                                         .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
                                                         .map(i => (
                                                             <div key={i.metric} className="flex items-center justify-between text-[10px]">

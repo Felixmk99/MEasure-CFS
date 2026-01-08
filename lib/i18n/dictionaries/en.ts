@@ -22,6 +22,11 @@ export const en: Dictionary = {
             sleep: "Sleep",
             fatigue: "Fatigue",
             anxiety: "Anxiety",
+            cognitive: "Cognitive",
+            emotional: "Emotional",
+            physical: "Physical",
+            social: "Social",
+            coffee: "Coffee",
             cough: "Cough",
             depression: "Depression",
             fever: "Fever",
@@ -234,6 +239,22 @@ export const en: Dictionary = {
         metrics_dropdown: "Metrics (Max 2)",
         metrics_selected: "metrics selected",
         pem_insights_title: "PEM Insights",
+        edit_log: {
+            title: "Edit Health Log",
+            description: "Tracking entry for {date}",
+            vitals: "Vitals",
+            hrv: "HRV (ms)",
+            rhr: "Resting HR (bpm)",
+            steps: "Steps",
+            exertion_title: "Daily Exertion (0-4)",
+            trackers_title: "Daily Trackers",
+            symptoms_title: "Symptoms",
+            button_cancel: "Cancel",
+            button_save: "Save Changes",
+            status_saving: "Saving...",
+            error_update: "Failed to update entry:",
+            error_save: "Failed to save changes: {message}"
+        },
         charts: {
             synced: "Synced with Visible App",
             encrypted: "Data encrypted on device • Last updated just now"
@@ -397,6 +418,18 @@ export const en: Dictionary = {
                 positive: "Positive",
                 negative: "Negative",
                 neutral: "Neutral"
+            },
+            high_confidence: "High Confidence",
+            trend: "Trend",
+            statistical_profile: "Statistical Profile",
+            p_value: "P-Value",
+            z_score_label: "Z-Score",
+            effect_size_label: "Effect Size (d)",
+            deg_freedom: "Deg. Freedom",
+            effect_sizes: {
+                small: "Small",
+                medium: "Medium",
+                large: "Large"
             }
         }
     },

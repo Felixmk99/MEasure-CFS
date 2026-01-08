@@ -1,5 +1,7 @@
 import * as ss from 'simple-statistics';
 import { EXERTION_METRICS } from '@/lib/scoring/logic';
+import { tDistributionCDF } from '@/lib/statistics/experiment-analysis';
+import { getMetricRegistryConfig } from '@/lib/metrics/registry';
 
 export interface InsightMetric {
     date: string;
@@ -21,6 +23,8 @@ export interface CorrelationResult {
     typicalValue: number;  // Typical value of metric B (when A is low)
     improvedValue: number;  // Improved value of metric B (when A is high)
     isGood: boolean;       // Whether this is a positive health pattern
+    pValue: number;        // Statistical significance
+    sampleSize: number;    // Number of matched pairs (N)
 }
 
 export interface ThresholdInsight {
@@ -35,6 +39,7 @@ export interface ThresholdInsight {
  */
 // Minimum data points required for statistical significance
 const MIN_DATA_POINTS = 10;
+const EPS = 1e-12; // Epsilon for numerical stability
 
 export function calculateAdvancedCorrelations(data: InsightMetric[]): CorrelationResult[] {
     if (data.length < MIN_DATA_POINTS) return [];
@@ -49,34 +54,52 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
         metrics.forEach((metricB, indexB) => {
             if (metricA === metricB) return;
 
-            // Only calculate each pair once to avoid symmetric duplicates
-            // (correlation is symmetric: corr(A,B) = corr(B,A))
-            if (indexB <= indexA) return;
-
-            // Calculate for Lag 0, 1, 2
+            // Lags 0, 1, 2
             [0, 1, 2].forEach(lag => {
+                // IMPORTANT: Symmetry filter only applies to Lag 0.
+                // Lag 0: corr(A,B) == corr(B,A). 
+                // Lag > 0: corr(At, Bt+1) != corr(Bt, At+1). It is directional.
+                if (lag === 0 && indexB <= indexA) return;
+
                 const pair = getAlignedPairs(sortedData, metricA, metricB, lag);
                 if (pair.a.length < 5) return;
 
                 try {
                     const coefficient = ss.sampleCorrelation(pair.a, pair.b);
-                    // Always include lag 0 for the matrix, filter others for "Insights"
-                    if (lag === 0 || Math.abs(coefficient) > 0.4) {
-                        // Calculate medians for concrete thresholds
+
+                    // --- ADVANCED RIGOR: P-Value Calculation ---
+                    // n = pair.a.length. df = n - 2 (standard for correlation)
+                    const n = pair.a.length;
+                    const df = n - 2;
+                    let pValue = 1;
+
+                    if (df > 0) {
+                        // Formula: t = r * sqrt( (n-2) / (1-r^2) )
+                        const rSquared = coefficient * coefficient;
+                        const invRSquared = 1 - rSquared;
+
+                        if (invRSquared <= EPS) {
+                            pValue = 0; // Perfect or near-perfect correlation (r=1 or r=-1)
+                        } else {
+                            // Clamp denominator to EPS and verify finiteness
+                            const tStat = coefficient * Math.sqrt(df / Math.max(invRSquared, EPS));
+                            if (isFinite(tStat)) {
+                                pValue = 2 * (1 - tDistributionCDF(Math.abs(tStat), df));
+                            } else {
+                                pValue = 0; // Treat as perfect if t is infinite
+                            }
+                        }
+                    }
+
+                    // Exertion Check: Match exact metric names (case-insensitive) to avoid false positives like "Physical_recovery_score"
+                    const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase() === e.toLowerCase());
+                    if (isExertionEffect) return;
+
+                    // matrix needs lag=0. insights need p < 0.15 (likely trend)
+                    if (lag === 0 || pValue < 0.15) {
                         const medianA = calculateMedian(pair.a);
                         const medianB = calculateMedian(pair.b);
-
-                        // Calculate percentage change and typical/improved values
                         const stats = calculatePercentageChange(sortedData, metricA, metricB, medianA, lag);
-
-                        // Filter out exertion metrics as effects (they are inputs, not outcomes)
-                        const isExertionEffect = EXERTION_METRICS.some(e => metricB.toLowerCase().includes(e.toLowerCase()));
-
-                        // Skip if metricB is an exertion metric (exertion is a choice, not an effect)
-                        // This applies to ALL lags including lag 0 (same day)
-                        if (isExertionEffect) {
-                            return; // Don't show "X causes more exertion" - exertion is an input
-                        }
 
                         results.push({
                             metricA,
@@ -90,7 +113,9 @@ export function calculateAdvancedCorrelations(data: InsightMetric[]): Correlatio
                             percentChange: stats.percentChange,
                             typicalValue: stats.typicalValue,
                             improvedValue: stats.improvedValue,
-                            isGood: isGoodPattern(metricB, coefficient)
+                            isGood: isGoodPattern(metricB, coefficient),
+                            pValue,
+                            sampleSize: n
                         });
                     }
                 } catch {
@@ -157,15 +182,79 @@ export function detectThresholds(
     return insights;
 }
 
+const RECOVERY_MIN_DAYS = 14;
+const RECOVERY_SPIKE_THRESHOLD = 1.5;
+const RECOVERY_WINDOW_DAYS = 7;
+const RECOVERY_MAX_CAP = 8;
+const RECOVERY_MIN_SAMPLES = 2;
+const RECOVERY_CONFIDENCE_SAMPLE_COUNT = 5; // 5 samples = 100% confidence
+
 /**
  * Calculates typical recovery velocity from exertion spikes.
- * @experimental Currently returning empty array until logic is finalized.
+ * @experimental Analyzes how many days it takes for symptoms to return to baseline after an exertion spike.
  */
-export function calculateRecoveryVelocity(): { metric: string, recoveryDays: number }[] {
-    // TODO: Implement recovery velocity calculation
-    // Planned approach: Look for spikes in exertion (exertion_score, Physical Exertion, Cognitive Exertion),
-    // then measure days until HRV/Symptom returns to baseline (7d mean)
-    return [];
+export function calculateRecoveryVelocity(data: InsightMetric[]): { exertionMetric: string, outcomeMetric: string, recoveryDays: number, confidence: number }[] {
+    if (data.length < RECOVERY_MIN_DAYS) return [];
+
+    const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const exertionMetrics = extractAvailableMetrics(data).filter(m =>
+        EXERTION_METRICS.some(e => m.toLowerCase() === e.toLowerCase()) || m === 'step_count'
+    );
+    const outcomeMetrics = ['symptom_score', 'hrv', 'adjusted_score'].filter(m => extractAvailableMetrics(data).includes(m));
+
+    const results: { exertionMetric: string, outcomeMetric: string, recoveryDays: number, confidence: number }[] = [];
+
+    exertionMetrics.forEach(exM => {
+        const values = sortedData.map(d => getValue(d, exM)).filter((v): v is number => v !== null);
+        if (values.length < 10) return;
+
+        const mean = ss.mean(values);
+        const stdDev = ss.standardDeviation(values);
+        const spikeThreshold = mean + RECOVERY_SPIKE_THRESHOLD * stdDev;
+
+        outcomeMetrics.forEach(outM => {
+            const recoveryTimes: number[] = [];
+
+            for (let i = 1; i < sortedData.length - RECOVERY_WINDOW_DAYS; i++) {
+                const currentEx = getValue(sortedData[i], exM);
+                const prevOut = getValue(sortedData[i - 1], outM);
+
+                if (currentEx !== null && currentEx > spikeThreshold && prevOut !== null) {
+                    // We found a spike! Now track recovery.
+                    // Baseline is the outcome value the day BEFORE the spike.
+                    let recovered = false;
+                    const registry = getMetricRegistryConfig(outM);
+                    const higherIsBetter = registry.direction === 'higher';
+
+                    for (let day = 1; day <= RECOVERY_WINDOW_DAYS; day++) {
+                        const futureOut = getValue(sortedData[i + day], outM);
+                        if (futureOut === null) continue;
+
+                        // Use registry direction to decide recovery
+                        const hasRecovered = higherIsBetter ? futureOut >= prevOut : futureOut <= prevOut;
+
+                        if (hasRecovered) {
+                            recoveryTimes.push(day);
+                            recovered = true;
+                            break;
+                        }
+                    }
+                    if (!recovered) recoveryTimes.push(RECOVERY_MAX_CAP); // Cap for "more than a week"
+                }
+            }
+
+            if (recoveryTimes.length >= RECOVERY_MIN_SAMPLES) {
+                results.push({
+                    exertionMetric: exM,
+                    outcomeMetric: outM,
+                    recoveryDays: ss.mean(recoveryTimes),
+                    confidence: Math.min(recoveryTimes.length / RECOVERY_CONFIDENCE_SAMPLE_COUNT, 1) // Confidence based on sample size
+                });
+            }
+        });
+    });
+
+    return results;
 }
 
 // Helpers
@@ -280,20 +369,15 @@ function calculatePercentageChange(
     };
 }
 
-// Metrics where lower values are better (symptoms, pain, fatigue, etc.)
-const NEGATIVE_METRIC_KEYWORDS = [
-    'symptom', 'fatigue', 'pain', 'weakness', 'nausea',
-    'headache', 'dizziness', 'crash', 'ache'
-] as const;
 
 function isGoodPattern(metricB: string, r: number): boolean {
-    const isNegativeMetric = NEGATIVE_METRIC_KEYWORDS.some(neg => metricB.toLowerCase().includes(neg));
+    const config = getMetricRegistryConfig(metricB);
 
-    if (isNegativeMetric) {
-        // For negative metrics, negative correlation is good (high A → low symptoms)
+    if (config.direction === 'lower') {
+        // For negative metrics (symptoms), negative correlation is good (high A → low B)
         return r < 0;
     } else {
-        // For positive metrics (HRV, steps, etc.), positive correlation is good
+        // For positive metrics (HRV), positive correlation is good (high A → high B)
         return r > 0;
     }
 }
