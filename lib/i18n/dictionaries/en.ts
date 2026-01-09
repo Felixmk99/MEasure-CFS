@@ -361,6 +361,12 @@ export const en: Dictionary = {
             zscore_title: "Z-Score Impact",
             zscore_desc: "See exactly how many standard deviations (σ) your HRV or Heart Rate shifted independently for each med."
         },
+        filter: {
+            label: "Filter by Impact",
+            placeholder: "Select a symptom...",
+            clear: "Clear Filter",
+            no_results: "No experiments found impacting this metric."
+        },
         actions: {
             start_new: "Start New Experiment",
             log_new: "Log New Experiment",

@@ -361,6 +361,12 @@ export const de: Dictionary = {
             zscore_title: "Z-Score Auswirkung",
             zscore_desc: "Sieh genau, um wie viele Standardabweichungen (σ) sich deine HRV oder dein Puls unabhängig für jedes Medikament verschoben hat."
         },
+        filter: {
+            label: "Nach Wirkung filtern",
+            placeholder: "Symptom wählen...",
+            clear: "Filter löschen",
+            no_results: "Keine Experimente mit Einfluss auf diesen Wert gefunden."
+        },
         actions: {
             start_new: "Neues Experiment starten",
             log_new: "Neues Experiment erfassen",

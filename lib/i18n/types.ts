@@ -367,6 +367,12 @@ export interface Dictionary {
                 large: string
             }
         }
+        filter: {
+            label: string
+            placeholder: string
+            clear: string
+            no_results: string
+        }
     }
     upload: {
         title: string

@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { format, differenceInDays, parseISO, isAfter, isBefore } from "date-fns"
-import { Plus, Trash, Pill, Activity, Moon, ArrowUpRight, ArrowDownRight, Minus, Pencil, Beaker, Target } from "lucide-react"
+import { Plus, Trash, Pill, Activity, Moon, ArrowUpRight, ArrowDownRight, Minus, Pencil, Beaker, Target, X, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -56,6 +56,9 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
     const router = useRouter()
 
     const [formData, setFormData] = useState<ExperimentFormData>(initialFormState)
+
+    // New: Filter State
+    const [selectedFilterMetric, setSelectedFilterMetric] = useState<string | null>(null)
 
     // Enhance history with Centralized Composite Score
     const enhancedHistory = useMemo(() => {
@@ -127,8 +130,42 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
         return analyzeExperiments(experiments, enhancedHistory, baselineStats)
     }, [experiments, enhancedHistory, baselineStats])
 
-    const activeExperiments = experiments.filter(e => !e.end_date || isAfter(parseISO(e.end_date), new Date()))
-    const pastExperiments = experiments.filter(e => e.end_date && isBefore(parseISO(e.end_date), new Date()))
+    // Extract available metrics for filtering
+    const availableMetrics = useMemo(() => {
+        const metrics = new Set<string>();
+        analysisResults.forEach(r => {
+            r.impacts.forEach(i => {
+                metrics.add(i.metric);
+            });
+        });
+        return Array.from(metrics).sort((a, b) => getFriendlyName(a, t).localeCompare(getFriendlyName(b, t)));
+    }, [analysisResults, t]);
+
+    const activeExperiments = experiments.filter(e => {
+        const isActive = !e.end_date || isAfter(parseISO(e.end_date), new Date());
+
+        // Filter logic: If filter selected, experiment MUST have an impact entry for that metric
+        if (selectedFilterMetric) {
+            const analysis = analysisResults.find(r => r.experimentId === e.id);
+            const hasImpact = analysis?.impacts.some(i => i.metric === selectedFilterMetric);
+            return isActive && hasImpact;
+        }
+
+        return isActive;
+    })
+
+    const pastExperiments = experiments.filter(e => {
+        const isPast = e.end_date && isBefore(parseISO(e.end_date), new Date());
+
+        // Filter logic: If filter selected, experiment MUST have an impact entry for that metric
+        if (selectedFilterMetric) {
+            const analysis = analysisResults.find(r => r.experimentId === e.id);
+            const hasImpact = analysis?.impacts.some(i => i.metric === selectedFilterMetric);
+            return isPast && hasImpact;
+        }
+
+        return isPast;
+    })
 
     const handleSave = async () => {
         setIsLoading(true)
@@ -316,6 +353,44 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                 </Dialog>
             </div>
 
+            {/* Filter Bar */}
+            {availableMetrics.length > 0 && (
+                <div className="w-full max-w-7xl mx-auto px-4 sm:px-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Filter className="w-4 h-4" />
+                            <span className="text-sm font-medium">{t('experiments.filter.label')}</span>
+                        </div>
+                        <div className="flex items-center gap-2 w-full sm:w-auto flex-1">
+                            <Select value={selectedFilterMetric || "all"} onValueChange={(val) => setSelectedFilterMetric(val === "all" ? null : val)}>
+                                <SelectTrigger className="w-full sm:w-[280px] bg-white dark:bg-zinc-950">
+                                    <SelectValue placeholder={t('experiments.filter.placeholder')} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t('experiments.filter.placeholder')}</SelectItem>
+                                    {availableMetrics.map(m => (
+                                        <SelectItem key={m} value={m}>
+                                            {getFriendlyName(m, t)}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {selectedFilterMetric && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setSelectedFilterMetric(null)}
+                                    className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                                    title={t('experiments.filter.clear')}
+                                >
+                                    <X className="w-4 h-4" />
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Currently Active */}
             <div className="space-y-6 w-full max-w-7xl mx-auto">
                 <div className="flex justify-center items-center border-b pb-2">
@@ -328,12 +403,17 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                             const daysActive = differenceInDays(new Date(), parseISO(exp.start_date))
                             const analysis = analysisResults.find(r => r.experimentId === exp.id)
 
+                            // Filter Impacts: If filter active, ONLY show impacts for that metric
+                            const displayImpacts = selectedFilterMetric
+                                ? analysis?.impacts.filter(i => i.metric === selectedFilterMetric)
+                                : analysis?.impacts;
+
                             // Calculate Overall Model Confidence:
                             // We use the MAX confidence of core metrics to show if any signal was detected.
                             const coreMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score'];
-                            const coreImpacts = analysis?.impacts.filter(i => coreMetrics.includes(i.metric)) || [];
-                            const overallConfidence = analysis?.impacts.length
-                                ? Math.max(...(coreImpacts.length ? coreImpacts : analysis.impacts).map(i => i.confidence))
+                            const coreImpacts = displayImpacts?.filter(i => coreMetrics.includes(i.metric)) || [];
+                            const overallConfidence = displayImpacts?.length
+                                ? Math.max(...(coreImpacts.length ? coreImpacts : displayImpacts).map(i => i.confidence))
                                 : 0;
 
                             return (
@@ -393,7 +473,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                             {/* Analysis Content */}
                                             <div className="pt-2 sm:pt-0">
                                                 <p className="text-[10px] font-bold text-muted-foreground uppercase mb-3">{t('experiments.active.impact_title')}</p>
-                                                <ExperimentImpactResults impacts={analysis?.impacts || []} />
+                                                <ExperimentImpactResults impacts={displayImpacts || []} />
                                             </div>
                                         </div>
                                     </CardContent>
@@ -405,7 +485,12 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                     <div className="p-12 text-center border-2 border-dashed rounded-3xl text-muted-foreground bg-zinc-50/50">
                         <Activity className="w-12 h-12 mx-auto mb-4 opacity-20" />
                         <h3 className="text-lg font-medium text-foreground">{t('experiments.active.no_active_title')}</h3>
-                        <p className="text-sm">{t('experiments.active.no_active_desc')}</p>
+                        <p className="text-sm">
+                            {selectedFilterMetric
+                                ? t('experiments.filter.no_results')
+                                : t('experiments.active.no_active_desc')
+                            }
+                        </p>
                     </div>
                 )}
             </div>
@@ -421,9 +506,33 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                         {pastExperiments.map(exp => {
                             const analysis = analysisResults.find(r => r.experimentId === exp.id)
 
+                            // Filter Impacts: If filter active, ONLY show impacts for that metric
+                            const displayImpacts = selectedFilterMetric
+                                ? analysis?.impacts.filter(i => i.metric === selectedFilterMetric)
+                                : analysis?.impacts;
+
                             // Determine overall impact: Bio-Priority Rule (Health > Behavior)
                             let overallImpact = 'neutral'
                             if (analysis) {
+                                // Important: We still calculate the "Independent Outcome" badge based on the FULL analysis,
+                                // because the experiment's overall success shouldn't disappear just because we are filtering for one metric.
+                                // However, strictly speaking, if the filter is "Focus Mode", maybe the badge should reflect that metric?
+                                // User said: "only see how different experiment impacted that symptom"
+                                // "we show all experiments with all the impacts... I want to be able to filter for a symptom and then only see how different experiment impacted that symptom"
+                                // And "This filter... shouldn't impact the calculations."
+                                // So the "Independent Outcome" badge (Overall result) should probably remain consistent (global truth),
+                                // OR it should reflect the filtered truth.
+                                // Given the badge says "Positive Influence", if I filter for "Step Count" (which decreased), but overall was "Positive" (due to HRV),
+                                // showing "Positive" might be confusing next to a red "-10% Steps".
+                                // Let's make the badge context-aware if filtered? 
+                                // Actually, the simplified logic below recalculates `overallImpact` based on `analysis.impacts`. 
+                                // If I want to match the "Focus Mode", I should maybe use `displayImpacts` for the badge too?
+                                // Let's use `analysis.impacts` (global) for now to allow the user to see the "Experiment's Quality" 
+                                // but specifically drill down into the metric. 
+                                // Wait, if I filter for "Fatigue", and the experiment made me sleep better but Fatigue didn't change, 
+                                // seeing "Positive" badge with "No significant impact on Fatigue" is okay. 
+                                // It answers "Did this experiment work overall?" -> Yes. "Did it help Fatigue?" -> No.
+
                                 const bioMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score']
                                 let bioScore = 0
                                 let lifestyleScore = 0
@@ -484,10 +593,13 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                             </div>
 
                                             {/* Contributing Factors */}
-                                            {(overallImpact === 'positive' || overallImpact === 'negative') && (
+                                            {(overallImpact === 'positive' || overallImpact === 'negative' || selectedFilterMetric) && (displayImpacts && displayImpacts.length > 0) && (
                                                 <div className="mt-3 space-y-1.5">
-                                                    {analysis?.impacts
-                                                        .filter(i => i.pValue < 0.15)
+                                                    {displayImpacts
+                                                        .filter(i => selectedFilterMetric ? true : i.pValue < 0.15) // If filtered, show it regardless of p-value threshold (so we see "No impact" if that's the case? No, the parent filter logic ensures we only have experiments WITH impacts).
+                                                        // Wait, in filtered mode, `displayImpacts` contains ONLY the filtered metric.
+                                                        // In non-filtered mode, we only show p < 0.15.
+                                                        // So:
                                                         .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
                                                         .map(i => (
                                                             <div key={i.metric} className="flex items-center justify-between text-[10px]">
@@ -510,7 +622,10 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                     </div>
                 ) : (
                     <div className="p-8 text-center text-sm text-muted-foreground opacity-50">
-                        {t('experiments.history.no_history')}
+                        {selectedFilterMetric
+                            ? t('experiments.filter.no_results')
+                            : t('experiments.history.no_history')
+                        }
                     </div>
                 )}
             </div>
