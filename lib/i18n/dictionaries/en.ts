@@ -363,7 +363,7 @@ export const en: Dictionary = {
         },
         filter: {
             label: "Filter by Impact",
-            placeholder: "Select a tracker ...",
+            placeholder: "Select a metric ...",
             clear: "Clear Filter",
             no_results: "No experiments found matching this filter."
         },

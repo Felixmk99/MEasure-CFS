@@ -38,48 +38,64 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock UI Components to avoid Radix/Primitive errors
+interface MockProps {
+    children?: React.ReactNode;
+    onClick?: () => void;
+    className?: string;
+    value?: number;
+    placeholder?: string;
+}
+
 jest.mock('@/components/ui/button', () => ({
-    Button: ({ children, onClick, className }: any) => <button onClick={onClick} className={className}>{children}</button>,
+    Button: ({ children, onClick, className }: MockProps) => <button onClick={onClick} className={className}>{children}</button>,
 }));
 jest.mock('@/components/ui/card', () => ({
-    Card: ({ children, className }: any) => <div className={className}>{children}</div>,
-    CardContent: ({ children, className }: any) => <div className={className}>{children}</div>,
+    Card: ({ children, className }: MockProps) => <div className={className}>{children}</div>,
+    CardContent: ({ children, className }: MockProps) => <div className={className}>{children}</div>,
 }));
 jest.mock('@/components/ui/badge', () => ({
-    Badge: ({ children, className }: any) => <span className={className}>{children}</span>,
+    Badge: ({ children, className }: MockProps) => <span className={className}>{children}</span>,
 }));
 jest.mock('@/components/ui/progress', () => ({
-    Progress: ({ value, className }: any) => <div role="progressbar" aria-valuenow={value} className={className} />,
+    Progress: ({ value, className }: MockProps) => <div role="progressbar" aria-valuenow={value} className={className} />,
 }));
 jest.mock('@/components/ui/dialog', () => ({
-    Dialog: ({ children }: any) => <div>{children}</div>,
-    DialogContent: ({ children }: any) => <div>{children}</div>,
-    DialogTrigger: ({ children }: any) => <div>{children}</div>,
-    DialogHeader: ({ children }: any) => <div>{children}</div>,
-    DialogTitle: ({ children }: any) => <div>{children}</div>,
-    DialogDescription: ({ children }: any) => <div>{children}</div>,
-    DialogFooter: ({ children }: any) => <div>{children}</div>,
+    Dialog: ({ children }: MockProps) => <div>{children}</div>,
+    DialogContent: ({ children }: MockProps) => <div>{children}</div>,
+    DialogTrigger: ({ children }: MockProps) => <div>{children}</div>,
+    DialogHeader: ({ children }: MockProps) => <div>{children}</div>,
+    DialogTitle: ({ children }: MockProps) => <div>{children}</div>,
+    DialogDescription: ({ children }: MockProps) => <div>{children}</div>,
+    DialogFooter: ({ children }: MockProps) => <div>{children}</div>,
 }));
 
 // Mock Select with Context to allow interaction
 jest.mock('@/components/ui/select', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
-    const SelectContext = React.createContext({ onValueChange: (v: string) => { } });
+    const SelectContext = React.createContext({ onValueChange: (_: string) => { }, value: undefined as string | undefined });
 
     return {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Select: ({ children, onValueChange, value }: any) => (
-            <SelectContext.Provider value={{ onValueChange }}>
+            <SelectContext.Provider value={{ onValueChange, value }}>
                 <div data-testid="select-root" data-value={value}>{children}</div>
             </SelectContext.Provider>
         ),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         SelectTrigger: ({ children }: any) => <div data-testid="select-trigger">{children}</div>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         SelectValue: ({ placeholder }: any) => <span data-testid="select-value">{placeholder}</span>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         SelectItem: ({ children, value }: any) => (
             <SelectContext.Consumer>
-                {({ onValueChange }: any) => (
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {({ onValueChange, value: selectedValue }: any) => (
                     <div
                         role="option"
+                        aria-selected={selectedValue === value}
                         data-testid="select-item"
                         onClick={() => onValueChange(value)}
                     >
@@ -132,8 +148,8 @@ jest.mock('@/lib/i18n/helpers', () => ({
 // Mock Experiment Analysis Logic
 // We mock this to control the "impacts" shown in the cards
 jest.mock('@/lib/statistics/experiment-analysis', () => ({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    analyzeExperiments: jest.fn((experiments: any[], history: any[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+    analyzeExperiments: jest.fn((experiments: any[], _history: any[]) => {
         return experiments.map(exp => ({
             experimentId: exp.id,
             impacts: [
@@ -273,10 +289,10 @@ describe('ExperimentsClient', () => {
         );
 
         // Open the filter dropdown
-        // The placeholder text "Select a tracker ..." should be the trigger
+        // The placeholder text "Select a metric ..." should be the trigger
         // There might be multiple selects (e.g. in hidden dialogs), so we find the one with the placeholder
         const triggers = screen.getAllByTestId('select-trigger');
-        const trigger = triggers.find(t => t.textContent?.includes('Select a tracker')) || triggers[0];
+        const trigger = triggers.find(t => t.textContent?.includes('Select a metric')) || triggers[0];
 
         if (!trigger) throw new Error('Filter trigger not found');
         fireEvent.click(trigger); // Should open content 

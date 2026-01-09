@@ -7,7 +7,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils"
 import { ExperimentImpact } from "@/lib/statistics/experiment-analysis"
 import { useLanguage } from "@/components/providers/language-provider"
-import { getMetricRegistryConfig } from "@/lib/metrics/registry"
 import { useMetricTranslation } from "@/lib/i18n/helpers"
 
 interface ExperimentImpactProps {

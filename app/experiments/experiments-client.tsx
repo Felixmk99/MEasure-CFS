@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { format, differenceInDays, parseISO, isAfter, isBefore } from "date-fns"
 import { Plus, Trash, Pill, Activity, Moon, ArrowUpRight, ArrowDownRight, Minus, Pencil, Beaker, Target, X, Filter } from "lucide-react"
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 // import { Database } from "@/types/database.types"
 import { enhanceDataWithScore, ExertionPreference } from "@/lib/scoring/composite-score"
 import { mean, standardDeviation } from 'simple-statistics';
-import { analyzeExperiments, Experiment, ExperimentReport, MetricDay } from "@/lib/statistics/experiment-analysis"
+import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
 import { ExperimentImpactResults } from "@/components/experiments/experiment-impact"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useUser } from "@/components/providers/user-provider"
@@ -137,10 +137,10 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
     }, [analysisResults, tMetric]);
 
     // Helper for filtering
-    const hasSignificantImpactForMetric = (expId: string, metric: string, results: typeof analysisResults) => {
+    const hasSignificantImpactForMetric = useCallback((expId: string, metric: string, results: typeof analysisResults) => {
         const analysis = results.find(r => r.experimentId === expId)
         return analysis?.impacts.some(i => i.metric === metric && i.pValue < 0.15) ?? false
-    }
+    }, [])
 
     const activeExperiments = useMemo(() => {
         return experiments.filter(e => {
@@ -150,7 +150,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
             }
             return isActive;
         })
-    }, [experiments, selectedFilterMetric, analysisResults])
+    }, [experiments, selectedFilterMetric, analysisResults, hasSignificantImpactForMetric])
 
     const pastExperiments = useMemo(() => {
         return experiments.filter(e => {
@@ -160,7 +160,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
             }
             return isPast;
         })
-    }, [experiments, selectedFilterMetric, analysisResults])
+    }, [experiments, selectedFilterMetric, analysisResults, hasSignificantImpactForMetric])
 
     const handleSave = async () => {
         setIsLoading(true)
@@ -520,13 +520,6 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                     ? analysis?.impacts.filter(i => i.metric === selectedFilterMetric)
                                     : analysis?.impacts;
 
-                                // Overall Confidence (Past) - simplified logic using core metrics or relevant impacts
-                                const coreMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score'];
-                                const fullImpacts = analysis?.impacts || [];
-                                const coreImpacts = fullImpacts.filter(i => coreMetrics.includes(i.metric));
-                                const confidence = fullImpacts.length
-                                    ? Math.max(...(coreImpacts.length ? coreImpacts : fullImpacts).map(i => i.confidence))
-                                    : 0;
 
                                 // Determine overall impact: Bio-Priority Rule (Health > Behavior)
                                 let overallImpact = 'neutral'
