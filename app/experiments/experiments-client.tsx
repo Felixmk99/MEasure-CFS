@@ -430,14 +430,9 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                                 <Trash className="w-4 h-4" />
                                             </Button>
                                         </div>
-                                        <p className="text-muted-foreground text-[10px] uppercase tracking-tight font-bold">
-                                            {t('experiments.active.started_at', {
-                                                date: new Date(exp.start_date).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })
-                                            })}
-                                        </p>
                                     </div>
 
-                                    <CardContent className="p-4 sm:p-8">
+                                    <CardContent className="p-4 sm:px-8 sm:pb-8 sm:pt-4">
                                         <div className="flex flex-col gap-6">
                                             {/* Header Section */}
                                             <div className="flex flex-col sm:flex-row items-end justify-between gap-4 w-full">
@@ -459,10 +454,15 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                                         </div>
                                                     </div>
                                                     <h2 className="text-2xl sm:text-3xl font-serif text-foreground break-words leading-tight">{exp.name}</h2>
+                                                    <p className="text-muted-foreground text-[10px] uppercase tracking-tight font-bold mt-1">
+                                                        {t('experiments.active.started_at', {
+                                                            date: new Date(exp.start_date).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })
+                                                        })}
+                                                    </p>
                                                 </div>
 
                                                 {/* Middle: Confidence Meter (Stretches) */}
-                                                <div className="flex-1 px-8 pb-1.5 w-full sm:pr-[240px]">
+                                                <div className="flex-1 pl-8 pb-1.5 w-full">
                                                     <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5">
                                                         <span>
                                                             {selectedFilterMetric
