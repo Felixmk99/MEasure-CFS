@@ -144,11 +144,11 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
     const activeExperiments = experiments.filter(e => {
         const isActive = !e.end_date || isAfter(parseISO(e.end_date), new Date());
 
-        // Filter logic: If filter selected, experiment MUST have an impact entry for that metric
+        // Filter logic: If filter selected, experiment MUST have a SIGNIFICANT impact (p < 0.15) for that metric
         if (selectedFilterMetric) {
             const analysis = analysisResults.find(r => r.experimentId === e.id);
-            const hasImpact = analysis?.impacts.some(i => i.metric === selectedFilterMetric);
-            return isActive && hasImpact;
+            const hasSignificantImpact = analysis?.impacts.some(i => i.metric === selectedFilterMetric && i.pValue < 0.15);
+            return isActive && hasSignificantImpact;
         }
 
         return isActive;
@@ -157,11 +157,11 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
     const pastExperiments = experiments.filter(e => {
         const isPast = e.end_date && isBefore(parseISO(e.end_date), new Date());
 
-        // Filter logic: If filter selected, experiment MUST have an impact entry for that metric
+        // Filter logic: If filter selected, experiment MUST have a SIGNIFICANT impact (p < 0.15) for that metric
         if (selectedFilterMetric) {
             const analysis = analysisResults.find(r => r.experimentId === e.id);
-            const hasImpact = analysis?.impacts.some(i => i.metric === selectedFilterMetric);
-            return isPast && hasImpact;
+            const hasSignificantImpact = analysis?.impacts.some(i => i.metric === selectedFilterMetric && i.pValue < 0.15);
+            return isPast && hasSignificantImpact;
         }
 
         return isPast;
