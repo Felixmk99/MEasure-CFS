@@ -50,8 +50,6 @@ export const getFriendlyName = (metric: string, t: (key: string) => string) => {
     if (commonUnderscoreLabel && !commonUnderscoreLabel.includes('common.metric_labels')) return commonUnderscoreLabel;
 
     // Use registry label if it differs from the metric ID (indicating a rename)
-
-    // Use registry label if it differs from the metric ID (indicating a rename)
     if (registry.label && registry.label !== metric) return registry.label;
 
     // Fallback: Title Case

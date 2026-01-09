@@ -599,10 +599,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                             {(overallImpact === 'positive' || overallImpact === 'negative' || selectedFilterMetric) && (displayImpacts && displayImpacts.length > 0) && (
                                                 <div className="mt-3 space-y-1.5">
                                                     {displayImpacts
-                                                        .filter(i => selectedFilterMetric ? true : i.pValue < 0.15) // If filtered, show it regardless of p-value threshold (so we see "No impact" if that's the case? No, the parent filter logic ensures we only have experiments WITH impacts).
-                                                        // Wait, in filtered mode, `displayImpacts` contains ONLY the filtered metric.
-                                                        // In non-filtered mode, we only show p < 0.15.
-                                                        // So:
+                                                        .filter(i => i.pValue < 0.15)
                                                         .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
                                                         .map(i => (
                                                             <div key={i.metric} className="flex items-center justify-between text-[10px]">
