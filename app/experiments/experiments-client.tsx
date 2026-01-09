@@ -277,124 +277,127 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                 </div>
             )}
 
-            {/* Action Bar */}
-            <div className="w-full max-w-7xl mx-auto flex justify-end px-4 sm:px-8">
-                <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                    setIsDialogOpen(open)
-                    if (!open) {
-                        setEditingExp(null)
-                        setFormData(initialFormState)
-                    }
-                }}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-full px-8 h-12 text-base shadow-lg hover:shadow-xl transition-all">
-                            <Plus className="w-5 h-5 mr-2" /> {t('experiments.actions.start_new')}
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>{editingExp ? t('experiments.actions.edit') : t('experiments.actions.log_new')}</DialogTitle>
-                            <DialogDescription>{t('experiments.intro.welcome')}</DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>{t('experiments.form.name')}</Label>
-                                    <Input
-                                        placeholder={t('experiments.form.name_placeholder')}
-                                        value={formData.name}
-                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('experiments.form.dosage')}</Label>
-                                    <Input
-                                        placeholder={t('experiments.form.dosage_placeholder')}
-                                        value={formData.dosage}
-                                        onChange={e => setFormData({ ...formData, dosage: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>{t('experiments.form.category')}</Label>
-                                <Select
-                                    value={formData.category}
-                                    onValueChange={(v) => setFormData({ ...formData, category: v as ExperimentCategory })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="lifestyle">{t('experiments.form.categories.lifestyle')}</SelectItem>
-                                        <SelectItem value="medication">{t('experiments.form.categories.medication')}</SelectItem>
-                                        <SelectItem value="supplement">{t('experiments.form.categories.supplement')}</SelectItem>
-                                        <SelectItem value="other">{t('experiments.form.categories.other')}</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>{t('experiments.form.start_date')}</Label>
-                                    <Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('experiments.form.end_date')}</Label>
-                                    <Input type="date" value={formData.end_date} onChange={e => setFormData({ ...formData, end_date: e.target.value })} />
-                                </div>
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>{t('experiments.actions.cancel')}</Button>
-                            <Button onClick={handleSave} disabled={isLoading || !formData.name}>
-                                {isLoading ? t('common.loading') : editingExp ? t('experiments.actions.update') : t('experiments.actions.save')}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
+            {/* Filter & Action Bar */}
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 space-y-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl">
 
-            {/* Filter Bar */}
-            {availableMetrics.length > 0 && (
-                <div className="w-full max-w-7xl mx-auto px-4 sm:px-8">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl p-4">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Filter className="w-4 h-4" />
-                            <span className="text-sm font-medium">{t('experiments.filter.label')}</span>
-                        </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto flex-1">
-                            <Select value={selectedFilterMetric || "all"} onValueChange={(val) => setSelectedFilterMetric(val === "all" ? null : val)}>
-                                <SelectTrigger className="w-full sm:w-[280px] bg-white dark:bg-zinc-950">
-                                    <SelectValue placeholder={t('experiments.filter.placeholder')} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">{t('experiments.filter.placeholder')}</SelectItem>
-                                    {availableMetrics.map(m => (
-                                        <SelectItem key={m} value={m}>
-                                            {getFriendlyName(m, t)}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {selectedFilterMetric && (
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => setSelectedFilterMetric(null)}
-                                    className="h-9 w-9 text-muted-foreground hover:text-foreground"
-                                    title={t('experiments.filter.clear')}
-                                >
-                                    <X className="w-4 h-4" />
-                                </Button>
-                            )}
-                        </div>
+                    {/* Filter (Left Side) */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                        {availableMetrics.length > 0 && (
+                            <>
+                                <div className="flex items-center gap-2 text-muted-foreground whitespace-nowrap">
+                                    <Filter className="w-4 h-4" />
+                                    <span className="text-sm font-medium">{t('experiments.filter.label')}</span>
+                                </div>
+                                <div className="flex items-center gap-2 w-full sm:w-auto">
+                                    <Select value={selectedFilterMetric || "all"} onValueChange={(val) => setSelectedFilterMetric(val === "all" ? null : val)}>
+                                        <SelectTrigger className="w-full sm:w-[280px] bg-white dark:bg-zinc-950">
+                                            <SelectValue placeholder={t('experiments.filter.placeholder')} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">{t('experiments.filter.placeholder')}</SelectItem>
+                                            {availableMetrics.map(m => (
+                                                <SelectItem key={m} value={m}>
+                                                    {getFriendlyName(m, t)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {selectedFilterMetric && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setSelectedFilterMetric(null)}
+                                            className="h-9 w-9 text-muted-foreground hover:text-foreground shrink-0"
+                                            title={t('experiments.filter.clear')}
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
+
+                    {/* Action Button (Right Side) */}
+                    <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                        setIsDialogOpen(open)
+                        if (!open) {
+                            setEditingExp(null)
+                            setFormData(initialFormState)
+                        }
+                    }}>
+                        <DialogTrigger asChild>
+                            <Button className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 rounded-full px-6 h-10 text-sm shadow-md hover:shadow-lg transition-all">
+                                <Plus className="w-4 h-4 mr-2" /> {t('experiments.actions.start_new')}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>{editingExp ? t('experiments.actions.edit') : t('experiments.actions.log_new')}</DialogTitle>
+                                <DialogDescription>{t('experiments.intro.welcome')}</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>{t('experiments.form.name')}</Label>
+                                        <Input
+                                            placeholder={t('experiments.form.name_placeholder')}
+                                            value={formData.name}
+                                            onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>{t('experiments.form.dosage')}</Label>
+                                        <Input
+                                            placeholder={t('experiments.form.dosage_placeholder')}
+                                            value={formData.dosage}
+                                            onChange={e => setFormData({ ...formData, dosage: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>{t('experiments.form.category')}</Label>
+                                    <Select
+                                        value={formData.category}
+                                        onValueChange={(v) => setFormData({ ...formData, category: v as ExperimentCategory })}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="lifestyle">{t('experiments.form.categories.lifestyle')}</SelectItem>
+                                            <SelectItem value="medication">{t('experiments.form.categories.medication')}</SelectItem>
+                                            <SelectItem value="supplement">{t('experiments.form.categories.supplement')}</SelectItem>
+                                            <SelectItem value="other">{t('experiments.form.categories.other')}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>{t('experiments.form.start_date')}</Label>
+                                        <Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>{t('experiments.form.end_date')}</Label>
+                                        <Input type="date" value={formData.end_date} onChange={e => setFormData({ ...formData, end_date: e.target.value })} />
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>{t('experiments.actions.cancel')}</Button>
+                                <Button onClick={handleSave} disabled={isLoading || !formData.name}>
+                                    {isLoading ? t('common.loading') : editingExp ? t('experiments.actions.update') : t('experiments.actions.save')}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
-            )}
+            </div>
 
             {/* Currently Active */}
             <div className="space-y-6 w-full max-w-7xl mx-auto">
                 <div className="flex justify-center items-center border-b pb-2">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('experiments.active.title')}</h3>
                 </div>
 
                 {activeExperiments.length > 0 ? (

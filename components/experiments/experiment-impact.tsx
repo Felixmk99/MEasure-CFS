@@ -34,9 +34,22 @@ export const getFriendlyName = (metric: string, t: (key: string) => string) => {
     if (m === 'symptom_score') return t('dashboard.metrics.composite_score.label');
     if (m === 'composite_score') return t('dashboard.metrics.adjusted_score.label');
 
-    // Check for explicit dictionary match
+    // Check for explicit dictionary match (Legacy/Dashboard specific)
     const dashLabel = t(`dashboard.metrics.${m}.label`)
     if (dashLabel && !dashLabel.includes('dashboard.metrics')) return dashLabel
+
+    const underscoreKey = m.replace(/ /g, '_');
+    const underscoreLabel = t(`dashboard.metrics.${underscoreKey}.label`);
+    if (underscoreLabel && !underscoreLabel.includes('dashboard.metrics')) return underscoreLabel;
+
+    // Check common metric labels (Primary source for symptoms/metrics)
+    const commonLabel = t(`common.metric_labels.${m}`);
+    if (commonLabel && !commonLabel.includes('common.metric_labels')) return commonLabel;
+
+    const commonUnderscoreLabel = t(`common.metric_labels.${underscoreKey}`);
+    if (commonUnderscoreLabel && !commonUnderscoreLabel.includes('common.metric_labels')) return commonUnderscoreLabel;
+
+    // Use registry label if it differs from the metric ID (indicating a rename)
 
     // Use registry label if it differs from the metric ID (indicating a rename)
     if (registry.label && registry.label !== metric) return registry.label;
