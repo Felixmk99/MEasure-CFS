@@ -68,13 +68,14 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
     // 1. Enhance History with Derived Metrics (MEasure-CFS Score)
     const enhancedHistory = useMemo(() => {
         if (!history || history.length === 0) return [];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const enhanced = enhanceDataWithScore(history as any[], undefined, exertionPreference);
+
+        const enhanced = enhanceDataWithScore(history, undefined, exertionPreference);
+
         return enhanced.map(d => ({
             ...d,
-            // Ensure derived metrics are top-level for analysis
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            adjusted_score: Number((d as any).composite_score) || 0, // Maps MEasure-CFS Score
+            // Map composite_score (Calculated MEasure-CFS Score) to adjusted_score for backward compatibility
+            // adjusted_score key is used by the frontend/charts to display "MEasure-CFS Score"
+            adjusted_score: typeof d.composite_score === 'number' ? d.composite_score : 0,
         }));
     }, [history, exertionPreference]);
 
@@ -99,6 +100,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
             const values = enhancedHistory.map(d => (d as any)[k] ?? d.custom_metrics?.[k]).filter((v: any) => typeof v === 'number') as number[];
 
             if (values.length > 0) {
+                // Use std=1 fallback for constant metrics to avoid division by zero in z-score calculations
                 stats[k] = { mean: mean(values), std: standardDeviation(values) || 1 };
             }
         });
@@ -285,7 +287,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                     <span className="text-sm font-medium">{t('experiments.filter.label')}</span>
                                 </div>
                                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                                    <Select value={selectedFilterMetric || "all"} onValueChange={(val) => setSelectedFilterMetric(val === "all" ? null : val)}>
+                                    <Select data-testid="experiments-filter-select" value={selectedFilterMetric || "all"} onValueChange={(val) => setSelectedFilterMetric(val === "all" ? null : val)}>
                                         <SelectTrigger className="w-full sm:w-[280px] bg-white dark:bg-zinc-950">
                                             <SelectValue placeholder={t('experiments.filter.placeholder')} />
                                         </SelectTrigger>
@@ -521,27 +523,11 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                     : analysis?.impacts;
 
 
-                                // Determine overall impact: Bio-Priority Rule (Health > Behavior)
+                                // Calculate Independent Outcome badge:
+                                // Uses full analysis (not filtered) to show experiment's overall effectiveness.
+                                // This provides global context even when filtering for a specific metric.
                                 let overallImpact = 'neutral'
                                 if (analysis) {
-                                    // Important: We still calculate the "Independent Outcome" badge based on the FULL analysis,
-                                    // because the experiment's overall success shouldn't disappear just because we are filtering for one metric.
-                                    // However, strictly speaking, if the filter is "Focus Mode", maybe the badge should reflect that metric?
-                                    // User said: "only see how different experiment impacted that symptom"
-                                    // "we show all experiments with all the impacts... I want to be able to filter for a symptom and then only see how different experiment impacted that symptom"
-                                    // And "This filter... shouldn't impact the calculations."
-                                    // So the "Independent Outcome" badge (Overall result) should probably remain consistent (global truth),
-                                    // OR it should reflect the filtered truth.
-                                    // Given the badge says "Positive Influence", if I filter for "Step Count" (which decreased), but overall was "Positive" (due to HRV),
-                                    // showing "Positive" might be confusing next to a red "-10% Steps".
-                                    // Let's make the badge context-aware if filtered? 
-                                    // Actually, the simplified logic below recalculates `overallImpact` based on `analysis.impacts`. 
-                                    // If I want to match the "Focus Mode", I should maybe use `displayImpacts` for the badge too?
-                                    // Let's use `analysis.impacts` (global) for now to allow the user to see the "Experiment's Quality" 
-                                    // but specifically drill down into the metric. 
-                                    // Wait, if I filter for "Fatigue", and the experiment made me sleep better but Fatigue didn't change, 
-                                    // seeing "Positive" badge with "No significant impact on Fatigue" is okay. 
-                                    // It answers "Did this experiment work overall?" -> Yes. "Did it help Fatigue?" -> No.
 
                                     const bioMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score']
                                     let bioScore = 0
