@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { format, differenceInDays, parseISO, isAfter, isBefore } from "date-fns"
 import { Plus, Trash, Pill, Activity, Moon, ArrowUpRight, ArrowDownRight, Minus, Pencil, Beaker, Target, X, Filter } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -581,6 +582,31 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                             </span>
                                             <h3 className="text-2xl font-serif mt-2 mb-1">{exp.name}</h3>
                                             {exp.dosage && <p className="text-xs font-bold text-muted-foreground uppercase">{exp.dosage}</p>}
+
+                                            {/* Model Confidence Bar (Mini) */}
+                                            {(() => {
+                                                const relevantImpacts = analysis?.impacts.filter(i => i.pValue < 0.15) || [];
+                                                const confidence = relevantImpacts.length > 0
+                                                    ? relevantImpacts.reduce((acc, i) => acc + (i.confidence || 0), 0) / relevantImpacts.length
+                                                    : 0;
+
+                                                if (confidence === 0) return null;
+
+                                                return (
+                                                    <div className="mt-3 mb-2 space-y-1">
+                                                        <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                                                            <span>{t('experiments.confidence.label')}</span>
+                                                            <span>{Math.round(confidence * 100)}%</span>
+                                                        </div>
+                                                        <div className="h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-sky-500 rounded-full transition-all duration-500"
+                                                                style={{ width: `${confidence * 100}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })()}
                                         </div>
 
                                         <div className="pt-2">
@@ -601,17 +627,33 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                                     {displayImpacts
                                                         .filter(i => i.pValue < 0.15)
                                                         .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
-                                                        .map(i => (
-                                                            <div key={i.metric} className="flex items-center justify-between text-[10px]">
-                                                                <span className="text-muted-foreground font-medium">{getFriendlyName(i.metric, t)}</span>
-                                                                <span className={cn(
-                                                                    "font-bold",
-                                                                    i.significance === 'positive' ? "text-green-600" : "text-red-600"
-                                                                )}>
-                                                                    {i.percentChange > 0 ? '+' : ''}{i.percentChange.toFixed(1)}%
-                                                                </span>
-                                                            </div>
-                                                        ))}
+                                                        .map(i => {
+                                                            let sigLabel = t(`experiments.impact.significance.neutral`)
+                                                            if (i.pValue < 0.05) sigLabel = t(`experiments.impact.significance.significant`)
+                                                            else if (i.pValue < 0.15) sigLabel = t(`experiments.impact.significance.trend`)
+
+                                                            return (
+                                                                <TooltipProvider key={i.metric}>
+                                                                    <Tooltip delayDuration={0}>
+                                                                        <TooltipTrigger asChild>
+                                                                            <div className="flex items-center justify-between text-[10px] cursor-help group/item">
+                                                                                <span className="text-muted-foreground font-medium group-hover/item:text-foreground transition-colors border-b border-dotted border-muted-foreground/50">{getFriendlyName(i.metric, t)}</span>
+                                                                                <span className={cn(
+                                                                                    "font-bold",
+                                                                                    i.significance === 'positive' ? "text-green-600" : "text-red-600"
+                                                                                )}>
+                                                                                    {i.percentChange > 0 ? '+' : ''}{i.percentChange.toFixed(1)}%
+                                                                                </span>
+                                                                            </div>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent side="right" className="text-xs">
+                                                                            <p className="font-bold mb-1">{sigLabel}</p>
+                                                                            <p className="text-muted-foreground">p = {i.pValue.toFixed(3)}</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+                                                            )
+                                                        })}
                                                 </div>
                                             )}
                                         </div>
