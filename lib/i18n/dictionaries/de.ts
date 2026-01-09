@@ -365,7 +365,10 @@ export const de: Dictionary = {
             label: "Nach Wirkung filtern",
             placeholder: "Symptom wählen...",
             clear: "Filter löschen",
-            no_results: "Keine Experimente mit Einfluss auf diesen Wert gefunden."
+            no_results: "Keine Experimente gefunden für diesen Filter."
+        },
+        confidence: {
+            label: "Model Confidence"
         },
         actions: {
             start_new: "Neues Experiment starten",

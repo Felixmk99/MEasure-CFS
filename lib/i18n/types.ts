@@ -373,6 +373,9 @@ export interface Dictionary {
             clear: string
             no_results: string
         }
+        confidence: {
+            label: string
+        }
     }
     upload: {
         title: string

@@ -365,7 +365,10 @@ export const en: Dictionary = {
             label: "Filter by Impact",
             placeholder: "Select a symptom...",
             clear: "Clear Filter",
-            no_results: "No experiments found impacting this metric."
+            no_results: "No experiments found matching this filter."
+        },
+        confidence: {
+            label: "Model Confidence"
         },
         actions: {
             start_new: "Start New Experiment",
