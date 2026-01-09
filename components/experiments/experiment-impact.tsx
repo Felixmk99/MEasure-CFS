@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils"
 import { ExperimentImpact } from "@/lib/statistics/experiment-analysis"
 import { useLanguage } from "@/components/providers/language-provider"
-import { getMetricRegistryConfig } from "@/lib/metrics/registry"
+import { useMetricTranslation } from "@/lib/i18n/helpers"
 
 interface ExperimentImpactProps {
     impacts: ExperimentImpact[]
@@ -24,32 +24,9 @@ export const getMetricIcon = (metric: string) => {
     return <Activity className="w-3.5 h-3.5" />
 }
 
-export const getFriendlyName = (metric: string, t: (key: string) => string) => {
-    const m = metric.toLowerCase();
-    const registry = getMetricRegistryConfig(metric);
-
-    // Try to find in dashboard config first
-    if (m === 'hrv') return t('dashboard.metrics.hrv.label');
-    if (m === 'resting_heart_rate' || m === 'rhr') return t('dashboard.metrics.resting_heart_rate.label');
-    if (m === 'symptom_score') return t('dashboard.metrics.composite_score.label');
-    if (m === 'composite_score') return t('dashboard.metrics.adjusted_score.label');
-
-    // Check for explicit dictionary match
-    const dashLabel = t(`dashboard.metrics.${m}.label`)
-    if (dashLabel && !dashLabel.includes('dashboard.metrics')) return dashLabel
-
-    // Use registry label if it differs from the metric ID (indicating a rename)
-    if (registry.label && registry.label !== metric) return registry.label;
-
-    // Fallback: Title Case
-    return metric
-        .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-}
-
 export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
     const { t } = useLanguage()
+    const tMetric = useMetricTranslation()
 
     if (impacts.length === 0) {
         return (
@@ -130,7 +107,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                                             "text-[8px] font-black uppercase tracking-tighter transition-all px-1.5 py-0.5 rounded-md",
                                                             "bg-zinc-100/50 dark:bg-zinc-800/50 text-muted-foreground group-hover/effect:bg-primary/10 group-hover/effect:text-primary"
                                                         )}>
-                                                            {t(`experiments.impact.effect_sizes.${impact.effectSize}`)} {t('experiments.history.influence')}
+                                                            {t(`experiments.impact.effect_sizes.${impact.effectSize}`)}
                                                         </span>
                                                         <Info className="w-2.5 h-2.5 text-muted-foreground/40 group-hover/effect:text-primary transition-colors" />
                                                     </div>
@@ -172,7 +149,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
 
                             <div className="space-y-1">
                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight truncate">
-                                    {getFriendlyName(impact.metric, t)}
+                                    {tMetric(impact.metric)}
                                 </p>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-sm font-black text-foreground leading-none">

@@ -325,6 +325,7 @@ export interface Dictionary {
             title: string
             day: string
             confidence: string
+            overall_confidence: string
             confidence_hint: string
             confidence_desc: string
             impact_title: string
@@ -366,6 +367,15 @@ export interface Dictionary {
                 medium: string
                 large: string
             }
+        }
+        filter: {
+            label: string
+            placeholder: string
+            clear: string
+            no_results: string
+        }
+        confidence: {
+            label: string
         }
     }
     upload: {

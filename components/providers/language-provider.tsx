@@ -46,7 +46,7 @@ export function LanguageProvider({ children, initialLocale = 'en' }: LanguagePro
 
     const dictionary = locale === 'de' ? de : en
 
-    const t = (path: string, values?: Record<string, string | number>): string => {
+    const t = React.useCallback((path: string, values?: Record<string, string | number>): string => {
         const keys = path.split('.')
         let current: unknown = dictionary
         for (const key of keys) {
@@ -64,7 +64,7 @@ export function LanguageProvider({ children, initialLocale = 'en' }: LanguagePro
             })
         }
         return result
-    }
+    }, [dictionary])
 
     // Prevent hydration mismatch by rendering children only after mount, 
     // or by accepting that server rendered initial EN and client might switch to DE.

@@ -361,6 +361,15 @@ export const en: Dictionary = {
             zscore_title: "Z-Score Impact",
             zscore_desc: "See exactly how many standard deviations (σ) your HRV or Heart Rate shifted independently for each med."
         },
+        filter: {
+            label: "Filter by Impact",
+            placeholder: "Select a metric ...",
+            clear: "Clear Filter",
+            no_results: "No experiments found matching this filter."
+        },
+        confidence: {
+            label: "Model Confidence"
+        },
         actions: {
             start_new: "Start New Experiment",
             log_new: "Log New Experiment",
@@ -390,6 +399,7 @@ export const en: Dictionary = {
             title: "Currently Active",
             day: "Active • Day",
             confidence: "Model Confidence",
+            overall_confidence: "Overall Confidence",
             confidence_hint: "Requires ~30 days for full accuracy.",
             confidence_desc: "Statistical confidence based on current data volume and variance.",
             impact_title: "Independent Health Impact (Controlled for overlaps)",
@@ -587,7 +597,7 @@ export const en: Dictionary = {
         medical_disclaimer: "Medical Disclaimer",
         medical_disclaimer_text: "This app is for informational purposes only and does not provide medical advice, diagnosis, or treatment. Always seek the advice of your physician.",
         not_medical_product: "Not for medical use",
-        copyright: "© 2025 Visible Analytics. All rights reserved.",
+        copyright: "© 2025 MEasure-CFS. A free project by Felix Kania.",
         info_ddg: "Information according to § 5 DDG",
         operator: "Website Operator",
         country: "Germany",

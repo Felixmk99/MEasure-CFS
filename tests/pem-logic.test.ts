@@ -1,5 +1,4 @@
 import { calculateZScores, analyzePreCrashPhase, CycleEpoch } from '../lib/statistics/pem-cycle';
-import { getMetricRegistryConfig } from '../lib/metrics/registry';
 
 // Mock registry to ensure deterministic tests
 jest.mock('../lib/metrics/registry', () => ({

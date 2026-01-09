@@ -109,7 +109,7 @@ export const de: Dictionary = {
     },
     footer: {
         built_by: "Entwickelt von Felix Kania",
-        contact: "Kontakt & Ideen: felixmkania@gmail.com",
+        contact: "Kontakt & Ideen",
         github: "GitHub Repository"
     },
     dashboard: {
@@ -169,7 +169,7 @@ export const de: Dictionary = {
         },
         metrics: {
             composite_score: {
-                label: "Track-Me Score",
+                label: "Symptom Score",
                 description: "Die Summe all deiner getrackten Symptome.",
                 better: "Niedriger ist besser"
             },
@@ -361,6 +361,15 @@ export const de: Dictionary = {
             zscore_title: "Z-Score Auswirkung",
             zscore_desc: "Sieh genau, um wie viele Standardabweichungen (σ) sich deine HRV oder dein Puls unabhängig für jedes Medikament verschoben hat."
         },
+        filter: {
+            label: "Nach Wirkung filtern",
+            placeholder: "Metrik wählen ...",
+            clear: "Filter löschen",
+            no_results: "Keine Experimente gefunden für diesen Filter."
+        },
+        confidence: {
+            label: "Modell-Konfidenz"
+        },
         actions: {
             start_new: "Neues Experiment starten",
             log_new: "Neues Experiment erfassen",
@@ -390,6 +399,7 @@ export const de: Dictionary = {
             title: "Aktuell aktiv",
             day: "Aktiv • Tag",
             confidence: "Modell-Konfidenz",
+            overall_confidence: "Gesamt-Confidence",
             confidence_hint: "Benötigt ~30 Tage für volle Genauigkeit.",
             confidence_desc: "Statistische Konfidenz basierend auf dem aktuellen Datenvolumen und der Varianz.",
             impact_title: "Unabhängiger Gesundheits-Einfluss (kontrolliert auf Überlappungen)",
@@ -427,9 +437,9 @@ export const de: Dictionary = {
             effect_size_label: "Effektstärke (d)",
             deg_freedom: "Freiheitsgrade",
             effect_sizes: {
-                small: "klein",
-                medium: "mittel",
-                large: "groß"
+                small: "Kleiner Einfluss",
+                medium: "Mittlerer Einfluss",
+                large: "Großer Einfluss"
             }
         }
     },
@@ -587,7 +597,7 @@ export const de: Dictionary = {
         medical_disclaimer: "Medizinischer Haftungsausschluss",
         medical_disclaimer_text: "Diese App dient ausschließlich Informationszwecken und bietet keine medizinische Beratung, Diagnose oder Behandlung. Lassen Sie sich immer von Ihrem Arzt beraten.",
         not_medical_product: "Kein Medizinprodukt",
-        copyright: "© 2025 Visible Analytics. Alle Rechte vorbehalten.",
+        copyright: "© 2025 MEasure-CFS. Ein kostenloses Angebot von Felix Kania.",
         info_ddg: "Angaben gemäß § 5 DDG",
         operator: "Betreiber der Webseite",
         country: "Deutschland",
@@ -619,9 +629,9 @@ export const de: Dictionary = {
         terms_page: {
             not_medical_product_long: "Diese App ist KEIN Medizinprodukt im Sinne der EU-Medizinprodukteverordnung (MDR). Sie dient ausschließlich der Visualisierung und Korrelation von bereits existierenden Gesundheitsdaten für Ihr persönliches Wohlbefinden. Die App stellt keine Diagnosen, gibt keine Therapieempfehlungen und ersetzt nicht den Besuch bei einem qualifizierten Arzt. Wenn Sie medizinische Beschwerden haben, suchen Sie bitte umgehend professionelle Hilfe auf.",
             s1_title: "1. Geltungsbereich",
-            s1_desc: "Durch die Nutzung der Web-App 'Visible Analytics' erklären Sie sich mit den folgenden Nutzungsbedingungen einverstanden. Die App wird von Felix Kania als kostenloses Tool zur Verfügung gestellt.",
+            s1_desc: "Durch die Nutzung der Web-App 'MEasure-CFS' erklären Sie sich mit den folgenden Nutzungsbedingungen einverstanden. Die App wird von Felix Kania als kostenloses Tool zur Verfügung gestellt.",
             s2_title: "2. Leistungsumfang",
-            s2_desc: "'Visible Analytics' ermöglicht Nutzern den Upload von Gesundheitsdaten (z.B. aus der Visible App oder Apple Health) zur grafischen Aufarbeitung und statistischen Auswertung persönlicher Trends. Wir übernehmen keine Garantie für die ständige Verfügbarkeit der App oder die Fehlerfreiheit der Berechnungen.",
+            s2_desc: "'MEasure-CFS' ermöglicht Nutzern den Upload von Gesundheitsdaten (z.B. aus der Visible App oder Apple Health) zur grafischen Aufarbeitung und statistischen Auswertung persönlicher Trends. Wir übernehmen keine Garantie für die ständige Verfügbarkeit der App oder die Fehlerfreiheit der Berechnungen.",
             s3_title: "3. Haftungsbeschränkung",
             s3_desc: "Die Nutzung der App erfolgt auf eigene Gefahr. Wir haften nicht für Schäden, die aus der Nutzung oder im Vertrauen auf die von der App bereitgestellten Grafiken oder Statistiken entstehen. Dies gilt insbesondere für Entscheidungen bezüglich Ihrer Gesundheit, die Sie auf Grundlage der App treffen.",
             s4_title: "4. Änderungen der Bedingungen",
