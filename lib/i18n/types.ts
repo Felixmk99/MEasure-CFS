@@ -325,6 +325,7 @@ export interface Dictionary {
             title: string
             day: string
             confidence: string
+            overall_confidence: string
             confidence_hint: string
             confidence_desc: string
             impact_title: string

@@ -17,10 +17,12 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 // import { Database } from "@/types/database.types"
 import { enhanceDataWithScore, ExertionPreference } from "@/lib/scoring/composite-score"
-import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
-import { ExperimentImpactResults, getFriendlyName } from "@/components/experiments/experiment-impact"
+import { mean, standardDeviation } from 'simple-statistics';
+import { analyzeExperiments, Experiment, ExperimentReport, MetricDay } from "@/lib/statistics/experiment-analysis"
+import { ExperimentImpactResults } from "@/components/experiments/experiment-impact"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useUser } from "@/components/providers/user-provider"
+import { useMetricTranslation } from "@/lib/i18n/helpers"
 
 // Form State logic moved outside component
 type ExperimentCategory = 'lifestyle' | 'medication' | 'supplement' | 'other'
@@ -46,6 +48,7 @@ const isValidCategory = (cat: string): cat is ExperimentCategory =>
 
 export default function ExperimentsClient({ initialExperiments, history, exertionPreference: initialPreference }: { initialExperiments: Experiment[], history: MetricDay[], exertionPreference?: ExertionPreference }) {
     const { t, locale } = useLanguage()
+    const tMetric = useMetricTranslation()
     const { profile } = useUser()
     const exertionPreference = profile?.exertion_preference ?? initialPreference ?? 'desirable'
 
@@ -62,74 +65,51 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
     const [selectedFilterMetric, setSelectedFilterMetric] = useState<string | null>(null)
 
     // Enhance history with Centralized Composite Score
+    // 1. Enhance History with Derived Metrics (MEasure-CFS Score)
     const enhancedHistory = useMemo(() => {
-        return enhanceDataWithScore(history, undefined, exertionPreference)
-    }, [history, exertionPreference])
+        if (!history || history.length === 0) return [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const enhanced = enhanceDataWithScore(history as any[], undefined, exertionPreference);
+        return enhanced.map(d => ({
+            ...d,
+            // Ensure derived metrics are top-level for analysis
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            adjusted_score: Number((d as any).composite_score) || 0, // Maps MEasure-CFS Score
+        }));
+    }, [history, exertionPreference]);
 
-    // Calculate Baseline Stats for Z-Scores
+    // 2. Calculate Baseline Stats
     const baselineStats = useMemo(() => {
-        const stats: Record<string, { mean: number, std: number }> = {}
-        const excludedKeys = ['date', 'id', 'user_id', 'created_at', 'custom_metrics', 'normalized_hrv', 'normalized_rhr', 'normalized_steps'];
+        if (!enhancedHistory || enhancedHistory.length === 0) return {};
 
-        // Use enhancedHistory to include composite_score in stats analysis
-        const dataToAnalyze = enhancedHistory
+        const stats: Record<string, { mean: number, std: number }> = {};
 
-        // Find all unique numeric keys across history
+        // Discover all numeric keys
         const allKeys = new Set<string>();
-        dataToAnalyze.forEach(d => {
-            // 1. Top-Level Keys
+        enhancedHistory.forEach(d => {
             Object.keys(d).forEach(k => {
-                if (!excludedKeys.includes(k) && typeof d[k] === 'number') {
-                    allKeys.add(k);
-                }
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (typeof (d as any)[k] === 'number') allKeys.add(k);
             });
-            // 2. Custom Metrics Keys
-            const cm = d.custom_metrics;
-            if (cm && typeof cm === 'object') {
-                Object.keys(cm).forEach(k => {
-                    const val = cm[k];
-                    if (!excludedKeys.includes(k) && typeof val === 'number') {
-                        allKeys.add(k);
-                    }
-                });
-            }
+            if (d.custom_metrics) Object.keys(d.custom_metrics).forEach(k => allKeys.add(k));
         });
 
-        allKeys.forEach(m => {
-            // Helper to safely extract metric value
-            const getMetricValue = (d: MetricDay): number | undefined => {
-                // Check top-level property
-                if (m in d) {
-                    const val = d[m as keyof MetricDay]
-                    return typeof val === 'number' ? val : undefined
-                }
-                // Check custom_metrics
-                if (d.custom_metrics && typeof d.custom_metrics === 'object' && m in d.custom_metrics) {
-                    const val = d.custom_metrics[m]
-                    return typeof val === 'number' ? val : undefined
-                }
-                return undefined
-            }
-
-            // Retrieve value from top-level OR custom_metrics
-            const values = dataToAnalyze
-                .map(d => getMetricValue(d))
-                .filter((v): v is number => typeof v === 'number')
+        allKeys.forEach(k => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const values = enhancedHistory.map(d => (d as any)[k] ?? d.custom_metrics?.[k]).filter((v: any) => typeof v === 'number') as number[];
 
             if (values.length > 0) {
-                const mean = values.reduce((a, b) => a + b, 0) / values.length
-                const std = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length) || 1
-                stats[m] = { mean, std }
+                stats[k] = { mean: mean(values), std: standardDeviation(values) || 1 };
             }
         });
 
-        return stats
-    }, [enhancedHistory])
+        return stats;
+    }, [enhancedHistory]);
 
-    // Run Analysis
+    // 3. Run Analysis
     const analysisResults = useMemo(() => {
-        return analyzeExperiments(experiments, enhancedHistory, baselineStats)
-    }, [experiments, enhancedHistory, baselineStats])
+        return analyzeExperiments(experiments, enhancedHistory, baselineStats);
+    }, [experiments, enhancedHistory, baselineStats]);
 
     // Extract available metrics for filtering
     const availableMetrics = useMemo(() => {
@@ -139,34 +119,48 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                 metrics.add(i.metric);
             });
         });
-        return Array.from(metrics).sort((a, b) => getFriendlyName(a, t).localeCompare(getFriendlyName(b, t)));
-    }, [analysisResults, t]);
+        const uniqueMetrics: string[] = [];
+        const seenLabels = new Set<string>();
 
-    const activeExperiments = experiments.filter(e => {
-        const isActive = !e.end_date || isAfter(parseISO(e.end_date), new Date());
+        // Sort keys first to ensure deterministic selection (e.g. composite_score vs symptom_score)
+        const sortedKeys = Array.from(metrics).sort();
 
-        // Filter logic: If filter selected, experiment MUST have a SIGNIFICANT impact (p < 0.15) for that metric
-        if (selectedFilterMetric) {
-            const analysis = analysisResults.find(r => r.experimentId === e.id);
-            const hasSignificantImpact = analysis?.impacts.some(i => i.metric === selectedFilterMetric && i.pValue < 0.15);
-            return isActive && hasSignificantImpact;
-        }
+        sortedKeys.forEach(m => {
+            const label = tMetric(m);
+            if (!seenLabels.has(label)) {
+                seenLabels.add(label);
+                uniqueMetrics.push(m);
+            }
+        });
 
-        return isActive;
-    })
+        return uniqueMetrics.sort((a, b) => tMetric(a).localeCompare(tMetric(b)));
+    }, [analysisResults, tMetric]);
 
-    const pastExperiments = experiments.filter(e => {
-        const isPast = e.end_date && isBefore(parseISO(e.end_date), new Date());
+    // Helper for filtering
+    const hasSignificantImpactForMetric = (expId: string, metric: string, results: typeof analysisResults) => {
+        const analysis = results.find(r => r.experimentId === expId)
+        return analysis?.impacts.some(i => i.metric === metric && i.pValue < 0.15) ?? false
+    }
 
-        // Filter logic: If filter selected, experiment MUST have a SIGNIFICANT impact (p < 0.15) for that metric
-        if (selectedFilterMetric) {
-            const analysis = analysisResults.find(r => r.experimentId === e.id);
-            const hasSignificantImpact = analysis?.impacts.some(i => i.metric === selectedFilterMetric && i.pValue < 0.15);
-            return isPast && hasSignificantImpact;
-        }
+    const activeExperiments = useMemo(() => {
+        return experiments.filter(e => {
+            const isActive = !e.end_date || isAfter(parseISO(e.end_date), new Date());
+            if (selectedFilterMetric) {
+                return isActive && hasSignificantImpactForMetric(e.id, selectedFilterMetric, analysisResults);
+            }
+            return isActive;
+        })
+    }, [experiments, selectedFilterMetric, analysisResults])
 
-        return isPast;
-    })
+    const pastExperiments = useMemo(() => {
+        return experiments.filter(e => {
+            const isPast = e.end_date && isBefore(parseISO(e.end_date), new Date());
+            if (selectedFilterMetric) {
+                return isPast && hasSignificantImpactForMetric(e.id, selectedFilterMetric, analysisResults);
+            }
+            return isPast;
+        })
+    }, [experiments, selectedFilterMetric, analysisResults])
 
     const handleSave = async () => {
         setIsLoading(true)
@@ -299,7 +293,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                             <SelectItem value="all">{t('experiments.filter.placeholder')}</SelectItem>
                                             {availableMetrics.map(m => (
                                                 <SelectItem key={m} value={m}>
-                                                    {getFriendlyName(m, t)}
+                                                    {tMetric(m)}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -413,29 +407,40 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                 : analysis?.impacts;
 
                             // Calculate Overall Model Confidence:
+                            // ALWAYS use full analysis for confidence to avoid misleading drops when filtering
                             // We use the MAX confidence of core metrics to show if any signal was detected.
                             const coreMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score'];
-                            const coreImpacts = displayImpacts?.filter(i => coreMetrics.includes(i.metric)) || [];
-                            const overallConfidence = displayImpacts?.length
-                                ? Math.max(...(coreImpacts.length ? coreImpacts : displayImpacts).map(i => i.confidence))
+                            const fullImpacts = analysis?.impacts || [];
+                            const coreImpacts = fullImpacts.filter(i => coreMetrics.includes(i.metric));
+
+                            const overallConfidence = fullImpacts.length
+                                ? Math.max(...(coreImpacts.length ? coreImpacts : fullImpacts).map(i => i.confidence))
                                 : 0;
 
                             return (
                                 <Card key={exp.id} className="bg-zinc-50/50 dark:bg-zinc-900/30 border-0 shadow-sm overflow-hidden relative group">
-                                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEdit(exp)}>
-                                            <Pencil className="w-4 h-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(exp.id)}>
-                                            <Trash className="w-4 h-4" />
-                                        </Button>
+                                    <div className="absolute top-4 right-4 flex flex-col items-end gap-1 z-10">
+                                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEdit(exp)}>
+                                                <Pencil className="w-4 h-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(exp.id)}>
+                                                <Trash className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                        <p className="text-muted-foreground text-[10px] uppercase tracking-tight font-bold">
+                                            {t('experiments.active.started_at', {
+                                                date: new Date(exp.start_date).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })
+                                            })}
+                                        </p>
                                     </div>
 
                                     <CardContent className="p-4 sm:p-8">
                                         <div className="flex flex-col gap-6">
                                             {/* Header Section */}
-                                            <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                                                <div className="space-y-1">
+                                            <div className="flex flex-col sm:flex-row items-end justify-between gap-4 w-full">
+                                                {/* Left: Name and Tags */}
+                                                <div className="space-y-1 shrink-0 max-w-[40%]">
                                                     <div className="flex items-center gap-3">
                                                         <div className="bg-[#60A5FA]/10 text-[#3B82F6] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide whitespace-nowrap">
                                                             <div className="w-1.5 h-1.5 bg-[#60A5FA] rounded-full animate-pulse shrink-0" />
@@ -448,27 +453,25 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                                             <div className="w-4 h-4 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
                                                                 {getIcon(exp.category || 'other')}
                                                             </div>
-                                                            <span className="text-[10px] font-bold uppercase">{t(`experiments.form.categories.${exp.category || 'other'}`)}</span>
+                                                            <span className="text-xs uppercase font-bold tracking-wider">{exp.category || 'Lifestyle'}</span>
                                                         </div>
                                                     </div>
-                                                    <h2 className="text-2xl sm:text-3xl font-serif text-foreground break-words">{exp.name}</h2>
-                                                    <p className="text-muted-foreground text-[10px] uppercase tracking-tight font-bold">
-                                                        {t('experiments.active.started_at', {
-                                                            date: new Date(exp.start_date).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })
-                                                        })}
-                                                    </p>
+                                                    <h2 className="text-2xl sm:text-3xl font-serif text-foreground break-words leading-tight">{exp.name}</h2>
                                                 </div>
 
-                                                {/* Compact Confidence Meter */}
-                                                <div className="w-full sm:min-w-[180px] bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-3 border border-zinc-100 dark:border-zinc-800/50 mt-4 sm:mt-0">
+                                                {/* Middle: Confidence Meter (Stretches) */}
+                                                <div className="flex-1 px-8 pb-1.5 w-full sm:pr-[240px]">
                                                     <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5">
-                                                        <span>{t('experiments.active.confidence')}</span>
-                                                        <span className={overallConfidence > 0.8 ? "text-emerald-600" : "text-amber-600"}>
-                                                            {Math.round(overallConfidence * 100)}%
+                                                        <span>
+                                                            {selectedFilterMetric
+                                                                ? t('experiments.active.overall_confidence')
+                                                                : t('experiments.active.confidence')
+                                                            }
                                                         </span>
+                                                        <span>{Math.round(overallConfidence * 100)}%</span>
                                                     </div>
-                                                    <Progress value={overallConfidence * 100} className="h-1" />
-                                                    <p className="text-[8px] text-muted-foreground mt-1.5 leading-tight opacity-70">
+                                                    <Progress value={overallConfidence * 100} className="h-1 w-full" />
+                                                    <p className="text-[8px] text-muted-foreground mt-1.5 leading-tight opacity-70 truncate">
                                                         {t('experiments.active.confidence_desc')}
                                                     </p>
                                                 </div>
@@ -496,181 +499,192 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                             }
                         </p>
                     </div>
-                )}
-            </div>
+                )
+                }
+            </div >
 
             {/* Past Experiments */}
-            <div className="space-y-6 w-full max-w-7xl mx-auto">
+            < div className="space-y-6 w-full max-w-7xl mx-auto" >
                 <div className="flex justify-center items-center border-b pb-2">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('experiments.history.title')}</h3>
                 </div>
 
-                {pastExperiments.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {pastExperiments.map(exp => {
-                            const analysis = analysisResults.find(r => r.experimentId === exp.id)
+                {
+                    pastExperiments.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {pastExperiments.map(exp => {
+                                const analysis = analysisResults.find(r => r.experimentId === exp.id)
 
-                            // Filter Impacts: If filter active, ONLY show impacts for that metric
-                            const displayImpacts = selectedFilterMetric
-                                ? analysis?.impacts.filter(i => i.metric === selectedFilterMetric)
-                                : analysis?.impacts;
+                                // Filter Impacts: If filter active, ONLY show impacts for that metric
+                                const displayImpacts = selectedFilterMetric
+                                    ? analysis?.impacts.filter(i => i.metric === selectedFilterMetric)
+                                    : analysis?.impacts;
 
-                            // Determine overall impact: Bio-Priority Rule (Health > Behavior)
-                            let overallImpact = 'neutral'
-                            if (analysis) {
-                                // Important: We still calculate the "Independent Outcome" badge based on the FULL analysis,
-                                // because the experiment's overall success shouldn't disappear just because we are filtering for one metric.
-                                // However, strictly speaking, if the filter is "Focus Mode", maybe the badge should reflect that metric?
-                                // User said: "only see how different experiment impacted that symptom"
-                                // "we show all experiments with all the impacts... I want to be able to filter for a symptom and then only see how different experiment impacted that symptom"
-                                // And "This filter... shouldn't impact the calculations."
-                                // So the "Independent Outcome" badge (Overall result) should probably remain consistent (global truth),
-                                // OR it should reflect the filtered truth.
-                                // Given the badge says "Positive Influence", if I filter for "Step Count" (which decreased), but overall was "Positive" (due to HRV),
-                                // showing "Positive" might be confusing next to a red "-10% Steps".
-                                // Let's make the badge context-aware if filtered? 
-                                // Actually, the simplified logic below recalculates `overallImpact` based on `analysis.impacts`. 
-                                // If I want to match the "Focus Mode", I should maybe use `displayImpacts` for the badge too?
-                                // Let's use `analysis.impacts` (global) for now to allow the user to see the "Experiment's Quality" 
-                                // but specifically drill down into the metric. 
-                                // Wait, if I filter for "Fatigue", and the experiment made me sleep better but Fatigue didn't change, 
-                                // seeing "Positive" badge with "No significant impact on Fatigue" is okay. 
-                                // It answers "Did this experiment work overall?" -> Yes. "Did it help Fatigue?" -> No.
+                                // Overall Confidence (Past) - simplified logic using core metrics or relevant impacts
+                                const coreMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score'];
+                                const fullImpacts = analysis?.impacts || [];
+                                const coreImpacts = fullImpacts.filter(i => coreMetrics.includes(i.metric));
+                                const confidence = fullImpacts.length
+                                    ? Math.max(...(coreImpacts.length ? coreImpacts : fullImpacts).map(i => i.confidence))
+                                    : 0;
 
-                                const bioMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score']
-                                let bioScore = 0
-                                let lifestyleScore = 0
+                                // Determine overall impact: Bio-Priority Rule (Health > Behavior)
+                                let overallImpact = 'neutral'
+                                if (analysis) {
+                                    // Important: We still calculate the "Independent Outcome" badge based on the FULL analysis,
+                                    // because the experiment's overall success shouldn't disappear just because we are filtering for one metric.
+                                    // However, strictly speaking, if the filter is "Focus Mode", maybe the badge should reflect that metric?
+                                    // User said: "only see how different experiment impacted that symptom"
+                                    // "we show all experiments with all the impacts... I want to be able to filter for a symptom and then only see how different experiment impacted that symptom"
+                                    // And "This filter... shouldn't impact the calculations."
+                                    // So the "Independent Outcome" badge (Overall result) should probably remain consistent (global truth),
+                                    // OR it should reflect the filtered truth.
+                                    // Given the badge says "Positive Influence", if I filter for "Step Count" (which decreased), but overall was "Positive" (due to HRV),
+                                    // showing "Positive" might be confusing next to a red "-10% Steps".
+                                    // Let's make the badge context-aware if filtered? 
+                                    // Actually, the simplified logic below recalculates `overallImpact` based on `analysis.impacts`. 
+                                    // If I want to match the "Focus Mode", I should maybe use `displayImpacts` for the badge too?
+                                    // Let's use `analysis.impacts` (global) for now to allow the user to see the "Experiment's Quality" 
+                                    // but specifically drill down into the metric. 
+                                    // Wait, if I filter for "Fatigue", and the experiment made me sleep better but Fatigue didn't change, 
+                                    // seeing "Positive" badge with "No significant impact on Fatigue" is okay. 
+                                    // It answers "Did this experiment work overall?" -> Yes. "Did it help Fatigue?" -> No.
 
-                                analysis.impacts.forEach(i => {
-                                    // Only consider significant results or likely trends (p < 0.15)
-                                    if (i.pValue >= 0.15) return;
+                                    const bioMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score']
+                                    let bioScore = 0
+                                    let lifestyleScore = 0
 
-                                    const val = i.significance === 'positive' ? 1 : i.significance === 'negative' ? -1 : 0
-                                    if (bioMetrics.includes(i.metric)) {
-                                        bioScore += val
-                                    } else {
-                                        lifestyleScore += val
-                                    }
-                                })
+                                    analysis.impacts.forEach(i => {
+                                        // Only consider significant results or likely trends (p < 0.15)
+                                        if (i.pValue >= 0.15) return;
 
-                                if (bioScore > 0) overallImpact = 'positive'
-                                else if (bioScore < 0) overallImpact = 'negative'
-                                else if (lifestyleScore > 0) overallImpact = 'positive'
-                                else if (lifestyleScore < 0) overallImpact = 'negative'
-                            }
+                                        const val = i.significance === 'positive' ? 1 : i.significance === 'negative' ? -1 : 0
+                                        if (bioMetrics.includes(i.metric)) {
+                                            bioScore += val
+                                        } else {
+                                            lifestyleScore += val
+                                        }
+                                    })
 
-                            return (
-                                <Card key={exp.id} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                                    <CardContent className="p-6 space-y-4">
-                                        <div className="flex items-start justify-between">
-                                            <div className="w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center">
-                                                {getIcon(exp.category || 'other')}
-                                            </div>
-                                            <div className="flex gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => openEdit(exp)}>
-                                                    <Pencil className="w-3.5 h-3.5" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDelete(exp.id)}>
-                                                    <Trash className="w-3.5 h-3.5" />
-                                                </Button>
-                                            </div>
-                                        </div>
+                                    if (bioScore > 0) overallImpact = 'positive'
+                                    else if (bioScore < 0) overallImpact = 'negative'
+                                    else if (lifestyleScore > 0) overallImpact = 'positive'
+                                    else if (lifestyleScore < 0) overallImpact = 'negative'
+                                }
 
-                                        <div>
-                                            <span className="text-[9px] bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-muted-foreground uppercase font-bold tracking-widest">
-                                                {format(parseISO(exp.start_date), 'MMM yy')} - {format(parseISO(exp.end_date!), 'MMM yy')}
-                                            </span>
-                                            <h3 className="text-2xl font-serif mt-2 mb-1">{exp.name}</h3>
-                                            {exp.dosage && <p className="text-xs font-bold text-muted-foreground uppercase">{exp.dosage}</p>}
-
-                                            {/* Model Confidence Bar (Mini) */}
-                                            {(() => {
-                                                const relevantImpacts = analysis?.impacts.filter(i => i.pValue < 0.15) || [];
-                                                const confidence = relevantImpacts.length > 0
-                                                    ? relevantImpacts.reduce((acc, i) => acc + (i.confidence || 0), 0) / relevantImpacts.length
-                                                    : 0;
-
-                                                if (confidence === 0) return null;
-
-                                                return (
-                                                    <div className="mt-3 mb-2 space-y-1">
-                                                        <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                                                            <span>{t('experiments.confidence.label')}</span>
-                                                            <span>{Math.round(confidence * 100)}%</span>
-                                                        </div>
-                                                        <div className="h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                                            <div
-                                                                className="h-full bg-sky-500 rounded-full transition-all duration-500"
-                                                                style={{ width: `${confidence * 100}%` }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })()}
-                                        </div>
-
-                                        <div className="pt-2">
-                                            <p className="text-[9px] font-bold text-muted-foreground uppercase mb-2">{t('experiments.history.independent_outcome')}</p>
-                                            <div className={cn(
-                                                "flex items-center gap-2 text-[10px] font-black px-3 py-1.5 rounded-full w-fit uppercase",
-                                                overallImpact === 'positive' && "bg-green-500/10 text-green-700",
-                                                overallImpact === 'negative' && "bg-red-500/10 text-red-700",
-                                                overallImpact === 'neutral' && "bg-zinc-500/10 text-zinc-700"
-                                            )}>
-                                                {overallImpact === 'positive' ? <ArrowUpRight className="w-3 h-3" /> : overallImpact === 'negative' ? <ArrowDownRight className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                                                {t(`experiments.history.outcome_${overallImpact}`)} {t('experiments.history.influence')}
-                                            </div>
-
-                                            {/* Contributing Factors */}
-                                            {(overallImpact === 'positive' || overallImpact === 'negative' || selectedFilterMetric) && (displayImpacts && displayImpacts.length > 0) && (
-                                                <div className="mt-3 space-y-1.5">
-                                                    {displayImpacts
-                                                        .filter(i => i.pValue < 0.15)
-                                                        .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
-                                                        .map(i => {
-                                                            let sigLabel = t(`experiments.impact.significance.neutral`)
-                                                            if (i.pValue < 0.05) sigLabel = t(`experiments.impact.significance.significant`)
-                                                            else if (i.pValue < 0.15) sigLabel = t(`experiments.impact.significance.trend`)
-
-                                                            return (
-                                                                <TooltipProvider key={i.metric}>
-                                                                    <Tooltip delayDuration={0}>
-                                                                        <TooltipTrigger asChild>
-                                                                            <div className="flex items-center justify-between text-[10px] cursor-help group/item">
-                                                                                <span className="text-muted-foreground font-medium group-hover/item:text-foreground transition-colors border-b border-dotted border-muted-foreground/50">{getFriendlyName(i.metric, t)}</span>
-                                                                                <span className={cn(
-                                                                                    "font-bold",
-                                                                                    i.significance === 'positive' ? "text-green-600" : "text-red-600"
-                                                                                )}>
-                                                                                    {i.percentChange > 0 ? '+' : ''}{i.percentChange.toFixed(1)}%
-                                                                                </span>
-                                                                            </div>
-                                                                        </TooltipTrigger>
-                                                                        <TooltipContent side="right" className="text-xs">
-                                                                            <p className="font-bold mb-1">{sigLabel}</p>
-                                                                            <p className="text-muted-foreground">p = {i.pValue.toFixed(3)}</p>
-                                                                        </TooltipContent>
-                                                                    </Tooltip>
-                                                                </TooltipProvider>
-                                                            )
-                                                        })}
+                                return (
+                                    <Card key={exp.id} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                                        <CardContent className="p-6 space-y-4">
+                                            <div className="flex items-start justify-between">
+                                                <div className="w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center">
+                                                    {getIcon(exp.category || 'other')}
                                                 </div>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )
-                        })}
-                    </div>
-                ) : (
-                    <div className="p-8 text-center text-sm text-muted-foreground opacity-50">
-                        {selectedFilterMetric
-                            ? t('experiments.filter.no_results')
-                            : t('experiments.history.no_history')
-                        }
-                    </div>
-                )}
-            </div>
-        </div>
+                                                <div className="flex gap-1">
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => openEdit(exp)}>
+                                                        <Pencil className="w-3.5 h-3.5" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDelete(exp.id)}>
+                                                        <Trash className="w-3.5 h-3.5" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <span className="text-[9px] bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-muted-foreground uppercase font-bold tracking-widest">
+                                                    {format(parseISO(exp.start_date), 'MMM yy')} - {format(parseISO(exp.end_date!), 'MMM yy')}
+                                                </span>
+                                                <h3 className="text-2xl font-serif mt-2 mb-1">{exp.name}</h3>
+                                                {exp.dosage && <p className="text-xs font-bold text-muted-foreground uppercase">{exp.dosage}</p>}
+
+                                                {/* Model Confidence Bar (Mini) */}
+                                                {(() => {
+                                                    const relevantImpacts = analysis?.impacts.filter(i => i.pValue < 0.15) || [];
+                                                    const confidence = relevantImpacts.length > 0
+                                                        ? relevantImpacts.reduce((acc, i) => acc + (i.confidence || 0), 0) / relevantImpacts.length
+                                                        : 0;
+
+                                                    if (confidence === 0) return null;
+
+                                                    return (
+                                                        <div className="mt-3 mb-2 space-y-1">
+                                                            <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                                                                <span>{t('experiments.confidence.label')}</span>
+                                                                <span>{Math.round(confidence * 100)}%</span>
+                                                            </div>
+                                                            <div className="h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                                                <div
+                                                                    className="h-full bg-sky-500 rounded-full transition-all duration-500"
+                                                                    style={{ width: `${confidence * 100}%` }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })()}
+                                            </div>
+
+                                            <div className="pt-2">
+                                                <p className="text-[9px] font-bold text-muted-foreground uppercase mb-2">{t('experiments.history.independent_outcome')}</p>
+                                                <div className={cn(
+                                                    "flex items-center gap-2 text-[10px] font-black px-3 py-1.5 rounded-full w-fit uppercase",
+                                                    overallImpact === 'positive' && "bg-green-500/10 text-green-700",
+                                                    overallImpact === 'negative' && "bg-red-500/10 text-red-700",
+                                                    overallImpact === 'neutral' && "bg-zinc-500/10 text-zinc-700"
+                                                )}>
+                                                    {overallImpact === 'positive' ? <ArrowUpRight className="w-3 h-3" /> : overallImpact === 'negative' ? <ArrowDownRight className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                                                    {t(`experiments.history.outcome_${overallImpact}`)} {t('experiments.history.influence')}
+                                                </div>
+
+                                                {/* Contributing Factors */}
+                                                {(overallImpact === 'positive' || overallImpact === 'negative' || selectedFilterMetric) && (displayImpacts && displayImpacts.length > 0) && (
+                                                    <div className="mt-3 space-y-1.5">
+                                                        {displayImpacts
+                                                            .filter(i => i.pValue < 0.15)
+                                                            .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
+                                                            .map(i => {
+                                                                let sigLabel = t(`experiments.impact.significance.neutral`)
+                                                                if (i.pValue < 0.05) sigLabel = t(`experiments.impact.significance.significant`)
+                                                                else if (i.pValue < 0.15) sigLabel = t(`experiments.impact.significance.trend`)
+
+                                                                return (
+                                                                    <TooltipProvider key={i.metric}>
+                                                                        <Tooltip delayDuration={0}>
+                                                                            <TooltipTrigger asChild>
+                                                                                <div className="flex items-center justify-between text-[10px] cursor-help group/item">
+                                                                                    <span className="text-muted-foreground font-medium group-hover/item:text-foreground transition-colors border-b border-dotted border-muted-foreground/50">{tMetric(i.metric)}</span>
+                                                                                    <span className={cn(
+                                                                                        "font-bold",
+                                                                                        i.significance === 'positive' ? "text-green-600" : "text-red-600"
+                                                                                    )}>
+                                                                                        {i.percentChange > 0 ? '+' : ''}{i.percentChange.toFixed(1)}%
+                                                                                    </span>
+                                                                                </div>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent side="right" className="text-xs">
+                                                                                <p className="font-bold mb-1">{sigLabel}</p>
+                                                                                <p className="text-muted-foreground">p = {i.pValue.toFixed(3)}</p>
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
+                                                                )
+                                                            })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )
+                            })}
+                        </div>
+                    ) : (
+                        <div className="p-8 text-center text-sm text-muted-foreground opacity-50">
+                            {selectedFilterMetric
+                                ? t('experiments.filter.no_results')
+                                : t('experiments.history.no_history')
+                            }
+                        </div>
+                    )
+                }
+            </div >
+        </div >
     )
 }

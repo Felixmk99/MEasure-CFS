@@ -13,7 +13,6 @@ export function Footer() {
             <div className="container mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex flex-col items-center md:items-start gap-1">
-                        <p className="font-medium text-foreground">Visible Analytics</p>
                         <p>{t('legal.copyright')}</p>
                     </div>
 
