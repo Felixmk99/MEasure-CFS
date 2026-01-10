@@ -114,7 +114,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
     // Helper for filtering
     const hasSignificantImpactForMetric = useCallback((expId: string, metric: string, results: typeof analysisResults) => {
         const analysis = results.find(r => r.experimentId === expId)
-        return analysis?.impacts.some(i => i.metric === metric && i.pValue < 0.15) ?? false
+        return analysis?.impacts.some(i => i.metric === metric && i.pValue < 0.05) ?? false
     }, [])
 
     const activeExperiments = useMemo(() => {
