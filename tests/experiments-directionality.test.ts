@@ -24,7 +24,7 @@ describe('Experiments Logic - Metric Directionality', () => {
     };
 
     it('should correctly identify FATIGUE increase as NEGATIVE impact (Default behavior)', () => {
-        const reports = analyzeExperiments([expA], history, baselineStats);
+        const reports = analyzeExperiments([expA], history);
         const report = reports.find(r => r.experimentId === 'exp-a');
         const impact = report?.impacts.find(i => i.metric === 'Fatigue');
 
@@ -34,7 +34,7 @@ describe('Experiments Logic - Metric Directionality', () => {
     });
 
     it('should correctly identify ENERGY increase as POSITIVE impact (Requires Heuristic/Config)', () => {
-        const reports = analyzeExperiments([expA], history, baselineStats);
+        const reports = analyzeExperiments([expA], history);
         const report = reports.find(r => r.experimentId === 'exp-a');
         const impact = report?.impacts.find(i => i.metric === 'Energy');
 

@@ -20,7 +20,7 @@ describe('Experiments Logic - Regression Robustness', () => {
     };
 
     it('should detect positive impact for Exp A normally', () => {
-        const reports = analyzeExperiments([expA], history, baselineStats);
+        const reports = analyzeExperiments([expA], history);
         const reportA = reports.find(r => r.experimentId === 'exp-a');
         const scoreImpact = reportA?.impacts.find(i => i.metric === 'hrv');
 
@@ -38,7 +38,7 @@ describe('Experiments Logic - Regression Robustness', () => {
             category: 'supplement'
         };
 
-        const reports = analyzeExperiments([expA, expNew], history, baselineStats);
+        const reports = analyzeExperiments([expA, expNew], history);
 
         // Exp A should still work!
         const reportA = reports.find(r => r.experimentId === 'exp-a');
@@ -75,7 +75,7 @@ describe('Experiments Logic - Regression Robustness', () => {
         };
 
         // Exp New and Exp New 2 are identical (collinear)
-        const reports = analyzeExperiments([expA, expNew, expNew2], historyWithNew, baselineStats);
+        const reports = analyzeExperiments([expA, expNew, expNew2], historyWithNew);
 
         // Exp A should still work
         const reportA = reports.find(r => r.experimentId === 'exp-a');

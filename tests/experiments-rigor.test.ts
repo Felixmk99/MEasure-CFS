@@ -119,29 +119,58 @@ describe('Experiments Logic - Scientific Rigor', () => {
         });
 
         it('should classify a smaller shift as "small" or "medium"', () => {
-            // Need larger N to make a small shift (0.4 sigma) statistically significant
+            // N = 200, Shift = 0.4 sigma (Small effect)
+            // Use UTC dates to avoid timezone issues
             const N = 200;
-            const split = 100;
-            const smallHistory: MetricDay[] = Array.from({ length: N }, (_, i) => ({
-                date: format(subDays(parseISO('2024-06-01'), N - 1 - i), 'yyyy-MM-dd'),
-                hrv: (i < split ? 55 : 57) + (i % 2 === 0 ? 5 : -5) // Mean 55->57, Std ~5. Shift 0.4 sigma.
-            }));
+            const history: MetricDay[] = [];
 
-            // Experiment starts at the split point
-            const dateAtSplit = smallHistory[split].date;
+            // Base date (UTC)
+            const baseTime = new Date('2024-06-01T00:00:00Z').getTime();
+            const msPerDay = 24 * 60 * 60 * 1000;
+
+            for (let i = 0; i < N + 20; i++) {
+                // Generate date string manually or via safe format
+                const t = baseTime - ((N + 20 - 1 - i) * msPerDay);
+                const d = new Date(t);
+                const dateStr = d.toISOString().split('T')[0];
+
+                // Add noise for realism
+                const noise = (i % 2 === 0 ? 1 : -1) * 2;
+                history.push({
+                    date: dateStr,
+                    hrv: 50 + noise,
+                    exertion_score: 10
+                });
+            }
+
+            // Experiment covers the last 100 days
+            const expStart = new Date(baseTime - (100 * msPerDay)).toISOString().split('T')[0];
+            const expEnd = new Date(baseTime).toISOString().split('T')[0];
+
+            // Add the shift (0.4 sigma = 0.8 units since std=2)
+            history.forEach(d => {
+                if (d.date >= expStart && d.date <= expEnd) {
+                    (d as any).hrv += 0.8;
+                }
+            });
+
+            // Adjust experiment definition
             const smallExp: Experiment = {
-                ...expA,
-                start_date: dateAtSplit,
-                end_date: smallHistory[N - 1].date
+                id: 'small-exp',
+                name: 'Small Exp',
+                start_date: expStart,
+                end_date: expEnd,
+                dosage: 'Low',
+                category: 'Test'
             };
 
-            const reports = analyzeExperiments([smallExp], smallHistory);
-            const report = reports.find(r => r.experimentId === 'exp-a');
+            const reports = analyzeExperiments([smallExp], history);
+            const report = reports.find(r => r.experimentId === 'small-exp');
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
-            // Shift magnitude is "Small" (0.4), but with N=200 it is Significant.
-            expect(impact?.pValue).toBeLessThan(0.05);
-            expect(impact?.effectSize).toBe('small');
+            expect(impact).toBeDefined();
+            expect(impact?.pValue).toBeLessThan(0.05); // Should be significant with N=200
+            expect(impact?.effectSize).toBe('small'); // Shift of 2 with std ~5 is 0.4 sigma
         });
 
         it('should handle neutral outcomes with enough data but no significant change', () => {
