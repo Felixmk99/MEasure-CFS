@@ -300,7 +300,7 @@ export function analyzeExperiments(
             // Effect Size classification using standardized coefficient (z-score shift)
             // Thresholds follow Cohen's conventions: 0.2 (small), 0.5 (medium), 0.8 (large)
             let effectSize: 'not_significant' | 'small' | 'medium' | 'large' = 'not_significant';
-            if (pValue < 0.15) {
+            if (pValue < 0.05) {
                 const absZ = Math.abs(zShift);
                 if (absZ >= 0.8) effectSize = 'large';
                 else if (absZ >= 0.5) effectSize = 'medium';

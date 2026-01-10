@@ -19,7 +19,7 @@ export const de: Dictionary = {
             exertion_score: "Gesamtbelastung",
             composite_score: "Symptom-Score",
             adjusted_score: "MEasure-CFS Score",
-            sleep: "Schlaf",
+            sleep: "Schlafprobleme",
             fatigue: "Fatigue",
             anxiety: "Angst",
             cognitive: "Kognitiv",

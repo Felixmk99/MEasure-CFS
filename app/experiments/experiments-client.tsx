@@ -617,12 +617,10 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                                 {(overallImpact === 'positive' || overallImpact === 'negative' || selectedFilterMetric) && (displayImpacts && displayImpacts.length > 0) && (
                                                     <div className="mt-3 space-y-1.5">
                                                         {displayImpacts
-                                                            .filter(i => i.pValue < 0.15)
+                                                            .filter(i => i.pValue < 0.05)
                                                             .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
                                                             .map(i => {
-                                                                let sigLabel = t(`experiments.impact.significance.neutral`)
-                                                                if (i.pValue < 0.05) sigLabel = t(`experiments.impact.significance.significant`)
-                                                                else if (i.pValue < 0.15) sigLabel = t(`experiments.impact.significance.trend`)
+                                                                const sigLabel = t(`experiments.impact.significance.significant`)
 
                                                                 return (
                                                                     <TooltipProvider key={i.metric}>
