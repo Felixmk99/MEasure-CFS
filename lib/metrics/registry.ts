@@ -25,11 +25,13 @@ const REGISTRY: Record<string, Omit<MetricConfig, 'key'>> = {
     'resting_heart_rate': { direction: 'lower', unit: 'bpm', color: '#F59E0B' },
     'rhr': { direction: 'lower', unit: 'bpm', color: '#F59E0B' },
 
-    // Combined Scores: Lower is Better
+    // Combined Scores
+    // Note: Most are "Lower is Better" (symptoms), but Stability is "Higher is Better".
     'composite_score': { direction: 'lower', unit: '', color: '#3B82F6' },
     'adjusted_score': { direction: 'lower', unit: '', color: '#3B82F6' },
     'symptom_score': { direction: 'lower', unit: '', color: '#F59E0B' },
     'exertion_score': { direction: 'lower', unit: '', color: '#10B981' },
+    'stability_score': { direction: 'higher', unit: '', color: '#10B981' },
 
     // Specific Symptoms: Lower is Better
     'sleep': { direction: 'lower', unit: '', color: '#6366F1' },

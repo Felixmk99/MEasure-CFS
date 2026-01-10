@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 // import { Database } from "@/types/database.types"
 import { enhanceDataWithScore, ExertionPreference } from "@/lib/scoring/composite-score"
-import { mean, standardDeviation } from 'simple-statistics';
+
 import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
 import { ExperimentImpactResults } from "@/components/experiments/experiment-impact"
 import { useLanguage } from "@/components/providers/language-provider"
@@ -79,39 +79,12 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
         }));
     }, [history, exertionPreference]);
 
-    // 2. Calculate Baseline Stats
-    const baselineStats = useMemo(() => {
-        if (!enhancedHistory || enhancedHistory.length === 0) return {};
 
-        const stats: Record<string, { mean: number, std: number }> = {};
-
-        // Discover all numeric keys
-        const allKeys = new Set<string>();
-        enhancedHistory.forEach(d => {
-            Object.keys(d).forEach(k => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                if (typeof (d as any)[k] === 'number') allKeys.add(k);
-            });
-            if (d.custom_metrics) Object.keys(d.custom_metrics).forEach(k => allKeys.add(k));
-        });
-
-        allKeys.forEach(k => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const values = enhancedHistory.map(d => (d as any)[k] ?? d.custom_metrics?.[k]).filter((v: any) => typeof v === 'number') as number[];
-
-            if (values.length > 0) {
-                // Use std=1 fallback for constant metrics to avoid division by zero in z-score calculations
-                stats[k] = { mean: mean(values), std: standardDeviation(values) || 1 };
-            }
-        });
-
-        return stats;
-    }, [enhancedHistory]);
 
     // 3. Run Analysis
     const analysisResults = useMemo(() => {
-        return analyzeExperiments(experiments, enhancedHistory, baselineStats);
-    }, [experiments, enhancedHistory, baselineStats]);
+        return analyzeExperiments(experiments, enhancedHistory);
+    }, [experiments, enhancedHistory]);
 
     // Extract available metrics for filtering
     const availableMetrics = useMemo(() => {
@@ -141,7 +114,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
     // Helper for filtering
     const hasSignificantImpactForMetric = useCallback((expId: string, metric: string, results: typeof analysisResults) => {
         const analysis = results.find(r => r.experimentId === expId)
-        return analysis?.impacts.some(i => i.metric === metric && i.pValue < 0.15) ?? false
+        return analysis?.impacts.some(i => i.metric === metric && i.pValue < 0.05) ?? false
     }, [])
 
     const activeExperiments = useMemo(() => {
@@ -409,14 +382,11 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                 : analysis?.impacts;
 
                             // Calculate Overall Model Confidence:
-                            // ALWAYS use full analysis for confidence to avoid misleading drops when filtering
-                            // We use the MAX confidence of core metrics to show if any signal was detected.
-                            const coreMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score'];
+                            // We use the MAX confidence of ALL metrics to show if any signal was detected.
                             const fullImpacts = analysis?.impacts || [];
-                            const coreImpacts = fullImpacts.filter(i => coreMetrics.includes(i.metric));
 
                             const overallConfidence = fullImpacts.length
-                                ? Math.max(...(coreImpacts.length ? coreImpacts : fullImpacts).map(i => i.confidence))
+                                ? Math.max(...fullImpacts.map(i => i.confidence))
                                 : 0;
 
                             return (

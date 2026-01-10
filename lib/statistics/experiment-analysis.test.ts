@@ -31,9 +31,9 @@ describe('analyzeExperiments (Multivariate OLS)', () => {
             { id: 'B', name: 'Exp B', dosage: null, start_date: '2023-01-31', end_date: '2023-02-20', category: 'med' }
         ]
 
-        const baselineStats = { hrv: { mean: 50, std: 5 } }
 
-        const reports = analyzeExperiments(experiments, history, baselineStats)
+
+        const reports = analyzeExperiments(experiments, history)
 
         const reportA = reports.find(r => r.experimentId === 'A')
         const reportB = reports.find(r => r.experimentId === 'B')
@@ -61,7 +61,7 @@ describe('analyzeExperiments (Multivariate OLS)', () => {
             { id: 'A', name: 'Exp A', dosage: null, start_date: '2023-01-10', end_date: null, category: 'med' }
         ]
 
-        const reports = analyzeExperiments(experiments, history, { hrv: { mean: 50, std: 5 } })
+        const reports = analyzeExperiments(experiments, history)
         const impacts = reports[0].impacts.map(i => i.metric)
 
         expect(impacts).toContain('hrv')
@@ -74,14 +74,14 @@ describe('analyzeExperiments (Multivariate OLS)', () => {
             hrv: 'invalid'
         }))
         const experiments: Experiment[] = [{ id: 'A', name: 'A', dosage: null, start_date: '2023-01-10', end_date: null, category: 'med' }]
-        const reports = analyzeExperiments(experiments, history, {})
+        const reports = analyzeExperiments(experiments, history)
         expect(reports).toHaveLength(0)
     })
 
     it('should handle small datasets gracefully', () => {
         const history = generateHistory(5, '2023-01-01', () => ({ hrv: 50 }))
         const experiments: Experiment[] = [{ id: 'A', name: 'A', dosage: null, start_date: '2023-01-02', end_date: null, category: 'med' }]
-        const reports = analyzeExperiments(experiments, history, {})
+        const reports = analyzeExperiments(experiments, history)
         expect(reports).toHaveLength(0)
     })
 })

@@ -1,6 +1,7 @@
-import { parseISO, isWithinInterval, subDays, format } from "date-fns";
+import { parseISO, isWithinInterval, subDays, format, isBefore } from "date-fns";
 import { EXERTION_METRICS } from "@/lib/scoring/logic";
 import { getMetricRegistryConfig } from "@/lib/metrics/registry";
+import { mean as calcMean, sampleStandardDeviation as calcStd } from "simple-statistics";
 
 export interface Experiment {
     id: string;
@@ -28,50 +29,52 @@ export interface ExperimentImpact {
     confidence: number; // Statistical confidence (e.g. 1 - pValue)
     effectSize?: 'not_significant' | 'small' | 'medium' | 'large';
     tStat?: number;
-    df?: number;
+    df?: number; // Degrees of Freedom
 }
 
 export interface ExperimentReport {
     experimentId: string;
+    daysWithData: number;
     impacts: ExperimentImpact[];
-    daysWithData?: number;
 }
 
+
+
 /**
- * Isolates the impact of multiple medications/experiments using 
+ * Isolates the impact of multiple medications/experiments using
  * Ordinary Least Squares (OLS) regression.
  */
 export function analyzeExperiments(
     experiments: Experiment[],
-    history: MetricDay[],
-    baselineStats: Record<string, { mean: number, std: number }>
+    history: MetricDay[]
 ): ExperimentReport[] {
-    // 1. Dynamic Metric Discovery
+    if (!experiments.length || history.length < 14) return []; // Need minimum history
+
+    // 0. Pre-process Metadata & Controls
+    // Sort history by date to ensure proper lag calculation
+    const sortedDays = [...history].sort((a, b) => a.date.localeCompare(b.date));
+
+    // Identify all metrics (keys in history or custom_metrics)
+    const allMetrics = new Set<string>();
     const excludedKeys = [
-        'date', 'id', 'user_id', 'created_at', 'custom_metrics',
+        'date', 'id', 'user_id', 'created_at', 'custom_metrics', 'notes', 'tags',
         'normalized_hrv', 'normalized_rhr', 'normalized_steps',
         'normalized_sleep', 'normalized_exertion',
         'Crash', 'Infection', 'exertion_score', 'Funcap Score', 'composite_score',
         ...EXERTION_METRICS
     ];
 
-    // Build a set of all unique numeric keys in history
-    const allMetrics = new Set<string>();
-    history.forEach(day => {
-        // 1. Top-level keys
+    sortedDays.forEach(day => {
         Object.keys(day).forEach(key => {
-            const val = day[key]
-            if (!excludedKeys.includes(key) && typeof val === 'number') {
+            const val = day[key];
+            if (!excludedKeys.includes(key) && typeof val === 'number' && Number.isFinite(val)) {
                 allMetrics.add(key);
             }
         });
-
-        // 2. Custom Metrics (Flattening)
-        const customMetrics = day.custom_metrics as Record<string, unknown> | null | undefined;
-        if (customMetrics && typeof customMetrics === 'object') {
-            Object.keys(customMetrics).forEach(key => {
-                const val = (customMetrics as Record<string, number>)[key];
-                if (!excludedKeys.includes(key) && typeof val === 'number') {
+        if (day.custom_metrics) {
+            Object.keys(day.custom_metrics).forEach(key => {
+                const val = day.custom_metrics![key];
+                if (!excludedKeys.includes(key) && typeof val === 'number' && Number.isFinite(val)) {
                     allMetrics.add(key);
                 }
             });
@@ -81,21 +84,14 @@ export function analyzeExperiments(
     const metricsToAnalyze = Array.from(allMetrics);
     if (metricsToAnalyze.length === 0) return [];
 
-    // 2. Prepare Data Matrix X and Response Vector y
-    const validDays = history.filter(d => d.date);
-    if (validDays.length < 14) return [];
-
-    // Sort days by date for proper lag calculation
-    const sortedDays = [...validDays].sort((a, b) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-
-    // Build a map of date -> exertion for lag lookup
+    // Create lookup map for Exertion (for PEM control)
+    // Normalize keys to ensure 'yyyy-MM-dd' matches exactly
     const exertionByDate = new Map<string, number>();
     sortedDays.forEach(d => {
         const val = d.exertion_score as number | undefined;
         if (typeof val === 'number' && !isNaN(val)) {
-            exertionByDate.set(d.date, val);
+            const key = format(parseISO(d.date), 'yyyy-MM-dd');
+            exertionByDate.set(key, val);
         }
     });
 
@@ -123,17 +119,22 @@ export function analyzeExperiments(
     metricsToAnalyze.forEach(metric => {
         const y: number[] = [];
         const X: number[][] = [];
-        const exertionColumn: number[] = []; // Track exertion separately for collinearity check
 
-        sortedDays.forEach(day => {
+        // Control Columns to track for variance check
+        const lag1Column: number[] = [];
+        const lag2Column: number[] = [];
+        // Time is strictly increasing [0, 1, 2...], so variance is guaranteed if N > 1
+
+        sortedDays.forEach((day, index) => {
             // Check top-level, then custom_metrics
             const val = (day[metric] as number ?? (day.custom_metrics as Record<string, number>)?.[metric]);
-            if (val === null || val === undefined || typeof val !== 'number') return;
+            if (val === null || val === undefined || typeof val !== 'number' || !Number.isFinite(val)) return;
 
             y.push(val);
             const row = [1]; // Intercept
+            const dayDate = parseISO(day.date);
+
             experiments.forEach(exp => {
-                const dayDate = parseISO(day.date);
                 const start = parseISO(exp.start_date);
                 const end = exp.end_date ? parseISO(exp.end_date) : new Date();
 
@@ -141,15 +142,24 @@ export function analyzeExperiments(
                 row.push(isActive ? 1 : 0);
             });
 
-            // Add LAGGED exertion score (t-1) as control variable for PEM delay
-            // Use date-fns for consistent date handling
-            const prevDate = subDays(parseISO(day.date), 1);
-            const prevDateStr = format(prevDate, 'yyyy-MM-dd');
+            // 1. Lagged Exertion (PEM) Control
+            // T-1 (Yesterday): Immediate Crash
+            const dateT1 = subDays(dayDate, 1);
+            const strT1 = format(dateT1, 'yyyy-MM-dd');
+            const valT1 = exertionByDate.get(strT1) ?? meanExertion;
 
-            // Look up previous day's exertion, impute with mean if missing
-            const laggedExertion = exertionByDate.get(prevDateStr) ?? meanExertion;
-            row.push(laggedExertion);
-            exertionColumn.push(laggedExertion);
+            // T-2 (2 Days Ago): Delayed Crash (Peak PEM)
+            const dateT2 = subDays(dayDate, 2);
+            const strT2 = format(dateT2, 'yyyy-MM-dd');
+            const valT2 = exertionByDate.get(strT2) ?? meanExertion;
+
+            row.push(valT1);
+            row.push(valT2);
+            lag1Column.push(valT1);
+            lag2Column.push(valT2);
+
+            // 2. Linear Time Trend (Control for Natural Drift)
+            row.push(index);
 
             X.push(row);
         });
@@ -157,51 +167,46 @@ export function analyzeExperiments(
         if (y.length < 10) return;
 
         // 3. Matrix Cleaning: Remove Constant and Collinear Columns
-        // Identify valid columns (experiments) to include in the regression
         const validExperimentIndices: number[] = [];
         const seenVectors = new Set<string>();
-
-        // Check each experiment's column in X
-        // X[i][j] where j=0 is intercept, j>0 is experiment, j=numExp+1 is exertion
         const numExperiments = experiments.length;
 
+        // Check Experiments (Indices 1 .. numExp)
         for (let j = 0; j < numExperiments; j++) {
-            const colIndex = j + 1; // Skip intercept
+            const colIndex = j + 1;
             const colVector = X.map(row => row[colIndex]);
 
-            // Check Variance: Must have both 0s and 1s
             const hasZeros = colVector.includes(0);
             const hasOnes = colVector.includes(1);
 
-            if (!hasZeros || !hasOnes) {
-                // Constant column (all 0s or all 1s) -> Exclude
-                // (All 1s is collinear with intercept, All 0s has no effect)
-                continue;
-            }
+            if (!hasZeros || !hasOnes) continue; // Constant
 
-            // Check Collinearity: Duplicate vectors
             const vectorKey = colVector.join('');
-            if (seenVectors.has(vectorKey)) {
-                // Perfectly collinear with a previous experiment -> Exclude
-                continue;
-            }
+            if (seenVectors.has(vectorKey)) continue; // Collinear
             seenVectors.add(vectorKey);
 
             validExperimentIndices.push(j);
         }
 
-        // Check if exertion column has variance (not constant)
-        const exertionMin = Math.min(...exertionColumn);
-        const exertionMax = Math.max(...exertionColumn);
-        const includeExertion = exertionMax > exertionMin; // Has variance
+        // Check Variance of Controls
+        const hasLag1Variance = lag1Column.length > 0 &&
+            lag1Column.reduce((a, b) => Math.max(a, b), -Infinity) > lag1Column.reduce((a, b) => Math.min(a, b), Infinity);
 
-        // Rebuild X with only valid columns + Intercept + Exertion (if valid)
-        const exertionColIdx = numExperiments + 1; // Position in original X
+        const hasLag2Variance = lag2Column.length > 0 &&
+            lag2Column.reduce((a, b) => Math.max(a, b), -Infinity) > lag2Column.reduce((a, b) => Math.min(a, b), Infinity);
+
+        // Rebuild XCommon: [Intercept, ValidExperiments..., ValidControls...]
         const XCommon = X.map(row => {
             const newRow = [1, ...validExperimentIndices.map(expIdx => row[expIdx + 1])];
-            if (includeExertion) {
-                newRow.push(row[exertionColIdx]);
-            }
+
+            // Controls (Indices after experiments)
+            // Original Indices: Intercept(0), Exp(1..N), Lag1(N+1), Lag2(N+2), Time(N+3)
+            if (hasLag1Variance) newRow.push(row[numExperiments + 1]);
+            if (hasLag2Variance) newRow.push(row[numExperiments + 2]);
+
+            // Time Trend (Always include, assuming N>1)
+            newRow.push(row[numExperiments + 3]);
+
             return newRow;
         });
 
@@ -286,12 +291,45 @@ export function analyzeExperiments(
             // Two-tailed test: 2 * (1 - tCDF(|t|, df))
             const pValue = 2 * (1 - tDistributionCDF(Math.abs(tStat), df));
 
-            const stats = baselineStats[metric];
-            const std = stats?.std || 1;
-            const mean = stats?.mean || 1;
+            // Calculate Local Baseline (90 days prior to experiment start)
+            // This ensures we compare against the user's "Recent Normal" state, 
+            // accounting for health drift (e.g. recovery or worsening over years).
+            const expStart = parseISO(exp.start_date);
+            const baselineWindowStart = subDays(expStart, 90);
 
-            const zShift = coeff / std;
-            const percentChange = (coeff / mean) * 100;
+            // Extract values in the [T-90, T) window
+            const baselineValues = sortedDays
+                .filter(d => {
+                    const dDate = parseISO(d.date);
+                    // Include dates from baselineWindowStart (inclusive) to expStart (exclusive)
+                    return !isBefore(dDate, baselineWindowStart) && isBefore(dDate, expStart);
+                })
+                .map(d => (d[metric] as number ?? (d.custom_metrics as Record<string, number>)?.[metric]))
+                .filter((v): v is number => typeof v === 'number');
+
+            let mean = 0;
+            let std = 0; // Default to 0 to signal "Insufficient Data" if fallback fails
+
+            if (baselineValues.length >= 5) {
+                mean = calcMean(baselineValues);
+                std = calcStd(baselineValues) || 1;
+            } else {
+                // Fallback: If not enough recent data, use ALL pre-experiment data
+                const allPreData = sortedDays
+                    .filter(d => isBefore(parseISO(d.date), expStart))
+                    .map(d => (d[metric] as number ?? (d.custom_metrics as Record<string, number>)?.[metric]))
+                    .filter((v): v is number => typeof v === 'number');
+
+                if (allPreData.length >= 5) {
+                    mean = calcMean(allPreData);
+                    std = calcStd(allPreData) || 1;
+                }
+            }
+
+            // Guard against division by zero if std is still 0 (insufficient data)
+            const zShift = std > 0 ? (coeff / std) : 0;
+            // Guard against division by zero if mean is 0
+            const percentChange = mean !== 0 ? ((coeff / mean) * 100) : 0;
 
             let significance: 'positive' | 'negative' | 'neutral' = 'neutral';
 
