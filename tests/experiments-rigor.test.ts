@@ -1,4 +1,5 @@
 import { analyzeExperiments, Experiment, MetricDay, tDistributionCDF, normalCDF } from '../lib/statistics/experiment-analysis';
+import { parseISO, subDays, format } from 'date-fns';
 
 describe('Experiments Logic - Scientific Rigor', () => {
     // 21 days of data (Correctly exceeds the 14-day engine guardrail)
@@ -7,7 +8,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
         hrv: i < 11 ? 50 : 60 // Increase starts at Day 12 (index 11 = 2024-01-12)
     }));
 
-    const baselineStats = { hrv: { mean: 55, std: 5 } };
+
 
     const expA: Experiment = {
         id: 'exp-a',
@@ -93,7 +94,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
 
     describe('Engine Integration Tasks', () => {
         it('should calculate more conservative P-values with small N (T-Distribution)', () => {
-            const reports = analyzeExperiments([expA], history, baselineStats);
+            const reports = analyzeExperiments([expA], history);
             const report = reports.find(r => r.experimentId === 'exp-a');
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
@@ -106,7 +107,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
         });
 
         it('should correctly classify Effect Sizes (Cohen d equivalent)', () => {
-            const reports = analyzeExperiments([expA], history, baselineStats);
+            const reports = analyzeExperiments([expA], history);
             const report = reports.find(r => r.experimentId === 'exp-a');
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
@@ -116,17 +117,28 @@ describe('Experiments Logic - Scientific Rigor', () => {
         });
 
         it('should classify a smaller shift as "small" or "medium"', () => {
-            const smallHistory: MetricDay[] = Array.from({ length: 21 }, (_, i) => ({
-                date: `2024-01-${String(i + 1).padStart(2, '0')}`,
-                hrv: i < 11 ? 55 : 57 // Very small increase (2 units, std 5 = 0.4 sigma)
+            // Need larger N to make a small shift (0.4 sigma) statistically significant
+            const N = 200;
+            const split = 100;
+            const smallHistory: MetricDay[] = Array.from({ length: N }, (_, i) => ({
+                date: format(subDays(parseISO('2024-06-01'), N - 1 - i), 'yyyy-MM-dd'),
+                hrv: (i < split ? 55 : 57) + (i % 2 === 0 ? 5 : -5) // Mean 55->57, Std ~5. Shift 0.4 sigma.
             }));
 
-            const reports = analyzeExperiments([expA], smallHistory, { hrv: { mean: 55, std: 5 } });
+            // Experiment starts at the split point
+            const dateAtSplit = smallHistory[split].date;
+            const smallExp: Experiment = {
+                ...expA,
+                start_date: dateAtSplit,
+                end_date: smallHistory[N - 1].date
+            };
+
+            const reports = analyzeExperiments([smallExp], smallHistory);
             const report = reports.find(r => r.experimentId === 'exp-a');
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
-            // Shift is roughly 2/5 = 0.4.
-            // 0.4 is between 0.2 and 0.5, so 'small'
+            // Shift magnitude is "Small" (0.4), but with N=200 it is Significant.
+            expect(impact?.pValue).toBeLessThan(0.05);
             expect(impact?.effectSize).toBe('small');
         });
 
@@ -136,7 +148,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
                 date: `2024-01-${String(i + 1).padStart(2, '0')}`,
                 hrv: 50 // Constant HRV
             }));
-            const reports = analyzeExperiments([neutralExp], neutralHistory, baselineStats);
+            const reports = analyzeExperiments([neutralExp], neutralHistory);
 
             const report = reports.find(r => r.experimentId === 'exp-a');
             expect(report).toBeDefined();
@@ -148,7 +160,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
         });
 
         it('should handle metrics missing from baselineStats gracefully', () => {
-            const reports = analyzeExperiments([expA], history, {}); // Empty baselineStats
+            const reports = analyzeExperiments([expA], history);
             const report = reports.find(r => r.experimentId === 'exp-a');
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
@@ -166,7 +178,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
                 category: 'supplement'
             };
 
-            const reports = analyzeExperiments([expA, expB], history, baselineStats);
+            const reports = analyzeExperiments([expA, expB], history);
             expect(reports).toHaveLength(2);
             expect(reports[0].experimentId).toBe('exp-a');
             expect(reports[1].experimentId).toBe('exp-b');
@@ -181,7 +193,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
                 }
             }));
 
-            const reports = analyzeExperiments([expA], customHistory, { "Fatigue": { mean: 6, std: 2 } });
+            const reports = analyzeExperiments([expA], customHistory);
             const impact = reports[0].impacts.find(i => i.metric === 'Fatigue');
 
             expect(impact).toBeDefined();
@@ -195,7 +207,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
                 hrv: (i < 11 ? 55 : 55.2) + (Math.sin(i) * 2)
             }));
 
-            const reports = analyzeExperiments([expA], tinyHistory, { hrv: { mean: 55, std: 5 } });
+            const reports = analyzeExperiments([expA], tinyHistory);
             const impact = reports[0].impacts.find(i => i.metric === 'hrv');
 
             expect(impact?.effectSize).toBe('not_significant');
@@ -204,14 +216,14 @@ describe('Experiments Logic - Scientific Rigor', () => {
 
         it('should early return an empty array if history.length < 14', () => {
             const shortHistory = history.slice(0, 10);
-            const reports = analyzeExperiments([expA], shortHistory, baselineStats);
+            const reports = analyzeExperiments([expA], shortHistory);
             expect(reports).toHaveLength(0);
         });
 
         it('should handle collinear experiments via matrix cleaning', () => {
             const expDuplicate: Experiment = { ...expA, id: 'exp-duplicate' };
             // analyzeExperiments usually filters or cleans duplicate patterns to prevent SINGULAR matrix errors
-            const reports = analyzeExperiments([expA, expDuplicate], history, baselineStats);
+            const reports = analyzeExperiments([expA, expDuplicate], history);
 
             // It should still return reports but likely one of them is ignored or marked neutral/error in older logic, 
             // but the engine is designed to not crash.
@@ -242,8 +254,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
 
             const reports = analyzeExperiments(
                 [expA], // Medication starts day 12 (index 11)
-                confoundingHistory,
-                { Fatigue: { mean: 8, std: 2 } }
+                confoundingHistory
             );
 
             const impact = reports[0]?.impacts.find(i => i.metric === 'Fatigue');

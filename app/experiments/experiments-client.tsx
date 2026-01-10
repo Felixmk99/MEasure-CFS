@@ -79,39 +79,12 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
         }));
     }, [history, exertionPreference]);
 
-    // 2. Calculate Baseline Stats
-    const baselineStats = useMemo(() => {
-        if (!enhancedHistory || enhancedHistory.length === 0) return {};
 
-        const stats: Record<string, { mean: number, std: number }> = {};
-
-        // Discover all numeric keys
-        const allKeys = new Set<string>();
-        enhancedHistory.forEach(d => {
-            Object.keys(d).forEach(k => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                if (typeof (d as any)[k] === 'number') allKeys.add(k);
-            });
-            if (d.custom_metrics) Object.keys(d.custom_metrics).forEach(k => allKeys.add(k));
-        });
-
-        allKeys.forEach(k => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const values = enhancedHistory.map(d => (d as any)[k] ?? d.custom_metrics?.[k]).filter((v: any) => typeof v === 'number') as number[];
-
-            if (values.length > 0) {
-                // Use std=1 fallback for constant metrics to avoid division by zero in z-score calculations
-                stats[k] = { mean: mean(values), std: standardDeviation(values) || 1 };
-            }
-        });
-
-        return stats;
-    }, [enhancedHistory]);
 
     // 3. Run Analysis
     const analysisResults = useMemo(() => {
-        return analyzeExperiments(experiments, enhancedHistory, baselineStats);
-    }, [experiments, enhancedHistory, baselineStats]);
+        return analyzeExperiments(experiments, enhancedHistory);
+    }, [experiments, enhancedHistory]);
 
     // Extract available metrics for filtering
     const availableMetrics = useMemo(() => {

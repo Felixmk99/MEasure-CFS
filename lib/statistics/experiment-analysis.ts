@@ -1,6 +1,7 @@
-import { parseISO, isWithinInterval, subDays, format } from "date-fns";
+import { parseISO, isWithinInterval, subDays, format, isAfter, isBefore } from "date-fns";
 import { EXERTION_METRICS } from "@/lib/scoring/logic";
 import { getMetricRegistryConfig } from "@/lib/metrics/registry";
+import { mean as calcMean, standardDeviation as calcStd } from "simple-statistics";
 
 export interface Experiment {
     id: string;
@@ -43,8 +44,7 @@ export interface ExperimentReport {
  */
 export function analyzeExperiments(
     experiments: Experiment[],
-    history: MetricDay[],
-    baselineStats: Record<string, { mean: number, std: number }>
+    history: MetricDay[]
 ): ExperimentReport[] {
     // 1. Dynamic Metric Discovery
     const excludedKeys = [
@@ -286,9 +286,40 @@ export function analyzeExperiments(
             // Two-tailed test: 2 * (1 - tCDF(|t|, df))
             const pValue = 2 * (1 - tDistributionCDF(Math.abs(tStat), df));
 
-            const stats = baselineStats[metric];
-            const std = stats?.std || 1;
-            const mean = stats?.mean || 1;
+            // Calculate Local Baseline (90 days prior to experiment start)
+            // This ensures we compare against the user's "Recent Normal" state, 
+            // accounting for health drift (e.g. recovery or worsening over years).
+            const expStart = parseISO(exp.start_date);
+            const baselineWindowStart = subDays(expStart, 90);
+
+            // Extract values in the [T-90, T) window
+            const baselineValues = sortedDays
+                .filter(d => {
+                    const dDate = parseISO(d.date);
+                    return isAfter(dDate, subDays(baselineWindowStart, 1)) && isBefore(dDate, expStart);
+                })
+                .map(d => (d[metric] as number ?? (d.custom_metrics as Record<string, number>)?.[metric]))
+                .filter((v): v is number => typeof v === 'number');
+
+            let mean = 1;
+            let std = 1;
+
+            if (baselineValues.length >= 5) {
+                mean = calcMean(baselineValues);
+                std = calcStd(baselineValues);
+            } else {
+                // Fallback: If not enough recent data, use ALL pre-experiment data
+                const allPreData = sortedDays
+                    .filter(d => isBefore(parseISO(d.date), expStart))
+                    .map(d => (d[metric] as number ?? (d.custom_metrics as Record<string, number>)?.[metric]))
+                    .filter((v): v is number => typeof v === 'number');
+
+                if (allPreData.length >= 5) {
+                    mean = calcMean(allPreData);
+                    std = calcStd(allPreData);
+                }
+                // If still not enough data, default to 1 (prevents division by zero/infinity)
+            }
 
             const zShift = coeff / std;
             const percentChange = (coeff / mean) * 100;
