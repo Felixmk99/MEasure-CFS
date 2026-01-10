@@ -188,7 +188,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
             expect(impact?.percentChange).toBeLessThan(0); // Lowering is improvement for symptoms
         });
 
-        it('should classify as not_significant when pValue >= 0.15', () => {
+        it('should classify as not_significant when pValue >= 0.05', () => {
             const tinyHistory: MetricDay[] = Array.from({ length: 21 }, (_, i) => ({
                 date: `2024-01-${String(i + 1).padStart(2, '0')}`,
                 // Add significant noise but small mean difference
@@ -217,6 +217,45 @@ describe('Experiments Logic - Scientific Rigor', () => {
             // but the engine is designed to not crash.
             expect(reports).toBeDefined();
             expect(reports.length).toBeLessThanOrEqual(2);
+        });
+
+        it('should control for exertion_score and isolate medication effect', () => {
+            // Scenario: Symptoms correlate with PREVIOUS day's exertion (t-1 lag model).
+            // Medication starts day 12, but exertion varies throughout.
+            // The regression should attribute symptom variance to lagged exertion, not medication.
+
+            // Create realistic data: exertion varies, symptoms follow exertion with 1-day lag
+            const exertionPattern = [3, 2, 5, 3, 4, 2, 8, 4, 3, 5, // Pre-medication: some high days
+                10, 12, 14, 11, 13, 10, 12, 11, 13, 10, 14]; // High during med
+
+            const confoundingHistory: MetricDay[] = Array.from({ length: 21 }, (_, i) => {
+                // Symptoms follow previous day's exertion (index i uses exertion from i-1)
+                const prevExertion = i > 0 ? exertionPattern[i - 1] : 3;
+                const fatigue = 5 + prevExertion * 0.5; // Linear relationship with lagged exertion
+
+                return {
+                    date: `2024-01-${String(i + 1).padStart(2, '0')}`,
+                    custom_metrics: { Fatigue: fatigue },
+                    exertion_score: exertionPattern[i]
+                };
+            });
+
+            const reports = analyzeExperiments(
+                [expA], // Medication starts day 12 (index 11)
+                confoundingHistory,
+                { Fatigue: { mean: 8, std: 2 } }
+            );
+
+            const impact = reports[0]?.impacts.find(i => i.metric === 'Fatigue');
+
+            // With proper exertion control:
+            // The medication coefficient should be near-zero because symptoms are entirely
+            // explained by the t-1 lagged exertion relationship.
+            expect(impact).toBeDefined();
+
+            // Medication effect should be essentially neutral (< 2 point impact)
+            expect(impact!.coefficient).toBeGreaterThan(-2);
+            expect(impact!.coefficient).toBeLessThan(2);
         });
     });
 });

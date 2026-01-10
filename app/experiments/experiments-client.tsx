@@ -534,8 +534,8 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                     let lifestyleScore = 0
 
                                     analysis.impacts.forEach(i => {
-                                        // Only consider significant results or likely trends (p < 0.15)
-                                        if (i.pValue >= 0.15) return;
+                                        // Only consider significant results (p < 0.05)
+                                        if (i.pValue >= 0.05) return;
 
                                         const val = i.significance === 'positive' ? 1 : i.significance === 'negative' ? -1 : 0
                                         if (bioMetrics.includes(i.metric)) {
@@ -577,7 +577,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
 
                                                 {/* Model Confidence Bar (Mini) */}
                                                 {(() => {
-                                                    const relevantImpacts = analysis?.impacts.filter(i => i.pValue < 0.15) || [];
+                                                    const relevantImpacts = analysis?.impacts.filter(i => i.pValue < 0.05) || [];
                                                     const confidence = relevantImpacts.length > 0
                                                         ? relevantImpacts.reduce((acc, i) => acc + (i.confidence || 0), 0) / relevantImpacts.length
                                                         : 0;

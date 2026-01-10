@@ -433,7 +433,7 @@ export const de: Dictionary = {
             trend: "Trend",
             statistical_profile: "Statistisches Profil",
             p_value: "P-Value",
-            z_score_label: "Z-Score",
+            z_score_label: "T-Statistik",
             effect_size_label: "Effektstärke (d)",
             deg_freedom: "Freiheitsgrade",
             effect_sizes: {

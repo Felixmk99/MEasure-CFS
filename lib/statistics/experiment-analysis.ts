@@ -1,4 +1,4 @@
-import { parseISO, isWithinInterval } from "date-fns";
+import { parseISO, isWithinInterval, subDays, format } from "date-fns";
 import { EXERTION_METRICS } from "@/lib/scoring/logic";
 import { getMetricRegistryConfig } from "@/lib/metrics/registry";
 
@@ -27,6 +27,7 @@ export interface ExperimentImpact {
     significance: 'positive' | 'negative' | 'neutral';
     confidence: number; // Statistical confidence (e.g. 1 - pValue)
     effectSize?: 'not_significant' | 'small' | 'medium' | 'large';
+    tStat?: number;
     df?: number;
 }
 
@@ -83,6 +84,26 @@ export function analyzeExperiments(
     const validDays = history.filter(d => d.date);
     if (validDays.length < 14) return [];
 
+    // Sort days by date for proper lag calculation
+    const sortedDays = [...validDays].sort((a, b) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    // Build a map of date -> exertion for lag lookup
+    const exertionByDate = new Map<string, number>();
+    sortedDays.forEach(d => {
+        const val = d.exertion_score as number | undefined;
+        if (typeof val === 'number' && !isNaN(val)) {
+            exertionByDate.set(d.date, val);
+        }
+    });
+
+    // Compute mean exertion for imputation of missing values
+    const exertionValues = Array.from(exertionByDate.values());
+    const meanExertion = exertionValues.length > 0
+        ? exertionValues.reduce((a, b) => a + b, 0) / exertionValues.length
+        : 0;
+
     const reports: ExperimentReport[] = experiments.map(e => ({
         experimentId: e.id,
         impacts: []
@@ -91,14 +112,15 @@ export function analyzeExperiments(
     metricsToAnalyze.forEach(metric => {
         const y: number[] = [];
         const X: number[][] = [];
+        const exertionColumn: number[] = []; // Track exertion separately for collinearity check
 
-        validDays.forEach(day => {
+        sortedDays.forEach(day => {
             // Check top-level, then custom_metrics
             const val = (day[metric] as number ?? (day.custom_metrics as Record<string, number>)?.[metric]);
             if (val === null || val === undefined || typeof val !== 'number') return;
 
             y.push(val);
-            const row = [1];
+            const row = [1]; // Intercept
             experiments.forEach(exp => {
                 const dayDate = parseISO(day.date);
                 const start = parseISO(exp.start_date);
@@ -107,6 +129,17 @@ export function analyzeExperiments(
                 const isActive = isWithinInterval(dayDate, { start, end });
                 row.push(isActive ? 1 : 0);
             });
+
+            // Add LAGGED exertion score (t-1) as control variable for PEM delay
+            // Use date-fns for consistent date handling
+            const prevDate = subDays(parseISO(day.date), 1);
+            const prevDateStr = format(prevDate, 'yyyy-MM-dd');
+
+            // Look up previous day's exertion, impute with mean if missing
+            const laggedExertion = exertionByDate.get(prevDateStr) ?? meanExertion;
+            row.push(laggedExertion);
+            exertionColumn.push(laggedExertion);
+
             X.push(row);
         });
 
@@ -118,7 +151,7 @@ export function analyzeExperiments(
         const seenVectors = new Set<string>();
 
         // Check each experiment's column in X
-        // X[i][j] where j=0 is intercept, j>0 is experiment
+        // X[i][j] where j=0 is intercept, j>0 is experiment, j=numExp+1 is exertion
         const numExperiments = experiments.length;
 
         for (let j = 0; j < numExperiments; j++) {
@@ -146,23 +179,82 @@ export function analyzeExperiments(
             validExperimentIndices.push(j);
         }
 
-        // Rebuild X with only valid columns + Intercept
+        // Check if exertion column has variance (not constant)
+        const exertionMin = Math.min(...exertionColumn);
+        const exertionMax = Math.max(...exertionColumn);
+        const includeExertion = exertionMax > exertionMin; // Has variance
+
+        // Rebuild X with only valid columns + Intercept + Exertion (if valid)
+        const exertionColIdx = numExperiments + 1; // Position in original X
         const XCommon = X.map(row => {
-            return [1, ...validExperimentIndices.map(expIdx => row[expIdx + 1])];
+            const newRow = [1, ...validExperimentIndices.map(expIdx => row[expIdx + 1])];
+            if (includeExertion) {
+                newRow.push(row[exertionColIdx]);
+            }
+            return newRow;
         });
 
         const regression = solveOLS(XCommon, y);
         if (!regression) return;
 
-        const { betas, XTXInv, rss } = regression;
+        const { betas, XTXInv } = regression;
         const n = y.length;
         const k = betas.length;
         const df = n - k; // Degrees of freedom
 
         if (df <= 0) return;
 
-        // Variance of residuals: sigma^2 = RSS / (n - k)
-        const sigmaSq = rss / df;
+        // Compute residuals for Newey-West correction
+        const residuals: number[] = [];
+        for (let i = 0; i < n; i++) {
+            let pred = 0;
+            for (let j = 0; j < k; j++) {
+                pred += XCommon[i][j] * betas[j];
+            }
+            residuals.push(y[i] - pred);
+        }
+
+        // Newey-West HAC (Heteroskedasticity and Autocorrelation Consistent) Standard Errors
+        // Bandwidth: Commonly floor(4 * (n/100)^(2/9)) but we use ceil(n^(1/4)) for simplicity
+        const bandwidth = Math.ceil(Math.pow(n, 0.25));
+
+        // Compute the "meat" of the sandwich estimator
+        // S = sum_t (x_t * u_t * u_t * x_t') + sum_l=1..L sum_t (1 - l/(L+1)) * (x_t * u_t * u_{t-l} * x_{t-l}' + x_{t-l} * u_{t-l} * u_t * x_t')
+        const meat: number[][] = Array(k).fill(0).map(() => Array(k).fill(0));
+
+        // Contribution from same-period (heteroskedasticity)
+        for (let t = 0; t < n; t++) {
+            for (let i = 0; i < k; i++) {
+                for (let j = 0; j < k; j++) {
+                    meat[i][j] += XCommon[t][i] * XCommon[t][j] * residuals[t] * residuals[t];
+                }
+            }
+        }
+
+        // Contribution from lagged periods (autocorrelation) with Bartlett kernel
+        for (let lag = 1; lag <= bandwidth; lag++) {
+            const weight = 1 - lag / (bandwidth + 1);
+            for (let t = lag; t < n; t++) {
+                const ut = residuals[t];
+                const utLag = residuals[t - lag];
+                for (let i = 0; i < k; i++) {
+                    for (let j = 0; j < k; j++) {
+                        // Symmetric contribution
+                        const contrib = weight * (XCommon[t][i] * ut * utLag * XCommon[t - lag][j] +
+                            XCommon[t - lag][i] * utLag * ut * XCommon[t][j]);
+                        meat[i][j] += contrib;
+                    }
+                }
+            }
+        }
+
+        // Sandwich formula: V = (X'X)^-1 * Meat * (X'X)^-1
+        const sandwichLeft = multiply(XTXInv, meat);
+        const sandwichV = multiply(sandwichLeft, XTXInv);
+
+        // Small Sample Correction (HC1/HAC1): Scale by n / (n - k)
+        // This is crucial for small datasets (N < 50) to avoid underestimating variance (inflation of significance).
+        const smallSampleCorrection = n / (n - k);
 
         // Map results back to ORIGINAL Experiment IDs
         validExperimentIndices.forEach((originalExpIndex, mappedIndex) => {
@@ -172,8 +264,9 @@ export function analyzeExperiments(
             const betaIndex = mappedIndex + 1;
             const coeff = betas[betaIndex];
 
-            // Standard Error: sqrt(sigma^2 * XTXInv[j][j])
-            const se = Math.sqrt(sigmaSq * XTXInv[betaIndex][betaIndex]);
+            // Newey-West Robust Standard Error with Small Sample Correction
+            const robustVariance = Math.max(0, sandwichV[betaIndex][betaIndex]) * smallSampleCorrection;
+            const se = Math.sqrt(robustVariance);
 
             // T-Statistic
             const tStat = coeff / (se || 1e-10);
@@ -199,8 +292,8 @@ export function analyzeExperiments(
 
             // Aligned Significance Thresholds:
             // High Confidence: p < 0.05
-            // Likely Trend: p < 0.15
-            if (pValue < 0.15) {
+            // Only show significant results (no weak trends)
+            if (pValue < 0.05) {
                 significance = isGood ? 'positive' : 'negative';
             }
 
@@ -226,6 +319,7 @@ export function analyzeExperiments(
                     significance,
                     confidence: 1 - pValue,
                     effectSize,
+                    tStat,
                     df
                 });
             }
@@ -238,9 +332,9 @@ export function analyzeExperiments(
 /**
  * Basic Matrix OLS Solver
  * Uses the Normal Equation: (X^T * X)^-1 * X^T * y
- * Returns coefficients, (X'X)^-1 (for SE), and RSS (for Variance).
+ * Returns coefficients and (X'X)^-1 for standard error calculation.
  */
-function solveOLS(X: number[][], y: number[]): { betas: number[], XTXInv: number[][], rss: number } | null {
+function solveOLS(X: number[][], y: number[]): { betas: number[], XTXInv: number[][] } | null {
     try {
         const XT = transpose(X);
         const XTX = multiply(XT, X);
@@ -250,17 +344,7 @@ function solveOLS(X: number[][], y: number[]): { betas: number[], XTXInv: number
         const XTy = multiplyVec(XT, y);
         const betas = multiplyVec(XTXInv, XTy);
 
-        // Calculate RSS: sum of (y - X*beta)^2
-        let rss = 0;
-        for (let i = 0; i < y.length; i++) {
-            let pred = 0;
-            for (let j = 0; j < betas.length; j++) {
-                pred += X[i][j] * betas[j];
-            }
-            rss += Math.pow(y[i] - pred, 2);
-        }
-
-        return { betas, XTXInv, rss };
+        return { betas, XTXInv };
     } catch {
         return null;
     }

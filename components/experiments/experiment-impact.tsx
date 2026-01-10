@@ -37,8 +37,8 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
         )
     }
 
-    // 1. Filter: Only show significant or likely trends (p < 0.15)
-    const relevantImpacts = impacts.filter(i => i.pValue < 0.15);
+    // 1. Filter: Only show significant results (p < 0.05)
+    const relevantImpacts = impacts.filter(i => i.pValue < 0.05);
 
     if (relevantImpacts.length === 0) {
         return (
@@ -124,7 +124,7 @@ export function ExperimentImpactResults({ impacts }: ExperimentImpactProps) {
                                                     <span className="text-muted-foreground font-medium">{t('experiments.impact.p_value')}:</span>
                                                     <span className="font-mono font-bold text-right">{impact.pValue.toFixed(4)}</span>
                                                     <span className="text-muted-foreground font-medium">{t('experiments.impact.z_score_label')}:</span>
-                                                    <span className="font-mono font-bold text-right">{impact.zScoreShift.toFixed(2)}</span>
+                                                    <span className="font-mono font-bold text-right">{impact.tStat?.toFixed(2) ?? 'N/A'}</span>
                                                     <span className="text-muted-foreground font-medium">{t('experiments.impact.deg_freedom')}:</span>
                                                     <span className="font-mono font-bold text-right">{impact.df || 'N/A'}</span>
                                                 </div>
