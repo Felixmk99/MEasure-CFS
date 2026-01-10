@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 // import { Database } from "@/types/database.types"
 import { enhanceDataWithScore, ExertionPreference } from "@/lib/scoring/composite-score"
-import { mean, standardDeviation } from 'simple-statistics';
+
 import { analyzeExperiments, Experiment, MetricDay } from "@/lib/statistics/experiment-analysis"
 import { ExperimentImpactResults } from "@/components/experiments/experiment-impact"
 import { useLanguage } from "@/components/providers/language-provider"

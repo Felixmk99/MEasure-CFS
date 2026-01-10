@@ -306,7 +306,7 @@ export function analyzeExperiments(
 
             if (baselineValues.length >= 5) {
                 mean = calcMean(baselineValues);
-                std = calcStd(baselineValues);
+                std = calcStd(baselineValues) || 1;
             } else {
                 // Fallback: If not enough recent data, use ALL pre-experiment data
                 const allPreData = sortedDays
@@ -316,7 +316,7 @@ export function analyzeExperiments(
 
                 if (allPreData.length >= 5) {
                     mean = calcMean(allPreData);
-                    std = calcStd(allPreData);
+                    std = calcStd(allPreData) || 1;
                 }
                 // If still not enough data, default to 1 (prevents division by zero/infinity)
             }

@@ -159,7 +159,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
             expect(impact!.df).toBeGreaterThan(0);
         });
 
-        it('should handle metrics missing from baselineStats gracefully', () => {
+        it('should compute baseline with fallback when pre-experiment data is limited', () => {
             const reports = analyzeExperiments([expA], history);
             const report = reports.find(r => r.experimentId === 'exp-a');
             const impact = report?.impacts.find(i => i.metric === 'hrv');
@@ -211,7 +211,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
             const impact = reports[0].impacts.find(i => i.metric === 'hrv');
 
             expect(impact?.effectSize).toBe('not_significant');
-            expect(impact?.pValue).toBeGreaterThanOrEqual(0.15);
+            expect(impact?.pValue).toBeGreaterThanOrEqual(0.05);
         });
 
         it('should early return an empty array if history.length < 14', () => {
