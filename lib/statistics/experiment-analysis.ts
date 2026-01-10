@@ -123,9 +123,13 @@ export function analyzeExperiments(
     metricsToAnalyze.forEach(metric => {
         const y: number[] = [];
         const X: number[][] = [];
-        const exertionColumn: number[] = []; // Track exertion separately for collinearity check
 
-        sortedDays.forEach(day => {
+        // Control Columns to track for variance check
+        const lag1Column: number[] = [];
+        const lag2Column: number[] = [];
+        // Time is strictly increasing [0, 1, 2...], so variance is guaranteed if N > 1
+
+        sortedDays.forEach((day, index) => {
             // Check top-level, then custom_metrics
             const val = (day[metric] as number ?? (day.custom_metrics as Record<string, number>)?.[metric]);
             if (val === null || val === undefined || typeof val !== 'number') return;
@@ -141,15 +145,24 @@ export function analyzeExperiments(
                 row.push(isActive ? 1 : 0);
             });
 
-            // Add LAGGED exertion score (t-1) as control variable for PEM delay
-            // Use date-fns for consistent date handling
-            const prevDate = subDays(parseISO(day.date), 1);
-            const prevDateStr = format(prevDate, 'yyyy-MM-dd');
+            // 1. Lagged Exertion (PEM) Control
+            // T-1 (Yesterday): Immediate Crash
+            const dateT1 = subDays(parseISO(day.date), 1);
+            const strT1 = format(dateT1, 'yyyy-MM-dd');
+            const valT1 = exertionByDate.get(strT1) ?? meanExertion;
 
-            // Look up previous day's exertion, impute with mean if missing
-            const laggedExertion = exertionByDate.get(prevDateStr) ?? meanExertion;
-            row.push(laggedExertion);
-            exertionColumn.push(laggedExertion);
+            // T-2 (2 Days Ago): Delayed Crash (Peak PEM)
+            const dateT2 = subDays(parseISO(day.date), 2);
+            const strT2 = format(dateT2, 'yyyy-MM-dd');
+            const valT2 = exertionByDate.get(strT2) ?? meanExertion;
+
+            row.push(valT1);
+            row.push(valT2);
+            lag1Column.push(valT1);
+            lag2Column.push(valT2);
+
+            // 2. Linear Time Trend (Control for Natural Drift)
+            row.push(index);
 
             X.push(row);
         });
@@ -157,51 +170,43 @@ export function analyzeExperiments(
         if (y.length < 10) return;
 
         // 3. Matrix Cleaning: Remove Constant and Collinear Columns
-        // Identify valid columns (experiments) to include in the regression
         const validExperimentIndices: number[] = [];
         const seenVectors = new Set<string>();
-
-        // Check each experiment's column in X
-        // X[i][j] where j=0 is intercept, j>0 is experiment, j=numExp+1 is exertion
         const numExperiments = experiments.length;
 
+        // Check Experiments (Indices 1 .. numExp)
         for (let j = 0; j < numExperiments; j++) {
-            const colIndex = j + 1; // Skip intercept
+            const colIndex = j + 1;
             const colVector = X.map(row => row[colIndex]);
 
-            // Check Variance: Must have both 0s and 1s
             const hasZeros = colVector.includes(0);
             const hasOnes = colVector.includes(1);
 
-            if (!hasZeros || !hasOnes) {
-                // Constant column (all 0s or all 1s) -> Exclude
-                // (All 1s is collinear with intercept, All 0s has no effect)
-                continue;
-            }
+            if (!hasZeros || !hasOnes) continue; // Constant
 
-            // Check Collinearity: Duplicate vectors
             const vectorKey = colVector.join('');
-            if (seenVectors.has(vectorKey)) {
-                // Perfectly collinear with a previous experiment -> Exclude
-                continue;
-            }
+            if (seenVectors.has(vectorKey)) continue; // Collinear
             seenVectors.add(vectorKey);
 
             validExperimentIndices.push(j);
         }
 
-        // Check if exertion column has variance (not constant)
-        const exertionMin = Math.min(...exertionColumn);
-        const exertionMax = Math.max(...exertionColumn);
-        const includeExertion = exertionMax > exertionMin; // Has variance
+        // Check Variance of Controls
+        const hasLag1Variance = Math.max(...lag1Column) > Math.min(...lag1Column);
+        const hasLag2Variance = Math.max(...lag2Column) > Math.min(...lag2Column);
 
-        // Rebuild X with only valid columns + Intercept + Exertion (if valid)
-        const exertionColIdx = numExperiments + 1; // Position in original X
+        // Rebuild XCommon: [Intercept, ValidExperiments..., ValidControls...]
         const XCommon = X.map(row => {
             const newRow = [1, ...validExperimentIndices.map(expIdx => row[expIdx + 1])];
-            if (includeExertion) {
-                newRow.push(row[exertionColIdx]);
-            }
+
+            // Controls (Indices after experiments)
+            // Original Indices: Intercept(0), Exp(1..N), Lag1(N+1), Lag2(N+2), Time(N+3)
+            if (hasLag1Variance) newRow.push(row[numExperiments + 1]);
+            if (hasLag2Variance) newRow.push(row[numExperiments + 2]);
+
+            // Time Trend (Always include, assuming N>1)
+            newRow.push(row[numExperiments + 3]);
+
             return newRow;
         });
 

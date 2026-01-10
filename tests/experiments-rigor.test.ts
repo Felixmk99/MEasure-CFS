@@ -99,7 +99,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
             expect(impact).toBeDefined();
-            expect(impact?.df).toBe(19); // 21 days - 2 coefficients (intercept + exp)
+            expect(impact?.df).toBe(18); // 21 days - 3 coefficients (intercept + exp + time)
 
             // With large shift and df=19, expect high significance (p < 0.001)
             expect(impact?.pValue).toBeGreaterThanOrEqual(0);
