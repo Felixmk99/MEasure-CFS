@@ -9,10 +9,7 @@ describe('Experiments Logic - Metric Directionality', () => {
         Energy: i < 15 ? 3 : 8   // Energy INCREASES (Good)
     }));
 
-    const baselineStats = {
-        Fatigue: { mean: 5, std: 2 },
-        Energy: { mean: 5, std: 2 }
-    };
+
 
     const expA: Experiment = {
         id: 'exp-a',

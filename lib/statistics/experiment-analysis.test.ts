@@ -31,7 +31,7 @@ describe('analyzeExperiments (Multivariate OLS)', () => {
             { id: 'B', name: 'Exp B', dosage: null, start_date: '2023-01-31', end_date: '2023-02-20', category: 'med' }
         ]
 
-        const baselineStats = { hrv: { mean: 50, std: 5 } }
+
 
         const reports = analyzeExperiments(experiments, history)
 

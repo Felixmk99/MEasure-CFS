@@ -8,7 +8,7 @@ describe('Experiments Logic - Regression Robustness', () => {
         hrv: i < 15 ? 50 : 80 // Jump at day 15
     }));
 
-    const baselineStats = { hrv: { mean: 65, std: 15 } };
+
 
     const expA: Experiment = {
         id: 'exp-a',

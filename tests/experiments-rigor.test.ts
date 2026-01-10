@@ -1,5 +1,5 @@
 import { analyzeExperiments, Experiment, MetricDay, tDistributionCDF, normalCDF } from '../lib/statistics/experiment-analysis';
-import { parseISO, subDays, format } from 'date-fns';
+
 
 describe('Experiments Logic - Scientific Rigor', () => {
     // 21 days of data (Correctly exceeds the 14-day engine guardrail)
@@ -150,7 +150,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
             // Add the shift (0.4 sigma = 0.8 units since std=2)
             history.forEach(d => {
                 if (d.date >= expStart && d.date <= expEnd) {
-                    (d as any).hrv += 0.8;
+                    (d as { hrv: number }).hrv += 0.8;
                 }
             });
 
