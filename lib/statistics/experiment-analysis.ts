@@ -34,6 +34,7 @@ export interface ExperimentImpact {
 export interface ExperimentReport {
     experimentId: string;
     impacts: ExperimentImpact[];
+    daysWithData?: number;
 }
 
 /**
@@ -104,10 +105,20 @@ export function analyzeExperiments(
         ? exertionValues.reduce((a, b) => a + b, 0) / exertionValues.length
         : 0;
 
-    const reports: ExperimentReport[] = experiments.map(e => ({
-        experimentId: e.id,
-        impacts: []
-    }));
+    const reports: ExperimentReport[] = experiments.map(e => {
+        const start = parseISO(e.start_date);
+        const end = e.end_date ? parseISO(e.end_date) : new Date();
+        const daysWithData = sortedDays.filter(day => {
+            const dayDate = parseISO(day.date);
+            return isWithinInterval(dayDate, { start, end });
+        }).length;
+
+        return {
+            experimentId: e.id,
+            daysWithData,
+            impacts: []
+        };
+    });
 
     metricsToAnalyze.forEach(metric => {
         const y: number[] = [];

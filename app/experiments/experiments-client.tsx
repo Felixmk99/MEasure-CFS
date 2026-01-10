@@ -442,6 +442,9 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                                         <div className="bg-[#60A5FA]/10 text-[#3B82F6] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide whitespace-nowrap">
                                                             <div className="w-1.5 h-1.5 bg-[#60A5FA] rounded-full animate-pulse shrink-0" />
                                                             {t('experiments.active.day')} {daysActive}
+                                                            <span className="opacity-70 font-medium ml-1">
+                                                                {t('experiments.active.data_days', { days: analysis?.daysWithData ?? 0 })}
+                                                            </span>
                                                         </div>
                                                         {exp.dosage && (
                                                             <Badge variant="outline" className="text-[10px] font-bold border-zinc-200 uppercase">{exp.dosage}</Badge>

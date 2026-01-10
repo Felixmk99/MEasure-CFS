@@ -257,7 +257,7 @@ export default function DataManagementClient({ initialData, hasData: initialHasD
                                     onClick={() => setShowUpload(false)}
                                 >
                                     <ChevronUp className="w-4 h-4 mr-1" />
-                                    {t('upload.data_log.hide_import')}
+                                    {t('upload.hide_import')}
                                 </Button>
                             </div>
                         )}

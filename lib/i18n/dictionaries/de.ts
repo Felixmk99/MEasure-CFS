@@ -398,6 +398,7 @@ export const de: Dictionary = {
         active: {
             title: "Aktuell aktiv",
             day: "Aktiv • Tag",
+            data_days: " (Daten: {days} Tage)",
             confidence: "Modell-Konfidenz",
             overall_confidence: "Gesamt-Confidence",
             confidence_hint: "Benötigt ~30 Tage für volle Genauigkeit.",
@@ -452,6 +453,7 @@ export const de: Dictionary = {
         description_data: "Lade neue Dateien hoch, um Daten hinzuzufügen oder bestehende Einträge zu verwalten.",
         private_badge: "Private & lokale Verarbeitung",
         trust_badge: "Deine Gesundheitsdaten werden zu 100 % lokal in deinem Browser verarbeitet.",
+        hide_import: "Import-Tools ausblenden",
         tabs: {
             visible: "Visible App (CSV)",
             bearable: "Bearable App (CSV)",
@@ -507,7 +509,6 @@ export const de: Dictionary = {
             delete_entry_confirm: "Bist du sicher, dass du diesen Eintrag löschen möchtest?",
             provider_coming_soon: "Anbieter folgt bald",
             provider_built_hint: "Integrationen für {provider} werden derzeit entwickelt. Ändere deinen Anbieter in den Einstellungen, falls du einen anderen verwenden möchtest.",
-            hide_import: "Import-Tools ausblenden"
         },
         data_log: {
             title: "Datenprotokoll",
