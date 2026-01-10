@@ -30,6 +30,7 @@ const REGISTRY: Record<string, Omit<MetricConfig, 'key'>> = {
     'adjusted_score': { direction: 'lower', unit: '', color: '#3B82F6' },
     'symptom_score': { direction: 'lower', unit: '', color: '#F59E0B' },
     'exertion_score': { direction: 'lower', unit: '', color: '#10B981' },
+    'stability_score': { direction: 'higher', unit: '', color: '#10B981' },
 
     // Specific Symptoms: Lower is Better
     'sleep': { direction: 'lower', unit: '', color: '#6366F1' },
