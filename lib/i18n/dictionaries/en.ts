@@ -19,7 +19,7 @@ export const en: Dictionary = {
             exertion_score: "Total Exertion",
             composite_score: "Symptom Score",
             adjusted_score: "MEasure-CFS Score",
-            sleep: "Sleep",
+            sleep: "Sleep problems",
             fatigue: "Fatigue",
             anxiety: "Anxiety",
             cognitive: "Cognitive",
@@ -398,6 +398,7 @@ export const en: Dictionary = {
         active: {
             title: "Currently Active",
             day: "Active • Day",
+            data_days: " (Data: {days}d)",
             confidence: "Model Confidence",
             overall_confidence: "Overall Confidence",
             confidence_hint: "Requires ~30 days for full accuracy.",
@@ -433,7 +434,7 @@ export const en: Dictionary = {
             trend: "Trend",
             statistical_profile: "Statistical Profile",
             p_value: "P-Value",
-            z_score_label: "Z-Score",
+            z_score_label: "T-Statistic",
             effect_size_label: "Effect Size (d)",
             deg_freedom: "Deg. Freedom",
             effect_sizes: {
@@ -507,8 +508,9 @@ export const en: Dictionary = {
             delete_entry_confirm: "Are you sure you want to delete this entry?",
             provider_coming_soon: "Provider coming soon",
             provider_built_hint: "Integrations for {provider} are currently being built. Change your provider in settings if you wish to use a different one.",
-            hide_import: "Hide Import Tools",
+
         },
+        hide_import: "Hide Import Tools",
         data_log: {
             title: "Data Log",
             delete_all: "Delete all data",

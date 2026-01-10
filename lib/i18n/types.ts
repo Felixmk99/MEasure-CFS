@@ -324,6 +324,7 @@ export interface Dictionary {
         active: {
             title: string
             day: string
+            data_days: string
             confidence: string
             overall_confidence: string
             confidence_hint: string
@@ -442,8 +443,8 @@ export interface Dictionary {
             delete_entry_confirm: string
             provider_coming_soon: string
             provider_built_hint: string
-            hide_import: string
         }
+        hide_import: string
         data_log: {
             title: string
             delete_all: string

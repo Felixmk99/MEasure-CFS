@@ -442,6 +442,9 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                                         <div className="bg-[#60A5FA]/10 text-[#3B82F6] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wide whitespace-nowrap">
                                                             <div className="w-1.5 h-1.5 bg-[#60A5FA] rounded-full animate-pulse shrink-0" />
                                                             {t('experiments.active.day')} {daysActive}
+                                                            <span className="opacity-70 font-medium ml-1">
+                                                                {t('experiments.active.data_days', { days: analysis?.daysWithData ?? 0 })}
+                                                            </span>
                                                         </div>
                                                         {exp.dosage && (
                                                             <Badge variant="outline" className="text-[10px] font-bold border-zinc-200 uppercase">{exp.dosage}</Badge>
@@ -534,8 +537,8 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                     let lifestyleScore = 0
 
                                     analysis.impacts.forEach(i => {
-                                        // Only consider significant results or likely trends (p < 0.15)
-                                        if (i.pValue >= 0.15) return;
+                                        // Only consider significant results (p < 0.05)
+                                        if (i.pValue >= 0.05) return;
 
                                         const val = i.significance === 'positive' ? 1 : i.significance === 'negative' ? -1 : 0
                                         if (bioMetrics.includes(i.metric)) {
@@ -577,7 +580,7 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
 
                                                 {/* Model Confidence Bar (Mini) */}
                                                 {(() => {
-                                                    const relevantImpacts = analysis?.impacts.filter(i => i.pValue < 0.15) || [];
+                                                    const relevantImpacts = analysis?.impacts.filter(i => i.pValue < 0.05) || [];
                                                     const confidence = relevantImpacts.length > 0
                                                         ? relevantImpacts.reduce((acc, i) => acc + (i.confidence || 0), 0) / relevantImpacts.length
                                                         : 0;
@@ -617,12 +620,10 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                                 {(overallImpact === 'positive' || overallImpact === 'negative' || selectedFilterMetric) && (displayImpacts && displayImpacts.length > 0) && (
                                                     <div className="mt-3 space-y-1.5">
                                                         {displayImpacts
-                                                            .filter(i => i.pValue < 0.15)
+                                                            .filter(i => i.pValue < 0.05)
                                                             .sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange))
                                                             .map(i => {
-                                                                let sigLabel = t(`experiments.impact.significance.neutral`)
-                                                                if (i.pValue < 0.05) sigLabel = t(`experiments.impact.significance.significant`)
-                                                                else if (i.pValue < 0.15) sigLabel = t(`experiments.impact.significance.trend`)
+                                                                const sigLabel = t(`experiments.impact.significance.significant`)
 
                                                                 return (
                                                                     <TooltipProvider key={i.metric}>
