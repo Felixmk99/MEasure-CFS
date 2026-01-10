@@ -382,14 +382,11 @@ export default function ExperimentsClient({ initialExperiments, history, exertio
                                 : analysis?.impacts;
 
                             // Calculate Overall Model Confidence:
-                            // ALWAYS use full analysis for confidence to avoid misleading drops when filtering
-                            // We use the MAX confidence of core metrics to show if any signal was detected.
-                            const coreMetrics = ['hrv', 'resting_heart_rate', 'symptom_score', 'composite_score'];
+                            // We use the MAX confidence of ALL metrics to show if any signal was detected.
                             const fullImpacts = analysis?.impacts || [];
-                            const coreImpacts = fullImpacts.filter(i => coreMetrics.includes(i.metric));
 
                             const overallConfidence = fullImpacts.length
-                                ? Math.max(...(coreImpacts.length ? coreImpacts : fullImpacts).map(i => i.confidence))
+                                ? Math.max(...fullImpacts.map(i => i.confidence))
                                 : 0;
 
                             return (
