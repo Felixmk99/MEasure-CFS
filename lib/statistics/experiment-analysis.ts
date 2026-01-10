@@ -136,8 +136,9 @@ export function analyzeExperiments(
 
             y.push(val);
             const row = [1]; // Intercept
+            const dayDate = parseISO(day.date);
+
             experiments.forEach(exp => {
-                const dayDate = parseISO(day.date);
                 const start = parseISO(exp.start_date);
                 const end = exp.end_date ? parseISO(exp.end_date) : new Date();
 
@@ -147,12 +148,12 @@ export function analyzeExperiments(
 
             // 1. Lagged Exertion (PEM) Control
             // T-1 (Yesterday): Immediate Crash
-            const dateT1 = subDays(parseISO(day.date), 1);
+            const dateT1 = subDays(dayDate, 1);
             const strT1 = format(dateT1, 'yyyy-MM-dd');
             const valT1 = exertionByDate.get(strT1) ?? meanExertion;
 
             // T-2 (2 Days Ago): Delayed Crash (Peak PEM)
-            const dateT2 = subDays(parseISO(day.date), 2);
+            const dateT2 = subDays(dayDate, 2);
             const strT2 = format(dateT2, 'yyyy-MM-dd');
             const valT2 = exertionByDate.get(strT2) ?? meanExertion;
 
@@ -192,8 +193,8 @@ export function analyzeExperiments(
         }
 
         // Check Variance of Controls
-        const hasLag1Variance = Math.max(...lag1Column) > Math.min(...lag1Column);
-        const hasLag2Variance = Math.max(...lag2Column) > Math.min(...lag2Column);
+        const hasLag1Variance = lag1Column.length > 0 && Math.max(...lag1Column) > Math.min(...lag1Column);
+        const hasLag2Variance = lag2Column.length > 0 && Math.max(...lag2Column) > Math.min(...lag2Column);
 
         // Rebuild XCommon: [Intercept, ValidExperiments..., ValidControls...]
         const XCommon = X.map(row => {
@@ -301,13 +302,14 @@ export function analyzeExperiments(
             const baselineValues = sortedDays
                 .filter(d => {
                     const dDate = parseISO(d.date);
-                    return isAfter(dDate, subDays(baselineWindowStart, 1)) && isBefore(dDate, expStart);
+                    // Include dates from baselineWindowStart (inclusive) to expStart (exclusive)
+                    return !isBefore(dDate, baselineWindowStart) && isBefore(dDate, expStart);
                 })
                 .map(d => (d[metric] as number ?? (d.custom_metrics as Record<string, number>)?.[metric]))
                 .filter((v): v is number => typeof v === 'number');
 
-            let mean = 1;
-            let std = 1;
+            let mean = 0;
+            let std = 0; // Default to 0 to signal "Insufficient Data" if fallback fails
 
             if (baselineValues.length >= 5) {
                 mean = calcMean(baselineValues);
@@ -323,11 +325,12 @@ export function analyzeExperiments(
                     mean = calcMean(allPreData);
                     std = calcStd(allPreData) || 1;
                 }
-                // If still not enough data, default to 1 (prevents division by zero/infinity)
             }
 
-            const zShift = coeff / std;
-            const percentChange = (coeff / mean) * 100;
+            // Guard against division by zero if std is still 0 (insufficient data)
+            const zShift = std > 0 ? (coeff / std) : 0;
+            // Guard against division by zero if mean is 0
+            const percentChange = mean !== 0 ? ((coeff / mean) * 100) : 0;
 
             let significance: 'positive' | 'negative' | 'neutral' = 'neutral';
 

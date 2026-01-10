@@ -99,7 +99,9 @@ describe('Experiments Logic - Scientific Rigor', () => {
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
             expect(impact).toBeDefined();
-            expect(impact?.df).toBe(18); // 21 days - 3 coefficients (intercept + exp + time)
+            // df = 18 because: 21 days - 3 params (Intercept, Exp, Time Trend).
+            // Lag columns (Exertion) are excluded because test data has 0 variance (constant meanExertion).
+            expect(impact?.df).toBe(18);
 
             // With large shift and df=19, expect high significance (p < 0.001)
             expect(impact?.pValue).toBeGreaterThanOrEqual(0);
@@ -160,7 +162,19 @@ describe('Experiments Logic - Scientific Rigor', () => {
         });
 
         it('should compute baseline with fallback when pre-experiment data is limited', () => {
-            const reports = analyzeExperiments([expA], history);
+            // Create a very short history: Experiment starts on Day 5.
+            // Only 4 days of pre-data (2024-01-01 to 2024-01-04).
+            // This triggers the fallback because 4 < 5 required for "local window".
+            const shortFallbackHistory: MetricDay[] = Array.from({ length: 15 }, (_, i) => ({
+                date: `2024-01-${String(i + 1).padStart(2, '0')}`,
+                hrv: 50 + i * 0.5, // Slight trend
+                exertion_score: 10 + i
+            }));
+
+            // Experiment starts 2024-01-05
+            const expStart5: Experiment = { ...expA, start_date: '2024-01-05', end_date: '2024-01-10' };
+
+            const reports = analyzeExperiments([expStart5], shortFallbackHistory);
             const report = reports.find(r => r.experimentId === 'exp-a');
             const impact = report?.impacts.find(i => i.metric === 'hrv');
 
