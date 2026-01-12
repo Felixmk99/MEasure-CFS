@@ -38,8 +38,10 @@ export async function sendSignupNotification(userData: {
     }
 
     try {
+        console.log(`Attempting to send signup notification for user ${userData.id} to admin`);
+
         const { data, error } = await resend.emails.send({
-            from: 'Visible Analytics <notifications@resend.dev>',
+            from: 'Visible Analytics <team@measure-cfs.de>',
             to: adminEmail,
             subject: '🚀 New User Signup: ' + (userData.email || userData.id),
             html: `
@@ -60,12 +62,13 @@ export async function sendSignupNotification(userData: {
         });
 
         if (error) {
-            console.error('Error sending signup notification:', error);
+            console.error('Resend API Error details:', JSON.stringify(error, null, 2));
             throw error;
         }
 
+        console.log('Signup notification email sent successfully:', data?.id);
         return data;
     } catch (err) {
-        console.error('Failed to send email notification:', err);
+        console.error('Fatal error in sendSignupNotification:', err);
     }
 }

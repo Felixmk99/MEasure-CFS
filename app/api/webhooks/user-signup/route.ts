@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
 
         if (payload.type === 'INSERT' && payload.table === 'profiles') {
             const { id } = payload.record;
+            console.log(`Processing signup for profile ID: ${id}`);
 
             // Initialize Supabase Admin client to fetch user details
             const supabaseAdmin = createClient(
@@ -33,15 +34,19 @@ export async function POST(req: NextRequest) {
                 }
             );
 
+            console.log('Fetching user details from Supabase Admin...');
             const { data: { user }, error: userError } = await supabaseAdmin.auth.admin.getUserById(id);
 
             if (userError || !user) {
                 console.error('Error fetching user for notification:', userError);
+            } else {
+                console.log(`Found user: ${user.email}`);
             }
 
             // Extract metadata
             const metadata = user?.user_metadata || {};
 
+            console.log('Triggering email notification...');
             await sendSignupNotification({
                 id,
                 email: user?.email,
@@ -53,7 +58,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Webhook Error:', error);
+        console.error('Webhook Route Fatal Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

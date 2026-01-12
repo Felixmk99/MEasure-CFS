@@ -150,7 +150,7 @@ describe('Experiments Logic - Scientific Rigor', () => {
             // Add the shift (0.4 sigma = 0.8 units since std=2)
             history.forEach(d => {
                 if (d.date >= expStart && d.date <= expEnd) {
-                    (d as { hrv: number }).hrv += 0.8;
+                    (d as unknown as { hrv: number }).hrv += 0.8;
                 }
             });
 
